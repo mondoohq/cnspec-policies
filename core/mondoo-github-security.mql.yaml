@@ -27,7 +27,7 @@ policies:
         4. Run a scan:
 
            ```bash
-           cnspec scan github org <ORG_NAME> --token $GITHUB_TOKEN
+           cnspec scan github org <ORG_NAME>
            ```
 
         If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.io, or reach out in [GitHub Discussions](https://github.com/orgs/mondoohq/discussions).
@@ -68,7 +68,7 @@ policies:
         4. Run a scan:
 
            ```bash
-           cnspec scan github repo <repo_name> --token $GITHUB_TOKEN
+           cnspec scan github repo <repo_name>
            ```
     props:
       requiredPullRequestReviews:
