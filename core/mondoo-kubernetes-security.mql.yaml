@@ -44,6 +44,9 @@ policies:
       kubernetes-security-cronjob-limitcpu:
       kubernetes-security-cronjob-limitmemory:
       kubernetes-security-cronjob-capability-net-raw:
+      kubernetes-security-cronjob-capability-sys-admin:
+      kubernetes-security-cronjob-ports-hostport:
+      kubernetes-security-cronjob-hostpath-readonly:
     data_queries:
   - title: Kubernetes StatefulSets
     asset_filter:
@@ -64,6 +67,9 @@ policies:
       kubernetes-security-statefulset-limitcpu:
       kubernetes-security-statefulset-limitmemory:
       kubernetes-security-statefulset-capability-net-raw:
+      kubernetes-security-statefulset-capability-sys-admin:
+      kubernetes-security-statefulset-ports-hostport:
+      kubernetes-security-statefulset-hostpath-readonly:
     data_queries:
   - title: Kubernetes Deployments
     asset_filter:
@@ -84,6 +90,9 @@ policies:
       kubernetes-security-deployment-limitcpu:
       kubernetes-security-deployment-limitmemory:
       kubernetes-security-deployment-capability-net-raw:
+      kubernetes-security-deployment-capability-sys-admin:
+      kubernetes-security-deployment-ports-hostport:
+      kubernetes-security-deployment-hostpath-readonly:
   - title: Kubernetes Jobs
     asset_filter:
       query: platform.name == "k8s-job"
@@ -103,6 +112,9 @@ policies:
       kubernetes-security-job-limitcpu:
       kubernetes-security-job-limitmemory:
       kubernetes-security-job-capability-net-raw:
+      kubernetes-security-job-capability-sys-admin:
+      kubernetes-security-job-ports-hostport:
+      kubernetes-security-job-hostpath-readonly:
     data_queries:
   - title: Kubernetes ReplicaSets
     asset_filter:
@@ -123,6 +135,9 @@ policies:
       kubernetes-security-replicaset-limitcpu:
       kubernetes-security-replicaset-limitmemory:
       kubernetes-security-replicaset-capability-net-raw:
+      kubernetes-security-replicaset-capability-sys-admin:
+      kubernetes-security-replicaset-ports-hostport:
+      kubernetes-security-replicaset-hostpath-readonly:
     data_queries:
   - title: Kubernetes DaemonSets
     asset_filter:
@@ -143,6 +158,9 @@ policies:
       kubernetes-security-daemonset-limitcpu:
       kubernetes-security-daemonset-limitmemory:
       kubernetes-security-daemonset-capability-net-raw:
+      kubernetes-security-daemonset-capability-sys-admin:
+      kubernetes-security-daemonset-ports-hostport:
+      kubernetes-security-daemonset-hostpath-readonly:
     data_queries:
   - title: Kubernetes Pods
     asset_filter:
@@ -163,6 +181,9 @@ policies:
       kubernetes-security-pod-limitcpu:
       kubernetes-security-pod-limitmemory:
       kubernetes-security-pod-capability-net-raw:
+      kubernetes-security-pod-capability-sys-admin:
+      kubernetes-security-pod-ports-hostport:
+      kubernetes-security-pod-hostpath-readonly:
     data_queries:
       # kubernetes-security-gather-pods-security-context:
       # kubernetes-security-gather-deployment-container:
@@ -4406,6 +4427,907 @@ queries:
           _['add'].none(_.upcase == "ALL")
           _['add'].none(_.upcase == "NET_RAW")
           _['drop'].any(_.upcase == "NET_RAW") || _['drop'].any(_.upcase == "ALL")
+        }
+      }
+    }
+- uid: kubernetes-security-pod-capability-sys-admin
+  title: Pods should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      Pods should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no Pods have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get pods -A -o json | jq -r '.items[] | select(.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any Pods that explicitly add the SYS_ADMIN or ALL capability, update the Pods (or the Deployments/DaemonSets/CronJobs/etc that produced the Pods) to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: examplePod
+        namespace: example-namespace
+      spec:
+        containers:
+          - securityContext:
+              capabilities:
+                add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.pod {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-daemonset-capability-sys-admin
+  title: DaemonSets should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      DaemonSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no DaemonSets have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get daemonsets -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any DaemonSets that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.daemonset {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-replicaset-capability-sys-admin
+  title: ReplicaSets should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      ReplicaSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no ReplicaSets have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get replicasets -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any ReplicaSets that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: ReplicaSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.replicaset {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-job-capability-sys-admin
+  title: Jobs should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      Jobs should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no Jobs have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get jobs -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any Jobs that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.job {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-deployment-capability-sys-admin
+  title: Deployments should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      Deployments should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no Deployments have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get deployments -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any Deployments that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.deployment {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-statefulset-capability-sys-admin
+  title: StatefulSets should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      StatefulSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no StatefulSets have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get statefulsets -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any StatefulSets that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.statefulset {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-cronjob-capability-sys-admin
+  title: CronJobs should not run with SYS_ADMIN capability
+  severity: 80
+  docs:
+    desc: |
+      CronJobs should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+    audit: |
+      Check to ensure no CronJobs have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+      ```kubectl get cronjobs -A -o json | jq -r '.items[] | select(.spec.jobTemplate.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|SYS_ADMIN")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any CronJobs that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+      ```yaml
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        jobTemplate:
+          spec:
+            template:
+              spec:
+                containers:
+                  - securityContext:
+                      capabilities:
+                        add: [] # <-- ensure no "SYS_ADMIN" or "ALL" in the list of capabilities added
+      ```
+  query: |
+    k8s.cronjob {
+      podSpec['containers'] {
+        if( _['securityContext']['capabilities'] != null ) {
+          _['securityContext']['capabilities'] {
+            _['add'] == null || _['add'].none(_.upcase == "ALL")
+            _['add'] == null || _['add'].none(_.upcase == "SYS_ADMIN")
+          }
+        } else {
+            true
+        }
+      }
+    }
+- uid: kubernetes-security-pod-ports-hostport
+  title: Pods should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      Pods should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no Pods are binding any of their containers to a host port:
+
+      ```kubectl get pods -A -o json | jq -r '.items[] | select( (.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any Pods that bind to a host port, update the Pods (or the Deployments/DaemonSets/CronJobs/etc that produced the Pods) to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        containers:
+          - ports:
+            - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+              name: http
+              protocol: TCP
+            - containerPort: 443
+              name: https
+              protocol: TCP
+      ```
+  query: |
+    k8s.pod.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-daemonset-ports-hostport
+  title: DaemonSets should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      DaemonSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no DaemonSets are binding any of their containers to a host port:
+
+      ```kubectl get daemonsets -A -o json | jq -r '.items[] | select( (.spec.template.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any DaemonSets that bind to a host port, update the DaemonSets to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - ports:
+                - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+                  name: http
+                  protocol: TCP
+                - containerPort: 443
+                  name: https
+                  protocol: TCP
+      ```
+  query: |
+    k8s.daemonset.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-replicaset-ports-hostport
+  title: ReplicaSets should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      ReplicaSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no ReplicaSets are binding any of their containers to a host port:
+
+      ```kubectl get replicasets -A -o json | jq -r '.items[] | select( (.spec.template.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any ReplicaSets that bind to a host port, update the ReplicaSets to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: ReplicaSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - ports:
+                - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+                  name: http
+                  protocol: TCP
+                - containerPort: 443
+                  name: https
+                  protocol: TCP
+      ```
+  query: |
+    k8s.replicaset.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-job-ports-hostport
+  title: Jobs should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      Jobs should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no Jobs are binding any of their containers to a host port:
+
+      ```kubectl get jobs -A -o json | jq -r '.items[] | select( (.spec.template.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any ReplicaSets that bind to a host port, update the Jobs to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - ports:
+                - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+                  name: http
+                  protocol: TCP
+                - containerPort: 443
+                  name: https
+                  protocol: TCP
+      ```
+  query: |
+    k8s.job.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-deployment-ports-hostport
+  title: Deployments should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      Deployments should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no Deployments are binding any of their containers to a host port:
+
+      ```kubectl get deployments -A -o json | jq -r '.items[] | select( (.spec.template.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any Deployments that bind to a host port, update the Deployments to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - ports:
+                - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+                  name: http
+                  protocol: TCP
+                - containerPort: 443
+                  name: https
+                  protocol: TCP
+      ```
+  query: |
+    k8s.deployment.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-statefulset-ports-hostport
+  title: StatefulSets should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      StatefulSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no StatefulSets are binding any of their containers to a host port:
+
+      ```kubectl get statefulsets -A -o json | jq -r '.items[] | select( (.spec.template.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any StatefulSets that bind to a host port, update the StatefulSets to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - ports:
+                - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+                  name: http
+                  protocol: TCP
+                - containerPort: 443
+                  name: https
+                  protocol: TCP
+      ```
+  query: |
+    k8s.statefulset.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-cronjob-ports-hostport
+  title: CronJobs should not bind to a host port
+  severity: 80
+  docs:
+    desc: |
+      CronJobs should not bind to the underlying host port. This allows bypassing certain network access control systems.
+    audit: |
+      Check to ensure no CronJobs are binding any of their containers to a host port:
+
+      ```kubectl get cronjobs -A -o json | jq -r '.items[] | select( (.spec.jobTemplate.spec.template.spec.containers[].ports | . != null and any(.[].hostPort; . != null)  ) ) | .metadata.namespace + "/" + .metadata.name'  | uniq```
+    remediation: |
+      For any CronJobs that bind to a host port, update the CronJobs to ensure they do not bind to a host port:
+
+      ```yaml
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        jobTemplate:
+          spec:
+            template:
+              spec:
+                containers:
+                  - ports:
+                    - containerPort: 80 # <-- ensure no 'hostPort' is defined in any entries of the port configurations
+                      name: http
+                      protocol: TCP
+                    - containerPort: 443
+                      name: https
+                      protocol: TCP
+      ```
+  query: |
+    k8s.cronjob.podSpec {
+      _['containers'] {
+        _['name']
+        _['ports'] == null || _['ports'].all(_['hostPort'] == null)
+      }
+    }
+- uid: kubernetes-security-pod-hostpath-readonly
+  title: Pods should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      Pods should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a Pod are mounting hostPath volumes as read-write:
+
+      ```kubectl get pods -A -o json | jq -r '.items[] | [.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any Pod containers that mount a hostPath volume as read-write, update them (or the Deployment/StatefulSet/etc that created the Pod):
+
+      ```yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        containers:
+          - volumeMounts:
+            - mountPath: /host
+              name: hostpath-volume
+              readOnly: true # <-- ensure readOnly is set to true
+        volumes:
+          - hostPath:
+              path: /etc
+            name: hostpath-volume
+      ```
+  query: |
+    k8s.pod.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
+        }
+      }
+    }
+- uid: kubernetes-security-daemonset-hostpath-readonly
+  title: DaemonSets should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      DaemonSets should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a DaemonSet are mounting hostPath volumes as read-write:
+
+      ```kubectl get daemonsets -A -o json | jq -r '.items[] | [.spec.template.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.template.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any DaemonSet containers that mount a hostPath volume as read-write, update them:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - volumeMounts:
+                - mountPath: /host
+                  name: hostpath-volume
+                  readOnly: true # <-- ensure readOnly is set to true
+            volumes:
+              - hostPath:
+                  path: /etc
+                name: hostpath-volume
+      ```
+  query: |
+    k8s.daemonset.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
+        }
+      }
+    }
+- uid: kubernetes-security-replicaset-hostpath-readonly
+  title: ReplicaSets should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      ReplicaSets should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a ReplicaSet are mounting hostPath volumes as read-write:
+
+      ```kubectl get replicasets -A -o json | jq -r '.items[] | [.spec.template.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.template.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any ReplicaSet containers that mount a hostPath volume as read-write, update them:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: ReplicaSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - volumeMounts:
+                - mountPath: /host
+                  name: hostpath-volume
+                  readOnly: true # <-- ensure readOnly is set to true
+            volumes:
+              - hostPath:
+                  path: /etc
+                name: hostpath-volume
+      ```
+  query: |
+    k8s.replicaset.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
+        }
+      }
+    }
+- uid: kubernetes-security-job-hostpath-readonly
+  title: Jobs should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      Jobs should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a Job are mounting hostPath volumes as read-write:
+
+      ```kubectl get jobs -A -o json | jq -r '.items[] | [.spec.template.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.template.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any Job containers that mount a hostPath volume as read-write, update them:
+
+      ```yaml
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - volumeMounts:
+                - mountPath: /host
+                  name: hostpath-volume
+                  readOnly: true # <-- ensure readOnly is set to true
+            volumes:
+              - hostPath:
+                  path: /etc
+                name: hostpath-volume
+      ```
+  query: |
+    k8s.job.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
+        }
+      }
+    }
+- uid: kubernetes-security-deployment-hostpath-readonly
+  title: Deployments should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      Deployments should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a Deployment are mounting hostPath volumes as read-write:
+
+      ```kubectl get deployments -A -o json | jq -r '.items[] | [.spec.template.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.template.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any Deployment containers that mount a hostPath volume as read-write, update them:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - volumeMounts:
+                - mountPath: /host
+                  name: hostpath-volume
+                  readOnly: true # <-- ensure readOnly is set to true
+            volumes:
+              - hostPath:
+                  path: /etc
+                name: hostpath-volume
+      ```
+  query: |
+    k8s.deployment.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
+        }
+      }
+    }
+- uid: kubernetes-security-statefulset-hostpath-readonly
+  title: StatefulSets should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      StatefulSets should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a StatefulSet are mounting hostPath volumes as read-write:
+
+      ```kubectl get statefulsets -A -o json | jq -r '.items[] | [.spec.template.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.template.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any StatefulSet containers that mount a hostPath volume as read-write, update them:
+
+      ```yaml
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - volumeMounts:
+                - mountPath: /host
+                  name: hostpath-volume
+                  readOnly: true # <-- ensure readOnly is set to true
+            volumes:
+              - hostPath:
+                  path: /etc
+                name: hostpath-volume
+      ```
+  query: |
+    k8s.statefulset.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
+        }
+      }
+    }
+- uid: kubernetes-security-cronjob-hostpath-readonly
+  title: CronJobs should mount any host path volumes as read-only
+  severity: 80
+  docs:
+    desc: |
+      CronJobs should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+    audit: |
+      Check to ensure no containers in a CronJob are mounting hostPath volumes as read-write:
+
+      ```kubectl get cronjobs -A -o json | jq -r '.items[] | [.spec.jobTemplate.spec.template.spec.volumes[] | select(.hostPath != null) | .name] as $myVar | select(.spec.jobTemplate.spec.template.spec.containers[].volumeMounts | (. != null and ( .[] | ( [.name] | inside($myVar) ) and .readOnly != true   )  ) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
+    remediation: |
+      For any CronJob containers that mount a hostPath volume as read-write, update them:
+
+      ```yaml
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: example
+        namespace: example-namespace
+      spec:
+        template:
+          spec:
+            containers:
+              - volumeMounts:
+                - mountPath: /host
+                  name: hostpath-volume
+                  readOnly: true # <-- ensure readOnly is set to true
+            volumes:
+              - hostPath:
+                  path: /etc
+                name: hostpath-volume
+      ```
+  query: |
+    k8s.cronjob.podSpec {
+      hostPathVolumes = _['volumes'].where(_['hostPath'] != null).map(_['name'])
+      _['containers'] {
+        _['name']
+        if( _['volumeMounts'] != null ) {
+          _['volumeMounts'] {
+            n = _['name']
+            if( hostPathVolumes.contains(n) ) {
+              _['readOnly'] == true
+            } else {
+              true
+            }
+          }
+        } else {
+          true
         }
       }
     }
