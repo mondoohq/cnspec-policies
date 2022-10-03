@@ -38,7 +38,7 @@ policies:
           mondoo-github-organization-security-two-factor-auth: null
           mondoo-github-organization-security-verified-domain: null
           mondoo-github-organization-security-default-permission-level: null
-  - uid: github-repository
+  - uid: mondoo-github-repository-security
     name: GitHub Repository Security by Mondoo
     version: 1.0.0
     is_public: true
