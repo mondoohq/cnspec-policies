@@ -232,7 +232,7 @@ props:
 queries:
 # api server / kubelet queries
 - uid: mondoo-kubernetes-security-kubelet-anonymous-authentication
-  title: Disable anonymous auhentication for kubelet
+  title: Disable anonymous authentication for kubelet
   severity: 100
   docs:
     desc: |
@@ -248,7 +248,7 @@ queries:
   severity: 30
   docs:
     desc: |
-      Ensure that the kubelet is configured to capture all event creation so as to avoid potentialy not logging important events.
+      Ensure that the kubelet is configured to capture all event creation so as to avoid potentially not logging important events.
     audit: |
       If running the kubelet with the CLI parameter '--event-qps', or running with 'eventRecordQPS' defined in the kubelet configuration file, ensure that the value is set to '0'.
     remediation: |
@@ -268,7 +268,7 @@ queries:
   query: |
     k8s.kubelet.configuration['makeIPTablesUtilChains'] == true
 - uid: mondoo-kubernetes-security-kubelet-protect-kernel-defaults
-  title: Configure kubelet to protect kernel defauls
+  title: Configure kubelet to protect kernel defaults
   severity: 60
   docs:
     desc: |
@@ -292,15 +292,15 @@ queries:
   query: |
     k8s.kubelet.configuration['readOnlyPort'] == 0 || k8s.kubelet.configuration['readOnlyPort'] == null
 - uid: mondoo-kubernetes-security-kubelet-authorization-mode
-  title: Configure kubelet to have an authorization mode that is not AlwaysAllow
+  title: Ensure the kubelet is not configured with the AlwaysAllow authorization mode.
   severity: 100
   docs:
     desc: |
-      Ensure the kubelet is not configured to an AlwaysAllow authorization mode.
+      Ensure the kubelet is not configured with the AlwaysAllow authorization mode.
     audit: |
       If running the kubelet with the CLI parameter '--authorization-mode', or running with 'authorization.mode' defined in the kubelet configuration file, ensure that the value is not set to 'AlwaysAllow'.
     remediation: |
-      If the kubelet is configured with the CLI parameter '--authorization-mode', set it to something that isn't 'AllwaysAllow' (eg 'Webhook').
+      If the kubelet is configured with the CLI parameter '--authorization-mode', set it to something that isn't 'AlwaysAllow' (eg 'Webhook').
 
       If the kubelet is configured via the kubelet config file with the 'authorization.mode' parameter, set it to something that isn't 'AlwaysAllow' (eg. 'Webhook').
   query: |
@@ -375,7 +375,7 @@ queries:
 
       ```
       $ ls -l /etc/kubernetes/kubelet.conf
-      -rw-r--r-- 1 root root 1155 Sep 21 15:03 /etc/kubernets/kubelet.conf
+      -rw-r--r-- 1 root root 1155 Sep 21 15:03 /etc/kubernetes/kubelet.conf
       ```
     remediation: |
       Update the ownership and permissions:
@@ -402,7 +402,7 @@ queries:
       }
     }
 - uid: mondoo-kubernetes-security-secure-kubelet-cert-authorities
-  title: Specifying kubelet certificate authorities file and ensuring proper ownership and permissions
+  title: Specify a kubelet certificate authorities file and ensure proper ownership and permissions
   severity: 100
   docs:
     desc: |
@@ -5642,7 +5642,7 @@ queries:
   severity: 40
   docs:
     desc: |
-      The Kubernetes dahboard allows browsing through cluster resources such as workloads, configmaps and secrets. In 2019 Tesla was hacked because their Kubernetes dashboard was publicly exposed. This allowed the attackers to extract credentials and deploy Bitcoin miners on the cluster.
+      The Kubernetes dashboard allows browsing through cluster resources such as workloads, configmaps and secrets. In 2019 Tesla was hacked because their Kubernetes dashboard was publicly exposed. This allowed the attackers to extract credentials and deploy Bitcoin miners on the cluster.
     audit: |
       Verify there are no deployments running Kubernetes dashboard:
       ```kubectl get deployments -A -o=custom-columns="NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image"```
@@ -5657,7 +5657,7 @@ queries:
   severity: 40
   docs:
     desc: |
-      The Kubernetes dahboard allows browsing through cluster resources such as workloads, configmaps and secrets. In 2019 Tesla was hacked because their Kubernetes dashboard was publicly exposed. This allowed the attackers to extract credentials and deploy Bitcoin miners on the cluster.
+      The Kubernetes dashboard allows browsing through cluster resources such as workloads, configmaps and secrets. In 2019 Tesla was hacked because their Kubernetes dashboard was publicly exposed. This allowed the attackers to extract credentials and deploy Bitcoin miners on the cluster.
     audit: |
       Verify there are no pods running Kubernetes dashboard:
       ```kubectl get pods -A -o=custom-columns="NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image"```
