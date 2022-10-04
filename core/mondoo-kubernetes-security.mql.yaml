@@ -29,6 +29,12 @@ policies:
       mondoo-kubernetes-security-secure-pki-directory:
       mondoo-kubernetes-security-https-api-server:
       mondoo-kubernetes-security-api-server-no-anonymous-auth:
+  - title: Kubernetes kubelet
+    asset_filter:
+      query: |
+        platform.family.contains(_ == 'linux')
+        processes.where( executable == /kubelet/ ).list != []
+    scoring_queries:
       mondoo-kubernetes-security-kubelet-anonymous-authentication:
       mondoo-kubernetes-security-kubelet-event-record-qps:
       mondoo-kubernetes-security-kubelet-iptables-util-chains:
