@@ -4054,7 +4054,7 @@ queries:
       ```kubectl get pods -A -o json | jq -r '.items[] | select(.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a Pod that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these Pods with:
+      Additionally, a Pod that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these Pods with:
 
       ```kubectl get pods -A -o json | jq -r '.items[] | select( .spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
@@ -4111,7 +4111,7 @@ queries:
       ```kubectl get daemonsets -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a DaemonSet that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these DaemonSets with:
+      Additionally, a DaemonSet that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these DaemonSets with:
 
       ```kubectl get daemonsets -A -o json | jq -r '.items[] | select( .spec.template.spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
@@ -4172,7 +4172,7 @@ queries:
       ```kubectl get replicasets -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a ReplicaSet that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these DaemonSets with:
+      Additionally, a ReplicaSet that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these DaemonSets with:
 
       ```kubectl get replicasets -A -o json | jq -r '.items[] | select( .spec.template.spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
@@ -4233,7 +4233,7 @@ queries:
       ```kubectl get jobs -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a Job that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these DaemonSets with:
+      Additionally, a Job that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these DaemonSets with:
 
       ```kubectl get jobs -A -o json | jq -r '.items[] | select( .spec.template.spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
@@ -4294,7 +4294,7 @@ queries:
       ```kubectl get deployments -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a Deployment that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these DaemonSets with:
+      Additionally, a Deployment that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these DaemonSets with:
 
       ```kubectl get deployments -A -o json | jq -r '.items[] | select( .spec.template.spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
@@ -4355,7 +4355,7 @@ queries:
       ```kubectl get statefulsets -A -o json | jq -r '.items[] | select(.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a StatefulSet that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these DaemonSets with:
+      Additionally, a StatefulSet that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these DaemonSets with:
 
       ```kubectl get statefulsets -A -o json | jq -r '.items[] | select( .spec.template.spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
@@ -4416,7 +4416,7 @@ queries:
       ```kubectl get cronjobs -A -o json | jq -r '.items[] | select(.spec.jobTemplate.spec.template.spec.containers[].securityContext.capabilities.add | . != null and any(.[] ; ascii_upcase | test("ALL|NET_RAW")) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
 
 
-      Additionally, a CronJob that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicity run with NET_RAW. List these DaemonSets with:
+      Additionally, a CronJob that doesn't define a list of capabilities to drop at all, or that has a non-empty drop list that doesn't drop NET_RAW (or the ALL capability which includes NET_RAW) will implicitly run with NET_RAW. List these DaemonSets with:
 
       ```kubectl get cronjobs -A -o json | jq -r '.items[] | select( .spec.jobTemplate.spec.template.spec.containers[].securityContext.capabilities.drop | . == null or ( any(.[] ; ascii_upcase | test("ALL|NET_RAW")) | not) ) | .metadata.namespace + "/" + .metadata.name' | uniq```
     remediation: |
