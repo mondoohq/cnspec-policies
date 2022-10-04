@@ -26,8 +26,6 @@ policies:
         Non-root users may not be able to access certain areas of the system, especially after remediation has been performed. It is advisable to verify 
         root users path integrity and the integrity of any programs being run prior to execution of commands and scripts included in this benchmark. 
         
-        If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in the [Mondoo Slack Community](https://mondoo.link/slack).
-
         **Intended Audience**
 
         This benchmark is intended for system and application administrators, security specialists, auditors, help desk, and platform deployment personnel 

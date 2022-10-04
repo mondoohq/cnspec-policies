@@ -11,7 +11,7 @@ policies:
     desc: |-
       AWS Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for AWS. The controls in this policy bundle are based on AWS's Operational Best Practices recommendations as part of the [AWS Config conformance packs](https://docs.aws.amazon.com/config/latest/developerguide/conformance-packs.html).
         
-      If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in the [Mondoo Slack Community](https://mondoo.link/slack).
+      If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in [GitHub Discussions](https://github.com/orgs/mondoohq/discussions).
   props:
     maxAccessKeyAge:
     maxCredentialUsageAge:
