@@ -5381,8 +5381,8 @@ queries:
       ```kubectl get deployments -A -o=custom-columns="NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image"```
     remediation: |
       Delete any deployments that are running Tiller.
-    query: |
-      k8s.deployment.podSpec["containers"].none( _["image"].contains("tiller") )
+  query: |
+    k8s.deployment.podSpec["containers"].none( _["image"].contains("tiller") )
 - uid: mondoo-kubernetes-security-pod-tiller
   title: Pods should not run Tiller (Helm v2)
   severity: 40
@@ -5394,8 +5394,8 @@ queries:
       ```kubectl get pods -A -o=custom-columns="NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image"```
     remediation: |
       Delete any pods that are running Tiller.
-    query: |
-      k8s.pod.podSpec["containers"].none( _["image"].contains("tiller") )
+  query: |
+    k8s.pod.podSpec["containers"].none( _["image"].contains("tiller") )
 - uid: mondoo-kubernetes-security-deployment-k8s-dashboard
   title: Pods should not run Kubernetes dashboard
   severity: 40
@@ -5407,10 +5407,10 @@ queries:
       ```kubectl get deployments -A -o=custom-columns="NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image"```
     remediation: |
       Delete any deployments that are running Kubernetes dashboard.
-    query: |
-      k8s.deployment.podSpec["containers"].none( _["image"].contains("kubernetes-dashboard") || _["image"].contains("kubernetesui") )
-      k8s.deployment.labels["app"] == null || k8s.pod.labels["app"] != "kubernetes-dashboard"
-      k8s.deployment.labels["k8s-app"] == null || k8s.pod.labels["k8s-app"] != "kubernetes-dashboard"
+  query: |
+    k8s.deployment.podSpec["containers"].none( _["image"].contains("kubernetes-dashboard") || _["image"].contains("kubernetesui") )
+    k8s.deployment.labels["app"] == null || k8s.pod.labels["app"] != "kubernetes-dashboard"
+    k8s.deployment.labels["k8s-app"] == null || k8s.pod.labels["k8s-app"] != "kubernetes-dashboard"
 - uid: mondoo-kubernetes-security-pod-k8s-dashboard
   title: Pods should not run Kubernetes dashboard
   severity: 40
@@ -5422,10 +5422,10 @@ queries:
       ```kubectl get pods -A -o=custom-columns="NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image"```
     remediation: |
       Delete any pods that are running Kubernetes dashboard.
-    query: |
-      k8s.pod.podSpec["containers"].none( _["image"].contains("kubernetes-dashboard") || _["image"].contains("kubernetesui") )
-      k8s.pod.labels["app"] == null || k8s.pod.labels["app"] != "kubernetes-dashboard"
-      k8s.pod.labels["k8s-app"] == null || k8s.pod.labels["k8s-app"] != "kubernetes-dashboard"
+  query: |
+    k8s.pod.podSpec["containers"].none( _["image"].contains("kubernetes-dashboard") || _["image"].contains("kubernetesui") )
+    k8s.pod.labels["app"] == null || k8s.pod.labels["app"] != "kubernetes-dashboard"
+    k8s.pod.labels["k8s-app"] == null || k8s.pod.labels["k8s-app"] != "kubernetes-dashboard"
 # Data Queries
 - uid: mondoo-kubernetes-security-gather-deployment-container
   title: Gather all Deployments
