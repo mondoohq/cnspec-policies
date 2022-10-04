@@ -1581,7 +1581,7 @@ queries:
       ```
   refs:
     - title: "Kubernetes best practices: Organizing with Namespaces"
-      url: https://cloud.google.com/blog/products/containers-kubernetes/mondoo-kubernetes-best-practices-organizing-with-namespaces
+      url: https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
   query: |
     k8s.statefulset {
       namespace != "default"
@@ -1610,7 +1610,7 @@ queries:
       ```
   refs:
     - title: "Kubernetes best practices: Organizing with Namespaces"
-      url: https://cloud.google.com/blog/products/containers-kubernetes/mondoo-kubernetes-best-practices-organizing-with-namespaces
+      url: https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
   query: |
     k8s.cronjob {
       namespace != "default"
