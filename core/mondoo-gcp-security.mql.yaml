@@ -34,7 +34,7 @@ queries:
         New projects that have enabled the Compute Engine API have a Compute Engine default service account, which has the following email:
 
         ```bash
-          PROJECT_NUMBER-compute@developer.gserviceaccount.com
+        PROJECT_NUMBER-compute@developer.gserviceaccount.com
         ```
 
         The Compute Engine default service account is created with the IAM basic Editor role, but you can modify your service account's roles to control the service account's access to Google APIs.
