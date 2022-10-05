@@ -516,7 +516,7 @@ queries:
 
         ###Google Cloud Console
         1. In the Google Cloud console, go to the **Cloud Storage Bucket** page.
-        2. For the bucket for which you want to enforce  public access prevention, click the more actions menu. 
+        2. For the bucket you want to enforce public access prevention on, click the more actions menu. 
         3. Select **Edit access** from the drop-down menu.
         4. In the Public access card, click **Prevent public access** to enforce public access prevention.
         5. Click **Confirm**.
