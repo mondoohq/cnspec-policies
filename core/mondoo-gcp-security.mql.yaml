@@ -255,7 +255,7 @@ queries:
     severity: 70
     docs:
       desc: |
-        Project wide SSH keys can be used to login into all instances within a project. While using project-wide SSH keys eases SSH key management, if SSH keys are compromised, the potential security risk can impact all instances within a project.
+        Project-wide SSH keys can be used to login into all instances within a project. While using project-wide SSH keys eases SSH key management, if SSH keys are compromised, the potential security risk can impact all instances within a project.
 
         The recommended approach is to use instance-specific SSH keys instead of common/shared project-wide SSH keys.
       audit: |
