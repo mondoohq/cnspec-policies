@@ -51,6 +51,10 @@ policies:
     allowedCiphers: ""
   scoring_system: 2
   specs:
+  - asset_filter:
+          query: |
+            platform.name == "kubernetes"
+    scoring_queries:
   - title: Kubernetes API Server
     asset_filter:
       query: |

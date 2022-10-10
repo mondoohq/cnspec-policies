@@ -48,6 +48,10 @@ policies:
   scoring_system: 2
   specs:
   - asset_filter:
+          query: |
+            platform.name == "kubernetes"
+    scoring_queries:
+  - asset_filter:
       query: platform.name == "k8s-cronjob"
     scoring_queries:
       mondoo-kubernetes-best-practices-cronjob-requestcpu:
