@@ -618,6 +618,11 @@ queries:
         user.name == "root"
         group.name == "root"
       }
+    } else if (file("/var/lib/minikube/certs/").exists) {
+      file("/var/lib/minikube/certs/") {
+        user.name == "root"
+        group.name == "root"
+      }
     } else {
       file("/etc/kubernetes/pki/") {
         user.name == "root"
