@@ -613,13 +613,10 @@ queries:
       chown -R root:root /etc/kubernetes/ssl/
       ````
   query: |
-    if (file("/etc/kubernetes/ssl/").exists) {
-      file("/etc/kubernetes/ssl/") {
-        user.name == "root"
-        group.name == "root"
-      }
-    } else if (file("/var/lib/minikube/certs/").exists) {
-      file("/var/lib/minikube/certs/") {
+    if (processes.where(executable == /kube-apiserver/).list[0].flags["etcd-certfile"] != null) {
+      clientCAFile = processes.where(executable == /kube-apiserver/).list[0].flags["etcd-certfile"]
+      ssldir = file(clientCAFile).dirname
+      file(ssldir) {
         user.name == "root"
         group.name == "root"
       }
