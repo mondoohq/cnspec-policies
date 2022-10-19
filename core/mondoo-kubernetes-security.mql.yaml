@@ -2224,7 +2224,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
   query: |
-    if (k8s.pod.annotations['policies.k8s.mondoo.com/mondoo-kubernetes-security-cronjob-runasnonroot'] != 'ignore') {
+    if (k8s.cronjob.annotations['policies.k8s.mondoo.com/mondoo-kubernetes-security-cronjob-runasnonroot'] != 'ignore') {
       k8s.cronjob {
         podSecurityContext=podSpec['securityContext']
         initContainers {
@@ -2376,7 +2376,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
   query: |
-    if (k8s.pods.annotations['policies.k8s.mondoo.com/mondoo-kubernetes-security-job-runasnonroot'] != 'ignore') {
+    if (k8s.job.annotations['policies.k8s.mondoo.com/mondoo-kubernetes-security-job-runasnonroot'] != 'ignore') {
       k8s.job {
         podSecurityContext=podSpec['securityContext']
         initContainers {
