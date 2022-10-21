@@ -2641,7 +2641,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
@@ -2721,7 +2721,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
@@ -2801,7 +2801,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
@@ -2879,7 +2879,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
@@ -2957,7 +2957,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
@@ -3037,7 +3037,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
@@ -3115,7 +3115,7 @@ queries:
             image: index.docker.io/yournamespace/repository
       ```
     remediation: |
-      Ensure `runAsNonRoot` is set tot `true` in the `securityContext`:
+      Ensure `runAsNonRoot` is set to `true` in the `securityContext`:
 
       ```yaml
       ---
