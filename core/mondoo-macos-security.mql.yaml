@@ -1005,7 +1005,7 @@ queries:
         ```
     query: |
       parse.plist('/Library/Preferences/com.apple.SoftwareUpdate.plist').
-        params['AutomaticCheckEnabled'] == true
+        params['AutomaticCheckEnabled'] != false
   - uid: mondoo-macos-security-software-updates-automatic-download
     title: Ensure automatic download of software updates enabled
     docs:
@@ -1030,7 +1030,7 @@ queries:
         ```
     query: |
       parse.plist('/Library/Preferences/com.apple.SoftwareUpdate.plist').
-        params['AutomaticDownload'] == true
+        params['AutomaticDownload'] != false
   - uid: mondoo-macos-security-software-updates-install-critical-updates
     title: Ensure critical updates are installed automatically
     docs:
@@ -1055,5 +1055,5 @@ queries:
         ```
     query: |
       parse.plist('/Library/Preferences/com.apple.SoftwareUpdate.plist').
-        params['CriticalUpdateInstall'] == true
+        params['CriticalUpdateInstall'] != false
 
