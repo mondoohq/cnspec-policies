@@ -1,0 +1,235 @@
+owner_mrn: //policy.api.mondoo.app
+policies:
+  - uid: terraform-aws-eks-security
+    name: Terraform Static Analysis Policy for AWS EKS by Mondoo
+    version: 1.0.0
+    is_public: true
+    docs:
+      desc: |
+        ## Overview
+
+        This policy checks for security misconfigurations in Terraform for Amazon Web Services.
+
+        ## Local scan
+
+        Local scan refer to scans of files and operating systems where `cnspec` is installed.
+
+        ### Scan a Terraform project
+
+        Open a terminal and run the following command:  
+
+        ```bash
+        cnspec scan terraform /path/to/terraform/directory
+        ```
+
+        ## Join the community!
+
+        Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+        
+        If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+    specs:
+      - title: AWS Elastic Kubernetes Service (EKS) Security for Terraform
+        asset_filter:
+          query: |
+            platform.name == "terraform" && terraform.modules.any( key == "eks" ) ||
+            platform.name == "terraform" && terraform.resources.any( nameLabel == "aws_eks_cluster" ) 
+        scoring_queries:
+          terraform-aws-eks-ensure-cluster-endpoint-access-disabled: null
+queries:
+  - uid: terraform-aws-ensure-cluster-endpoint-access-disabled
+    title: Ensure AWS EKS cluster endpoint access is publicly disabled
+    impact: 90
+    docs:
+      desc: |
+        Amazon EKS creates an endpoint for any managed Kubernetes API server to communicate with the cluster. This API server endpoint is public to the internet by default. Access to it should be regulated using AWS IAM and native Kubernetes RBAC.
+
+        We recommended that your Kubernetes API server remains private so that all communication between worker nodes and APIs stays within your VPC. If public access is needed, restrict the IP addresses that can access your API server from the internet to reduce the potential attack surface.
+    audit: |
+      ```
+      resource "aws_eks_cluster" "example" {
+        name     = "example-cluster"
+
+        vpc_config {
+          endpoint_public_access  = true # <--- THIS SHOULD BE SET TO FALSE
+        }
+
+        ...
+      }
+      ```
+
+      If you are using the public eks module on the terraform registry:
+
+      ```
+      module "eks" {
+        source  = "terraform-aws-modules/eks/aws"
+        version = "~> 18.0"
+
+        cluster_name    = "my-cluster"
+        cluster_version = "1.22"
+
+        cluster_endpoint_public_access  = false 
+      }
+      ```
+    remediation: |
+      When using the `aws_eks_resource`, set `endpoint_public_access = false`.   
+     
+      ```hcl
+      resource "aws_eks_cluster" "example" {
+        name     = "example-cluster"
+
+        vpc_config {
+          endpoint_public_access  = false
+        }
+
+        ...
+      }
+      ```
+
+      When using the public eks module on the Terraform registry, set `cluster_endpoint_public_access == false`.
+
+      ```
+      module "eks" {
+        source  = "terraform-aws-modules/eks/aws"
+        version = "~> 18.0"
+
+        cluster_name    = "my-cluster"
+        cluster_version = "1.22"
+
+        cluster_endpoint_public_access  = false 
+      }
+      ```
+    query: |
+      if (terraform.resources.any( nameLabel == "aws_eks_cluster") )
+        terraform.resources.
+          where( nameLabel == "aws_eks_cluster" ) { 
+            blocks { 
+              arguments['endpoint_public_access'] == false 
+            } 
+          }
+      if (terraform.modules.any( key == "eks") )
+        terraform.modules.
+          where( key == "eks" ) {
+            block {
+              arguments['cluster_endpoint_public_access'] == false
+            }
+          }
+         
+      
+
+  - uid: terraform-aws-security-eks-encrypt-secrets
+    title: EKS should have the encryption of secrets enabled
+    docs:
+      desc: |
+        EKS cluster resources should have the encryption_config block set with protection of the secrets resource.
+
+        __Possible Impact__
+
+        EKS secrets could be read if compromised
+
+        __Suggested Resolution__
+
+        Enable encryption of EKS secrets
+      audit: |
+        The following example will fail the `eks-encrypt-secrets` check:
+
+        ```hcl
+        resource "aws_eks_cluster" "bad_example" {
+          name = "bad_example_cluster"
+      
+          role_arn = var.cluster_arn
+          vpc_config {
+              endpoint_public_access = false
+          }
+        }
+        ```
+      remediation: |
+        The following example will pass the `eks-encrypt-secrets` check:
+
+        ```hcl
+        resource "aws_eks_cluster" "good_example" {
+          encryption_config {
+              resources = [ "secrets" ]
+              provider {
+                  key_arn = var.kms_arn
+              }
+          }
+      
+          name = "good_example_cluster"
+          role_arn = var.cluster_arn
+          vpc_config {
+              endpoint_public_access = false
+          }
+        }
+        ```
+      refs:
+        - title: Terraform Registry Docs - aws_eks_cluster - encryption_config 
+          url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#encryption_config
+    query: |
+      # @msg AWS EKS Cluster defined without encryption_config
+      # expected: ${$expected}
+      # actual:   ${$actual}
+      # position: ${_.start.path} at ${_.start.line}
+      # block:
+      #   ${ _.snippet }
+      
+      terraform.resources.where( nameLabel == "aws_eks_cluster" ) { 
+        blocks.one( type == "encryption_config" ) 
+      }
+  - uid: terraform-aws-security-eks-no-public-cluster-access-to-cidr
+    title: EKS Clusters should restrict access to public API server
+    docs:
+      desc: |
+        EKS Clusters have public access cidrs set to 0.0.0.0/0 by default which is wide open to the internet. This should be explicitly set to a more specific private CIDR range.
+
+        __Possible Impact__
+
+        EKS can be accessed from the internet
+
+        __Suggested Resolution__
+        
+        Don't enable public access to EKS Clusters
+
+      audit: |
+        The following example will fail the eks-no-public-cluster-access-to-cidr check.
+        ```hcl
+
+        resource "aws_eks_cluster" "bad_example" {
+          // other config 
+      
+          name = "bad_example_cluster"
+          role_arn = var.cluster_arn
+          vpc_config {
+            endpoint_public_access = true
+          }
+        }
+        ```
+      remediation: |
+        The following example will pass the eks-no-public-cluster-access-to-cidr check:
+
+        ```hcl
+        resource "aws_eks_cluster" "good_example" {
+          // other config 
+
+          name = "good_example_cluster"
+          role_arn = var.cluster_arn
+          vpc_config {
+            endpoint_public_access = true
+            public_access_cidrs = ["10.2.0.0/8"]
+          }
+        }
+        ```
+      refs:
+        - title: Terraform Registry Docs - aws_eks_cluster - vpc_config-arguments
+          url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#vpc_config-arguments
+    query: |
+      # @msg AWS EKS Cluster defined with public API open to the world 
+      # expected: ${$expected}
+      # actual:   ${$actual}
+      # position: ${_.start.path} at ${_.start.line}
+      # block:
+      #   ${ _.snippet }
+      terraform.resources.where( nameLabel == "aws_eks_cluster" ) { 
+        blocks.where( type == "vpc_config" ) { 
+          arguments['endpoint_public_access'] == false || arguments['public_access_cidrs'].none( "0.0.0.0/0") 
+        }
+      }
