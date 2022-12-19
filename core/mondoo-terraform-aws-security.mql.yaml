@@ -6,7 +6,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     tags:
-      mondoo.com/platform: aws,cloud
+      mondoo.com/platform: aws,cloud,terraform
       mondoo.com/category: security
     docs:
       desc: |
