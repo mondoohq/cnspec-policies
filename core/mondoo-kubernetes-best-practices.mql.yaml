@@ -1982,7 +1982,7 @@ queries:
       }
     }
 - uid: mondoo-kubernetes-best-practices-ingress-cert-expiration
-  title: Ingress certificates should be renewed
+  title: Ingress certificates less than 15 days from expiration
   severity: 40
   docs:
     desc: |
