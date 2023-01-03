@@ -1999,10 +1999,15 @@ queries:
     remediation: |
       For all Secrets with expired or soon-to-expire certificates, update the Secret data with refreshed certificates.
   query: |
-    k8s.ingress.tls{
-      certificates {
-        expiresIn.days > 15
-      }
+    len = k8s.ingress.tls.length == 0
+    if( len == 0 ){
+      true
+    } else {
+      k8s.ingress.tls.all(
+        certificates.all(
+          expiresIn.days > 15
+        )
+      )
     }
 # Data Queries
 - uid: mondoo-kubernetes-best-practices-gather-deployment-container
