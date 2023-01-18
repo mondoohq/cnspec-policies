@@ -173,7 +173,7 @@ policies:
           mondoo-github-repository-security-enforce-branch-protection: null
 props:
   - uid: requiredPullRequestReviews
-    title: Define the required number of reviewers on pull request
+    title: Define the required number of reviewers on pull requests
     query: 1
 queries:        
   - uid: mondoo-github-organization-security-two-factor-auth
