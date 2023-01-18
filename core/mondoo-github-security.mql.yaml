@@ -278,7 +278,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        This check ensures that the default branch does not allow forces pushes. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is highly recommended to not allow force pushes to the default branch. By default, GitHub blocks force pushes on all protected branches. When you enable force pushes to a protected branch, you can choose one of two groups who can force push:
+        This check ensures that the default branch does not allow force pushes. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is highly recommended to not allow force pushes to the default branch. By default, GitHub blocks force pushes on all protected branches. When you enable force pushes to a protected branch, you can choose one of two groups who can force push:
 
         - Allow everyone with at least write permissions to the repository to force push to the branch, including those with admin permissions.
         - Allow only specific people or teams to force push to the branch.
