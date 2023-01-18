@@ -433,7 +433,7 @@ queries:
         url: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches
     query: |
       github.repository.branches.where( isDefault == true )
-        .all( protectionRules.all( enforceAdmins['enabled'] == true ) )
+        .all( protectionRules.enforceAdmins['enabled'] == true )
   - uid: mondoo-github-repository-security-security-policy
     title: Ensure repository defines a security policy
     severity: 30
