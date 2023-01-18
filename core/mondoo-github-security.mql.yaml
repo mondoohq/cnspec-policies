@@ -197,8 +197,7 @@ queries:
     refs:
       - title: "GitHub Docs"
         url: https://github.com/organizations/mondoolabs/settings/security
-    query: |
-      github.organization.twoFactorRequirementEnabled
+    query: github.organization.twoFactorRequirementEnabled
   - uid: mondoo-github-organization-security-verified-domain
     title: Organization should have a verified domain attached
     severity: 80
@@ -220,8 +219,7 @@ queries:
     refs:
       - title: "Verifying or approving a domain for your organization"
         url: https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization
-    query: |
-      github.organization.isVerified
+    query: github.organization.isVerified
   - uid: mondoo-github-organization-security-default-permission-level
     title: Ensure GitHub Organization has base permissions configured
     severity: 50
@@ -245,8 +243,7 @@ queries:
     refs:
       - title: "Setting base permissions for an organization"
         url: https://docs.github.com/en/organizations/managing-access-to-your-organizations-repositories/repository-permission-levels-for-an-organization
-    query: |
-      github.organization.defaultRepositoryPermission == "read"
+    query: github.organization.defaultRepositoryPermission == "read"
   - uid: mondoo-github-repository-security-ensure-default-branch-protection
     title: Ensure GitHub repository default branch is protected
     severity: 90
@@ -436,7 +433,7 @@ queries:
         url: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches
     query: |
       github.repository.branches.where( isDefault == true )
-        .all( protectionRules { enforceAdmins['enabled'] == true } )
+        .all( protectionRules.all( enforceAdmins['enabled'] == true ) )
   - uid: mondoo-github-repository-security-security-policy
     title: Ensure repository defines a security policy
     severity: 30
@@ -462,9 +459,9 @@ queries:
         url: https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository
     query: |
       if ( github.organization.repositories.one(name == ".github") ) {
-        github.organization.repositories
-          .where( name == ".github")
-          .all( files.one( name.downcase == "security.md") )
+        github.organization.repositories.where( name == ".github").all( 
+          files.one( name.downcase == "security.md")
+        ) || github.repository.files.one( name.downcase == "security.md")
       } else {
         github.repository.files.one( name.downcase == "security.md")
       }
@@ -491,8 +488,7 @@ queries:
     refs:
       - title: "GitHub Docs - Adding a security policy to your repository"
         url: https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository
-    query: |
-      github.repository.files.one( name == /LICENSE/ )
+    query: github.repository.files.one( name == /LICENSE/ )
   - uid: mondoo-github-repository-security-binary-artifacts
     title: Ensure repository does not generate binary artifacts
     severity: 90
@@ -534,9 +530,9 @@ queries:
     query: |
       // if a .github repo exists, then check if the SUPPORT.md is there
       if ( github.organization.repositories.one(name == ".github") ) {
-        github.organization.repositories.where( name == ".github") {
+        github.organization.repositories.where( name == ".github").all( 
           files.one( name.downcase == "support.md")
-        } || github.repository.files.one( name.downcase == "support.md")
+        ) || github.repository.files.one( name.downcase == "support.md")
       } else {
           github.repository.files.one( name.downcase == "support.md")
       }
@@ -564,9 +560,9 @@ queries:
     query: |
       // if a .github repo exists, then check if the CODE_OF_CONDUCT.md is there
       if ( github.organization.repositories.one(name == ".github") ) {
-        github.organization.repositories.where( name == ".github") {
-          files.one( name.downcase == "code_of_conduct.md") 
-        } || github.repository.files.one( name.downcase == "code_of_conduct.md")
+        github.organization.repositories.where( name == ".github").all( 
+          files.one( name.downcase == "code_of_conduct.md")
+        ) || github.repository.files.one( name.downcase == "code_of_conduct.md")
       } else {
         github.repository.files.one( name.downcase == "code_of_conduct.md")
       }
@@ -604,22 +600,3 @@ queries:
       github.repository.files.where(name.downcase  == "readme.md") {
         content == /Getting started/i
       }
-  - uid: mondoo-github-repository-security-pull-request-template
-    title: Ensure a pull request template for your repository exists
-    severity: 30
-    docs:
-      desc: |
-        This check ensures the repository contains a pull request template. 
-    refs:
-      - title: Creating a pull request template for your repository
-        url: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository
-    query: |
-      // if a .github repo exists, then check if the CODE_OF_CONDUCT.md is there
-      if ( github.organization.repositories.one(name == ".github") ) {
-        github.organization.repositories.where( name == ".github") {
-          files.one( name.downcase == "code_of_conduct.md") 
-        } || github.repository.files.one( name.downcase == "code_of_conduct.md")
-      } else {
-        github.repository.files.one( name.downcase == "code_of_conduct.md")
-      }
-      github.repository.files.map(name).one( _ == "pull_request_template.md" || _ == "LICENSE.rst" || _ == "LICENSE.txt" )
