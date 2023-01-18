@@ -400,7 +400,7 @@ queries:
            github.repository.branches.where( isDefault == true) { protected protectionRules { requiredSignatures } }
            ```
       remediation: |
-        To enabled branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Require signed commits](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-signed-commits) on the GitHub documentation site.
+        To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Require signed commits](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-signed-commits) on the GitHub documentation site.
     refs:
       - title: "GitHub Docs - About protected branches"
         url: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches
