@@ -427,7 +427,7 @@ queries:
            github.repository.branches.where( isDefault == true) { protected protectionRules { enforceAdmins['enabled'] } }
            ```
       remediation: |
-        To enabled branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Do not allow bypassing the above settings](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#do-not-allow-bypassing-the-above-settings) on the GitHub documentation site.
+        To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Do not allow bypassing the above settings](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#do-not-allow-bypassing-the-above-settings) on the GitHub documentation site.
     refs:
       - title: "GitHub Docs - About protected branches"
         url: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches
