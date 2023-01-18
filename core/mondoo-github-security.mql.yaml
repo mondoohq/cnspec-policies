@@ -24,7 +24,7 @@ policies:
         cnspec scan --help
         ``` 
 
-        ### cnspec GitHub Provider
+        ### cnspec GitHub provider
         
         This policy uses the `github` provider to authenticate with GitHub's API in order to remotely scan GitHub organizations. Additional information on the `github` provider can be found by running the following command: 
         
