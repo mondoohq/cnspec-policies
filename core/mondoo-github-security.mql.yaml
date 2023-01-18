@@ -143,7 +143,7 @@ policies:
 
         ## Scanning GitHub repositories
         
-        To scan the configuration of GitHub repository:  
+        To scan the configuration of a GitHub repository:  
 
         ```bash
         cnspec scan github repo <ORG_NAME/REPO_NAME>
