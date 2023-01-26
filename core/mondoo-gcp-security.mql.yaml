@@ -92,7 +92,7 @@ queries:
 
         To audit your Google Cloud Project with `cnquery run`:
 
-        1. Ensure the `glcoud` cli is configured to the GCP project: 
+        1. Ensure the `gcloud` cli is configured to the GCP project: 
           
           ```bash
           gcloud project set <project_id>
@@ -101,14 +101,14 @@ queries:
         2. Run the following query:
 
           ```mql
-          cnquery run gcp -c "gcloud.compute.instances.where( name != /^gke/ ) serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ )"
+          cnquery run gcp -c "gcp.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) } "
           ```
 
         __cnquery shell__
 
         To audit your Google Cloud Project with `cnquery shell`:
 
-        1. Ensure the `glcoud` cli is configured to the GCP project: 
+        1. Ensure the `gcloud` cli is configured to the GCP project: 
           
           ```bash
           gcloud project set <project_id>
@@ -123,7 +123,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          gcloud.compute.instances.where( name != /^gke/ ) serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ )
+          gcp.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) }
           ```
       remediation: |
         ###Terraform
@@ -181,7 +181,7 @@ queries:
           gcloud compute instances start INSTANCE_NAME
           ```
     query: |
-      gcloud.compute.instances
+      gcp.compute.instances
         .where( name != /^gke/ )
         .all( serviceAccounts { email != /^.*compute@developer\.gserviceaccount\.com$/ } )
   - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api
@@ -204,7 +204,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          cnquery run gcp -c "gcloud.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) { email scopes } } "
+          cnquery run gcp -c "gcp.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) { email scopes } } "
           ```
 
         __cnquery shell__
@@ -226,7 +226,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          gcloud.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) { email scopes } }
+          gcp.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) { email scopes } }
           ```
       remediation: |
         ###Terraform
@@ -284,7 +284,7 @@ queries:
           gcloud compute instances start INSTANCE_NAME
           ```
     query: |
-      gcloud.compute.instances
+      gcp.compute.instances
         .where( name != /^gke/ )
         .all( serviceAccounts { scopes { _ != "https://www.googleapis.com/auth/cloud-platform" } } )
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
@@ -309,7 +309,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          cnquery run gcp -c "gcloud.compute.instances { metadata['block-project-ssh-keys'] }"
+          cnquery run gcp -c "gcp.compute.instances { metadata['block-project-ssh-keys'] }"
           ```
 
         __cnquery shell__
@@ -331,7 +331,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          gcloud.compute.instances { metadata['block-project-ssh-keys'] }
+          gcp.compute.instances { metadata['block-project-ssh-keys'] }
           ```
       remediation: |
         ###Terraform
@@ -375,7 +375,7 @@ queries:
           gcloud compute instances add-metadata INSTANCE_NAME --metadata block-projectssh-keys=TRUE
           ```
     query: |
-      gcloud.compute.instances
+      gcp.compute.instances
         .all( metadata['block-project-ssh-keys'] == true )
   - uid: mondoo-gcp-security-oslogin-enabled-project
     title: Ensure oslogin is enabled for compute instances
@@ -397,7 +397,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          cnquery run gcp -c "gcloud.compute.instances { metadata['enable-oslogin'] }"
+          cnquery run gcp -c "gcp.compute.instances { metadata['enable-oslogin'] }"
           ```
 
         __cnquery shell__
@@ -419,7 +419,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          gcloud.compute.instances { metadata['enable-oslogin'] }
+          gcp.compute.instances { metadata['enable-oslogin'] }
           ```
       remediation: |
         ###Terraform
@@ -480,7 +480,7 @@ queries:
           gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
           ```
     query: |
-      gcloud.compute.instances
+      gcp.compute.instances
         .all( metadata['enable-oslogin'] == true )
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
@@ -502,7 +502,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          cnquery run gcp -c "gcloud.storage.buckets { iamPolicy { members {*} } } "
+          cnquery run gcp -c "gcp.storage.buckets { iamPolicy.bindings { * } } "
           ```
 
         __cnquery shell__
@@ -524,7 +524,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          gcloud.storage.buckets { iamPolicy { members {*} } } 
+          gcp.storage.buckets { iamPolicy.bindings { * } } 
           ```
       remediation: |
         ###Terraform
@@ -564,9 +564,9 @@ queries:
         gcloud storage buckets update gs://BUCKET_NAME --no-pap
         ```     
     query: |
-      gcloud.storage.buckets
+      gcp.storage.buckets
         .all(
-          iamPolicy {
+          iamPolicy.bindings {
             members {
               _ != "allUsers"
               _ != "allAuthenticatedUsers"
@@ -595,7 +595,7 @@ queries:
         2. Run the following query:
 
           ```bash
-          cnquery run gcp -c "gcloud.storage.buckets { iamConfiguration['UniformBucketLevelAccess']['Enabled'] }"
+          cnquery run gcp -c "gcp.storage.buckets { iamConfiguration['UniformBucketLevelAccess']['enabled'] }"
           ```
 
         __cnquery shell__
@@ -617,7 +617,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          gcloud.storage.buckets { iamConfiguration['UniformBucketLevelAccess']['Enabled'] }
+          gcp.storage.buckets { iamConfiguration['UniformBucketLevelAccess']['enabled'] }
           ```
       remediation: |
         ###Terraform
@@ -645,6 +645,6 @@ queries:
         gsutil uniformbucketlevelaccess set STATE gs://BUCKET_NAME
         ```
     query: |
-      gcloud.storage.buckets
-        .all( iamConfiguration['UniformBucketLevelAccess']['Enabled'] == true )
+      gcp.storage.buckets
+        .all( iamConfiguration['UniformBucketLevelAccess']['enabled'] == true )
       
