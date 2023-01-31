@@ -171,6 +171,7 @@ policies:
           mondoo-github-repository-security-required-signed-commits: null
           mondoo-github-repository-security-binary-artifacts: null
           mondoo-github-repository-security-enforce-branch-protection: null
+          mondoo-github-repository-security-ensure-dependabot-workflow: null
 props:
   - uid: requiredPullRequestReviews
     title: Define the required number of reviewers on pull requests
@@ -600,3 +601,18 @@ queries:
       github.repository.files.where(name.downcase  == "readme.md") {
         content == /Getting started/i
       }
+
+  - uid: mondoo-github-repository-security-ensure-dependabot-workflow
+    title: Ensure a GitHub Actions workflow exists for dependabot
+    severity: 70
+    docs:
+      desc: |
+        This check ensures the existence of a GitHub Actions workflow to run Dependabot checks on the repository by looking for the existence of a `.github/dependabot.yml` or `.github/dependabot.yaml` configuration file.
+
+        Dependabot creates pull requests to keep your dependencies up to date, and you can use GitHub Actions to perform automated tasks when these pull requests are created. For example, fetch additional artifacts, add labels, run tests, or otherwise modifying the pull request.
+      remediation: |
+        GitHub Actions provides many different workflows for running Dependabot checks on a project. For more information see [Automating Dependabot with GitHub Actions](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions) in the GitHub documentation site.
+    query: |
+      github.repository.files
+        .where( path == ".github" )
+        .all( files.one( name == "dependabot.yaml" || name == "dependabot.yml" ) )
