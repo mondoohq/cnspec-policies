@@ -495,7 +495,7 @@ queries:
         .where( type == "dir" )
         .all( files.where( type != "dir").all( isBinary == false) )
   - uid: mondoo-github-repository-security-ensure-dependabot-workflow
-    title: Ensure a GitHub Actions workflow exists for dependabot
+    title: Ensure a GitHub Actions workflow exists for Dependabot
     severity: 70
     docs:
       desc: |
