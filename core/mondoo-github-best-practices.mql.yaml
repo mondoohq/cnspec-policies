@@ -133,7 +133,7 @@ queries:
     severity: 20
     docs:
       desc: |
-        Including the authors in the README provides transparency to the users looking to use the project in their environments. 
+        Including the authors in the README.md provides transparency to the users looking to use the project in their environments. 
       audit: |
         __cnspec shell__
 
