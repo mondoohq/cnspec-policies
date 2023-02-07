@@ -99,11 +99,13 @@ queries:
           github.repository.files.one( name.downcase == "support.md")
       }
   - uid: mondoo-github-repository-best-practices-code-of-conduct
-    title: Ensure repository has a code of conduct policy
+    title: Ensure repository has a CODE_OF_CONDUCT.md policy
     severity: 30
     docs:
       desc: |
-        Open source code repositories should include a code of conduct. Including a code of conduct helps to clarify the project's values and principles.
+        Open source code repositories should include a CODE_OF_CONDUCT.md. Including a CODE_OF_CONDUCT.md helps to clarify the project's values and principles. 
+
+        You can add a CODE_OF_CONDUCT.md file to your repository's root, docs, or .github directory.
       audit: |
         __cnspec shell__
 
@@ -115,9 +117,9 @@ queries:
            github.repository.files.where( name.downcase == "code_of_conduct.md") 
            ```
       remediation: |
-        See [Adding a code of conduct to your project](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-code-of-conduct-to-your-project) on the GitHub docs site. 
+        See [Adding a CODE_OF_CONDUCT.md to your project](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-code-of-conduct-to-your-project) on the GitHub docs site. 
     refs:
-      - title: Adding a code of conduct to your project
+      - title: Adding a CODE_OF_CONDUCT.md to your project
         url: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-code-of-conduct-to-your-project
     query: |
       // if a .github repo exists, then check if the CODE_OF_CONDUCT.md is there
@@ -142,7 +144,7 @@ queries:
         3. Run the following query
 
            ```mql
-           github.repository.files.where( name.downcase == "code_of_conduct.md") 
+           github.repository.files.where( name.downcase == "README.md") { content }
            ```
       remediation: |
         Update the `README.md` with information about the project's authors.
