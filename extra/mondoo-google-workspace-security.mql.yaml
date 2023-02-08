@@ -63,7 +63,7 @@ policies:
         If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
     specs:
       - asset_filter:
-          query: asset.platform == "google-workspace"
+          query: asset.platform == "google-workspace" || asset.platform == "googleworkspace"
         scoring_queries:
           mondoo-googleworkspace-security-two-step-verification-enforced:
           mondoo-googleworkspace-security-limit-super-admins:

@@ -61,7 +61,7 @@ policies:
       externalChannelName:
     specs:
       - asset_filter:
-          query: asset.platform == "slack-team"
+          query: asset.platform == "slack-team" || asset.platform == "slack"
         scoring_queries:
           mondoo-slack-security-limit-admins:
           mondoo-slack-security-use-strong-factors:
