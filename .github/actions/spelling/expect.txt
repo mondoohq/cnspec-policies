@@ -21,6 +21,7 @@ apigatewayv
 apparmor
 appspot
 ARD
+armv
 AROA
 asl
 aslr
@@ -159,6 +160,7 @@ mysupersecretpasswordforthemasteruser
 natd
 Negoexts
 netbt
+nft
 nistp
 nodetype
 noout
