@@ -17,14 +17,14 @@ policies:
             asset.platform.contains("windows")
             windows.computerInfo['OsProductType'] == 1
         scoring_queries:
-          mondoo-client-windows-security-baseline-bitlocker-enabled: null
-          mondoo-client-windows-security-baseline-secure-boot-is-enabled: null
-          mondoo-client-windows-security-baseline-automatic-update-is-enabled: null
+          mondoo-windows-workstation-security-bitlocker-enabled: null
+          mondoo-windows-workstation-security-secure-boot-is-enabled: null
+          mondoo-windows-workstation-security-automatic-update-is-enabled: null
         data_queries:
-          mondoo-client-windows-security-baseline-bitlocker-enabled-data: null
-          mondoo-client-windows-security-baseline-installed-security-products-data: null
-          mondoo-client-windows-security-baseline-installed-security-center-health-data: null
-          mondoo-client-windows-security-baseline-windows-computer-info-data: null
+          mondoo-windows-workstation-security-bitlocker-enabled-data: null
+          mondoo-windows-workstation-security-installed-security-products-data: null
+          mondoo-windows-workstation-security-installed-security-center-health-data: null
+          mondoo-windows-workstation-security-windows-computer-info-data: null
     docs:
       desc: |
         ## Overview
@@ -72,7 +72,7 @@ policies:
 
         If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
 queries:
-  - uid: mondoo-client-windows-security-baseline-bitlocker-enabled
+  - uid: mondoo-windows-workstation-security-bitlocker-enabled
     title: Ensure Bitlocker Encryption is Enabled
     severity: 100
     docs:
@@ -101,7 +101,7 @@ queries:
       - title: Turn on device encryption
         url: https://support.microsoft.com/en-us/windows/turn-on-device-encryption-0c453637-bc88-5f74-5105-741561aae838#:~:text=Turn%20on%20standard%20BitLocker%20encryption,-Sign%20in%20to&text=In%20the%20search%20box%20on,is%20available%20for%20your%20device.
     query: windows.bitlocker.volumes.all( protectionStatus["text"] == "Protected" )
-  - uid: mondoo-client-windows-security-baseline-secure-boot-is-enabled
+  - uid: mondoo-windows-workstation-security-secure-boot-is-enabled
     title: Ensure Secure Boot is enabled
     severity: 100
     docs:
@@ -114,7 +114,7 @@ queries:
         url: https://media.defense.gov/2020/Sep/15/2002497594/-1/-1/0/CTR-UEFI-Secure-Boot-Customization-UOO168873-20.PDF
     query: |
       command("Confirm-SecureBootUEFI").stdout.trim.downcase == 'true'
-  - uid: mondoo-client-windows-security-baseline-automatic-update-is-enabled
+  - uid: mondoo-windows-workstation-security-automatic-update-is-enabled
     title: Ensure Automatic Windows Update is enabled
     severity: 100
     docs:
@@ -168,15 +168,15 @@ queries:
         value == 0
       }
 
-  - uid: mondoo-client-windows-security-baseline-bitlocker-enabled-data
+  - uid: mondoo-windows-workstation-security-bitlocker-enabled-data
     title: Get Bitlocker Volumes
     query: windows.bitlocker.volumes { * }
-  - uid: mondoo-client-windows-security-baseline-installed-security-products-data
+  - uid: mondoo-windows-workstation-security-installed-security-products-data
     title: Get installed Security Products
     query: windows.security.products { * }
-  - uid: mondoo-client-windows-security-baseline-installed-security-center-health-data
+  - uid: mondoo-windows-workstation-security-installed-security-center-health-data
     title: Get Windows Security health information
     query: windows.security.health { * }
-  - uid: mondoo-client-windows-security-baseline-windows-computer-info-data
+  - uid: mondoo-windows-workstation-security-windows-computer-info-data
     title: Get Windows Computer Information
     query: windows.computerInfo
