@@ -154,6 +154,7 @@ policies:
           mondoo-linux-security-only-strong-kex-algorithms-are-used: null
           mondoo-linux-security-ssh-idle-timeout-interval-is-configured: null
           mondoo-linux-security-ssh-logingracetime-is-set-to-one-minute-or-less: null
+          mondoo-linux-security-ssh-access-is-limited: null
           mondoo-linux-security-ssh-warning-banner-is-configured: null
       - title: Logging
         asset_filter:
