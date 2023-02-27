@@ -1,0 +1,625 @@
+policies:
+- uid: mondoo-ms365-security
+  name: Microsoft MS365 Security by Mondoo
+  version: 1.0.0
+  scoring_system: 2
+  authors:
+    - name: Mondoo, Inc
+      email: hello@mondoo.com
+  tags:
+    mondoo.com/platform: ms365,cloud
+    mondoo.com/category: security
+  docs:
+    desc: |-
+      ## Overview
+
+      MS365 Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for ms365.
+
+      ## Remote scan
+
+      Remote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration. 
+      
+      For a complete list of native transports run: 
+      
+      ```bash
+      cnspec scan --help
+      ```
+      ### Prerequisites
+
+      Remote scans of ms365 requires API credentials with access to the subscription. 
+
+      ### Scan an MS365 subscription
+
+      ```bash
+      cnspec scan ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle <*.mql.yaml>
+      ```
+
+      ## Join the community!
+
+      Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+      
+      If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+  specs:
+  - asset_filter:
+      query: |
+        platform.name == "microsoft365"
+        platform.kind == "api"
+    scoring_queries:
+      mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles: null
+      mondoo-m365-ensure-that-office-365-passwords-are-not-set-to-expire: null
+      mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles: null
+      mondoo-m365-ensure-that-between-two-and-four-global-admins-are-designated: null
+      mondoo-m365-enable-conditional-access-policies-to-block-legacy-authentication: null
+      mondoo-m365-ensure-security-defaults-is-disabled-on-azure-active-directory: null
+      mondoo-m365-ensure-that-spf-records-are-published-for-all-exchange-domains: null
+      mondoo-m365-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks: null
+      mondoo-m365-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data: null
+      mondoo-m365-ensure-third-party-integrated-applications-are-not-allowed: null
+      mondoo-m365-enable-azure-ad-identity-protection-sign-in-risk-policies: null
+      mondoo-m365-enable-azure-ad-identity-protection-user-risk-policies: null
+queries: 
+  - uid: mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
+    title: Ensure that multifactor authentication has been enabled for all users
+    severity: 80
+    docs:
+      desc: |
+        This control checks that the MFA has been enabled for all users in the Microsoft 365 tenant. 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
+          ```
+      remediation: |
+        ### MS365 Console
+
+        To update via the ms365 portal:
+
+        1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+        2. Click on "Azure Active Directory" once in the "Admin Centers"
+        3. Applications --> Enterprise applications --> Security --> Conditional Access 
+        4. Make sure there is a Policy with following conditions: 
+           * Grant --> Grant access (Require multifactor authentication)
+           * Users --> All users
+           * Cloud apps or actions --> All cloud apps 
+        5. Make sure that the policy is Enabled 
+ 
+    query: |
+      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
+  - uid: mondoo-m365-ensure-that-office-365-passwords-are-not-set-to-expire
+    title: Ensure that Office 365 passwords never Expire
+    severity: 80
+    docs:
+      desc: |
+        This control checks to make sure the Office 365 passwords never expires.  Based on the new research from several Organizations, it has been confirmed that forcing users to change their password, make the password less secure!
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.domains { passwordValidityPeriodInDays == 2147483647 }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.domains { passwordValidityPeriodInDays == 2147483647 }
+          ```
+      remediation: |
+       ### MS365 Console
+
+        To update via the ms365 portal:
+
+        1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+        2. Settings --> Org Settings --> Security & Privacy --> Password expiration policy -->  Set passwords to never expire (recommended)
+        3. Click Save 
+    query: |
+      msgraph.beta.domains {
+        passwordValidityPeriodInDays == 2147483647
+      }
+  - uid: mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles
+    title: Ensure all users in administrative roles have MFA enabled 
+    severity: 100
+    docs:
+      desc: |
+        Enable multifactor authentication for all users in administrative roles!
+      audit: |
+       __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+          ```
+      remediation: |
+         ### MS365 Console
+         
+         To update via the ms365 portal:
+
+         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         3. Applications --> Enterprise applications --> Security --> Conditional Access 
+         4. Make sure there is a Policy with following conditions: 
+         
+           * Grant --> Grant access (Require multifactor authentication)
+           * Users --> Users and groups --> Include --> Select users and groups --> Directory roles --> at minimum select following rules (Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin)
+           * Cloud apps or actions --> All cloud apps 
+         5. Make sure that the policy is Enabled  
+    query: |
+      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+  - uid: mondoo-m365-ensure-that-between-two-and-four-global-admins-are-designated
+    title: Ensure that at least three global admins are designated and not more than four
+    severity: 80
+    docs:
+      desc: |
+        This control checks that there are enough Global Admins in a single tenant.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+          ```
+      remediation: |
+        ### MS365 Console
+         
+         To update via the ms365 portal:
+
+         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         3. Users --> Active Users  
+         4. Create a new Global Admin, if there are not enough by: 
+            * Select the User's name
+            * Manage roles --> Admin center access -> Global Administrator -> Save changes
+         5. Remove the Global Admin, if there are more than four Global Administrators
+            * Select the User
+            * Roles --> Manage roles --> De-Select the appropriate role -> Save changes  
+    query: |
+      msgraph.beta.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+  - uid: mondoo-m365-enable-conditional-access-policies-to-block-legacy-authentication
+    title: Ensure that the legacy authentication has been disabled by Conditional access policies
+    severity: 80
+    docs:
+      desc: |
+        This control checks that the legacy authentication protocols has been disabled in office 365.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
+          ```
+      remediation: |
+         ### MS365 Console
+         
+         To update via the ms365 portal:
+
+         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         3. Applications --> Enterprise applications --> Security --> Conditional Access 
+         4. Make sure there is a Policy with following conditions: 
+         
+           * Grant --> Block access
+           * Users --> Users and groups --> Include --> All users 
+           * Users --> Users and groups --> Exclude to be at least one low risk account or directory role. (best practice)
+           * Cloud apps or actions --> All cloud apps 
+           * Conditions --> Client apps --> enable the settings for `Exchange ActiveSync clients` and `other clients`
+         5. Make sure that the policy is Enabled 
+    query: |
+      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
+  - uid: mondoo-m365-ensure-security-defaults-is-disabled-on-azure-active-directory
+    title: Ensure that the  security Defaults is disabled 
+    severity: 80
+    docs:
+      desc: |
+        This control checks that the Security defaults which is active by default is disabled on Azure Active Directory 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
+          ```
+      remediation: |
+        ### MS365 Console
+         
+         To update via the ms365 portal:
+
+         1. Log in as Global Administrator, security administrator or Conditional Access administrator to the ms365 portal at https://admin.microsoft.com
+         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         3. Overview --> properties --> Manage Security default -> Verify the Enabled security default toggle to no 
+         4. Save     
+    query: |
+      msgraph.beta.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
+  - uid: mondoo-m365-ensure-that-spf-records-are-published-for-all-exchange-domains
+    title: Ensure Sender Policy Record (SPF) exists for each domain in Exchange 
+    severity: 60
+    docs:
+      desc: |
+        This control checks that SPF records is created for each domain in Exchange. 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }
+          ```
+      remediation: |
+        If Exchange Online is the main platform for sending and receiving the email in your domain, add the following txt record for each m365--ensure-that-spf-records-are-published-for-all-exchange-domains:
+          v=spf1 include:spf.protection.outlook.com -all 
+    query: |
+      msgraph.beta.domains {
+        serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all")
+      }
+  - uid: mondoo-m365-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks
+    title: Ensure that minimum password length has been set in order to prevent any brute force attack 
+    severity: 80
+    docs:
+      desc: |
+        This control checks that there is minmum password length - at least six characters - for mobile devices 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c " msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
+        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
+        properties['passcodeMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 }") }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+                msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
+        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
+        properties['passcodeMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } 
+          ```
+      remediation: |
+        ### MS365 Console
+         
+         To update via the ms365 portal:
+
+         1. Log in as to the ms365 portal at https://admin.microsoft.com
+         2. Endpoint Manager --> Devices --> Policy --> Configuration profiles 
+         3. Ensure that a profile exists for each Platform with following conditions:
+            * Password section --> Device restrictions --> Minimum password length is set to 6
+    query: |
+      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
+        properties['passwordMinimumLength'] == 6
+      }
+      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6
+      }
+      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
+        properties['passcodeMinimumLength'] == 6
+      }
+      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6
+      }
+      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6
+      }
+  - uid: mondoo-m365-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data
+    title: Ensure that Android mobile device encryption is enabled
+    severity: 80
+    docs:
+      desc: |
+        This control checks that encryption in android mobile devices has been enabled to prevent any unauthorized access to the data 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }
+          ```
+      remediation: |
+        ### MS365 Console
+         
+         To update via the ms365 portal:
+
+         1. Log in as to the ms365 portal at https://admin.microsoft.com
+         2. Endpoint Manager --> Devices --> Policy --> Configuration profiles 
+         3. Ensure that a profile exists for Android with following conditions:
+            * Password section --> Device restrictions --> Encryption is set to require
+    query: |
+      msgraph.beta.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+        properties['storageRequireDeviceEncryption'] == true
+      }
+  - uid: mondoo-m365-ensure-third-party-integrated-applications-are-not-allowed
+    title: Ensure that no third party integrated applications are allowed 
+    severity: 80
+    docs:
+      desc: |
+        This control checks that no third party integrated applications can connect to your services. 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }
+          ```
+      remediation: |
+        ### MS365 Console
+
+        To update via the ms365 portal:
+
+        1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+        2. Click on "Azure Active Directory" once in the "Admin Centers"
+        3. Users --> User settings -->  App registrations set to NO
+        4. Save
+    query: |
+      msgraph.beta.policies.authorizationPolicy { 
+        _['defaultUserRolePermissions']['allowedToCreateApps'] == false
+      }
+  - uid: mondoo-m365-enable-azure-ad-identity-protection-sign-in-risk-policies
+    title: Enable Azure AD Identity Protection sign-in 
+    severity: 80
+    docs:
+      desc: |
+        This control checks that there are some policies in place which can detect risky sign-in in real-time and offline. A risky sign-in mainly means a sign-in attempt which might be performed by illegitimate owner of a user account.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+          ```
+      remediation: |
+         ### MS365 Console
+         
+         To config sign-in risk policy via the ms365 portal:
+
+         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         3. Applications --> Enterprise applications --> Security --> Conditional Access 
+         4. Make sure there is a Policy with following conditions:
+           * Grant --> Grant access --> Require muilti-factor authentication --> then Select 
+           * Users --> Users and groups --> Include --> All users 
+           * Cloud apps or actions --> All cloud apps 
+           * Conditions --> sign-in risk --> Yes in the right pane followed by the appropriate level.
+         5. Make sure that the policy is Enabled 
+    query: |
+      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+  - uid: mondoo-m365-enable-azure-ad-identity-protection-user-risk-policies
+    title: Enable Azure AD Identity Protection sign-in 
+    severity: 100
+    docs:
+      desc: |
+        This control checks that there are some policies in place which can detect risky sign-in in real-time and offline. A risky sign-in mainly means a sign-in attempt which might be performed by illegitimate owner of a user account.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft MS365 with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft ms365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+          ```
+      remediation: |
+         ### MS365 Console
+         
+         To config sign-in risk policy via the ms365 portal:
+
+         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         3. Applications --> Enterprise applications --> Security --> Conditional Access 
+         4. Make sure there is a Policy with following conditions:
+           * Grant --> Grant access --> Require muilti-factor authentication --> then Select 
+           * Users --> Users and groups --> Include --> All users 
+           * Cloud apps or actions --> All cloud apps 
+           * Conditions --> sign-in risk --> Yes in the right pane followed by the appropriate level.
+         5. Make sure that the policy is Enabled 
+    query: |
+      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+
