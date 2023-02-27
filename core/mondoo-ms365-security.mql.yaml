@@ -45,20 +45,20 @@ policies:
         platform.name == "microsoft365"
         platform.kind == "api"
     scoring_queries:
-      mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles: null
-      mondoo-m365-ensure-that-office-365-passwords-are-not-set-to-expire: null
-      mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles: null
-      mondoo-m365-ensure-that-between-two-and-four-global-admins-are-designated: null
-      mondoo-m365-enable-conditional-access-policies-to-block-legacy-authentication: null
-      mondoo-m365-ensure-security-defaults-is-disabled-on-azure-active-directory: null
-      mondoo-m365-ensure-that-spf-records-are-published-for-all-exchange-domains: null
-      mondoo-m365-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks: null
-      mondoo-m365-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data: null
-      mondoo-m365-ensure-third-party-integrated-applications-are-not-allowed: null
-      mondoo-m365-enable-azure-ad-identity-protection-sign-in-risk-policies: null
-      mondoo-m365-enable-azure-ad-identity-protection-user-risk-policies: null
+      mondoo-m365-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles: null
+      mondoo-m365-security-ensure-that-office-365-passwords-are-not-set-to-expire: null
+      mondoo-m365-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles: null
+      mondoo-m365-security-ensure-that-between-two-and-four-global-admins-are-designated: null
+      mondoo-m365-security-enable-conditional-access-policies-to-block-legacy-authentication: null
+      mondoo-m365-security-ensure-security-defaults-is-disabled-on-azure-active-directory: null
+      mondoo-m365-security-ensure-that-spf-records-are-published-for-all-exchange-domains: null
+      mondoo-m365-security-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks: null
+      mondoo-m365-security-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data: null
+      mondoo-m365-security-ensure-third-party-integrated-applications-are-not-allowed: null
+      mondoo-m365-security-enable-azure-ad-identity-protection-sign-in-risk-policies: null
+      mondoo-m365-security-enable-azure-ad-identity-protection-user-risk-policies: null
 queries: 
-  - uid: mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
+  - uid: mondoo-m365-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multifactor authentication has been enabled for all users
     severity: 80
     docs:
@@ -72,7 +72,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnquery shell__
@@ -88,7 +88,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
           ```
       remediation: |
         ### MS365 Console
@@ -105,8 +105,8 @@ queries:
         5. Make sure that the policy is Enabled 
  
     query: |
-      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
-  - uid: mondoo-m365-ensure-that-office-365-passwords-are-not-set-to-expire
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
+  - uid: mondoo-m365-security-ensure-that-office-365-passwords-are-not-set-to-expire
     title: Ensure that Office 365 passwords never Expire
     severity: 80
     docs:
@@ -120,7 +120,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.domains { passwordValidityPeriodInDays == 2147483647 }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.domains { passwordValidityPeriodInDays == 2147483647 }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnquery shell__
@@ -136,7 +136,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.domains { passwordValidityPeriodInDays == 2147483647 }
+          microsoft.domains { passwordValidityPeriodInDays == 2147483647 }
           ```
       remediation: |
        ### MS365 Console
@@ -147,10 +147,10 @@ queries:
         2. Settings --> Org Settings --> Security & Privacy --> Password expiration policy -->  Set passwords to never expire (recommended)
         3. Click Save 
     query: |
-      msgraph.beta.domains {
+      microsoft.domains {
         passwordValidityPeriodInDays == 2147483647
       }
-  - uid: mondoo-m365-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles
+  - uid: mondoo-m365-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles
     title: Ensure all users in administrative roles have MFA enabled 
     severity: 100
     docs:
@@ -164,7 +164,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnquery shell__
@@ -180,7 +180,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
           ```
       remediation: |
          ### MS365 Console
@@ -197,8 +197,8 @@ queries:
            * Cloud apps or actions --> All cloud apps 
          5. Make sure that the policy is Enabled  
     query: |
-      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
-  - uid: mondoo-m365-ensure-that-between-two-and-four-global-admins-are-designated
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+  - uid: mondoo-m365-security-ensure-that-between-two-and-four-global-admins-are-designated
     title: Ensure that at least three global admins are designated and not more than four
     severity: 80
     docs:
@@ -212,7 +212,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -227,7 +227,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+          microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
           ```
       remediation: |
         ### MS365 Console
@@ -244,8 +244,8 @@ queries:
             * Select the User
             * Roles --> Manage roles --> De-Select the appropriate role -> Save changes  
     query: |
-      msgraph.beta.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
-  - uid: mondoo-m365-enable-conditional-access-policies-to-block-legacy-authentication
+      microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+  - uid: mondoo-m365-security-enable-conditional-access-policies-to-block-legacy-authentication
     title: Ensure that the legacy authentication has been disabled by Conditional access policies
     severity: 80
     docs:
@@ -259,7 +259,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -274,7 +274,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
           ```
       remediation: |
          ### MS365 Console
@@ -293,8 +293,8 @@ queries:
            * Conditions --> Client apps --> enable the settings for `Exchange ActiveSync clients` and `other clients`
          5. Make sure that the policy is Enabled 
     query: |
-      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
-  - uid: mondoo-m365-ensure-security-defaults-is-disabled-on-azure-active-directory
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
+  - uid: mondoo-m365-security-ensure-security-defaults-is-disabled-on-azure-active-directory
     title: Ensure that the  security Defaults is disabled 
     severity: 80
     docs:
@@ -308,7 +308,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -323,7 +323,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
+          microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
           ```
       remediation: |
         ### MS365 Console
@@ -335,8 +335,8 @@ queries:
          3. Overview --> properties --> Manage Security default -> Verify the Enabled security default toggle to no 
          4. Save     
     query: |
-      msgraph.beta.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
-  - uid: mondoo-m365-ensure-that-spf-records-are-published-for-all-exchange-domains
+      microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
+  - uid: mondoo-m365-security-ensure-that-spf-records-are-published-for-all-exchange-domains
     title: Ensure Sender Policy Record (SPF) exists for each domain in Exchange 
     severity: 60
     docs:
@@ -350,7 +350,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -365,16 +365,16 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }
+          microsoft.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }
           ```
       remediation: |
         If Exchange Online is the main platform for sending and receiving the email in your domain, add the following txt record for each m365--ensure-that-spf-records-are-published-for-all-exchange-domains:
           v=spf1 include:spf.protection.outlook.com -all 
     query: |
-      msgraph.beta.domains {
+      microsoft.domains {
         serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all")
       }
-  - uid: mondoo-m365-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks
+  - uid: mondoo-m365-security-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks
     title: Ensure that minimum password length has been set in order to prevent any brute force attack 
     severity: 80
     docs:
@@ -388,11 +388,11 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c " msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
-        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
-        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
-        properties['passcodeMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
-        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
+          cnquery run ms365 -c " microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
+        properties['passwordMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
+        properties['passcodeMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
         properties['passwordMinimumLength'] == 6 }") }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
@@ -408,11 +408,11 @@ queries:
         2. Run the following query:
 
           ```mql
-                msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
-        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
-        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
-        properties['passcodeMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
-        properties['passwordMinimumLength'] == 6 } msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
+                microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
+        properties['passwordMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
+        properties['passcodeMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+        properties['passwordMinimumLength'] == 6 } microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
         properties['passwordMinimumLength'] == 6 } 
           ```
       remediation: |
@@ -425,22 +425,22 @@ queries:
          3. Ensure that a profile exists for each Platform with following conditions:
             * Password section --> Device restrictions --> Minimum password length is set to 6
     query: |
-      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration") {
         properties['passwordMinimumLength'] == 6
       }
-      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration") {
         properties['passwordMinimumLength'] == 6
       }
-      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration") {
         properties['passcodeMinimumLength'] == 6
       }
-      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
         properties['passwordMinimumLength'] == 6
       }
-      msgraph.beta.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration") {
         properties['passwordMinimumLength'] == 6
       }
-  - uid: mondoo-m365-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data
+  - uid: mondoo-m365-security-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data
     title: Ensure that Android mobile device encryption is enabled
     severity: 80
     docs:
@@ -454,7 +454,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -469,7 +469,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }
+          microsoft.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }
           ```
       remediation: |
         ### MS365 Console
@@ -481,10 +481,10 @@ queries:
          3. Ensure that a profile exists for Android with following conditions:
             * Password section --> Device restrictions --> Encryption is set to require
     query: |
-      msgraph.beta.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
+      microsoft.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") {
         properties['storageRequireDeviceEncryption'] == true
       }
-  - uid: mondoo-m365-ensure-third-party-integrated-applications-are-not-allowed
+  - uid: mondoo-m365-security-ensure-third-party-integrated-applications-are-not-allowed
     title: Ensure that no third party integrated applications are allowed 
     severity: 80
     docs:
@@ -498,7 +498,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -513,7 +513,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }
+          microsoft.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }
           ```
       remediation: |
         ### MS365 Console
@@ -525,10 +525,10 @@ queries:
         3. Users --> User settings -->  App registrations set to NO
         4. Save
     query: |
-      msgraph.beta.policies.authorizationPolicy { 
+      microsoft.policies.authorizationPolicy { 
         _['defaultUserRolePermissions']['allowedToCreateApps'] == false
       }
-  - uid: mondoo-m365-enable-azure-ad-identity-protection-sign-in-risk-policies
+  - uid: mondoo-m365-security-enable-azure-ad-identity-protection-sign-in-risk-policies
     title: Enable Azure AD Identity Protection sign-in 
     severity: 80
     docs:
@@ -542,7 +542,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -557,7 +557,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
          ### MS365 Console
@@ -574,8 +574,8 @@ queries:
            * Conditions --> sign-in risk --> Yes in the right pane followed by the appropriate level.
          5. Make sure that the policy is Enabled 
     query: |
-      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
-  - uid: mondoo-m365-enable-azure-ad-identity-protection-user-risk-policies
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+  - uid: mondoo-m365-security-enable-azure-ad-identity-protection-user-risk-policies
     title: Enable Azure AD Identity Protection sign-in 
     severity: 100
     docs:
@@ -589,7 +589,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnquery run ms365 -c "msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnquery run ms365 -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
 
@@ -604,7 +604,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
          ### MS365 Console
@@ -621,5 +621,5 @@ queries:
            * Conditions --> sign-in risk --> Yes in the right pane followed by the appropriate level.
          5. Make sure that the policy is Enabled 
     query: |
-      msgraph.beta.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
 
