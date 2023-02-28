@@ -565,7 +565,7 @@ queries:
          2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Applications --> Enterprise applications --> Security --> Conditional Access 
          4. Make sure there is a Policy with following conditions:
-           * Grant --> Grant access --> Require muilti-factor authentication --> then Select 
+           * Grant --> Grant access --> Require multi-factor authentication --> then Select 
            * Users --> Users and groups --> Include --> All users 
            * Cloud apps or actions --> All cloud apps 
            * Conditions --> sign-in risk --> Yes in the right pane followed by the appropriate level.
@@ -611,7 +611,7 @@ queries:
          2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Applications --> Enterprise applications --> Security --> Conditional Access 
          4. Make sure there is a Policy with following conditions:
-           * Grant --> Grant access --> Require muilti-factor authentication --> then Select 
+           * Grant --> Grant access --> Require multi-factor authentication --> then Select 
            * Users --> Users and groups --> Include --> All users 
            * Cloud apps or actions --> All cloud apps 
            * Conditions --> sign-in risk --> Yes in the right pane followed by the appropriate level.
