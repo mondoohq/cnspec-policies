@@ -1,6 +1,6 @@
 policies:
 - uid: mondoo-ms365-security
-  name: Microsoft MS365 Security by Mondoo
+  name: Microsoft 365 Security by Mondoo
   version: 1.0.0
   scoring_system: 2
   authors:
@@ -13,7 +13,7 @@ policies:
     desc: |-
       ## Overview
 
-      MS365 Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for ms365.
+      Microsoft 365 Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for Microsoft 365.
 
       ## Remote scan
 
@@ -26,9 +26,9 @@ policies:
       ```
       ### Prerequisites
 
-      Remote scans of ms365 requires API credentials with access to the subscription. 
+      Remote scans of Microsoft 365 requires API credentials with access to the subscription. 
 
-      ### Scan an MS365 subscription
+      ### Scan a Microsoft 365 subscription
 
       ```bash
       cnspec scan ms365 --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle <*.mql.yaml>
@@ -67,7 +67,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -77,7 +77,7 @@ queries:
 
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -91,19 +91,17 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
           ```
       remediation: |
-        ### MS365 Console
+        ### Microsoft 365 Console
 
-        To update via the ms365 portal:
-
-        1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-        2. Click on "Azure Active Directory" once in the "Admin Centers"
+        To update via the Microsoft 365 portal:
+        1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+        2. Select "Azure Active Directory" once in the "Admin Centers"
         3. Applications --> Enterprise applications --> Security --> Conditional Access 
         4. Make sure there is a Policy with following conditions: 
            * Grant --> Grant access (Require multifactor authentication)
            * Users --> All users
            * Cloud apps or actions --> All cloud apps 
         5. Make sure that the policy is Enabled 
- 
     query: |
       microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
   - uid: mondoo-m365-security-ensure-that-office-365-passwords-are-not-set-to-expire
@@ -115,7 +113,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -125,7 +123,7 @@ queries:
 
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -139,13 +137,12 @@ queries:
           microsoft.domains { passwordValidityPeriodInDays == 2147483647 }
           ```
       remediation: |
-       ### MS365 Console
+       ### Microsoft 365 Console
 
-        To update via the ms365 portal:
-
-        1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
+        To update via the Microsoft 365 portal:
+        1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
         2. Settings --> Org Settings --> Security & Privacy --> Password expiration policy -->  Set passwords to never expire (recommended)
-        3. Click Save 
+        3. Select Save 
     query: |
       microsoft.domains {
         passwordValidityPeriodInDays == 2147483647
@@ -159,7 +156,7 @@ queries:
       audit: |
        __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -169,7 +166,7 @@ queries:
 
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -183,15 +180,13 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
           ```
       remediation: |
-         ### MS365 Console
+         ### Microsoft 365 Console
          
-         To update via the ms365 portal:
-
-         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         To update via the Microsoft 365 portal:
+         1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+         2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Applications --> Enterprise applications --> Security --> Conditional Access 
          4. Make sure there is a Policy with following conditions: 
-         
            * Grant --> Grant access (Require multifactor authentication)
            * Users --> Users and groups --> Include --> Select users and groups --> Directory roles --> at minimum select following rules (Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin)
            * Cloud apps or actions --> All cloud apps 
@@ -207,7 +202,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -216,7 +211,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -230,12 +225,11 @@ queries:
           microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
           ```
       remediation: |
-        ### MS365 Console
+        ### Microsoft 365 Console
          
-         To update via the ms365 portal:
-
-         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         To update via the Microsoft 365 portal:
+         1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+         2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Users --> Active Users  
          4. Create a new Global Admin, if there are not enough by: 
             * Select the User's name
@@ -254,7 +248,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -263,7 +257,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -277,15 +271,13 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'BlockLegacyAuthentication' && _['score'] == 8)
           ```
       remediation: |
-         ### MS365 Console
+         ### Microsoft 365 Console
          
-         To update via the ms365 portal:
-
-         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         To update via the Microsoft 365 portal:
+         1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+         2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Applications --> Enterprise applications --> Security --> Conditional Access 
          4. Make sure there is a Policy with following conditions: 
-         
            * Grant --> Block access
            * Users --> Users and groups --> Include --> All users 
            * Users --> Users and groups --> Exclude to be at least one low risk account or directory role. (best practice)
@@ -303,7 +295,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -312,7 +304,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -326,12 +318,11 @@ queries:
           microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
           ```
       remediation: |
-        ### MS365 Console
+        ### Microsoft 365 Console
          
-         To update via the ms365 portal:
-
-         1. Log in as Global Administrator, security administrator or Conditional Access administrator to the ms365 portal at https://admin.microsoft.com
-         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         To update via the Microsoft 365 portal:
+         1. Log in as Global Administrator, security administrator or Conditional Access administrator to the Microsoft 365 portal at https://admin.microsoft.com
+         2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Overview --> properties --> Manage Security default -> Verify the Enabled security default toggle to no 
          4. Save     
     query: |
@@ -345,7 +336,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -354,7 +345,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -368,7 +359,7 @@ queries:
           microsoft.domains { serviceConfigurationRecords.one(recordType.downcase == "txt" && properties['text'] == "v=spf1 include:spf.protection.outlook.com -all") }
           ```
       remediation: |
-        If Exchange Online is the main platform for sending and receiving the email in your domain, add the following txt record for each m365--ensure-that-spf-records-are-published-for-all-exchange-domains:
+        If Exchange Online is the main platform for sending and receiving the email in your domain, add the following txt record for each accepted domains:
           v=spf1 include:spf.protection.outlook.com -all 
     query: |
       microsoft.domains {
@@ -383,7 +374,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -397,7 +388,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -416,11 +407,11 @@ queries:
         properties['passwordMinimumLength'] == 6 } 
           ```
       remediation: |
-        ### MS365 Console
+        ### Microsoft 365 Console
          
-         To update via the ms365 portal:
+         To update via the Microsoft 365 portal:
 
-         1. Log in as to the ms365 portal at https://admin.microsoft.com
+         1. Log in as to the Microsoft 365 portal at https://admin.microsoft.com
          2. Endpoint Manager --> Devices --> Policy --> Configuration profiles 
          3. Ensure that a profile exists for each Platform with following conditions:
             * Password section --> Device restrictions --> Minimum password length is set to 6
@@ -449,7 +440,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -458,7 +449,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -472,11 +463,10 @@ queries:
           microsoft.devicemanagement.deviceConfigurations.where( properties['@odata.type'] == "#microsoft.graph.androidGeneralDeviceConfiguration") { properties['storageRequireDeviceEncryption'] == true }
           ```
       remediation: |
-        ### MS365 Console
+        ### Microsoft 365 Console
          
-         To update via the ms365 portal:
-
-         1. Log in as to the ms365 portal at https://admin.microsoft.com
+         To update via the Microsoft 365 portal:
+         1. Log in to the Microsoft 365 portal at https://admin.microsoft.com
          2. Endpoint Manager --> Devices --> Policy --> Configuration profiles 
          3. Ensure that a profile exists for Android with following conditions:
             * Password section --> Device restrictions --> Encryption is set to require
@@ -493,7 +483,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -502,7 +492,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -516,12 +506,11 @@ queries:
           microsoft.policies.authorizationPolicy { _['defaultUserRolePermissions']['allowedToCreateApps'] == false }
           ```
       remediation: |
-        ### MS365 Console
+        ### Microsoft 365 Console
 
-        To update via the ms365 portal:
-
-        1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-        2. Click on "Azure Active Directory" once in the "Admin Centers"
+        To update via the Microsoft 365 portal:
+        1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+        2. Select "Azure Active Directory" once in the "Admin Centers"
         3. Users --> User settings -->  App registrations set to NO
         4. Save
     query: |
@@ -537,7 +526,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -546,7 +535,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -560,12 +549,11 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
-         ### MS365 Console
+         ### Microsoft 365 Console
          
-         To config sign-in risk policy via the ms365 portal:
-
-         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         To config sign-in risk policy via the Microsoft 365 portal:
+         1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+         2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Applications --> Enterprise applications --> Security --> Conditional Access 
          4. Make sure there is a Policy with following conditions:
            * Grant --> Grant access --> Require muilti-factor authentication --> then Select 
@@ -584,7 +572,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft MS365 with `cnquery run`:
+        To audit Microsoft 365 with `cnquery run`:
 
         Run the following query:
 
@@ -593,7 +581,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft ms365 with `cnquery shell`:
+        To audit Microsoft 365 with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -607,12 +595,11 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
-         ### MS365 Console
+         ### Microsoft 365 Console
          
-         To config sign-in risk policy via the ms365 portal:
-
-         1. Log in as Global Administrator to the ms365 portal at https://admin.microsoft.com
-         2. Click on "Azure Active Directory" once in the "Admin Centers"
+         To config sign-in risk policy via the Microsoft 365 portal:
+         1. Log in as Global Administrator to the Microsoft 365 portal at https://admin.microsoft.com
+         2. Select "Azure Active Directory" once in the "Admin Centers"
          3. Applications --> Enterprise applications --> Security --> Conditional Access 
          4. Make sure there is a Policy with following conditions:
            * Grant --> Grant access --> Require muilti-factor authentication --> then Select 
@@ -622,4 +609,3 @@ queries:
          5. Make sure that the policy is Enabled 
     query: |
       microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
-
