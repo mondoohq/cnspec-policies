@@ -60,7 +60,7 @@ policies:
 queries: 
   - uid: mondoo-m365-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multifactor authentication has been enabled for all users
-    severity: 80
+    severity: 100
     docs:
       desc: |
         This control checks that the MFA has been enabled for all users in the Microsoft 365 tenant. 
