@@ -19,7 +19,7 @@ policies:
 
       Remote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration. 
 
-      It should be noted that since some of the tests (AD related) here needs to query the information from Microsoft Graph API, therefore we need to have an application registeration which has required permissions related to the Microsoft Graph, beside other needed permissions that we have documented in our website.
+      It should be noted that since some of the tests (AD related) here needs to query the information from Microsoft Graph API, therefore we need to have an application registration which has required permissions related to the Microsoft Graph, beside other needed permissions that we have documented in our website.
         Therefore, we advise to register an app by following both of the following instructions to meet the required permission needs:
           * https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/
           * https://mondoo.com/docs/platform/saas/ms365/
