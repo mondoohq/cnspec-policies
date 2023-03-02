@@ -18,7 +18,18 @@ policies:
       ## Remote scan
 
       Remote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration. 
+
+      It should be noted that since some of the tests (AD related) here needs to query the information from Microsoft Graph API, therefore we need to have an application registeration which has required permissions related to the Microsoft Graph, beside other needed permissions that we have documented in our website.
+        Therefore, we advise to register an app by following both of the following instructions to meet the required permission needs:
+          * https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/
+          * https://mondoo.com/docs/platform/saas/ms365/
       
+      If you want to run all tests at the same time, you need to use following command which must use a Registered App in AD with the needed permissions.
+
+      ```mql
+          cnquery scan azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle mondoo-azure-security.mql.yaml
+      ```
+
       For a complete list of native transports run: 
       
       ```bash
@@ -52,7 +63,296 @@ policies:
       mondoo-azure-security-public-access-level-private-blob-containers: null
       mondoo-azure-security-default-network-access-rule-storage-accounts-deny: null
       mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0: null
+      mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles: null
+      mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles: null
+      mondoo-azure-security-ensure-that-between-two-and-four-global-admins-are-designated: null
+      mondoo-azure-security-ensure-security-defaults-is-enabled-on-azure-active-directory: null
+      mondoo-azure-security-enable-azure-ad-identity-protection-sign-in-risk-policies: null
+      mondoo-azure-security-enable-azure-ad-identity-protection-user-risk-policies: null
+      mondoo-azure-security-ensure-auditing-retention-greater-than-90-days: null 
+      mondoo-azure-security-ensure-auditing-on: null
+      mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access: null 
 queries: 
+  - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
+    title: Ensure that multifactor authentication has been enabled for all users
+    severity: 100
+    docs:
+      desc: |
+        This control checks that the MFA has been enabled for all users in the Microsoft azure tenant. 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft azure with `cnquery run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```mql
+          cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft 365 with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
+          ```
+      remediation: |
+        ### Microsoft azure Portal
+
+        To update via the Microsoft azure portal:
+        1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft azure portal at https://portal.azure.com 
+        2. Browse to Azure Active Directory --> Security --> Conditional Access
+        3. Select New Policy --> with following conditions:
+           * Grant --> Grant access (Require multifactor authentication)
+           * Users --> All users
+           * Cloud apps or actions --> All cloud apps 
+        5. Make sure that the policy is Enabled. You can also set Enable policy to Report-only, and After confirming your settings using report-only mode, an administrator can move the Enable policy toggle from Report-only to On.
+    query: |
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
+  - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles
+    title: Ensure all users in administrative roles have MFA enabled 
+    severity: 100
+    docs:
+      desc: |
+        Enable multifactor authentication for all users in administrative roles!
+      audit: |
+       __cnquery run__
+
+        To audit Microsoft azure with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft azure with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+          ```
+      remediation: |
+        ### Microsoft azure Portal
+
+        To update via the Microsoft azure portal:
+        1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft azure portal at https://portal.azure.com 
+        2. Browse to Azure Active Directory --> Security --> Conditional Access
+        3. Select New Policy --> with following conditions:
+           * Grant --> Grant access (Require multifactor authentication)
+           * Users --> Users and groups --> Include --> Select users and groups --> Directory roles --> at minimum select following rules (Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin)
+           * Cloud apps or actions --> All cloud apps 
+        5. Make sure that the policy is Enabled. You can also set Enable policy to Report-only, and After confirming your settings using report-only mode, an administrator can move the Enable policy toggle from Report-only to On. 
+    query: |
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+  - uid: mondoo-azure-security-ensure-that-between-two-and-four-global-admins-are-designated
+    title: Ensure that at least three global admins are designated and not more than four
+    severity: 60
+    docs:
+      desc: |
+        This control checks that there are enough Global Admins in a single tenant. 
+        When it comes to designating global admins, it's important to consider the size and complexity of the organization, as well as the level of responsibility and authority required for the role. As a general rule, it's a good idea to have at least three global admins to ensure that there is redundancy and coverage in case one admin is unavailable or leaves the organization.
+
+        At the same time, having too many global admins can lead to confusion and inefficiency, as multiple people may be making decisions or taking actions without proper coordination. Therefore, it's recommended to keep the number of global admins to no more than four, unless the organization is particularly large or complex and requires more administrators to properly manage its operations.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft azure with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft azure with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+          ```
+      remediation: |
+        ### Microsoft azure Portal
+
+        To update via the Microsoft azure portal:
+         1. Log in as a Global Administrator to the Microsoft azure portal at https://portal.azure.com 
+         2. browse to Azure Active Directory
+         3. Users --> New user  
+         4. Create a new Global Admin, if there are not enough by: 
+            * Select the User's name
+            * roles --> Global Administrator -> Save changes
+         5. Remove the Global Admin, if there are more than four Global Administrators
+            * Select the User
+            * Roles --> Manage roles --> De-Select the appropriate role -> Save changes  
+    query: |
+      microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+  - uid: mondoo-azure-security-ensure-security-defaults-is-enabled-on-azure-active-directory
+    title: Ensure that the security Defaults is disabled 
+    severity: 80
+    docs:
+      desc: |
+        This control checks that the Security defaults which is active by default is enabled on Azure Active directory.
+
+        The security defaults will help protect user accounts from password spray and phishing attacks by:
+
+        * Requiring all users and admins to register for MFA using the Microsoft Authenticator app.
+        * Challenging users with MFA, mostly when they show up on a new device or app, but more often for critical roles and tasks.
+        * Disabling authentication from legacy authentication clients that can't do MFA. Protecting admins by requiring extra authentication every time they sign in.
+
+        It should be noted that for advanced Security configurations, you need to disable the "security defaults". 
+
+
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft azure with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run azure -c "microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft azure with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
+          ```
+      remediation: |
+         ### Microsoft azure Portal
+
+         To update via the Microsoft azure portal:
+         1. Log in to the Microsoft azure portal at https://portal.azure.com 
+         2. browse to Azure Active Directory --> properties --> Select "manage security defaults"
+         3. Verify the "Enable security defaults" toggle is Yes. 
+    query: |
+      microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == true
+  - uid: mondoo-azure-security-enable-azure-ad-identity-protection-sign-in-risk-policies
+    title: Enable sign-in risk policy for MFA 
+    severity: 80
+    docs:
+      desc: |
+        This control checks that there are some policies in place which can detect risky sign-in in real-time and offline. A risky sign-in mainly means a sign-in attempt which might be performed by illegitimate owner of a user account.
+
+        Most users have a normal behavior that can be tracked. When they fall outside of this norm, it could be risky to allow them to successfully sign in. Instead, you may want to block that user, or ask them to perform a multi-factor authentication. If the user successfully completes the MFA challenge, you can consider it a valid sign-in attempt and grant access to the application or service.
+
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft azure with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft azure with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+          ```
+      remediation: |
+         ### Microsoft azure Portal
+
+         To update via the Microsoft azure portal:
+         1. Log in to the Microsoft azure portal at https://portal.azure.com 
+         2. browse to Azure Active Directory --> Security --> Identity Protection --> Sign-in risk policy
+         3. Make sure the policy applies to all users.
+         4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
+         5. Under Access, choose Select a control. Make sure the option for Allow access and Require multi-factor authentication is checked, then choose Select.
+         6. Set Enforce Policy to On, then select Save.
+    query: |
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+  - uid: mondoo-azure-security-enable-azure-ad-identity-protection-user-risk-policies
+    title: Enable user risk policy for password change 
+    severity: 100
+    docs:
+      desc: |
+        This control checks that there are some policies in place which can detect risky sign-in in real-time and offline. A risky sign-in mainly means a sign-in attempt which might be performed by illegitimate owner of a user account.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft azure with `cnquery run`:
+
+        Run the following query:
+
+          ```mql
+          cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        __cnquery shell__
+
+        To audit Microsoft azure with `cnquery shell`:
+
+        1. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+          ```
+      remediation: |
+         ### Microsoft azure Portal
+
+         To update via the Microsoft azure portal:
+         1. Log in to the Microsoft azure portal at https://portal.azure.com 
+         2. browse to Azure Active Directory --> Security --> Identity Protection --> User risk policy
+         3. Make sure the policy applies to all users.
+         4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
+         5. Under Access, select Access. Make sure the option for Allow access and Require password change is checked, then choose Select.
+         6. Set Enforce Policy to On, then select Save. 
+    query: |
+      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
     title: Ensure that 'OS' disks are encrypted
     severity: 80
