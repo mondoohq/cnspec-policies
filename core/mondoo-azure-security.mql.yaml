@@ -1,7 +1,7 @@
 policies:
 - uid: mondoo-azure-security
   name: Microsoft Azure Security by Mondoo
-  version: 1.0.0
+  version: 1.1.0
   scoring_system: 2
   authors:
     - name: Mondoo, Inc
@@ -23,8 +23,8 @@ policies:
       
       To run all checks at the same time, ensure your app registration has the necessary permissions as described above and then run:
 
-      ```mql
-          cnquery scan azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle mondoo-azure-security.mql.yaml
+      ```bash
+      cnquery scan azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle mondoo-azure-security.mql.yaml
       ```
 
       For a complete list of native transports run: 
@@ -85,7 +85,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
@@ -124,13 +124,13 @@ queries:
       desc: |
         Enable multifactor authentication for all users in administrative roles!
       audit: |
-       __cnquery run__
+        __cnquery run__
 
         To audit Microsoft Azure with `cnquery run`:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
@@ -178,7 +178,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
@@ -236,9 +236,10 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
+
         __cnquery shell__
 
         To audit Microsoft Azure with `cnquery shell`:
@@ -279,7 +280,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
@@ -322,7 +323,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnquery shell__
@@ -366,7 +367,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.compute.vms { osDisk { properties['encryption'] } }"
           ```
 
@@ -461,7 +462,7 @@ queries:
         ```
     refs:
       - title: Overview of managed disk encryption options
-        url: Overview of managed disk encryption options
+        url: https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption-overview
     query: |
       azure.compute.vms {
         osDisk {
@@ -482,7 +483,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.network.securityGroups { securityRules }"
           ```
 
@@ -552,7 +553,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.network.securityGroups { securityRules }"
           ```
 
@@ -623,7 +624,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.storage.accounts { properties['supportsHttpsTrafficOnly'] }"
           ```
 
@@ -670,7 +671,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
           ```
 
@@ -741,7 +742,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
           ```
 
@@ -806,7 +807,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
           ```
 
@@ -857,7 +858,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.sql.servers { auditingPolicy['state'] }"
           ```
 
@@ -910,7 +911,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.sql.servers { auditingPolicy['retentionDays'] }"
           ```
 
@@ -962,7 +963,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnquery run azure -c "azure.sql.servers { firewallRules { startIpAddress } }"
           cnquery run azure -c "azure.postgresql.servers { firewallRules { startIpAddress } }"
           cnquery run azure -c "azure.mariadb.servers { firewallRules { startIpAddress } }"
