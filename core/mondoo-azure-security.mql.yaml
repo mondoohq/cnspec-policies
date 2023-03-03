@@ -19,7 +19,7 @@ policies:
 
       Remote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration. 
 
-      It should be noted that since some of the tests (AD related) here needs to query the information from Microsoft Graph API, therefore we need to have an application registration which has required permissions related to the Microsoft Graph, beside other needed permissions that we have documented in our website.
+      It should be noted that since some of the tests (AD related) here needs to query the information from Microsoft Graph API, therefore we need to have an application registeration which has required permissions related to the Microsoft Graph, beside other needed permissions that we have documented in our website.
         Therefore, we advise to register an app by following both of the following instructions to meet the required permission needs:
           * https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/
           * https://mondoo.com/docs/platform/saas/ms365/
@@ -78,11 +78,11 @@ queries:
     severity: 100
     docs:
       desc: |
-        This control checks that the MFA has been enabled for all users in the Microsoft azure tenant. 
+        This control checks that the MFA has been enabled for all users in the Microsoft Azure tenant. 
       audit: |
         __cnquery run__
 
-        To audit Microsoft azure with `cnquery run`:
+        To audit Microsoft Azure with `cnquery run`:
       
         it is possible also to use client-secret for app connection instead of the certificate. 
 
@@ -94,7 +94,7 @@ queries:
 
         __cnquery shell__
 
-        To audit Microsoft 365 with `cnquery shell`:
+        To audit Microsoft Azure with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -108,10 +108,10 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
           ```
       remediation: |
-        ### Microsoft azure Portal
+        ### Microsoft Azure Portal
 
-        To update via the Microsoft azure portal:
-        1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft azure portal at https://portal.azure.com 
+        To update via the Microsoft Azure portal:
+        1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
         2. Browse to Azure Active Directory --> Security --> Conditional Access
         3. Select New Policy --> with following conditions:
            * Grant --> Grant access (Require multifactor authentication)
@@ -129,7 +129,7 @@ queries:
       audit: |
        __cnquery run__
 
-        To audit Microsoft azure with `cnquery run`:
+        To audit Microsoft Azure with `cnquery run`:
 
         Run the following query:
 
@@ -139,7 +139,7 @@ queries:
 
         __cnquery shell__
 
-        To audit Microsoft azure with `cnquery shell`:
+        To audit Microsoft Azure with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -153,10 +153,10 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
           ```
       remediation: |
-        ### Microsoft azure Portal
+        ### Microsoft Azure Portal
 
-        To update via the Microsoft azure portal:
-        1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft azure portal at https://portal.azure.com 
+        To update via the Microsoft Azure portal:
+        1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
         2. Browse to Azure Active Directory --> Security --> Conditional Access
         3. Select New Policy --> with following conditions:
            * Grant --> Grant access (Require multifactor authentication)
@@ -177,7 +177,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft azure with `cnquery run`:
+        To audit Microsoft Azure with `cnquery run`:
 
         Run the following query:
 
@@ -200,10 +200,10 @@ queries:
           microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
           ```
       remediation: |
-        ### Microsoft azure Portal
+        ### Microsoft Azure Portal
 
-        To update via the Microsoft azure portal:
-         1. Log in as a Global Administrator to the Microsoft azure portal at https://portal.azure.com 
+        To update via the Microsoft Azure portal:
+         1. Log in as a Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
          2. browse to Azure Active Directory
          3. Users --> New user  
          4. Create a new Global Admin, if there are not enough by: 
@@ -233,7 +233,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft azure with `cnquery run`:
+        To audit Microsoft Azure with `cnquery run`:
 
         Run the following query:
 
@@ -242,7 +242,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft azure with `cnquery shell`:
+        To audit Microsoft Azure with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -256,10 +256,10 @@ queries:
           microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
           ```
       remediation: |
-         ### Microsoft azure Portal
+         ### Microsoft Azure Portal
 
-         To update via the Microsoft azure portal:
-         1. Log in to the Microsoft azure portal at https://portal.azure.com 
+         To update via the Microsoft Azure portal:
+         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
          2. browse to Azure Active Directory --> properties --> Select "manage security defaults"
          3. Verify the "Enable security defaults" toggle is Yes. 
     query: |
@@ -276,7 +276,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft azure with `cnquery run`:
+        To audit Microsoft Azure with `cnquery run`:
 
         Run the following query:
 
@@ -285,7 +285,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft azure with `cnquery shell`:
+        To audit Microsoft Azure with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -299,10 +299,10 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
-         ### Microsoft azure Portal
+         ### Microsoft Azure Portal
 
-         To update via the Microsoft azure portal:
-         1. Log in to the Microsoft azure portal at https://portal.azure.com 
+         To update via the Microsoft Azure portal:
+         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
          2. browse to Azure Active Directory --> Security --> Identity Protection --> Sign-in risk policy
          3. Make sure the policy applies to all users.
          4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
@@ -319,7 +319,7 @@ queries:
       audit: |
         __cnquery run__
 
-        To audit Microsoft azure with `cnquery run`:
+        To audit Microsoft Azure with `cnquery run`:
 
         Run the following query:
 
@@ -328,7 +328,7 @@ queries:
           ```
         __cnquery shell__
 
-        To audit Microsoft azure with `cnquery shell`:
+        To audit Microsoft Azure with `cnquery shell`:
 
         1. Launch `cnquery shell`:
 
@@ -342,10 +342,10 @@ queries:
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
-         ### Microsoft azure Portal
+         ### Microsoft Azure Portal
 
-         To update via the Microsoft azure portal:
-         1. Log in to the Microsoft azure portal at https://portal.azure.com 
+         To update via the Microsoft Azure portal:
+         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
          2. browse to Azure Active Directory --> Security --> Identity Protection --> User risk policy
          3. Make sure the policy applies to all users.
          4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
