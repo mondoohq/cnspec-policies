@@ -17,12 +17,9 @@ policies:
 
       ## Remote scan
 
-      Remote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration. 
+      Remote scans use native transports in cnspec to provide on-demand scan results without the need to install any agents or integration. 
 
-      It should be noted that since some of the tests (AD related) here needs to query the information from Microsoft Graph API, therefore we need to have an application registration which has required permissions related to the Microsoft Graph, beside other needed permissions that we have documented in our website.
-        Therefore, we advise to register an app by following both of the following instructions to meet the required permission needs:
-          * https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/
-          * https://mondoo.com/docs/platform/saas/ms365/
+      Note: Some of the checks in this policy query Microsoft Graph API data. To successfully run these checks, you must create an Azure AD app registration for cnspec. Follow the instructions on https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/ and include the permissions described on https://mondoo.com/docs/platform/saas/ms365/. 
       
       If you want to run all tests at the same time, you need to use following command which must use a Registered App in AD with the needed permissions.
 
@@ -204,7 +201,7 @@ queries:
 
         To update via the Microsoft Azure portal:
          1. Log in as a Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
-         2. browse to Azure Active Directory
+         2. Navigate to Azure Active Directory
          3. Users --> New user  
          4. Create a new Global Admin, if there are not enough by: 
             * Select the User's name
@@ -259,8 +256,8 @@ queries:
          ### Microsoft Azure Portal
 
          To update via the Microsoft Azure portal:
-         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
-         2. browse to Azure Active Directory --> properties --> Select "manage security defaults"
+         1. Log into the Microsoft Azure portal at https://portal.azure.com 
+         2. Navigate to **Azure Active Directory --> properties --> Select "manage security defaults"**.
          3. Verify the "Enable security defaults" toggle is Yes. 
     query: |
       microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == true
@@ -302,8 +299,8 @@ queries:
          ### Microsoft Azure Portal
 
          To update via the Microsoft Azure portal:
-         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
-         2. browse to Azure Active Directory --> Security --> Identity Protection --> Sign-in risk policy
+         1. Log into the Microsoft Azure portal at https://portal.azure.com 
+         2. Navigate to **Azure Active Directory --> Security --> Identity Protection --> Sign-in risk policy**.
          3. Make sure the policy applies to all users.
          4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
          5. Under Access, choose Select a control. Make sure the option for Allow access and Require multi-factor authentication is checked, then choose Select.
@@ -345,12 +342,12 @@ queries:
          ### Microsoft Azure Portal
 
          To update via the Microsoft Azure portal:
-         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
-         2. browse to Azure Active Directory --> Security --> Identity Protection --> User risk policy
+         1. Log into the Microsoft Azure portal at https://portal.azure.com 
+         2. Navigate to **Azure Active Directory --> Security --> Identity Protection --> User risk policy**.
          3. Make sure the policy applies to all users.
-         4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
-         5. Under Access, select Access. Make sure the option for Allow access and Require password change is checked, then choose Select.
-         6. Set Enforce Policy to On, then select Save. 
+         4. Under **Conditions**, choose **Select conditions -> Select a risk level**, then choose **Medium and above**.
+         5. Under **Access,** select **Access**. Make sure the **Allow access and Require password change** is checked, then choose **Select**.
+         6. Set **Enforce Policy** to **On**, then select **Save**.
     query: |
       microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
@@ -444,7 +441,7 @@ queries:
 
         To update via the Azure Console:
 
-        1. Log in to the Azure Console at https://portal.azure.com/.
+        1. Log into the Azure Console at https://portal.azure.com/.
         2. Go to **Virtual machines**.
         2. For each virtual machine, go to **Settings**
         3. Click on **Disks**.
@@ -703,7 +700,7 @@ queries:
 
         ###Azure Portal 
 
-        1. Log in to the Azure Portal at https://portal.azure.com.
+        1. Log into the Azure Portal at https://portal.azure.com.
         2. Navigate to **Storage Accounts**.
         3. Navigate to **BLOB SERVICE**.
         4. Select **Containers**.
