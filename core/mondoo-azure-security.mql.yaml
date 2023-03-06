@@ -154,10 +154,10 @@ queries:
 
         To update using the Microsoft Azure portal:
         1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
-        2. Browse to Azure Active Directory --> Security --> Conditional Access
+        2. Navigate to Azure Active Directory -> Security -> Conditional Access
         3. Select **New Policy** with following conditions:
            * Grant: Grant access (Require multi-factor authentication)
-           * Users --> Users and groups --> Include --> Select users and groups --> Directory roles: At minimum select Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin.
+           * Users -> Users and groups -> Include -> Select users and groups -> Directory roles: At minimum select Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin.
            * Cloud apps or actions: All cloud apps 
         5. Make sure that the policy is enabled. You can also set **Enable policy** to **Report-only**. After confirming your settings using report-only mode, an administrator can switch the **Enable policy** toggle from **Report-only** to **On**.
     query: |
@@ -260,7 +260,7 @@ queries:
 
          To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com 
-         2. Navigate to **Azure Active Directory --> properties --> Select "manage security defaults"**.
+         2. Navigate to **Azure Active Directory -> properties -> Select "manage security defaults"**.
          3. Verify the "Enable security defaults" toggle is Yes. 
     query: |
       microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == true
@@ -303,7 +303,7 @@ queries:
 
          To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com 
-         2. Navigate to **Azure Active Directory --> Security --> Identity Protection --> Sign-in risk policy**.
+         2. Navigate to **Azure Active Directory -> Security -> Identity Protection -> Sign-in risk policy**.
          3. Make sure the policy applies to all users.
          4. Under Conditions, choose **Select conditions -> Select a risk level**, then choose **Medium and above**.
          5. Under Access, choose **Select a control**. Make sure the **Allow access and require multi-factor authentication** option is checked, then choose **Select**.
@@ -346,7 +346,7 @@ queries:
 
          To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com 
-         2. Navigate to **Azure Active Directory --> Security --> Identity Protection --> User risk policy**.
+         2. Navigate to **Azure Active Directory -> Security -> Identity Protection -> User risk policy**.
          3. Make sure the policy applies to all users.
          4. Under **Conditions**, choose **Select conditions -> Select a risk level**, then choose **Medium and above**.
          5. Under **Access,** select **Access**. Make sure the **Allow access and Require password change** is checked, then choose **Select**.
