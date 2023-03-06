@@ -21,7 +21,7 @@ policies:
 
       Note: Some of the checks in this policy query Microsoft Graph API data. To successfully run these checks, you must create an Azure AD app registration for cnspec. Follow the instructions on https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/ and include the permissions described on https://mondoo.com/docs/platform/saas/ms365/. 
       
-      If you want to run all tests at the same time, you need to use following command which must use a Registered App in AD with the needed permissions.
+      To run all checks at the same time, ensure your app registration has the necessary permissions as described above and then run:
 
       ```mql
           cnquery scan azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle mondoo-azure-security.mql.yaml
@@ -107,14 +107,14 @@ queries:
       remediation: |
         ### Microsoft Azure Portal
 
-        To update via the Microsoft Azure portal:
+        To update using the Microsoft Azure portal:
         1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
-        2. Browse to Azure Active Directory --> Security --> Conditional Access
-        3. Select New Policy --> with following conditions:
-           * Grant --> Grant access (Require multifactor authentication)
-           * Users --> All users
-           * Cloud apps or actions --> All cloud apps 
-        5. Make sure that the policy is Enabled. You can also set Enable policy to Report-only, and After confirming your settings using report-only mode, an administrator can move the Enable policy toggle from Report-only to On.
+        2. Navigate to **Azure Active Directory -> Security -> Conditional Access**.
+        3. Select **New Policy** with these conditions:
+           * Grant: Grant access (Require multi-factor authentication)
+           * Users: All users
+           * Cloud apps or actions: All cloud apps 
+        5. Make sure that the policy is enabled. You can also set **Enable policy** to **Report-only**. After confirming your settings using report-only mode, an administrator can switch the **Enable policy** toggle from **Report-only** to **On**.
     query: |
       microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
   - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles
@@ -152,25 +152,25 @@ queries:
       remediation: |
         ### Microsoft Azure Portal
 
-        To update via the Microsoft Azure portal:
+        To update using the Microsoft Azure portal:
         1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
         2. Browse to Azure Active Directory --> Security --> Conditional Access
-        3. Select New Policy --> with following conditions:
-           * Grant --> Grant access (Require multifactor authentication)
-           * Users --> Users and groups --> Include --> Select users and groups --> Directory roles --> at minimum select following rules (Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin)
-           * Cloud apps or actions --> All cloud apps 
-        5. Make sure that the policy is Enabled. You can also set Enable policy to Report-only, and After confirming your settings using report-only mode, an administrator can move the Enable policy toggle from Report-only to On. 
+        3. Select **New Policy** with following conditions:
+           * Grant: Grant access (Require multi-factor authentication)
+           * Users --> Users and groups --> Include --> Select users and groups --> Directory roles: At minimum select Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin.
+           * Cloud apps or actions: All cloud apps 
+        5. Make sure that the policy is enabled. You can also set **Enable policy** to **Report-only**. After confirming your settings using report-only mode, an administrator can switch the **Enable policy** toggle from **Report-only** to **On**.
     query: |
       microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
   - uid: mondoo-azure-security-ensure-that-between-two-and-four-global-admins-are-designated
-    title: Ensure that at least three global admins are designated and not more than four
+    title: Ensure that at least three but not more than four global admins are designated
     severity: 60
     docs:
       desc: |
         This control checks that there are enough Global Admins in a single tenant. 
-        When it comes to designating global admins, it's important to consider the size and complexity of the organization, as well as the level of responsibility and authority required for the role. As a general rule, it's a good idea to have at least three global admins to ensure that there is redundancy and coverage in case one admin is unavailable or leaves the organization.
+         When designating global admins, it's important to consider the size and complexity of the organization, as well as the level of responsibility and authority required for the role. As a general rule, it's a good idea to have at least three global admins to ensure that there is redundancy and coverage in case one admin is unavailable or leaves the organization.
 
-        At the same time, having too many global admins can lead to confusion and inefficiency, as multiple people may be making decisions or taking actions without proper coordination. Therefore, it's recommended to keep the number of global admins to no more than four, unless the organization is particularly large or complex and requires more administrators to properly manage its operations.
+        At the same time, having too many global admins can lead to confusion and inefficiency, as multiple people may be making decisions or taking actions without proper coordination. Therefore, it's recommended to limit the number of global admins to four, unless the organization is particularly large or complex and requires more administrators to properly manage its operations.
       audit: |
         __cnquery run__
 
@@ -199,32 +199,34 @@ queries:
       remediation: |
         ### Microsoft Azure Portal
 
-        To update via the Microsoft Azure portal:
-         1. Log in as a Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
+        To update using the Microsoft Azure portal:
+         1. Log into the Microsoft Azure portal at https://portal.azure.com as a global administrator.
          2. Navigate to Azure Active Directory
-         3. Users --> New user  
-         4. Create a new Global Admin, if there are not enough by: 
-            * Select the User's name
-            * roles --> Global Administrator -> Save changes
+         3. Select **Users -> New user **.  
+         4. If there are not enough global admins, create one: 
+            * Select the user name.
+            * Under **Roles**, select **Global Administrator ** and then select **Save changes**.
          5. Remove the Global Admin, if there are more than four Global Administrators
-            * Select the User
-            * Roles --> Manage roles --> De-Select the appropriate role -> Save changes  
+            * Select the user name.
+            * Under Roles, select **Manage roles** and then deselect Global Administrator.
+            * Select **Save changes**.
     query: |
       microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
   - uid: mondoo-azure-security-ensure-security-defaults-is-enabled-on-azure-active-directory
-    title: Ensure that the security Defaults is disabled 
+    title: Ensure that the security defaults are disabled 
     severity: 80
     docs:
       desc: |
-        This control checks that the Security defaults which is active by default is enabled on Azure Active directory.
+        This control checks that the security defaults (which are enabled by default) are enabled in Azure Active directory.
 
-        The security defaults will help protect user accounts from password spray and phishing attacks by:
+        The security defaults help protect user accounts from password spray and phishing attacks by:
 
         * Requiring all users and admins to register for MFA using the Microsoft Authenticator app.
-        * Challenging users with MFA, mostly when they show up on a new device or app, but more often for critical roles and tasks.
-        * Disabling authentication from legacy authentication clients that can't do MFA. Protecting admins by requiring extra authentication every time they sign in.
+        * Challenging users with MFA when they log in from a new device or app or for critical roles and tasks.
+        * Disabling authentication from legacy authentication clients that can't do MFA. 
+        * Protecting admins by requiring extra authentication every time they log in.
 
-        It should be noted that for advanced Security configurations, you need to disable the "security defaults". 
+        Note: Advanced security configurations require you to disable the security defaults. 
 
 
       audit: |
@@ -255,7 +257,7 @@ queries:
       remediation: |
          ### Microsoft Azure Portal
 
-         To update via the Microsoft Azure portal:
+         To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com 
          2. Navigate to **Azure Active Directory --> properties --> Select "manage security defaults"**.
          3. Verify the "Enable security defaults" toggle is Yes. 
@@ -298,13 +300,13 @@ queries:
       remediation: |
          ### Microsoft Azure Portal
 
-         To update via the Microsoft Azure portal:
+         To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com 
          2. Navigate to **Azure Active Directory --> Security --> Identity Protection --> Sign-in risk policy**.
          3. Make sure the policy applies to all users.
-         4. Under Conditions, choose Select conditions --> Select a risk level, then choose Medium and above.
-         5. Under Access, choose Select a control. Make sure the option for Allow access and Require multi-factor authentication is checked, then choose Select.
-         6. Set Enforce Policy to On, then select Save.
+         4. Under Conditions, choose **Select conditions -> Select a risk level**, then choose **Medium and above**.
+         5. Under Access, choose **Select a control**. Make sure the **Allow access and require multi-factor authentication** option is checked, then choose **Select**.
+         6. Set **Enforce Policy** to **On**, then select **Save**.
     query: |
       microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
   - uid: mondoo-azure-security-enable-azure-ad-identity-protection-user-risk-policies
@@ -312,7 +314,7 @@ queries:
     severity: 100
     docs:
       desc: |
-        This control checks that there are some policies in place which can detect risky sign-in in real-time and offline. A risky sign-in mainly means a sign-in attempt which might be performed by illegitimate owner of a user account.
+        This control checks that there are policies in place that can detect risky sign-in, both in real time and offline. A risky sign-in generally means a sign-in attempt performed by someone other than the account owner.
       audit: |
         __cnquery run__
 
@@ -341,7 +343,7 @@ queries:
       remediation: |
          ### Microsoft Azure Portal
 
-         To update via the Microsoft Azure portal:
+         To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com 
          2. Navigate to **Azure Active Directory --> Security --> Identity Protection --> User risk policy**.
          3. Make sure the policy applies to all users.
