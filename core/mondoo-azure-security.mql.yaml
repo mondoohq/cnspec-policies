@@ -1212,7 +1212,7 @@ queries:
         To update using the Microsoft Azure portal:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Navigate to **Key vaults**.
-        3. For each Key vault, click on "Keys" or "Secrets"
+        3. For each Key Vaults, click on "Keys" or "Secrets"
         4. Make sure that each key/secret in the KV has "EXPIRATION DATE" set as appropriate
     query: |
       azure.keyvault.vaults { 
@@ -1226,7 +1226,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        The key vault can contains keys, secrets and certificates. Accidental unavailability of a KV can cause serious problems in any organizations. 
+        The key Vault can contains keys, secrets and certificates. Accidental unavailability of a KV can cause serious problems in any organizations. 
       audit: |
         __cnspec run__
 
@@ -1365,9 +1365,9 @@ queries:
             - Filter by subscription: "< choose the subscription alerts are needed for >""
             - Filter by resource location: **"Network security groups"**
             - Filter by location: "All" 
-            - Click on the "subscription name" or "resource group" or "Network securiy group" that the Log Alert Rule will be applied to
+            - Click on the "subscription name" or "resource group" or "Network security group" that the Log Alert Rule will be applied to
           5. Verify that the selection preview shows:
-            - "All network securiy groups" or "< your network security group >""
+            - "All network security groups" or "< your network security group >""
             - "< Resource Name >" - The subscription, group, or resource you selected
           6. Click "Done" 
           7. Under the Condition tab, click "Add Condition" 
