@@ -23,7 +23,7 @@ policies:
       
       To run all checks at the same time, ensure your app registration has the necessary permissions as described above and then run:
 
-      ```mql
+      ```bash
           cnspec scan azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id> --policy-bundle mondoo-azure-security.mql.yaml
       ```
 
@@ -85,7 +85,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
@@ -101,7 +101,7 @@ queries:
         
         2. Run the following query:
 
-          ```mql
+          ```bash
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
           ```
       remediation: |
@@ -130,7 +130,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
@@ -146,7 +146,7 @@ queries:
         
         2. Run the following query:
 
-          ```mql
+          ```bash
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
           ```
       remediation: |
@@ -178,7 +178,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
@@ -193,7 +193,7 @@ queries:
         
         2. Run the following query:
 
-          ```mql
+          ```bash
           microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
           ```
       remediation: |
@@ -236,7 +236,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
@@ -251,7 +251,7 @@ queries:
         
         2. Run the following query:
 
-          ```mql
+          ```bash
           microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
           ```
       remediation: |
@@ -279,7 +279,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
@@ -294,7 +294,7 @@ queries:
         
         2. Run the following query:
 
-          ```mql
+          ```bash
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
@@ -322,7 +322,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
@@ -337,7 +337,7 @@ queries:
         
         2. Run the following query:
 
-          ```mql
+          ```bash
           microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
           ```
       remediation: |
@@ -366,7 +366,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.compute.vms { osDisk { properties['encryption'] } }"
           ```
 
@@ -383,7 +383,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.compute.vms { osDisk { properties['encryption'] } }
           ```
       remediation: |
@@ -482,7 +482,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.network.securityGroups { securityRules }"
           ```
 
@@ -499,7 +499,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.network.securityGroups { securityRules }
           ```
       remediation: |
@@ -552,7 +552,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.network.securityGroups { securityRules }"
           ```
 
@@ -569,7 +569,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.network.securityGroups { securityRules }
           ```
       remediation: |
@@ -623,7 +623,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.storage.accounts { properties['supportsHttpsTrafficOnly'] }"
           ```
 
@@ -640,7 +640,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.storage.accounts { properties['supportsHttpsTrafficOnly'] }
           ```
       remediation: |
@@ -670,7 +670,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
           ```
 
@@ -687,7 +687,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.storage.accounts { containers { properties['publicAccess'] == "None" } }
           ```
       remediation: |
@@ -741,7 +741,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
           ```
 
@@ -758,7 +758,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.storage.accounts { containers { properties['publicAccess'] == "None" } }
           ```
       remediation: |
@@ -806,7 +806,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
           ```
 
@@ -823,7 +823,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.storage.accounts { containers { properties['publicAccess'] == "None" } }
           ```
       remediation: |
@@ -857,7 +857,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.sql.servers { auditingPolicy['state'] }"
           ```
 
@@ -874,7 +874,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.sql.servers { auditingPolicy['state'] }
           ```
       remediation: |
@@ -910,7 +910,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.sql.servers { auditingPolicy['retentionDays'] }"
           ```
 
@@ -927,7 +927,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.sql.servers { auditingPolicy['retentionDays'] }
           ```
       remediation: |
@@ -962,7 +962,7 @@ queries:
         1. Run `az login` to authenticate with the correct Azure subscription and tenant.
         2. Run the following query:
 
-          ```mql
+          ```bash
           cnspec run azure -c "azure.sql.servers { firewallRules { startIpAddress } }"
           cnspec run azure -c "azure.postgresql.servers { firewallRules { startIpAddress } }"
           cnspec run azure -c "azure.mariadb.servers { firewallRules { startIpAddress } }"
@@ -982,7 +982,7 @@ queries:
         
         3. Run the following query:
 
-          ```mql
+          ```bash
           azure.sql.servers { firewallRules { startIpAddress } }
           azure.postgresql.servers { firewallRules { startIpAddress } }
           azure.mariadb.servers { firewallRules { startIpAddress } } 
