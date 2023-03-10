@@ -81,6 +81,10 @@ policies:
           mondoo-okta-security-okta-users-unlock: null
           mondoo-okta-security-okta-auth-swa-critical: null
           mondoo-okta-security-okta-mfa-sign-in: null
+          mondoo-okta-security-okta-limit-superadmin: null
+          mondoo-okta-security-okta-mfa-strong-factor: null
+          mondoo-okta-security-okta-mfa-password-and-another-strong-factor: null
+          mondoo-okta-security-okta-mfa-password-reauthenticate: null
 queries:
   - uid: mondoo-okta-security-okta-mfa-access
     title: Ensure MFA is active for everybody accessing Okta platform
@@ -422,3 +426,207 @@ queries:
         6. Update rule at the end. 
     query: |
       okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))
+  - uid: mondoo-okta-security-okta-limit-superadmin
+    title: Ensure the users with Super Admin rights are limited to 3
+    severity: 80
+    docs:
+      desc: |
+        Super Admin role has the highest permissions of all the admins in Okta. Super Admins can create other admins, assign or remove permissions, and  perform all other admin activities.
+        By limiting the number of administrators who have this level of permissions, we can reduce the odds of a bad actor gaining access to one of these highly privileged accounts.
+
+      audit: |
+        __cnspec run__
+
+        To audit Okta `cnspec run`:
+
+        Run the following query:
+
+          ```mql
+          cnspec run okta -c "okta.users.where(roles { type == "SUPER_ADMIN" }).length <= 3" --organization <org-name> --token <OKTA_TOKEN>
+          ```
+
+        __cnspec shell__
+
+        To audit Okta with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell okta ---organization <org-name> --token <OKTA_TOKEN>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          okta.users.where(roles { type == "SUPER_ADMIN" }).length <= 3
+          ```
+      remediation: |
+        ### Okta Console
+
+        To update via the Okta portal:
+        1. Log in as Super Admin to the related Okta organization (Identity Engine)
+        2. Select from Security the "Administrators" 
+        3. Select "Admins" column and remove the users with "Super Administrator" role if needed
+    query: |
+      okta.users.where(roles { type == "SUPER_ADMIN" }).length <= 3
+  - uid: mondoo-okta-security-okta-mfa-strong-factor
+    title: Ensure the strong Factors is used for MFA
+    severity: 100
+    docs:
+      desc: |
+        While MFA is an ultimate way to add an additional layer of  security and defend against credential-based attacks, not all factors in multi-factor authentication is safe and secure.
+        
+        Traditionally popular factors like “security questions” and sms have proven to be problematic. Bad actors can easily find the answers to security questions online, and SMS can leave users vulnerable to phishing and SIM jacking attacks.
+        
+        To increase the security. administrators should require users to authenticate  via strong factors, like software-based "Authenticators", and make sure nobody is Phone and Email "Authenticators"
+
+        __cnspec run__
+
+        To audit Okta `cnspec run`:
+
+        Run the following query:
+
+          ```mql
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} } )" --organization <org-name> --token <OKTA_TOKEN>
+          ```
+
+        __cnspec shell__
+
+        To audit Okta with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell okta ---organization <org-name> --token <OKTA_TOKEN>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} } )
+          ```
+      remediation: |
+        ### Okta Console
+
+        To update via the Okta portal:
+        1. Log in as Super Admin to the related Okta organization (Identity Engine)
+        2. Select from Security the "Authentication Policies" and then select "MFA"
+        3. By Default there is a "Catch-all Rule" which can be edited or Add a new Rule.
+        4. Actions and then Edit
+        5. In the Section "Possession factor constraints are", the "Exclude phone and email authenticators" should be selected.
+        6. At the end Save
+    query: |
+      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} } )
+  - uid: mondoo-okta-security-okta-mfa-password-and-another-strong-factor
+    title: Ensure the Password/IdP plus Another factor chosen for MFA
+    severity: 100
+    docs:
+      desc: |
+        A key goal for MFA is to add additional authentication factors to increase security.
+        There are three common types of authentication factors used to authenticate users:
+          * Knowledge -  Something you know, such as a password.
+          * Possession - Something you have, such as a security key or Authenticator App
+          * Inherence -  Something you are, such as a unique biometric or behavioral characteristic
+
+        Among the options that Okta currently offers in MFA configuration part, the combination of Password/IdP plus Another factor is the best practice.
+
+        __cnspec run__
+
+        To audit Okta `cnspec run`:
+
+        Run the following query:
+
+          ```mql
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" } })" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA" })" --organization <org-name> --token <OKTA_TOKEN>
+          ```
+
+        __cnspec shell__
+
+        To audit Okta with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell okta ---organization <org-name> --token <OKTA_TOKEN>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" } })
+          okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA" })
+          ```
+      remediation: |
+        ### Okta Console
+
+        To update via the Okta portal:
+        1. Log in as Super Admin to the related Okta organization (Identity Engine)
+        2. Select from Security the "Authentication Policies" and then select "MFA"
+        3. By Default there is a "Catch-all Rule" which can be edited or Add a new Rule.
+        4. Actions and then Edit
+        5. In the Section "Possession factor constraints are", the "Exclude phone and email authenticators" should be selected.
+        6. At the end Save
+    query: |
+      okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" } })
+      okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA" })
+  - uid: mondoo-okta-security-okta-mfa-password-reauthenticate
+    title: Ensure the re-authentication period for Password/IdP and MFA code is active and short
+    severity: 60
+    docs:
+      desc: |
+        
+        The best practice is To prompt the user to re-enter the password and MFA code periodically. Like most topics in information security, the re-authentication interval has a tradeoff between security and convenience: a short amount has better security but is inconvenient, while a longer amount is more convenient but has lower security.
+
+        It should be tested that following two options never being configured for password and other factors: 
+          * Every sign-in attempt
+          * Never re-authenticate if the session is active 
+
+          Our recommendations is to configure the Password re-authentication after 4 hours and other factor every 8 hours. 
+
+        __cnspec run__
+
+        To audit Okta `cnspec run`:
+
+        Run the following query:
+
+          ```mql
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} })" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} })" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" })" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" })" --organization <org-name> --token <OKTA_TOKEN>
+          ```
+
+        __cnspec shell__
+
+        To audit Okta with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell okta ---organization <org-name> --token <OKTA_TOKEN>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} })
+          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} })
+          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" })
+          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" })
+          ```
+      remediation: |
+        ### Okta Console
+
+        To update via the Okta portal:
+        1. Log in as Super Admin to the related Okta organization (Identity Engine)
+        2. Select from Security the "Authentication Policies" and then select "MFA"
+        3. By Default there is a "Catch-all Rule" which can be edited or Add a new Rule.
+        4. Actions and then Edit
+        5. In the Section "Possession factor constraints are", the "Exclude phone and email authenticators" should be selected.
+        6. At the end Save
+    query: |
+      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} })
+      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} })
+      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" })
+      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" })
