@@ -264,6 +264,4 @@ xts
 XUtn
 yournamespace
 YWQ
-backchannel
-OIDC
 superadmin
