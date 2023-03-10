@@ -442,7 +442,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnspec run okta -c "okta.users.where(roles { type == "SUPER_ADMIN" }).length <= 3" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.users.where(roles.all(type == "SUPER_ADMIN")).length <= 3" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -458,7 +458,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.users.where(roles { type == "SUPER_ADMIN" }).length <= 3
+          okta.users.where(roles.all(type == "SUPER_ADMIN")).length <= 3
           ```
       remediation: |
         ### Okta Console
@@ -468,13 +468,13 @@ queries:
         2. Select from Security the "Administrators" 
         3. Select "Admins" column and remove the users with "Super Administrator" role if needed
     query: |
-      okta.users.where(roles { type == "SUPER_ADMIN" }).length <= 3
+      okta.users.where(roles.all(type == "SUPER_ADMIN")).length <= 3
   - uid: mondoo-okta-security-okta-mfa-strong-factor
     title: Ensure the strong Factors is used for MFA
     severity: 100
     docs:
       desc: |
-        While MFA is an ultimate way to add an additional layer of  security and defend against credential-based attacks, not all factors in multi-factor authentication is safe and secure.
+        While MFA is an ultimate way to add an additional layer of security and defend against credential-based attacks, not all factors in multi-factor authentication is safe and secure.
         
         Traditionally popular factors like “security questions” and sms have proven to be problematic. Bad actors can easily find the answers to security questions online, and SMS can leave users vulnerable to phishing and SIM jacking attacks.
         
@@ -487,7 +487,7 @@ queries:
         Run the following query:
 
           ```mql
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} } )" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} ))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -503,7 +503,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} } )
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} ))
           ```
       remediation: |
         ### Okta Console
@@ -516,7 +516,7 @@ queries:
         5. In the Section "Possession factor constraints are", the "Exclude phone and email authenticators" should be selected.
         6. At the end Save
     query: |
-      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} } )
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} ))
   - uid: mondoo-okta-security-okta-mfa-password-and-another-strong-factor
     title: Ensure the Password/IdP plus Another factor chosen for MFA
     severity: 100
@@ -537,8 +537,8 @@ queries:
         Run the following query:
 
           ```mql
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" } })" --organization <org-name> --token <OKTA_TOKEN>
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA" })" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" }))" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA"))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -554,8 +554,8 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" } })
-          okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA" })
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" }))
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA"))
           ```
       remediation: |
         ### Okta Console
@@ -568,8 +568,8 @@ queries:
         5. In the Section "Possession factor constraints are", the "Exclude phone and email authenticators" should be selected.
         6. At the end Save
     query: |
-      okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" } })
-      okta.policies.accessPolicy.where(name == "MFA").all(rules { actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA" })
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" }))
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA"))
   - uid: mondoo-okta-security-okta-mfa-password-reauthenticate
     title: Ensure the re-authentication period for Password/IdP and MFA code is active and short
     severity: 60
@@ -591,10 +591,10 @@ queries:
         Run the following query:
 
           ```mql
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} })" --organization <org-name> --token <OKTA_TOKEN>
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} })" --organization <org-name> --token <OKTA_TOKEN>
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" })" --organization <org-name> --token <OKTA_TOKEN>
-          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" })" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} ))" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} ))" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" ))" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" ))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -610,10 +610,10 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} })
-          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} })
-          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" })
-          okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" })
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"}))
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"}))
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S"))
+          okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H"))
           ```
       remediation: |
         ### Okta Console
@@ -626,7 +626,7 @@ queries:
         5. In the Section "Possession factor constraints are", the "Exclude phone and email authenticators" should be selected.
         6. At the end Save
     query: |
-      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} })
-      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} })
-      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" })
-      okta.policies.accessPolicy.where(name == "MFA").all(rules {actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H" })
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"}))
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"}))
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S"))
+      okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT43800H"))
