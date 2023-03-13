@@ -80,3 +80,6 @@ queries:
   - uid: mondoo-googleworkspace-security-less-secure-app-access-should-not-be-allowed
     title: Users should not be allowed less secure App Access
     query: googleworkspace.report.users.all(security["isLessSecureAppsAccessAllowed"] == false)
+  - uid: mondoo-googleworkspace-security-super-admins-should-use-hardware-based-2fa
+    title: Super Users should use hardware based security keys
+    query: googleworkspace.report.users.where(security["isSuperAdmin"] == true).all(security["numSecurityKeys"] >= 1)
