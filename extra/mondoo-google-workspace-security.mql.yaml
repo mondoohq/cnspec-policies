@@ -77,3 +77,6 @@ queries:
   - uid: mondoo-googleworkspace-security-minimum-super-admins
     title: Ensure fewer more than 1 user has Super Admin Permissions
     query: googleworkspace.report.users.where(security["isSuperAdmin"] == true).length > 1
+  - uid: mondoo-googleworkspace-security-less-secure-app-access-should-not-be-allowed
+    title: Users should not be allowed less secure App Access
+    query: googleworkspace.report.users.all(security["isLessSecureAppsAccessAllowed"] == false)
