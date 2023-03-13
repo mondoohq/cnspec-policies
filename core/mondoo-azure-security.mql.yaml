@@ -76,6 +76,67 @@ policies:
       mondoo-azure-security-ensure-logging-enabled-kv: null
       mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group: null
       mondoo-azure-security-ensure-that-notify-about-alerts-with-high-severity-is-on: null 
+  - asset_filter:
+      query: |
+        platform.name == "azure-compute-vm-api"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-ensure-os-disk-are-encrypted-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-sql-server"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single: null
+      mondoo-azure-security-ensure-auditing-on-single: null
+      mondoo-azure-security-ensure-auditing-retention-greater-than-90-days-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-mariadb-server"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-no-mariadb-databases-allow-ingress-0-0-0-0-0-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-mysql-server"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-no-mysql-databases-allow-ingress-0-0-0-0-0-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-postgresql-server"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-no-postgresql-databases-allow-ingress-0-0-0-0-0-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-storage-container"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-single: null
+      mondoo-azure-security-default-network-access-rule-storage-accounts-deny-single: null
+      mondoo-azure-security-public-access-level-private-blob-containers-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-storage-account"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-secure-transfer-required-enabled-single-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-network-security-group"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-rdp-access-restricted-from-internet-single: null
+      mondoo-azure-security-ssh-access-restricted-from-internet-single: null
+  - asset_filter:
+      query: |
+        platform.name == "azure-keyvault-vault"
+        platform.kind == "azure-object"
+    scoring_queries:
+      mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single: null
+      mondoo-azure-security-ensure-the-kv-is-recoverable-single: null
+      mondoo-azure-security-ensure-logging-enabled-kv-single: null
 queries: 
   - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multifactor authentication has been enabled for all users
@@ -1430,5 +1491,965 @@ queries:
         4. Click on `Email notifications` and ensure that the `Notify about alerts with the following severity (or higher)` setting is checked and set to `High`
     query: |
       azure.cloudDefender.securityContacts.all( alertNotifications["minimalSeverity"] == "High" && alertNotifications["state"] == "On" )
+  - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
+    title: Ensure that 'OS' disks are encrypted
+    severity: 80
+    docs:
+      desc: |
+        This control checks that both OS disks (boot volumes) are encrypted. Customer Managed keys can be either ADE or Server Side Encryption(SSE).
+      audit: |
+        __cnquery run__
 
+        To audit Microsoft Azure with `cnquery run`:
 
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.compute.vms { osDisk { properties['encryption'] } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.compute.vms { osDisk { properties['encryption'] } }
+          ```
+      remediation: |
+        ###Terraform
+
+        __Encrypt disks Linux VM__
+
+        ```hcl
+        # Encrypt Linux OS disk with Terraform
+        resource "azure_linux_virtual_machine" "example" {
+          name                = "example-linux-machine"
+          resource_group_name = azure_resource_group.example.name
+          location            = azure_resource_group.example.location
+          
+          ... 
+
+          encryption_at_host_enabled = true
+          
+          ... 
+        }
+        ```
+
+        __Encrypt disks Windows VM__
+
+        ```hcl
+        resource "azure_windows_virtual_machine" "example" {
+          name                = "example-windows-machine"
+          resource_group_name = azure_resource_group.example.name
+          location            = azure_resource_group.example.location
+          
+          ... 
+
+          encryption_at_host_enabled = true
+          
+          ... 
+        }
+        ```
+
+        __Encrypt disks managed disks__
+
+        ```hcl
+        resource "azure_managed_disk" "example" {
+          name                 = var.disk_name
+          location             = var.location
+          resource_group_name  = var.resource_group_name
+          ... 
+
+          encryption_settings {
+            enabled = true
+          }
+          
+          ... 
+        }
+        ```
+      
+        ###Azure Console
+
+        To update via the Azure Console:
+
+        1. Log into the Azure Console at https://portal.azure.com/.
+        2. Go to **Virtual machines**.
+        2. For each virtual machine, go to **Settings**
+        3. Click on **Disks**.
+        4. Click the **X** to detach the disk from the VM.
+        5. Search for **Disks** and locate any unattached disk.
+        6. Click the disk, then select **Encryption**.
+        7. Change your encryption type, then select the encryption set.
+        8. Click **Save**.
+        9. Go back to the VM and re-attach the disk.
+
+        ###Azure CLI 
+
+        ```bash
+        az vm encryption enable -g <resource_group> --name <vm_name> --disk-encryption-keyvault <keyvault_name>
+        ```
+    refs:
+      - title: Overview of managed disk encryption options
+        url: https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption-overview
+    query: |
+      azure.subscription.compute.vm {
+        osDisk {
+          properties['encryption'] != null
+        }
+      }
+  - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-single
+    title: Ensure the default network access rule for Storage Accounts is set to deny
+    severity: 80
+    docs:
+      desc: |
+        This control checks that access to the default network for storage accounts is set to deny. 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        # Ensure the `default_action` is set to `Deny`
+
+        resource "azure_storage_account_network_rules" "example_storage_account" {
+          resource_group_name  = azure_resource_group.example.name
+          storage_account_name = azure_storage_account.example.name
+
+          default_action       = "Deny"
+        }
+        ```
+
+        ```hcl
+        resource "azure_storage_account" "example_storage_account" {
+          name                = "example_storage_account"
+          resource_group_name = azure_resource_group.example.name
+          location            = azure_resource_group.example.location
+
+          network_rules {
+            default_action = "Deny"
+          }
+
+          ... 
+        }
+        ```      
+    query: |
+      azure.subscription.storage.account {
+        properties['networkAcls']['defaultAction'] == "Deny"
+      }
+  - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-single
+    title: Ensure 'Trusted Microsoft Services' is enabled for Storage Account access
+    severity: 80
+    docs:
+      desc: |
+        This control checks that 'Trusted Microsoft Services' is enabled for Storage Account access.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        resource "azure_storage_account" "example" {
+            ...
+          network_rules {
+            ...
+            bypass = ["AzureServices"]
+            ...
+          }
+        }
+        ``` 
+    query: |
+      azure.subscription.storage.account {
+        properties['networkAcls']['bypass'] == "AzureServices"
+      }
+  - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
+    title: Ensure that SSH access is restricted from the internet
+    severity: 80
+    docs:
+      desc: |
+        This control checks whether SSH on port 22 is not configured to allow access from anywhere with the CIDR block "0.0.0.0". 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.network.securityGroups { securityRules }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.network.securityGroups { securityRules }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
+
+        resource "azure_network_security_group" "my_terraform_nsg" {
+          name                = "myNetworkSecurityGroup"
+          location            = azure_resource_group.rg.location
+          resource_group_name = azure_resource_group.rg.name
+
+          security_rule {
+            name                       = "SSH"
+            priority                   = 1001
+            direction                  = "Inbound"
+            access                     = "Allow"
+            protocol                   = "Tcp"
+            source_port_range          = "*"
+            destination_port_range     = "22"
+            source_address_prefix      = "192.168.22.5/24"
+            destination_address_prefix = "*"
+          }
+        }
+        ```
+    query: |
+      azure.subscription.network.securityGroup {
+        securityRules.where ( 
+          _.properties['access'] == 'Allow' && 
+          _.properties['direction'] == 'Inbound' &&
+          _.properties['protocol'] == /TCP|\*/ && 
+          _.properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ 
+        ) { 
+            destinationPortRange { _['fromPort'] > 22 || _['toPort'] < 22 
+          }
+        }
+      }
+  - uid: mondoo-azure-security-rdp-access-restricted-from-internet-single
+    title: Ensure that RDP access is restricted from the internet
+    severity: 80
+    docs:
+      desc: |
+        This control checks whether RDP on port 3389 is not configured to allow access from anywhere with the CIDR block "0.0.0.0". 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.network.securityGroups { securityRules }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.network.securityGroups { securityRules }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
+        
+        resource "azure_network_security_group" "example" {
+          name                = "example-rdp-security"
+          location            = azure_resource_group.rg.location
+          resource_group_name = azure_resource_group.rg.name
+
+          security_rule {
+            name                       = "RDP"
+            priority                   = 1001
+            direction                  = "Inbound"
+            access                     = "Allow"
+            protocol                   = "Tcp"
+            source_port_range          = "*"
+            destination_port_range     = "3389"
+            source_address_prefix      = "192.168.22.5/24"
+            destination_address_prefix = "*"
+          }
+        }
+        ```
+    query: |
+      azure.subscription.network.securityGroup {
+        securityRules.where ( 
+          _.properties['access'] == 'Allow' && 
+          _.properties['direction'] == 'Inbound' && 
+          _.properties['protocol'] == /TCP|\*/ && 
+          _.properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ 
+        ) {
+            destinationPortRange {
+              _['fromPort'] > 3389 || _['toPort'] < 3389
+            }
+          }
+      }
+  - uid: mondoo-azure-security-secure-transfer-required-enabled-single-single
+    title: Ensure that 'Secure transfer required' is set to 'Enabled'
+    severity: 80
+    docs:
+      desc: |
+        This control checks that data encryption in transit is enabled.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.storage.accounts { properties['supportsHttpsTrafficOnly'] }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.storage.accounts { properties['supportsHttpsTrafficOnly'] }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        resource "azure_storage_account" "example_storage_account" {
+          ...
+          enable_https_traffic_only = true
+        }
+        ```    
+    query: |
+      azure.subscription.storage.account {
+        properties['supportsHttpsTrafficOnly'] == true || properties['enableHttpsTrafficOnly'] == true
+      }
+  - uid: mondoo-azure-security-public-access-level-private-blob-containers-single
+    title: Ensure that 'Public access level' is set to Private for blob containers
+    severity: 80
+    docs:
+      desc: |
+        This control checks that anonymous access to blob containers is disabled, and public access on storage accounts is disabled.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        resource "azure_storage_container" "example_storage_container" {
+            ...
+          container_access_type = "private"
+        }
+        ```
+
+        ###Azure Portal 
+
+        1. Log into the Azure Portal at https://portal.azure.com.
+        2. Navigate to **Storage Accounts**.
+        3. Navigate to **BLOB SERVICE**.
+        4. Select **Containers**.
+        5. Select a container and click **Access policy**. 
+        6. Set **Public Access Level** to **Private**. 
+        7. Repeat For each Container. 
+
+        Repeat steps 3-7 for each storage account. 
+    
+        ###Azure CLI
+
+        ```bash
+        az storage container set-permission 
+        --name <container_name> 
+        --public-access off 
+        --account-name <account_name> 
+        --account-key <account_key>
+        ```
+    query: |
+      azure.subscription.storage.account.container {
+          properties['publicAccess'] == "None"
+      }
+  - uid: mondoo-azure-security-ensure-auditing-on-single
+    title: Ensure that 'Auditing' is set to 'On' for SQL servers
+    severity: 80
+    docs:
+      desc: |
+        This control checks that 'Auditing' is set to 'On' for SQL servers.
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.sql.servers { auditingPolicy['state'] }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.sql.servers { auditingPolicy['state'] }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        resource "azure_sql_server" "example_sql_server" {
+          ...
+
+          extended_auditing_policy {
+            storage_endpoint                        = azure_storage_account.example.primary_blob_endpoint
+            storage_account_access_key              = azure_storage_account.example.primary_access_key
+            storage_account_access_key_is_secondary = true
+            retention_in_days                       = 90
+          }
+        }
+        ``` 
+    query: |
+      azure.subscription.sql.server {
+        auditingPolicy['state'] == "Enabled"
+      }
+  - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-90-days-single
+    title: Ensure that 'Auditing' Retention is 'greater than 90 days'
+    severity: 80
+    docs:
+      desc: |
+        This control checks that 'Auditing' Retention is 'greater than or equal to 90 days'
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.sql.servers { auditingPolicy['retentionDays'] }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.sql.servers { auditingPolicy['retentionDays'] }
+          ```
+      remediation: |
+        ###Terraform
+
+        ```hcl
+        resource "azure_sql_server" "example" {
+          ...
+          extended_auditing_policy {
+            storage_endpoint           = azure_storage_account.example.primary_blob_endpoint
+            storage_account_access_key = azure_storage_account.example.primary_access_key
+            storage_account_access_key_is_secondary = true
+            retention_in_days                       = 90
+          }
+        }
+        ```     
+    query: |
+      azure.subscription.sql.server {
+        auditingPolicy['retentionDays'] >= 90
+      }
+  - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single
+    title: Ensure that the Expiration Date is set for all Keys and Secrets in Key Vaults.
+    severity: 80
+    docs:
+      desc: |
+        The expiration time attribute identifies the expiration time which after the key/secret must not be used for a cryptographic operation. 
+        By default, keys/secrets never expire. Therefore, it is highly recommended that keys/secrets be rotated in the key vault and set an explicit expiration time.
+
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.subscription.keyvault.vaults { keys.all( enabled && expires != null ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyvault.vaults { secrets.all( enabled == true && expires != null ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.subscription.keyvault.vaults { keys.all( enabled && expires != null ) }
+          azure.subscription.keyvault.vaults { secrets.all( enabled == true && expires != null ) }
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Navigate to **Key vaults**.
+        3. For each Key Vaults, click on "Keys" or "Secrets"
+        4. Make sure that each key/secret in the KV has "EXPIRATION DATE" set as appropriate
+    query: |
+      azure.subscription.keyvault.vault { 
+        keys.all( enabled && expires != null )
+      }
+      azure.subscription.keyvault.vault { 
+        secrets.all( enabled == true && expires != null )
+      }
+  - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-single
+    title: Ensure it is possible to recover Key Vaults
+    severity: 80
+    docs:
+      desc: |
+        The key Vault can contains keys, secrets and certificates. Accidental unavailability of a KV can cause serious problems in any organizations. 
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.subscription.keyvault.vaults { properties["enablePurgeProtection"] == "true" properties["enableSoftDelete"] == "true" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.subscription.keyvault.vaults { properties["enablePurgeProtection"] == "true" properties["enableSoftDelete"] == "true" }
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Navigate to **Key vaults**.
+        3. Click "Properties" and ensure Soft delete has been enabled on this key vault
+        4. At the bottom of the page, click "Enable Purge Protection"
+    query: |
+      azure.subscription.keyvault.vault { 
+        properties["enablePurgeProtection"] == "true" 
+        properties["enableSoftDelete"] == "true"
+      }
+  - uid: mondoo-azure-security-ensure-logging-enabled-kv-single
+    title: Ensure all operations on Key Vault is logged 
+    severity: 80
+    docs:
+      desc: |
+        Monitoring how, by whom and when kv are accessed, enables an audit trail of interactions with confidential information, keys, secrets and certificates.
+        
+        Enabling logging for Key Vault saves information in an Azure storage account which the user provides. This will create a new container called insights-logs-auditevent for the specified storage account.
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.subscription.keyvault.vaults { diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.subscription.keyvault.vaults { diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  ) }
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Navigate to **Key vaults**.
+        3. Click "Properties" and ensure Soft delete has been enabled on this key vault
+        4. At the bottom of the page, click "Enable Purge Protection"
+    query: |
+      azure.subscription.keyvault.vault { 
+        diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  )
+      }
+  - uid: mondoo-azure-security-no-mariadb-databases-allow-ingress-0-0-0-0-0-single
+    title: Ensure no MariaDB Databases allow ingress 0.0.0.0/0 (ANY IP)
+    severity: 80
+    docs:
+      desc: |
+        This control checks that no MariaDB databases allow ingress connections from "0.0.0.0". 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.mariadb.servers { firewallRules { startIpAddress } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.mariadb.servers { firewallRules { startIpAddress } } 
+          ```
+      remediation: |
+        ###Terraform
+        
+        __MariaDB__
+        
+        ```hcl
+        # Ensure `start_ip_address` is not configured to `0.0.0.0`
+
+        resource "azure_mariadb_firewall_rule" "example" {
+          ...
+          start_ip_address    = "192.168.2.22"
+          end_ip_address      = "255.255.255.255"
+        }
+        ``` 
+    query: |
+      azure.subscription.mariadb.server {
+        firewallRules.length >= 1
+        firewallRules {
+          startIpAddress != '0.0.0.0'
+        }
+      }
+  - uid: mondoo-azure-security-no-mysql-databases-allow-ingress-0-0-0-0-0-single
+    title: Ensure no MySQL Databases allow ingress 0.0.0.0/0 (ANY IP)
+    severity: 80
+    docs:
+      desc: |
+        This control checks that no MySQL databases allow ingress connections from "0.0.0.0". 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.mysql.servers { firewallRules { startIpAddress } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.mysql.servers { firewallRules { startIpAddress } } 
+          ```
+      remediation: |
+        ###Terraform
+        
+        __mySQL__
+
+        ```hcl
+        # Ensure `start_ip_address` is not configured to `0.0.0.0`
+
+        resource "azure_mysql_firewall_rule" "example" {
+          ...
+          start_ip_address    = "192.168.2.22"
+          end_ip_address      = "255.255.255.255"
+        }
+        ``` 
+    query: |
+      azure.subscription.mysql.server {
+        firewallRules.length >= 1
+        firewallRules {
+          startIpAddress != '0.0.0.0'
+        }
+      }
+  - uid: mondoo-azure-security-no-postgresql-databases-allow-ingress-0-0-0-0-0-single
+    title: Ensure no PostgreSQL Databases allow ingress 0.0.0.0/0 (ANY IP)
+    severity: 80
+    docs:
+      desc: |
+        This control checks that no PostgreSQL databases allow ingress connections from "0.0.0.0". 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.subscription.postgresql.servers { firewallRules { startIpAddress } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.subscription.postgresql.servers { firewallRules { startIpAddress } } 
+          ```
+      remediation: |
+        ###Terraform
+        
+        __Postgres__
+
+        ```hcl
+        # Ensure `start_ip_address` is not configured to `0.0.0.0`
+
+        resource "azure_postgresql_firewall_rule" "example" {
+          ...
+          start_ip_address    = "192.168.2.22"
+          end_ip_address      = "255.255.255.255"
+        }
+        ``` 
+    query: |
+      azure.subscription.postgresql.server {
+        firewallRules.length >= 1
+        firewallRules {
+          startIpAddress != '0.0.0.0'
+        }
+      }
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single
+    title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)
+    severity: 80
+    docs:
+      desc: |
+        This control checks that no SQL databases allow ingress connections from "0.0.0.0". 
+      audit: |
+        __cnquery run__
+
+        To audit Microsoft Azure with `cnquery run`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
+        2. Run the following query:
+
+          ```bash
+          cnquery run azure -c "azure.sql.servers { firewallRules { startIpAddress } }"
+          ```
+
+        __cnquery shell__
+
+        To audit Microsoft Azure with `cnquery shell`:
+
+        1. Run `az login` to authenticate with the correct Azure subscription and tenant. 
+        2. Launch `cnquery shell`:
+
+          ```bash
+          cnquery shell azure
+          ```
+        
+        3. Run the following query:
+
+          ```mql
+          azure.sql.servers { firewallRules { startIpAddress } }
+          ```
+      remediation: |
+        ###Terraform
+
+        __SQL__
+
+        ```hcl
+        # Ensure `start_ip_address` is not configured to `0.0.0.0`
+
+        resource "azure_sql_firewall_rule" "example" {
+          ...
+          start_ip_address    = "192.168.2.22"
+          end_ip_address      = "255.255.255.255"
+        }
+        ```
+    query: |
+      azure.subscription.sql.server {
+        firewallRules.length >= 1
+        firewallRules {
+          startIpAddress != '0.0.0.0'
+        }
+      }
