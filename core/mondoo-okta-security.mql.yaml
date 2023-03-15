@@ -99,9 +99,8 @@ queries:
 
         Run the following query:
 
-          ```bash
-          cnspec run okta -c "okta.policies.signOn.all(_.rules.all(status == "ACTIVE"))" --organization <org-name> --token <OKTA_TOKEN>
-          cnspec run okta -c "okta.policies.signOn.all(_.rules.all(actions["signon"]["requireFactor"] == true))" --organization <org-name> --token <OKTA_TOKEN>
+          ```mql
+          cnspec run okta -c "okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["requireFactor"] == true))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -117,8 +116,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.signOn.all(_.rules.all(status == "ACTIVE"))
-          okta.policies.signOn.all(_.rules.all(actions["signon"]["requireFactor"] == true))
+          okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["requireFactor"] == true))
           ```
       remediation: |
         ### Okta Console
@@ -132,8 +130,7 @@ queries:
         6. You can use the Authentication Policy to define multifactor requirements. 
         7. Make sure at the end the status of the rule is "Active"
     query: |
-      okta.policies.signOn.all(_.rules.all(status == "ACTIVE"))
-      okta.policies.signOn.all(_.rules.all(actions["signon"]["requireFactor"] == true))
+      okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["requireFactor"] == true))
   - uid: mondoo-okta-security-okta-enforce-session-lifetime
     title: Ensure a limited session lifetime has been enforced
     severity: 80
@@ -141,7 +138,7 @@ queries:
       desc: |
         Session lifetime determines the maximum idle time of an end user's sign-on session to Okta. By enforcing a limited session lifetime for users, admins reduce the window of time wherein a malicious third party could attempt to access a user's applications from an active session.
         
-        This is especially important considering the workforce is no longer  strictly confined to within the walls of an office. This functionality is a must for any organization with employees, contractors, and partners that work from home or other remote locations like coffee shops and  airports.
+        This is especially important considering the workforce is no longer strictly confined to within the walls of an office. This functionality is a must for any organization with employees, contractors, and partners that work from home or other remote locations like coffee shops and  airports. 
 
         The maximum session lifetime ensures that a session will expire after this maximum session time even if idle time never expires. Setting an upper bound minimizes the risk of session cookies misuse or hijacking.
         User session will expire when the user has been inactive on Okta for the set time period, regardless of Max Okta session lifetime. 
@@ -152,9 +149,9 @@ queries:
 
         Run the following query:
 
-          ```bash
-          cnspec run okta -c "okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["maxSessionIdleMinutes"] <= 120))" --organization <org-name> --token <OKTA_TOKEN>
-          cnspec run okta -c "okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["maxSessionLifetimeMinutes"] <= 1440))" --organization <org-name> --token <OKTA_TOKEN>
+          ```mql
+          cnspec run okta -c "okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["maxSessionIdleMinutes"] <= 120))" --organization <org-name> --token <OKTA_TOKEN>
+          cnspec run okta -c "okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["maxSessionLifetimeMinutes"] <= 1440))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -170,8 +167,8 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["maxSessionIdleMinutes"] <= 120))
-          okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["maxSessionLifetimeMinutes"] <= 1440))
+          okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["maxSessionIdleMinutes"] <= 120))
+          okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["maxSessionLifetimeMinutes"] <= 1440))
           ```
       remediation: |
         ### Okta Console
@@ -184,13 +181,14 @@ queries:
         5. In "Expire session after user has been idle on Okta for" choose 2 Hours or less!
         6. Update rule at the end. 
     query: |
-      okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["maxSessionIdleMinutes"] <= 120))
-      okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["maxSessionLifetimeMinutes"] <= 1440))
+      okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["maxSessionIdleMinutes"] <= 120))
+      okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["maxSessionLifetimeMinutes"] <= 1440))
   - uid: mondoo-okta-security-okta-auth-openid-saml
     title: Ensure OpenID or SAML authentication are used for app access
     severity: 80
     docs:
       desc: |
+
         Okta supports two protocols for handling federated SSO. OpenID Connect (OIDC) and Security Assertion Markup Language (SAML). The SSO protocol that you choose to implement your integration with is based on your app and use case. For new integrations, OIDC is recommended.
 
         OpenID Connect is widely used not only in organizations but also in everyday scenarios like “Log in with Google”. The OAuth flow is quite different from the SAML flow. The main difference is that some actions happen in the user’s browser which is called the front channel and some actions directly between the Client Application and the Identity Provider (the backchannel).
@@ -199,6 +197,7 @@ queries:
         SAML, in the most basic (and the most popular) setup, allows you to pass information about a user between an Identity Provider and a Service Provider (Client Application) via the user’s browser (User Agent). It does not require a direct connection between the Identity Provider and the Service Provider – everything happens via browser redirects. The user requests a signed document that confirms their identity from the Identity Provider, gets authenticated, and then sends the signed document to the Service Provider in order to log in. The signed document can also include information about the user’s privileges, groups, etc.
 
         Useful comparison can be found here, https://developer.okta.com/docs/guides/oin-sso-overview/
+        
       audit: |
         __cnspec run__
 
@@ -206,7 +205,7 @@ queries:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.applications.all(_.signOnMode == "OPENID_CONNECT" ||  _.signOnMode == "SAML_2_0")" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
@@ -240,9 +239,11 @@ queries:
     severity: 60
     docs:
       desc: |
+
         User account that has been locked due to exceeding the password entry limitation, or other reasons, should only inform the administrator and he/she should not be able to unlock themselves.
 
         In contrast the self-service password recovery might be considered for Okta Admins, https://support.okta.com/help/s/article/How-to-configure-selfservice-account-recovery?language=en_US
+        
       audit: |
         __cnspec run__
 
@@ -250,7 +251,7 @@ queries:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.policies.password.all(_.rules.all(actions["selfServiceUnlock"]["access"] == "DENY"))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
@@ -274,11 +275,10 @@ queries:
 
         To update via the Okta portal:
         1. Log in as Administrator to the related Okta organization (Identity Engine)
-        2. Select from Applications the "Applications" 
-        3. Select from Security the "Authenticators" and the password
-        4. You can add completely the new password policy by "Add New Password Policy" or edit the existent one. 
-        5. Then "Add rule" and make sure under "Users can perform self-service", the "Unlock account" has been not selected. 
-        6. Update the rule and you are done!
+        2. Select from Security the "Authenticators" and the password
+        3. You can add completely the new password policy by "Add New Password Policy" or edit the existent one. 
+        4. Then "Add rule" and make sure under "Users can perform self-service", the "Unlock account" has been not selected. 
+        5. Update the rule and you are done!
     query: |
       okta.policies.password.all(_.rules.all(actions["selfServiceUnlock"]["access"] == "DENY")) 
   - uid: mondoo-okta-security-okta-auth-swa-critical
@@ -286,6 +286,7 @@ queries:
     severity: 60
     docs:
       desc: |
+
         Secure Web Authentication (SWA) is an Okta technology that provides Single Sign-On (SSO) functionality to external web applications that don't support federated protocols.
 
         Administrators can set the credentials for the application, or the end user can enter a specific username and password. Okta keeps the credentials for that  application inside a secure store, encrypted with strong AES-256  encryption. After setting the credentials, end users only need to  authenticate with Okta, and then they can SSO directly into the  application. 
@@ -300,7 +301,7 @@ queries:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.applications.none(signOnMode == "AUTO_LOGIN" || signOnMode == "BROWSER_PLUGIN")" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
@@ -343,8 +344,8 @@ queries:
 
         Run the following query:
 
-          ```bash
-          cnspec run okta -c "okta.policies.signOn.all(_.rules.all(actions["signon"]["factorPromptMode"] == "ALWAYS"))" --organization <org-name> --token <OKTA_TOKEN>
+          ```mql
+          cnspec run okta -c "okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["factorPromptMode"] == "ALWAYS"))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -360,7 +361,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.signOn.all(_.rules.all(actions["signon"]["factorPromptMode"] == "ALWAYS"))
+          okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["factorPromptMode"] == "ALWAYS"))
           ```
       remediation: |
         ### Okta Console
@@ -374,7 +375,7 @@ queries:
         6. Under "Users will be prompted for MFA" select "At every sign-in"
         7. Make sure at the end the status of the rule is "Active"
     query: |
-      okta.policies.signOn.all(_.rules.all(actions["signon"]["factorPromptMode"] == "ALWAYS"))
+      okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["factorPromptMode"] == "ALWAYS"))
   - uid: mondoo-okta-security-okta-disable-persist-cookies
     title: Ensure Persist session cookies across browser sessions is disabled
     severity: 40
@@ -383,6 +384,7 @@ queries:
         If enabled, when user reopens the same browser, they will not be asked to sign-in again if the session is still active. 
 
         Session Cookies (Non-Persistent cookies) are stored in memory and never written to the disk. Session cookies remain active as long as the browser remains active – once the browser is closed, the cookies vanish
+
       audit: |
         __cnspec run__
 
@@ -390,8 +392,8 @@ queries:
 
         Run the following query:
 
-          ```bash
-          cnspec run okta -c "okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))" --organization <org-name> --token <OKTA_TOKEN>
+          ```mql
+          cnspec run okta -c "okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
         __cnspec shell__
@@ -407,7 +409,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))
+          okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))
           ```
       remediation: |
         ### Okta Console
@@ -419,7 +421,7 @@ queries:
         5. in "Persist session cookies across browser sessions " choose Disabled.
         6. Update rule at the end. 
     query: |
-      okta.policies.signOn.all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))
+      okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["session"]["usePersistentCookie"] == false))
   - uid: mondoo-okta-security-okta-limit-superadmin
     title: Ensure the users with Super Admin rights are limited to 3
     severity: 80
@@ -427,6 +429,7 @@ queries:
       desc: |
         Super Admin role has the highest permissions of all the admins in Okta. Super Admins can create other admins, assign or remove permissions, and  perform all other admin activities.
         By limiting the number of administrators who have this level of permissions, we can reduce the odds of a bad actor gaining access to one of these highly privileged accounts.
+
       audit: |
         __cnspec run__
 
@@ -434,7 +437,7 @@ queries:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.users.where(roles.all(type == "SUPER_ADMIN")).length <= 3" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
@@ -472,14 +475,14 @@ queries:
         Traditionally popular factors like “security questions” and sms have proven to be problematic. Bad actors can easily find the answers to security questions online, and SMS can leave users vulnerable to phishing and SIM jacking attacks.
         
         To increase the security. administrators should require users to authenticate  via strong factors, like software-based "Authenticators", and make sure nobody is Phone and Email "Authenticators"
-      audit: |
+
         __cnspec run__
 
         To audit Okta `cnspec run`:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} ))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
@@ -522,14 +525,14 @@ queries:
           * Inherence -  Something you are, such as a unique biometric or behavioral characteristic
 
         Among the options that Okta currently offers in MFA configuration part, the combination of Password/IdP plus Another factor is the best practice.
-      audit: |
+
         __cnspec run__
 
         To audit Okta `cnspec run`:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED" }))" --organization <org-name> --token <OKTA_TOKEN>
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["factorMode"] == "2FA"))" --organization <org-name> --token <OKTA_TOKEN>
           ```
@@ -568,6 +571,7 @@ queries:
     severity: 60
     docs:
       desc: |
+        
         The best practice is To prompt the user to re-enter the password and MFA code periodically. Like most topics in information security, the re-authentication interval has a tradeoff between security and convenience: a short amount has better security but is inconvenient, while a longer amount is more convenient but has lower security.
 
         It should be tested that following two options never being configured for password and other factors: 
@@ -575,14 +579,14 @@ queries:
           * Never re-authenticate if the session is active 
 
           Our recommendations is to configure the Password re-authentication after 4 hours and other factor every 8 hours. 
-      audit: |
+
         __cnspec run__
 
         To audit Okta `cnspec run`:
 
         Run the following query:
 
-          ```bash
+          ```mql
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} ))" --organization <org-name> --token <OKTA_TOKEN>
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} ))" --organization <org-name> --token <OKTA_TOKEN>
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" ))" --organization <org-name> --token <OKTA_TOKEN>
