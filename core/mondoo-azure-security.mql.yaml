@@ -91,7 +91,7 @@ queries:
           ```bash
           cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
-          Note: It is also possible to use client-secret for app connection instead of the certificate. 
+          Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         __cnspec shell__
 
