@@ -1260,7 +1260,7 @@ queries:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Navigate to **Key vaults**.
         3. Select "Properties" and ensure Soft delete has been enabled on this key vault
-        4. At the bottom of the page, click "Enable Purge Protection"
+        4. At the bottom of the page, select "Enable Purge Protection"
     query: |
       azure.keyvault.vaults { 
         properties["enablePurgeProtection"] == "true" 
