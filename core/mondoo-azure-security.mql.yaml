@@ -1072,7 +1072,7 @@ queries:
         }
       }
   - uid: mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service
-    title: Ensure that app services can authenticate with Active Directory
+    title: Ensure that App Services can authenticate with Active Directory
     severity: 80
     docs:
       desc: |
