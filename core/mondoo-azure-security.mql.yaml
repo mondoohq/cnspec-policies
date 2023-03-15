@@ -103,7 +103,7 @@ queries:
           cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
           
-Note: It is also possible to use a client secret for app connection instead of a certificate.
+          Note: It is also possible to use a client secret for app connection instead of a certificate.
         
         2. Run the following query:
 

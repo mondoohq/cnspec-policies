@@ -27,7 +27,7 @@ policies:
 
       ### Prerequisites
 
-      Remote scans of Microsoft 365 requires API credentials with access to the subscription. Use the following steps to create a new API credential:
+      Remote scans of Microsoft 365 require API credentials with access to the subscription. Use the following steps to create a new API credential:
 
       1. Install the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
       2. Login to Azure CLI
