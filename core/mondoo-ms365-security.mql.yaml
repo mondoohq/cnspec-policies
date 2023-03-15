@@ -346,7 +346,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        This control checks that the Security defaults which is active by default is disabled on Azure Active Directory.
+        This control checks that the security defaults (which are enabled by default) are enabled in Azure Active Directory.
 
         Note: Using security defaults prohibits custom settings. Many best security practices require custom settings, such as requiring MFA for all users and admins. 
       audit: |
