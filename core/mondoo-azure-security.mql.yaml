@@ -1120,7 +1120,7 @@ queries:
         identity["type"] == "SystemAssigned" || identity["principalId"] != null
       }
   - uid: mondoo-azure-security-ensure-web-app-is-using-the-latest-tls
-    title: Ensure that Web Apps use the latest version of TLS encryption
+    title: Ensure that Web Apps use the latest available version of TLS encryption
     severity: 80
     docs:
       desc: |
