@@ -1369,7 +1369,7 @@ queries:
             - "< Resource Name >" - The subscription, group, or resource you selected
           6. Select "Done" 
           7. Under the Condition tab, select "Add Condition" 
-          8. In the "Select a signal" window, under the "Signal Name" heading, click **`Create or Update Network Security Group (Microsoft.Network/networkSecurityGroups)`**
+          8. In the "Select a signal" window, under the "Signal Name" heading, select **`Create or Update Network Security Group (Microsoft.Network/networkSecurityGroups)`**
           9. Need to repeat the previous step also for **`Delete Network Security Group (Microsoft.Network/networkSecurityGroups)`**
           10. Under the Actions tab, choose appropriately:
             - Select action groups - If you have an existing action group to notify the necessary personnel.
