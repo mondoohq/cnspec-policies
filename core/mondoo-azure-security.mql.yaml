@@ -1224,7 +1224,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        Key vault can contains keys, secrets and certificates. Accidental unavailability of a KV can cause serious problems in any organizations. 
+        Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a Key Vault can cause serious problems in any organization. 
       audit: |
         __cnspec run__
 
