@@ -1210,7 +1210,7 @@ queries:
         To update using the Microsoft Azure portal:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Navigate to **Key vaults**.
-        3. For each key vault, select "Keys" or "Secrets"
+        3. For each Key Vault, select "Keys" or "Secrets"
         4. Make sure that each key/secret in the KV has "EXPIRATION DATE" set as appropriate
     query: |
       azure.keyvault.vaults { 
