@@ -188,7 +188,6 @@ queries:
     severity: 80
     docs:
       desc: |
-
         Okta supports two protocols for handling federated SSO. OpenID Connect (OIDC) and Security Assertion Markup Language (SAML). The SSO protocol that you choose to implement your integration with is based on your app and use case. For new integrations, OIDC is recommended.
 
         OpenID Connect is widely used in organizations and everyday scenarios like “Log in with Google”. The OAuth flow is quite different from the SAML flow. The main difference is that some actions happen in the user’s browser, called the front channel, and some occur directly between the Client Application and the Identity Provider (the backchannel).
