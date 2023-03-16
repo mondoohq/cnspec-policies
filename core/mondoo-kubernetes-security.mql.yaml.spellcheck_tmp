@@ -1,0 +1,1769 @@
+query title: Disable anonymous authentication for kubelet
+query description: Ensure that the kubelet is configured to disable anonymous requests to the kubelet server.
+Otherwise the kubelet will allow unauthenticated access to its HTTPS endpoint. Request will have the privileges of the role . This might expose data to an attacker.
+
+query audit: If running the kubelet with the CLI parameter '--anonymous-auth', or running with 'authentication.anonymous.enabled' defined in the kubelet configuration file, ensure that the value is set to 'false'.
+
+query remediation: Set the '--anonymous-auth' CLI parameter and/or the 'authentication.anonymous.enabled' field in the kubelet configuration file to 'false'.
+
+query title: Configure kubelet to capture all event creation
+query description: Ensure that the kubelet is configured to capture all event creation so as to avoid potentially not logging important events.
+Be aware that this might expose your Cluster to a DoS risk.
+
+query audit: If running the kubelet with the CLI parameter '--event-qps', or running with 'eventRecordQPS' defined in the kubelet configuration file, ensure that the value is set to '0'.
+
+query remediation: Set the '--event-qps' CLI parameter and/or the 'eventRecordQPS' field in the kubelet configuration file to '0'.
+
+query title: Configure kubelet to ensure IPTables rules are set on host
+query description: Ensure that the kubelet is set up to create IPTable utility rules for various kubernetes components.
+
+query audit: If running the kubelet with the CLI parameter '--make-iptables-util-chains', or running with 'makeIPTablesUtilChains' defined in the kubelet configuration file, ensure that the value is set to 'true'.
+
+query remediation: Set the '--make-iptables-util-chains' CLI parameter and/or the 'makeIPTablesUtilChains' field in the kubelet configuration file to 'true'.
+
+query title: Configure kubelet to protect kernel defaults
+query description: Ensure that the kubelet is set up to error if the underlying kernel tunables are different than the kubelet defaults. By default the kubelet will attempt to modify the kernel as the kubelet starts up.
+
+query audit: If running the kubelet with the CLI parameter '--protect-kernel-defaults', or running with 'protectKernelDefaults' defined in the kubelet configuration file, ensure that the value is set to 'true'.
+
+query remediation: Set the '--protect-kernel-defaults' CLI parameter and/or the 'protectKernelDefaults' field in the kubelet configuration file to 'true'.
+
+query title: Do not allow unauthenticated read-only port on kubelet
+query description: Ensure the kubelet is not configured to serve up unauthenticated read-only access.
+This would expose data to unauthenticated users.
+
+query audit: If running the kubelet with the CLI parameter '--read-only-port', or running with 'readOnlyPort' defined in the kubelet configuration file, ensure that the value is either '0' or simply not set ('0' is the default).
+
+query remediation: Set the '--read-only-port' CLI parameter or the 'readOnlyPort' field in the kubelet configuration file to '0'.
+
+query title: Ensure the kubelet is not configured with the AlwaysAllow authorization mode
+query description: Ensure the kubelet is not configured with the AlwaysAllow authorization mode.
+It would allow all requests.
+
+query audit: If running the kubelet with the CLI parameter '--authorization-mode', or running with 'authorization.mode' defined in the kubelet configuration file, ensure that the value is not set to 'AlwaysAllow'.
+
+query remediation: If the kubelet is configured with the CLI parameter '--authorization-mode', set it to something that isn't 'AlwaysAllow' (eg 'Webhook').
+
+If the kubelet is configured via the kubelet config file with the 'authorization.mode' parameter, set it to something that isn't 'AlwaysAllow' (eg. 'Webhook').
+
+query title: Configure kubelet to use only strong cryptography
+query description: Ensure the kubelet runs with only strong cryptography support. Weak or old ciphers might expose your data.
+
+query audit: If running the kubelet with the CLI parameter '--tls-cipher-suites', or running with 'tlsCipherSuites' defined in the kubelet configuration file, ensure that the list of allowed ciphers is not empty and that all included ciphers are included in the following list:
+
+"TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256", "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256", "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+"TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_256_GCM_SHA384"
+
+query remediation: Define the list of allowed TLS ciphers to include only items from the strong list of ciphers.
+
+If the kubelet is configured with the CLI parameter '--tls-cipher-suites', update the list (or define the parameter) to only include strong ciphers.
+
+If the kubelet is configured via the kubelet config file with the 'tlsCipherSuites' parameter, update the list (or create an entry for 'tlsCipherSuites') to only include string ciphers.
+
+query title: Run kubelet with a user-provided certificate/key
+query description: Ensure that the kubelet is not running with self-signed certificates generated by the kubelet itself.
+
+query audit: The kubelet CLI parameters override values in the kubelet configuration file.
+
+Check the kubelet CLI parameters to see whether '--tls-cert-file' and '--tls-private-key' are set to a non-empty path/string.
+
+Check the kubelet configuration file to see whether 'tlsCertFile' and 'tlsPrivateKeyFile' are set to a non-empty path/string.
+
+query remediation: Configure the kubelet to use a user-provided certificate/key pair for serving up HTTPS.
+
+After acquiring the TLS certificate/key pair, update the kubelet configuration file
+
+Or if using the deprecated kubelet CLI parameters, update the '--tls-cert-file' and '--tls-private-key-file' parameters to use the new certificate/key.
+
+query title: Run kubelet with automatic certificate rotation
+query description: Ensure the kubelet is running with automatic certificate rotation so that the kubelet will automatically renew certificates with the API server as certificates near expiration.
+Otherwise the communication between the kubelet and the API server will be interrupted.
+
+query audit: Check the kubelet CLI parameters to ensure '--rotate-certificates' is not set to false, and that the kubelet config file has not set 'rotateCertificates' to false.
+
+query remediation: Depending on where the configuration behavior is defined (CLI parameters override config file values), update the kubelet CLI parameters to set '--rotate-certificates' to true, and/or update the kubelet configuration to set 'rotateCertificates' to true.
+
+query title: Ownership and permissions of kubelet configuration should be restricted
+query description: Ensure proper file ownership and read-write-execute permissions for kubelet configuration file.
+Otherwise unprivileged users might get access to sensitive information.
+
+query audit: View the kubelet configuration file details:
+
+
+
+query remediation: Update the ownership and permissions:
+
+
+
+query title: Specify a kubelet certificate authorities file and ensure proper ownership and permissions
+query description: Ensure appropriate ownership and permissions for the kubelet's certificate authorities configuration file.
+
+query audit: View the ownership and permissions:
+
+
+
+query remediation: Update the ownership and permissions:
+
+
+
+query title: Set secure file permissions on the API server pod specification file
+query description: Ensure that the API server pod specification file has permissions of  and is owned by .
+Otherwise unprivileged users might change it.
+
+query remediation: Run this command on the Control Plane node:
+
+
+query title: Set secure directory permissions on the etcd data directory.
+Otherwise unprivileged users might get access to sensitive data stored in etcd, i.e., Kubernetes Secrets.
+
+query description: Ensure that the etcd data directory has permissions of  and is owned by .
+query remediation: On the etcd server node, get the etcd data directory, passed as an argument , from the below command:
+
+
+query title: Set secure file permissions on the admin.conf file
+query description: Ensure that the  file has permissions of  and is owned by root:root.
+Otherwise unprivileged users might get admin access to the Kubernetes API server.
+
+query remediation: Run this command on the Control Plane node:
+
+
+query title: Set secure file permissions on the scheduler.conf file
+query description: Ensure that the  file has permissions of  and is owned by .
+query remediation: Run this command on the Control Plane node:
+
+
+query title: Set secure file permissions on the controller-manager.conf file
+query description: Ensure that the  file has permissions of  and is owned by .
+query remediation: Run this command on the Control Plane node:
+
+
+query title: Ensure that the Kubernetes PKI/SSL directory is owned by root:root
+query description: Ensure that the Kubernetes PKI/SSL directory is owned by .
+Otherwise unprivileged users could change the PKI/SSL certificates the whole encryption of the cluster relies on.
+
+query remediation: Run one of the following commands on the Control Plane node depending on the location of your PKI/SSL directory:
+
+
+query title: Ensure the kube-apiserver is not listening on an insecure HTTP port
+query description: Ensure the kube-apiserver is not listening on an insecure HTTP port.
+Otherwise unencrypted traffic could be intercepted and sensitive data could be leaked.
+
+query remediation: Find the kube-apiserver process and check the  argument. If the argument is set to , then the kube-apiserver is not listening on an insecure HTTP port:
+
+query title: Ensure the kube-apiserver does not allow anonymous authentication.
+When allowed, request will have the privileges of the role . This might expose data to an attacker.
+
+query description: Ensure the kube-apiserver does not allow anonymous authentication.
+query remediation: Find the kube-apiserver process and check the  argument. If the argument is set to , then the kube-apiserver does not allow anonymous authentication:
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the Docker socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the containerd socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not mount the CRI-O socket
+query description: Do not mount the container runtime socket into any container.
+This would allow direct access to the container runtime without any authentication.
+This would allow to create privileged containers and to access the host file system.
+Or create containers which would not show up in the Kubernetes API.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure workloads do not have  setting in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not allow privilege escalation
+query description: Do not allow privilege escalation in containers.
+Even, when the container is not running as root, it could still escalate privileges.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  or not present in the :
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means the container has the host's capabilities, including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means the container has the host's capabilities, including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means the container has the host's capabilities, including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means that the container has the host's capabilities including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means the container has the host's capabilities, including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means the container has the host's capabilities, including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should not run as a privileged container
+query description: Running a privileged container means the container has the host's capabilities, including access to all devices and the host's network.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Remove the  setting from the container spec:
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should use an immutable root filesystem
+query description: Running a container with an immutable (read-only) file system prevents the modification of running containers.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Container should not run as root
+query description: Set the   to ensure containers do not run as the root user.
+When containers run as the  user, they have the same privileges as  on the host system.
+
+query audit: Check for the existence of  setting in the :
+
+
+
+query remediation: Ensure  is set to  in the :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network including loopback devices. This capability can be used to intercept network traffic including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network, including loopback devices. This capability can be used to intercept network traffic, including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network, including loopback devices. This capability can be used to intercept network traffic, including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network, including loopback devices. This capability can be used to intercept network traffic, including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network, including loopback devices. This capability can be used to intercept network traffic, including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network, including loopback devices. This capability can be used to intercept network traffic, including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostNetwork
+query description: Running pods with the  namespace gives containers access to the host's network, including loopback devices. This capability can be used to intercept network traffic, including the traffic of other pods.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostPID
+query description: Running pods with the  namespace gives containers access to the host's process ID namespace and can be used to escalate privileges outside a container.
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with hostIPC
+query description: Enabling  gives containers access to the host's IPC namespace and breaks container isolation.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query remediation: Ensure  is set to  or not present in :
+
+
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Pod should not run with the default service account
+query description: Pods that interact with the Kubernetes API using a ServiceAccount should use specific ServiceAccounts.
+These ServiceAccounts should only have the permissions necessary.
+The Pods should not use the default ServiceAccount (named 'default') that is included in every Namespace.
+The only valid use for the default ServiceAccount is for Pods that set '.spec.automountServiceAccountToken' to 'false'.
+In this case, the Pod explicitly asks for no ServiceAccount to be mounted into the Pod's filesystem, and the Pod is therefore a ServiceAccount-less Pod.
+When every Pods uses the default ServiceAccount and the ServiceAccount's privileges get extended, all Pods get these permissions.
+When a Pod is compromised, the attacker has access to the API using the default ServiceAccount.
+
+query audit: Check that Pods do not set the legacy '.spec.serviceAccount':
+
+
+
+Even when the deprecated field '.spec.serviceAccount' is not specified, it will get populated by Kubernetes inside the cluster when a manifest is applied.
+Because of that, we also need to check for the field.
+
+query remediation: Create a ServiceAccount specifically for the Pod with only the permissions it needs when interacting with the Kubernetes API. Update the Pod's '.spec.serviceAccountName' to the name of the ServiceAccount created for the Pod.
+
+Or if the Pod doesn't interact with the Kubernetes API, set the Pod's  field to false so that no ServiceAccount is available to the Pod.
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA).
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA). 
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA). 
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA). 
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA). 
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA). 
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container image pull should be consistent
+query description: It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set  and the  configuration should pull either a tag or a digest (SHA). 
+Avoid using rolling tags like  or  as they can change over time.
+
+query audit: Check for the existence of  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query remediation: Ensure  is set to  and ensure  uses either a tag or a digest (SHA):
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes Pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a CPU limit
+query description: Kubernetes pod configurations should set CPU limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of CPU resources in :
+
+
+
+query remediation: Define the required resources for CPU  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Container should have a memory limit
+query description: Kubernetes pod configurations should set memory limits for containers defined in the manifest. This prevents the pod from exhausting the host's resources in case of an application malfunction or an attack.
+
+query audit: Check for the existence of memory resources in :
+
+
+
+query remediation: Define the required resources for memory  in the manifest: 
+
+
+
+query title: Pods should not run with NET_RAW capability
+query description: Pods should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no Pods have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any Pods that explicitly add the NET_RAW or ALL capability, update the Pods (or the Deployments/DaemonSets/CronJobs/etc that produced the Pods) to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: DaemonSets should not run with NET_RAW capability
+query description: DaemonSets should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no DaemonSets have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any DaemonSets that explicitly add the NET_RAW or ALL capability, update them to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: ReplicaSets should not run with NET_RAW capability
+query description: ReplicaSets should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no ReplicaSets have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any ReplicaSets that explicitly add the NET_RAW or ALL capability, update them to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: Jobs should not run with NET_RAW capability
+query description: Jobs should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no Jobs have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any Jobs that explicitly add the NET_RAW or ALL capability, update them to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: Deployments should not run with NET_RAW capability
+query description: Deployments should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no Deployments have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any Deployments that explicitly add the NET_RAW or ALL capability, update them to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: StatefulSets should not run with NET_RAW capability
+query description: StatefulSets should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no StatefulSets have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any StatefulSets that explicitly add the NET_RAW or ALL capability, update them to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: CronJobs should not run with NET_RAW capability
+query description: CronJobs should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
+
+query audit: Check to ensure no CronJobs have explicitly asked for the NET_RAW capability (or asked for ALL capabilities which includes NET_RAW):
+
+
+
+query remediation: For any CronJobs that explicitly add the NET_RAW or ALL capability, update them to ensure they do not ask for the NET_RAW or ALL capability:
+
+
+
+query title: Pods should not run with SYS_ADMIN capability
+query description: Pods should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no Pods have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any Pods that explicitly add the SYS_ADMIN or ALL capability, update the Pods (or the Deployments/DaemonSets/CronJobs/etc that produced the Pods) to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: DaemonSets should not run with SYS_ADMIN capability
+query description: DaemonSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no DaemonSets have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any DaemonSets that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: ReplicaSets should not run with SYS_ADMIN capability
+query description: ReplicaSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no ReplicaSets have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any ReplicaSets that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: Jobs should not run with SYS_ADMIN capability
+query description: Jobs should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no Jobs have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any Jobs that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: Deployments should not run with SYS_ADMIN capability
+query description: Deployments should not run wIt even allows containers not running as root to run certain tasks as if the user was root with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no Deployments have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any Deployments that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: StatefulSets should not run with SYS_ADMIN capability
+query description: StatefulSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no StatefulSets have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any StatefulSets that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: CronJobs should not run with SYS_ADMIN capability
+query description: CronJobs should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
+It even allows containers not running as root to run certain tasks as if the user was root.
+
+query audit: Check to ensure no CronJobs have explicitly asked for the SYS_ADMIN capability (or asked for ALL capabilities which includes SYS_ADMIN):
+
+
+
+query remediation: For any CronJobs that explicitly add the SYS_ADMIN or ALL capability, update them to ensure they do not ask for the SYS_ADMIN or ALL capability:
+
+
+
+query title: Pods should not bind to a host port
+query description: Pods should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no Pods are binding any of their containers to a host port:
+
+
+
+query remediation: For any Pods that bind to a host port, update the Pods (or the Deployments/DaemonSets/CronJobs/etc that produced the Pods) to ensure they do not bind to a host port:
+
+
+
+query title: DaemonSets should not bind to a host port
+query description: DaemonSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no DaemonSets are binding any of their containers to a host port:
+
+
+
+query remediation: For any DaemonSets that bind to a host port, update the DaemonSets to ensure they do not bind to a host port:
+
+
+
+query title: ReplicaSets should not bind to a host port
+query description: ReplicaSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no ReplicaSets are binding any of their containers to a host port:
+
+
+
+query remediation: For any ReplicaSets that bind to a host port, update the ReplicaSets to ensure they do not bind to a host port:
+
+
+
+query title: Jobs should not bind to a host port
+query description: Jobs should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no Jobs are binding any of their containers to a host port:
+
+
+
+query remediation: For any ReplicaSets that bind to a host port, update the Jobs to ensure they do not bind to a host port:
+
+
+
+query title: Deployments should not bind to a host port
+query description: Deployments should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no Deployments are binding any of their containers to a host port:
+
+
+
+query remediation: For any Deployments that bind to a host port, update the Deployments to ensure they do not bind to a host port:
+
+
+
+query title: StatefulSets should not bind to a host port
+query description: StatefulSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no StatefulSets are binding any of their containers to a host port:
+
+
+
+query remediation: For any StatefulSets that bind to a host port, update the StatefulSets to ensure they do not bind to a host port:
+
+
+
+query title: CronJobs should not bind to a host port
+query description: CronJobs should not bind to the underlying host port. This allows bypassing certain network access control systems.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no CronJobs are binding any of their containers to a host port:
+
+
+
+query remediation: For any CronJobs that bind to a host port, update the CronJobs to ensure they do not bind to a host port:
+
+
+
+query title: Pods should mount any host path volumes as read-only
+query description: Pods should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a Pod are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any Pod containers that mount a hostPath volume as read-write, update them (or the Deployment/StatefulSet/etc that created the Pod):
+
+
+
+query title: DaemonSets should mount any host path volumes as read-only
+query description: DaemonSets should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a DaemonSet are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any DaemonSet containers that mount a hostPath volume as read-write, update them:
+
+
+
+query title: ReplicaSets should mount any host path volumes as read-only
+query description: ReplicaSets should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a ReplicaSet are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any ReplicaSet containers that mount a hostPath volume as read-write, update them:
+
+
+
+query title: Jobs should mount any host path volumes as read-only
+query description: Jobs should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a Job are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any Job containers that mount a hostPath volume as read-write, update them:
+
+
+
+query title: Deployments should mount any host path volumes as read-only
+query description: Deployments should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a Deployment are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any Deployment containers that mount a hostPath volume as read-write, update them:
+
+
+
+query title: StatefulSets should mount any host path volumes as read-only
+query description: StatefulSets should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a StatefulSet are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any StatefulSet containers that mount a hostPath volume as read-write, update them:
+
+
+
+query title: CronJobs should mount any host path volumes as read-only
+query description: CronJobs should not mount volumes of type hostPath as read-write. Containers should not be granted the ability to mutate the underlying host they are running on.
+This can even lead to container escapes.
+
+query audit: Check to ensure no containers in a CronJob are mounting hostPath volumes as read-write:
+
+
+
+query remediation: For any CronJob containers that mount a hostPath volume as read-write, update them:
+
+
+
+query title: Deployments should not run Tiller (Helm v2)
+query description: Tiller is the in-cluster component for the Helm v2 package manager. It is communicating directly to the Kubernetes API and therefore it has broad RBAC permissions. An attacker can use that to get cluster-wide access.
+
+query audit: Verify there are no deployments running Tiller:
+
+
+query remediation: Delete any deployments that are running Tiller.
+
+query title: Pods should not run Tiller (Helm v2)
+query description: Tiller is the in-cluster component for the Helm v2 package manager. It is communicating directly to the Kubernetes API and therefore it has broad RBAC permissions. An attacker can use that to get cluster-wide access.
+
+query audit: Verify there are no pods running Tiller:
+
+
+query remediation: Delete any pods that are running Tiller.
+
+query title: Pods should not run Kubernetes dashboard
+query description: The Kubernetes dashboard allows browsing through cluster resources such as workloads, configmaps and secrets. In 2019 Tesla was hacked because their Kubernetes dashboard was publicly exposed. This allowed the attackers to extract credentials and deploy Bitcoin miners on the cluster.
+
+query audit: Verify there are no deployments running Kubernetes dashboard:
+
+
+query remediation: Delete any deployments that are running Kubernetes dashboard.
+
+query title: Pods should not run Kubernetes dashboard
+query description: The Kubernetes dashboard allows browsing through cluster resources such as workloads, configmaps and secrets. In 2019 Tesla was hacked because their Kubernetes dashboard was publicly exposed. This allowed the attackers to extract credentials and deploy Bitcoin miners on the cluster.
+
+query audit: Verify there are no pods running Kubernetes dashboard:
+
+
+query remediation: Delete any pods that are running Kubernetes dashboard.
+
+query title: Gather all Deployments
+query title: Gather all DaemonSets
+query title: Gather all StatefulSets
+query title: Gather all Jobs
+query title: Gather all CronJobs
+query title: Gather all Pods with securityContext
+property title: Define the hardened SSL/ TLS ciphers
+policy description: # Overview
+
+The Kubernetes Cluster and Workload Security by Mondoo provides guidance for establishing secure Kubernetes cluster configurations and workload deployments.
+
+If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in [GitHub Discussions](https://github.com/orgs/mondoohq/discussions).
+
+## Remote scan
+
+Remote scans use native transports in  to provide on demand scan results without the need to install any agents, or integration. 
+
+For a complete list of native transports run: 
+
+      
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
+group summary: Kubernetes API Server
+group summary: Kubernetes kubelet
+group summary: Kubernetes CronJobs Security by Mondoo
+group summary: Kubernetes StatefulSets Security by Mondoo
+group summary: Kubernetes Deployments Security by Mondoo
+group summary: Kubernetes Jobs Security by Mondoo
+group summary: Kubernetes ReplicaSets Security by Mondoo
+group summary: Kubernetes DaemonSets Security by Mondoo
+group summary: Kubernetes Pods Security by Mondoo

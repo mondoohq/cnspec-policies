@@ -1,0 +1,210 @@
+query title: Enable Two-factor authentication for all users in the organization
+query description: Two-factor authentication (2FA) is an extra layer of security used when logging into websites or apps. With 2FA, you have to log in with your username and password and provide another form of authentication that only you know or have access to. It is highly recommended that GitHub Organizations are configured to require all users to configure 2FA.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: GitHub has several options for configuring 2FA for your organization. To enable 2FA, see [Configuring two-factor authentication](https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication) in GitHub's documentation. 
+
+query title: Organization should have a verified domain attached
+query description: You can verify your ownership of domains with GitHub to confirm your organization's identity. You can also approve domains that GitHub can send email notifications to members of your organization. After verifying ownership of your organization's domains, a "Verified" badge will display on the organization's profile.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To achieve verified status for your GitHub organization, see [Verifying or approving a domain for your organization](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization) in the GitHub documentation site.
+
+query title: Ensure GitHub Organization has base permissions configured
+query description: You can set base permissions that apply to all members of an organization when accessing any of the organization's repositories. Base permissions do not apply to outside collaborators.
+
+By default, members of an organization will have Read permissions to the organization's repositories.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To set base permissions for GitHub, see [Setting base permissions for an organization](https://docs.github.com/en/organizations/managing-access-to-your-organizations-repositories/setting-base-permissions-for-an-organization) in GitHub's documentation.
+
+query title: Ensure GitHub repository default branch is protected
+query description: This check ensures that the default branch for the repository has branch protection enabled. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is highly recommended that the default branch has branch protection enabled, with branch protection rules applied.
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site.
+
+query title: Ensure GitHub repository release branches are protected
+query description: This check ensures that any release branches (i.e. 'release-x.y.z') have branch protection rules enabled. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is recommended that any release branches have branch protection enabled, with branch protection rules applied.
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site.
+
+query title: Ensure repository does not allow force pushes to the default branch
+query description: This check ensures that the default branch does not allow force pushes. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is highly recommended to disable force pushes to the default repository branch. By default, GitHub blocks force pushes on all protected branches. When you enable force pushes to a protected branch, you can choose one of two groups who can force push:
+
+- Allow everyone with at least write permissions to the repository to force push to the branch, including those with admin permissions.
+- Allow only specific people or teams to force push to the branch.
+
+If someone force pushes to a branch, the force push may overwrite commits that other collaborators based their work on. People may have merge conflicts or corrupted pull requests.
+
+Enabling force pushes will not override any other branch protection rules. For example, if a branch requires a linear commit history, you cannot force push merge commits to that branch.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Allow force pushes](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#allow-force-pushes) on the GitHub documentation site, and make sure the repository is not configured to allow force pushes.
+
+query title: Ensure repository does not allow force pushes to any release branches
+query description: This check ensures that the release branch does not allow force pushes. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is recommended to disable force pushes to any release branches. 
+
+By default, GitHub blocks force pushes on all protected branches. When you enable force pushes to a protected branch, you can choose one of two groups who can force push:
+
+- Allow everyone with at least write permissions to the repository to force push to the branch, including those with admin permissions.
+- Allow only specific people or teams to force push to the branch.
+
+If someone force pushes to a branch, the force push may overwrite commits that other collaborators have made. Force pushing may cause merge conflicts or corrupted pull requests for other users.
+
+Enabling force pushes will not override any other branch protection rules. For example, if a branch requires a linear commit history, you cannot force push merge commits to that branch.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Allow force pushes](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#allow-force-pushes) on the GitHub documentation site, and make sure the repository is not configured to allow force pushes.
+
+query title: Ensure branch protection requires conversation resolution before merging
+query description: This checks that a branch protection rule is configured to require all comments on the pull request to be resolved before it can be merged to a protected branch. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is recommended that both the default branch and any release branches have branch protection enabled, with branch protection rules applied.
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Require conversation resolution before merging](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-conversation-resolution-before-merging) on the GitHub documentation site.
+
+query title: Ensure status checks are passing before merging PRs on the default branch
+query description: This check ensures that all required CI tests have passed before collaborators can merge changes to a protected branch. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is recommended that both the default branch and any release branches have branch protection enabled, with branch protection rules applied.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Require status checks before merging](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-status-checks-before-merging) on the GitHub documentation site.
+
+query title: Ensure repository branch protection requires signed commits
+query description: This check ensures a branch protection rule exists to require signed commits on the default branch. Signing commits and tags locally gives other people confidence about the origin of changes made to a project. If a commit or tag has a GPG, SSH, or S/MIME signature that is cryptographically verifiable, GitHub marks the commit or tag "Verified" or "Partially verified."
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Require signed commits](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#require-signed-commits) on the GitHub documentation site.
+
+query title: Ensure repository does not allow bypassing of branch protections rules
+query description: This check ensures branch protection rules cannot be bypassed. By default, the restrictions of a branch protection rule do not apply to people with admin permissions to the repository or custom roles with the "bypass branch protections" permission in a repository.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: To enable branch protection, see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches) on the GitHub documentation site. Once branch protection is enabled, see [Do not allow bypassing the above settings](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#do-not-allow-bypassing-the-above-settings) on the GitHub documentation site.
+
+query title: Ensure repository defines a security policy
+query description: This control tries to determine that the repository defines a security policy. 
+
+It is recommended projects provide instructions for reporting a security vulnerability in your project by adding a security policy to your repository.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: See [Adding a security policy to your repository](https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository#adding-a-security-policy-to-your-repository) on the GitHub documentation site. 
+
+query title: Ensure repository does not generate binary artifacts
+query description: This check determines whether the project has generated executable (binary) artifacts in the source repository. Binary artifacts pose security challenges because they cannot be reviewed, and users will often directly use executables if they are included in the source repository, leading to many dangerous behaviors.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: Remove the generated executable artifacts from the repository, and then build from source. 
+
+query title: Ensure a GitHub Actions workflow exists for Dependabot
+query description: This check ensures the existence of a GitHub Actions workflow to run Dependabot checks on the repository by looking for the existence of a  or  configuration file.
+Dependabot creates pull requests to keep your dependencies up to date, and you can use GitHub Actions to perform automated tasks when these pull requests are created. For example, fetch additional artifacts, add labels, run tests, or otherwise modifying the pull request.
+
+query remediation: GitHub Actions provides many different workflows for running Dependabot checks on a project. For more information see [Automating Dependabot with GitHub Actions](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions) in the GitHub documentation site.
+
+property title: Define the required number of reviewers on pull requests
+policy description: ## Overview
+
+GitHub Organization Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for GitHub organizations.
+
+## About remote scanning
+
+Remote scans with cnspec provide on demand security assessments of infrastructure and services without installing any agents or integrations. cnspec comes with a growing list of providers to connect and scan local and remote targets. 
+
+A complete list of providers can be found by running the following command: 
+
+
+
+> Note: Scanning large GitHub organizations may exceed GitHub API rate limits. For more information see [About rate limits](https://docs.github.com/en/rest/rate-limit?apiVersion=2022-11-28#about-rate-limits) in the GitHub documentation.
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+
+policy description: # Overview
+
+GitHub Repository Security by Mondoo provides security assessments of public and private GitHub repositories to ensure minimum recommended security and operational best practices. This policy is also designed to assess public repositories and open source projects your team depends on to evaluate the risk a project poses to your business. Open source projects that do not adhere to GitHub's recommended security best practices pose a higher risk of malicious code making its way into your environments.
+
+## About remote scanning
+
+Remote scans with cnspec provide on demand security assessments of infrastructure and services without installing any agents or integrations. cnspec comes with a growing list of providers to connect and scan local and remote targets. 
+
+A complete list of providers can be found by running the following command: 
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+

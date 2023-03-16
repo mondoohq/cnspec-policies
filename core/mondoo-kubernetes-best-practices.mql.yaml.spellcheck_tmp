@@ -1,0 +1,529 @@
+query title: Pods should have an owner
+query description: Pods should be created via a Deployment or other Workload type.
+Pods without an owner (ie ReplicaSet, Job, etc.) will not be automatically restarted in the event of a Pod crash or Node failure.
+
+query audit: Check for Pods without an owner reference. Any line of output starting with '0' will indicate a Pod that has no owner:
+
+
+
+query remediation: For each Pod without an owner, ensure the Pod is owned by an appropriate Kubernetes object (eg Deployment, Job, DaemonSet, etc.) that will manage relaunching the Pod in the event of a failure.
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request CPU
+query description: When defining a Pod, you should specify how much CPU a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of CPU  resources.
+
+
+
+query remediation: Define the required resources for CPU  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should request memory
+query description: When defining a Pod, you should specify how much memory a container needs.
+This helps the Kubernetes scheduler to allocate resources accordingly.
+It will also ensure the Pod will get the resources it requires.
+
+query audit: Check for the existence of memory  resources.
+
+
+
+query remediation: Define the required resources for memory  in the container spec: 
+
+
+
+query title: Container should configure a livenessProbe
+query description: When defining a container, you should specify a livenessProbe.
+This helps Kubernetes to check whether your container is still healthy and able to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a livenessProbe
+query description: When defining a container, you should specify a livenessProbe.
+This helps Kubernetes to check whether your container is still healthy and able to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a livenessProbe
+query description: When defining a container, you should specify a livenessProbe.
+This helps Kubernetes to check whether your container is still healthy and able to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a livenessProbe
+query description: When defining a container, you should specify a livenessProbe.
+This helps Kubernetes to check whether your container is still healthy and able to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a livenessProbe
+query description: When defining a container, you should specify a livenessProbe.
+This helps Kubernetes to check whether your container is still healthy and able to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a readinessProbe
+query description: When defining a container, you should specify a readinessProbe.
+This helps Kubernetes to check whether your container ready to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a readinessProbe
+query description: When defining a container, you should specify a readinessProbe.
+This helps Kubernetes to check whether your container ready to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a readinessProbe
+query description: When defining a container, you should specify a readinessProbe.
+This helps Kubernetes to check whether your container ready to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a readinessProbe
+query description: When defining a container, you should specify a readinessProbe.
+This helps Kubernetes to check whether your container ready to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Container should configure a readinessProbe
+query description: When defining a container, you should specify a readinessProbe.
+This helps Kubernetes to check whether your container ready to serve requests.
+
+query audit: Check for the existence of :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Pod should not define hostAliases
+query description: DNS entries shouldn't be managed locally via  within Pods. This can result in unintended and/or dangerous outcomes.
+
+query audit: Check for the existence of  setting in :
+
+
+
+query title: Workloads should not run in default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no Pods:
+
+
+
+query remediation: For any Pods running in the default Namespace, update/redeploy the Pods (or the parent Deployment, CronJob, etc) to a non-default Namespace:
+
+
+
+query title: DaemonSets should not run in the default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no DaemonSets:
+
+
+
+query remediation: For any Daemonsets running in the default Namespace, update/redeploy the DaemonSets to a non-default Namespace:
+
+
+
+query title: ReplicaSets should not run in the default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no ReplicaSets:
+
+
+
+query remediation: For any ReplicaSets running in the default Namespace, update/redeploy the ReplicaSets (or the parent Deployment) to a non-default Namespace:
+
+
+
+query title: Jobs should not run in the default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no Jobs:
+
+
+
+query remediation: For any Jobs running in the default Namespace, update/redeploy the Jobs (or the parent CronJobs) to a non-default Namespace:
+
+
+
+query title: Deployments should not run in the default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no Deployments:
+
+
+
+query remediation: For any Deployments running in the default Namespace, update/redeploy the Deployments to a non-default Namespace:
+
+
+
+query title: StatefulSets should not run in the default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no StatefulSets:
+
+
+
+query remediation: For any StatefulSets running in the default Namespace, update/redeploy the StatefulSets to a non-default Namespace:
+
+
+
+query title: CronJobs should not run in the default namespace
+query description: Workloads should be organized by Namespace, and the default Namespace shouldn't be used.
+With separate Namespaces, you can apply fine-grained RBAC permissions, Resource Quotas, and default limits, depending on the workload.
+Spreading workloads across namespaces also allows you to limit the network communication between them with Network Policies.
+
+query audit: Check to ensure no workloads are running in the default Namespace. The following command should return no CronJobs:
+
+
+
+query remediation: For any CronJobs running in the default Namespace, update/redeploy the CronJobs to a non-default Namespace:
+
+
+
+query title: Pods should not bind to a host port
+query description: Pods should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no Pods are binding any of their containers to a host port:
+
+
+
+query remediation: For any Pods that bind to a host port, update the Pods (or the Deployments/DaemonSets/CronJobs/etc that produced the Pods) to ensure they do not bind to a host port:
+
+
+
+query title: DaemonSets should not bind to a host port
+query description: DaemonSets should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no DaemonSets are binding any of their containers to a host port:
+
+
+
+query remediation: For any DaemonSets that bind to a host port, update the DaemonSets to ensure they do not bind to a host port:
+
+
+
+query title: ReplicaSets should not bind to a host port
+query description: ReplicaSets should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no ReplicaSets are binding any of their containers to a host port:
+
+
+
+query remediation: For any ReplicaSets that bind to a host port, update the ReplicaSets to ensure they do not bind to a host port:
+
+
+
+query title: Jobs should not bind to a host port
+query description: Jobs should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no Jobs are binding any of their containers to a host port:
+
+
+
+query remediation: For any ReplicaSets that bind to a host port, update the Jobs to ensure they do not bind to a host port:
+
+
+
+query title: Deployments should not bind to a host port
+query description: Deployments should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no Deployments are binding any of their containers to a host port:
+
+
+
+query remediation: For any Deployments that bind to a host port, update the Deployments to ensure they do not bind to a host port:
+
+
+
+query title: StatefulSets should not bind to a host port
+query description: StatefulSets should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no StatefulSets are binding any of their containers to a host port:
+
+
+
+query remediation: For any StatefulSets that bind to a host port, update the StatefulSets to ensure they do not bind to a host port:
+
+
+
+query title: CronJobs should not bind to a host port
+query description: CronJobs should not bind to the underlying host port. Containers that bind to the underlying host's port(s) can be limited regarding where they are scheduled as two containers cannot both bind to the same host port on the same node.
+Host ports also expose the Container outside the Kubernetes cluster, which might not be intended.
+
+query audit: Check to ensure no CronJobs are binding any of their containers to a host port:
+
+
+
+query remediation: For any CronJobs that bind to a host port, update the CronJobs to ensure they do not bind to a host port:
+
+
+
+query title: Ingress certificates less than 15 days from expiration
+query description: If Ingress resources have TLS certificate Secrets, update the certificates updated before they expire.
+
+query audit: Check to ensure no Ingress Secrets contain TLS certificates near expiration:
+
+Display all Ingress resources with TLS Secret data:
+
+
+query remediation: For all Secrets with expired or soon-to-expire certificates, update the Secret data with refreshed certificates.
+
+query title: Gather all Deployments
+query title: Gather all DaemonSets
+query title: Gather all StatefulSets
+query title: Gather all Jobs
+query title: Gather all CronJobs
+query title: Gather all Pods with security context
+policy description: ## Overview
+
+The Kubernetes Best Practices by Mondoo policy bundle provides guidance for establishing reliable Kubernetes clusters by encouraging the adoption of best practices.
+
+## Remote scan
+
+Remote scans use native transports in  to provide on demand scan results without the need to install any agents, or integration. 
+
+For a complete list of native transports run: 
+
+      
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.

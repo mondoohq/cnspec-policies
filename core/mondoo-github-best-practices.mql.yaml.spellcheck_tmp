@@ -1,0 +1,71 @@
+query title: Ensure repository has a support policy
+query description: GitHub repositories should include a SUPPORT.md file to let people know how to get help with the project.
+
+To direct people to specific support resources, you can add a SUPPORT.md file to your repository's root, docs, or .github directory. When someone creates an issue in your repository, they will see a link to your project's SUPPORT.md file.
+
+query title: Ensure repository has a CODE_OF_CONDUCT.md policy
+query description: Open source code repositories should include a CODE_OF_CONDUCT.md. Including a CODE_OF_CONDUCT.md helps to clarify the project's values and principles. 
+
+You can add a CODE_OF_CONDUCT.md file to your repository's root, docs, or .github directory.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: See [Adding a CODE_OF_CONDUCT.md to your project](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-code-of-conduct-to-your-project) on the GitHub docs site. 
+
+query title: Ensure the README.md includes authors
+query description: Including the authors in the README.md provides transparency to the users looking to use the project in their environments. 
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: Update the  with information about the project's authors.
+
+query title: Ensure the README.md includes getting started guide
+query description: This check ensures the repository README file contains a getting started guide. 
+
+query remediation: Update the repository README file with a section titled "Getting Started" for your users.
+
+query title: Ensure repository declares a license
+query description: Check tries to determine if the project has published a license. It works by checking standard locations for a file named according to common license conventions.
+
+A license can give users information about how the source code may or may not be used. The lack of a license will impede any kind of security review or audit and creates a legal risk for potential users.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to GitHub  
+3. Run the following query
+
+   
+
+query remediation: See [Adding a license to a repository](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) on the GitHub documentation site. 
+
+policy description: # Overview
+
+GitHub Repository Best Practices by Mondoo provides assessments of public and private GitHub repositories to ensure a minimum recommended operational best practices. 
+
+## About remote scanning
+
+Remote scans with cnspec provide on demand security assessments of infrastructure and services without the need to install any agents or integrations. cnspec comes with a growing list of providers to connect and scan local and remote targets. 
+
+A complete list of providers can be found by running the following command: 
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+

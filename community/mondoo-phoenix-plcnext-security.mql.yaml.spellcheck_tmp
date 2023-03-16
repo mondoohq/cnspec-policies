@@ -1,0 +1,166 @@
+query title: Ensure latest PLCnext Firmware is installed
+query description: Installing the latest firmware is important for several reasons:
+
+- Security: Firmware updates often include security patches to address vulnerabilities in the system, making it less susceptible to hacking or other security threats.
+- Bug fixes: Updates often include fixes for bugs and other software issues, which can improve the performance and stability of the device.
+- New features: Updates may add new features or functionality to the device, making it more versatile and improving its overall performance.
+- Compatibility: Installing the latest firmware can ensure compatibility with other devices or systems, preventing conflicts or connectivity issues.
+- Performance: Firmware updates can improve the overall performance of the device, such as improving processing speed, battery life, or other key metrics.
+
+By installing the latest firmware, you can ensure that your device is secure, performs optimally, and is fully compatible with other systems. This can help reduce downtime, improve productivity, and extend the lifespan of your device.
+
+query audit: Run the  command and verify that output Arpversion is greater than 23.0.0.65
+
+query remediation: Please follow the update instructions from [Firmware update page](https://www.plcnext.help/te/WBM/Administration_Firmware_Update.htm)
+
+query title: Ensure Firewall is active
+query description: The hazards in public and even private networks are omnipresent, and nowadays no private user would come up with the idea to put a computer on the network without a proper firewall setting. So how would that be different when working with a PLC?
+
+PLCnext Technology  relies on the proven and commonly used Linux® firewall nftables. On the PLCnext Control, you don't need to configure the firewall rules via cryptic Linux shell commands: Just log on to the Web-based Management and choose from the predefined basic rules, or add your own rules to the set.
+
+In addition to the PLCnext Technology filter table, you can activate other filter tables. This might be necessary if you require certain functions that are not supported by the firewall configuration via the WBM.
+
+This additional configuration is implemented via independent filter tables. You have to create the required functions via nftables commands. For this, you can edit a rule set in Linux using a text editor or load the file to the PC and change it.
+
+For detailed information on this Linux feature, refer to the nftables documentation.
+
+Here you see a set of firewall filter files that is present in the /etc/nftables directory on a PLCnext Control
+
+query audit: Run the  and  command and verify that output.
+
+query remediation: Please follow the update instructions from [PLCnext Firewall configuration](https://www.plcnext.help/te/WBM/Security_Firewall.htm)
+
+query title: Ensure only strong Key Exchange algorithms are used
+query description: Key exchange is any method in cryptography by which cryptographic keys are exchanged between two parties, allowing use of a cryptographic algorithm. If the sender and receiver wish to exchange encrypted messages, each must be equipped to encrypt messages to be sent and decrypt messages received
+query remediation: Edit the  file to add or modify the  parameter so that it contains a comma-separated list of the site approved key exchange algorithms
+
+
+query title: Ensure only strong MAC algorithms are used
+query description: This variable limits the types of MAC algorithms that SSH can use during communication.
+query remediation: Edit the  file to add or modify the  parameter so that it contains a comma-separated list of the site approved MACs
+
+Example:
+
+
+query title: Ensure only strong ciphers are used
+query description: This variable limits the ciphers that SSH can use during communication.
+query remediation: Edit the  file to add or modify the  parameter so that it contains a comma-separated list of the site approved ciphers
+
+Example:
+
+
+query title: Ensure current system time is synchronized
+query description: A system's time should be synchronized between all systems in an environment. This is usually done by setting up an authoritative time server with which all systems in an environment synchronize their clocks.
+
+query audit: Execute the following command to get the actual system time in UTC:
+
+
+
+query remediation: Please follow the Phoenix guide [NTP](https://www.plcnext.help/te/Operating_System/System_time.htm#XREF_68130_2_8_2_NTP_Network)
+
+query title: Ensure secure permissions on SSH private host key files are set
+query description: An SSH private key is one of two files used in SSH public key authentication. In this authentication method, The possession of the private key is proof of identity. Only a private key corresponding to a public key can authenticate successfully. The private keys need to be stored and handled carefully, and no copies of the private key should be distributed.
+query remediation: Run the following commands to set ownership and permissions on the private SSH host key files
+
+
+query title: Ensure secure permissions on SSH public host key files are set
+query description: An SSH public key is one of two files used in SSH public key authentication. In this authentication method, a public key is a key that can be used for verifying digital signatures generated using a corresponding private key. Only a public key corresponding to a private key can authenticate successfully.
+query remediation: Run the following commands to set permissions and ownership on the SSH host public key files
+
+
+query title: Ensure SSH Protocol is set to 2
+query description: SSH supports two different and incompatible protocols: SSH1 and SSH2. SSH1 was the original protocol and was subject to security issues. SSH2 is more advanced and secure.
+query remediation: Edit the  file to set the parameter as follows:
+
+
+query title: Ensure SSH LogLevel is appropriate
+query description:  level is the basic level that only records the login activity of SSH users. In many situations, such as incident response, it is important to determine when a particular user was active on a system. The logout record can eliminate those users who disconnected, which helps narrow the field.
+
+ level specifies that login and logout activity as well as the key fingerprint for any SSH key used for login will be logged. This information is important for SSH key management, especially in legacy environments.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH X11 forwarding is disabled
+query description: The X11Forwarding parameter allows tunneling X11 traffic through the connection to enable remote graphic connections.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH MaxAuthTries is set to 4 or less
+query description: The  parameter specifies the maximum number of authentication attempts permitted per connection. When the login failure count reaches half this maximum value, error messages will be written to the  file detailing the login failure.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH IgnoreRhosts is enabled
+query description: The  parameter specifies that  and  files will not be used in  or  .
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH HostbasedAuthentication is disabled
+query description: The  parameter specifies if authentication is allowed through trusted hosts via the user of , or  , along with successful public key client host authentication. This option only applies to SSH Protocol Version 2.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH root login is disabled or set to prohibit-password
+query description: The  parameter specifies if the root user can log in using ssh(1). The default is no.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH PermitEmptyPasswords is disabled
+query description: The  parameter specifies if the SSH server allows login to accounts with empty password strings.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH PermitUserEnvironment is disabled
+query description: The  option allows users to present environment options to the  daemon.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH Idle Timeout Interval is configured
+query description: The two options  and  control the timeout of ssh sessions. When the  variable is set, ssh sessions that have no activity for the specified length of time are terminated. When the  variable is set,  will send client alive messages at every  interval. When the number of consecutive client alive messages are sent with no response from the client, the  session is terminated. For example, if the  is set to 15 seconds and the  is set to 3, the client  session will be terminated after 45 seconds of idle time.
+query remediation: Edit the  file to set the  and  parameters according to site policy:
+
+
+query title: Ensure SSH LoginGraceTime is set to one minute or less
+query description: The  parameter specifies the time allowed for successful authentication to the SSH server. The longer the grace period is, the more open unauthenticated connections can exist. Like other session controls, the grace period should be limited to appropriate organizational limits to ensure the service is available for needed access.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH access is limited
+query description: There are several options available to limit which users and groups can access the system via SSH. It is recommended that at least one of the following options be leveraged: 
+
+The  variable gives the system administrator the option of allowing specific users to  into the system. The list consists of space-separated user names. Numeric user IDs are not recognized with this variable. If a system administrator wants to restrict user access further by only allowing the allowed users to log in from a particular host, the entry can be specified in the form of user@host. 
+
+The  variable gives the system administrator the option of allowing specific groups of users to  into the system. The list consists of space-separated group names. Numeric group IDs are not recognized with this variable. 
+
+The  variable gives the system administrator the option of denying specific users to  into the system. The list consists of space-separated user names. Numeric user IDs are not recognized with this variable. If a system administrator wants to restrict user access further by specifically denying user access from a particular host, the entry can be specified in the form of user@host. 
+
+The  variable gives the system administrator the option of denying specific groups of users to  into the system. The list consists of space-separated group names. Numeric group IDs are not recognized with this variable.
+query remediation: Edit the  file and add one or more of these parameters:
+
+
+query title: Ensure SSH warning banner is configured
+query description: The  parameter specifies a file whose contents must be sent to the remote user before authentication is permitted. By default, no banner is displayed.
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+query title: Ensure SSH password authentication is disabled
+query description: Using SSH key authentication is considered to be a more secure method of logging into a remote system than using passwords. Here are some reasons why you might want to consider using only SSH key authentication:
+
+- Increased security: SSH key authentication uses public-key cryptography to secure the connection, which is considered to be much more secure than using passwords. Passwords can be guessed or cracked, whereas an SSH key must be physically acquired by an attacker to be used to gain unauthorized access.
+
+- Convenience: Once you have set up an SSH key pair, logging into a remote system is faster and more convenient than typing a password every time.
+
+- Improved audit trail: SSH key authentication provides a more detailed audit trail, making it easier to detect and respond to unauthorized access attempts.
+
+- Automation: SSH key authentication can be automated, making it easier to automate tasks and access remote systems without human intervention.
+
+While there are benefits to using only SSH key authentication, it is important to ensure that your SSH keys are managed properly, with strong passwords, and are backed up in case of loss or corruption.
+
+In summary, allowing only SSH key authentication can provide a more secure and convenient way to access remote systems, but it is important to manage your keys properly to ensure that the increased security is not compromised.
+
+query remediation: Edit the  file to set the  parameter as follows:
+
+
+property title: Define the hardened key exchange algorithms for all SSH configurations
+property title: Define the accepted MAC algorithms
+property title: Define the hardened ciphers for all SSH configurations

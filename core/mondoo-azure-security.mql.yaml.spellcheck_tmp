@@ -1,0 +1,499 @@
+query title: Ensure that multi-factor authentication has been enabled for all users
+query description: This control checks that the MFA has been enabled for all users in the Microsoft Azure tenant. 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Azure Active Directory -> Security -> Conditional Access**.
+3. Select **New Policy** with these conditions:
+   * Grant: Grant access (Require multi-factor authentication)
+   * Users: All users
+   * Cloud apps or actions: All cloud apps 
+5. Make sure that the policy is enabled. You can also set **Enable policy** to **Report-only**. After confirming your settings using report-only mode, an administrator can switch the **Enable policy** toggle from **Report-only** to **On**.
+
+query title: Ensure all users in administrative roles have MFA enabled
+query description: Enable multi-factor authentication for all users in administrative roles!
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in as a Conditional Access Administrator, Security Administrator, or Global Administrator to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to Azure Active Directory -> Security -> Conditional Access
+3. Select **New Policy** with following conditions:
+   * Grant: Grant access (Require multi-factor authentication)
+   * Users -> Users and groups -> Include -> Select users and groups -> Directory roles: At minimum select Billing admin, Conditional Access admin, Exchange admin, Global admin, Helpdesk admin, Security admin, SharePoint admin, and User admin.
+   * Cloud apps or actions: All cloud apps 
+5. Make sure that the policy is enabled. You can also set **Enable policy** to **Report-only**. After confirming your settings using report-only mode, an administrator can switch the **Enable policy** toggle from **Report-only** to **On**.
+
+query title: Ensure that at least three but not more than four global admins are designated
+query description: This control checks that there are enough Global Admins in a single tenant. 
+ When designating global admins, it's important to consider the size and complexity of the organization, as well as the level of responsibility and authority required for the role. As a general rule, it's a good idea to have at least three global admins to ensure that there is redundancy and coverage in case one admin is unavailable or leaves the organization.
+
+At the same time, having too many global admins can lead to confusion and inefficiency, as multiple people may be making decisions or taking actions without proper coordination. Therefore, it's recommended to limit the number of global admins to four, unless the organization is particularly large or complex and requires more administrators to properly manage its operations.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+ 1. Log into the Microsoft Azure portal at https://portal.azure.com as a global administrator.
+ 2. Navigate to Azure Active Directory
+ 3. Select **Users -> New user **.
+ 4. If there are not enough global admins, create one:
+    * Select the user name.
+    * Under **Roles**, select **Global Administrator ** and then select **Save changes**.
+ 5. Remove the Global Admin, if there are more than four Global Administrators
+    * Select the user name.
+    * Under Roles, select **Manage roles** and then deselect Global Administrator.
+    * Select **Save changes**.
+
+query title: Ensure that the security defaults are disabled
+query description: This control checks that the security defaults (which are enabled by default) are enabled in Azure Active Directory.
+
+The security defaults help protect user accounts from password spray and phishing attacks by:
+
+* Requiring all users and admins to register for MFA using the Microsoft Authenticator app.
+* Challenging users with MFA when they log in from a new device or app or for critical roles and tasks.
+* Disabling authentication from legacy authentication clients that can't do MFA. 
+* Protecting admins by requiring extra authentication every time they log in.
+
+Note: Advanced security configurations require you to disable the security defaults. 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log into the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Azure Active Directory -> properties -> Select "manage security defaults"**.
+3. Verify the "Enable security defaults" toggle is Yes. 
+
+query title: Enable sign-in risk policy for MFA
+query description: This control checks that there are some policies in place which can detect risky sign-in in real-time and offline. A risky sign-in mainly means a sign-in attempt which might be performed by illegitimate owner of a user account.
+
+Most users have a normal behavior that can be tracked. When they fall outside of this norm, it could be risky to allow them to successfully sign in. Instead, you may want to block that user, or ask them to perform a multi-factor authentication. If the user successfully completes the MFA challenge, you can consider it a valid sign-in attempt and grant access to the application or service.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log into the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Azure Active Directory -> Security -> Identity Protection -> Sign-in risk policy**.
+3. Make sure the policy applies to all users.
+4. Under Conditions, choose **Select conditions -> Select a risk level**, then choose **Medium and above**.
+5. Under Access, choose **Select a control**. Make sure the **Allow access and require multi-factor authentication** option is checked, then choose **Select**.
+6. Set **Enforce Policy** to **On**, then select **Save**.
+
+query title: Enable user risk policy for password change
+query description: This control checks that there are policies in place that can detect risky sign-in, both in real time and offline. A risky sign-in generally means a sign-in attempt performed by someone other than the account owner.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log into the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Azure Active Directory -> Security -> Identity Protection -> User risk policy**.
+3. Make sure the policy applies to all users.
+4. Under **Conditions**, choose **Select conditions -> Select a risk level**, then choose **Medium and above**.
+5. Under **Access,** select **Access**. Make sure the **Allow access and Require password change** is checked, then choose **Select**.
+6. Set **Enforce Policy** to **On**, then select **Save**.
+
+query title: Ensure that 'OS' disks are encrypted
+query description: This control checks that both OS disks (boot volumes) are encrypted. Customer Managed keys can be either ADE or Server Side Encryption(SSE).
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+__Encrypt disks Linux VM__
+
+
+
+query title: Ensure that SSH access is restricted from the internet
+query description: This control checks whether SSH on port 22 is not configured to allow access from anywhere with the CIDR block "0.0.0.0". 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+
+
+query title: Ensure that RDP access is restricted from the internet
+query description: This control checks whether RDP on port 3389 is not configured to allow access from anywhere with the CIDR block "0.0.0.0". 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+
+
+query title: Ensure that 'Secure transfer required' is set to 'Enabled'
+query description: This control checks that data encryption in transit is enabled.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+    
+
+query title: Ensure that 'Public access level' is set to Private for blob containers
+query description: This control checks that anonymous access to blob containers is disabled, and public access on storage accounts is disabled.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+
+
+query title: Ensure the default network access rule for Storage Accounts is set to deny
+query description: This control checks that access to the default network for storage accounts is set to deny. 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+      
+
+query title: Ensure 'Trusted Microsoft Services' is enabled for Storage Account access
+query description: This control checks that 'Trusted Microsoft Services' is enabled for Storage Account access.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+ 
+
+query title: Ensure that 'Auditing' is set to 'On' for SQL servers
+query description: This control checks that 'Auditing' is set to 'On' for SQL servers.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+ 
+
+query title: Ensure that 'Auditing' Retention is 'greater than 90 days'
+query description: This control checks that 'Auditing' Retention is 'greater than or equal to 90 days'
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+     
+
+query title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)
+query description: This control checks that no SQL databases allow ingress connections from "0.0.0.0". 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+1. Run  to authenticate with the correct Azure subscription and tenant.
+2. Run the following query:
+
+  
+
+query remediation: ###Terraform
+
+__mySQL__
+
+ 
+
+query title: Ensure that App Services can authenticate with Active Directory
+query description: This control checks that the App services be able to authenticate through Azure AD. 
+
+In this way, the secrets will be removed from the app itself, and instead the app will connect to other Azure services securely without the need for usernames and passwords.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **App Services**.
+3. Click on each App, under "setting" click on "identity"
+4. Under the "System assigned" pane, set "Status" to "On" 
+
+query title: Ensure that Web Apps use the latest available version of TLS encryption
+query description: It is highly recommended to use the latest TLS version available with Azure App Services for all secure Web App connections. Currently Azure App Services supports TLS 1.2.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **App Services**.
+3. Select each App, under "setting" select on "TLS/SSL settings"
+4. Under the "Bindings" pane, ensure that "Minimum TLS Version" set to "1.2" under "Protocol Settings". 
+
+query title: Ensure that the expiration date is set for all keys and secrets in key vaults
+query description: The expiration time attribute identifies the expiration time which after the key/secret must not be used for a cryptographic operation. 
+By default, keys/secrets never expire. Therefore, it is highly recommended that keys/secrets be rotated in the key vault and set an explicit expiration time.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Key vaults**.
+3. For each Key Vault, select "Keys" or "Secrets"
+4. Make sure that each key/secret in the KV has "EXPIRATION DATE" set as appropriate
+
+query title: Ensure it is possible to recover key vaults
+query description: Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a Key Vault can cause serious problems in any organization. 
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Key vaults**.
+3. Select "Properties" and ensure Soft delete has been enabled on this key vault
+4. At the bottom of the page, select "Enable Purge Protection"
+
+query title: Ensure all operations on Key Vault is logged
+query description: Monitoring how, by whom and when kv are accessed, enables an audit trail of interactions with confidential information, keys, secrets and certificates.
+
+Enabling logging for Key Vault saves information in an Azure storage account which the user provides. This will create a new container called insights-logs-auditevent for the specified storage account.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to **Key vaults**.
+3. Select "Properties" and ensure Soft delete has been enabled on this key vault
+4. At the bottom of the page, select "Enable Purge Protection"
+
+query title: Ensure that activity log alerts exist for the commands Create, Update, and Delete Network Security Group
+query description: Monitoring Network Security Group events can give clear insight into network access changes and it is very useful for detecting suspicious activity.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Navigate to the "Monitor" blade
+  1. Select "Alerts"
+  2. Select "Create" and then "Alert rule" 
+  3. Under the Scope tab, select "Select scope" 
+  4. In the "Select a resource" window, select the appropriate filters:
+    - Filter by subscription: "< choose the subscription alerts are needed for >""
+    - Filter by resource location: **"Network security groups"**
+    - Filter by location: "All" 
+    - Select the "subscription name" or "resource group" or "Network security group" that the Log Alert Rule will be applied to
+  5. Verify that the selection preview shows:
+    - "All network security groups" or "< your network security group >""
+    - "< Resource Name >" - The subscription, group, or resource you selected
+  6. Select "Done" 
+  7. Under the Condition tab, select "Add Condition" 
+  8. In the "Select a signal" window, under the "Signal Name" heading, select ****
+  9. Need to repeat the previous step also for ****
+  10. Under the Actions tab, choose appropriately:
+    - Select action groups - If you have an existing action group to notify the necessary personnel.
+    - Create action group - If you do not have an existing action group or want to create a new one.
+  11. Under the Details tab, fill in:
+    - Resource group - Select the resource group you want the alert rule to reside in.
+    - Alert rule name - Give your alert a recognizable and standardized name.
+    - Alert rule description - (Optional)
+  12. Select  then verify the summary details
+  13. Select 
+
+query title: Ensure that "Notify about alerts with high severity" is enabled
+query description: Enabling security alert emails ensures that security alert emails are received from Microsoft.
+This ensures that Admins are aware of any potential security issues and are able to react quickly.
+
+query audit: __cnspec run__
+
+To audit Microsoft Azure with :
+
+it is possible also to use client-secret for app connection instead of the certificate. 
+
+Run the following query:
+
+  
+
+query remediation: ### Microsoft Azure Portal
+
+To update using the Microsoft Azure portal:
+1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+2. Select 
+3. Select  and then select the appropriate Management Group, Subscription, or Workspace
+4. Select on  and ensure that the  setting is checked and set to 
+
+policy description: ## Overview
+
+Azure Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for Azure.
+
+## Remote scan
+
+Remote scans use native transports in cnspec to provide on-demand scan results without installing agents or integrations. 
+
+Note: Some of the checks in this policy query Microsoft Graph API data. To successfully run these checks, you must create an Azure AD app registration for cnspec. Follow the instructions on https://mondoo.com/docs/platform/cloud/azure/azure-integration-scan/ and include the permissions described on https://mondoo.com/docs/platform/saas/ms365/. 
+
+To run all checks at the same time, ensure your app registration has the necessary permissions as described above and then run:
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 

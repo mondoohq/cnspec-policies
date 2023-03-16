@@ -1,0 +1,39 @@
+query title: The certificate's domain name must match
+query title: The certificate is valid
+query title: Certificate is not near expiration or expired
+query title: None of the certificates (intermediate, root) have expired
+query title: Do not use a self-signed certificate
+query title: Do not use revoked certificates
+query title: Do not use weak certificate signatures
+query title: Avoid weak SSL and TLS versions
+query title: Avoid RC4 ciphers
+query title: Avoid NULL cipher suites
+query title: Avoid export ciphers suites
+query title: Avoid anonymous Diffie-Hellman suites
+query title: Avoid weak block ciphers
+query title: Avoid weak block cipher modes
+query title: Avoid cipher suites with RSA key exchange
+query title: Avoid old cipher suites
+query title: Preferred ciphers must include AEAD ciphers
+query title: Preferred ciphers must include perfect forward secrecy (PFS)
+query title: Mitigate BEAST attacks on the server-side
+policy description: The Transport Layer Security (TLS) protocol is the primary means of protecting network communications. 
+
+The TLS/SSL Security Baseline by Mondoo includes controls for ensuring the security and configuration of TLS/SSL connections and certificates.
+
+## Remote scan
+
+Remote scans use native transports in  to provide on demand scan results without the need to install any agents, or integration. 
+
+For a complete list of native transports run: 
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+
+group summary: Secure TLS/SSL connection
+group summary: Valid TLS/SSL certificate

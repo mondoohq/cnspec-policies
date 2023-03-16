@@ -1,0 +1,603 @@
+query title: Disable Remote Apple Events
+query description: Apple Events is a technology that allows one program to communicate with other programs. Remote Apple Events allows a program on one computer to communicate with a program on a different computer.
+query remediation: Perform the following to disable Remote Apple Events:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Verify that Remote Apple Evens is not set
+
+_Terminal Method:_
+
+Run the following commands to set Remote Apple Events to Off:
+
+
+
+**Impact:**
+
+With remote Apple events turned on, an AppleScript program running on another Mac can interact with the local computer.
+query title: Disable Internet Sharing
+query description: Internet Sharing uses the open source  process to share an internet connection with other computers and devices on a local network. This allows the Mac to function as a router and share the connection to other, possibly unauthorized, devices.
+query remediation: Perform the following to disable Internet Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Internet Sharing
+
+_Terminal Method:_
+
+Run the following command to turn off Internet Sharing:
+
+
+
+**Note:**
+Using the Terminal Method will not uncheck the setting in System Preferences>Sharing but will disable the underlying service.
+
+**Impact:**
+
+Internet Sharing allows the computer to function as a router and other computers to use it for access. This can expose both the computer itself and the networks it is accessing to unacceptable access from unapproved devices.
+query title: Disable Screen Sharing
+query description: Screen Sharing allows a computer to connect to another computer on a network and display the computer's screen. While sharing the computer's screen, the user can control what happens on that computer, such as opening documents or applications, opening, moving, or closing windows, and even shutting down the computer.
+query remediation: Perform the following to disable Screen Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Screen Sharing
+
+_Terminal Method:_
+
+Run the following command to turn off Screen Sharing:
+
+
+query title: Disable Printer Sharing
+query description: By enabling Printer Sharing, the computer is set up as a print server to accept print jobs from other computers. Dedicated print servers or direct IP printing should be used instead.
+query remediation: Perform the following to disable Printer Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Printer Sharing
+
+_Terminal Method:_
+
+Run the following command to disable Printer Sharing:
+
+
+query title: Disable Remote Login
+query description: Remote Login allows an interactive terminal connection to a computer.
+query remediation: Perform the following to disable Remote Login:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Remote Login
+
+_Terminal Method:_
+
+Run the following command to disable Remote Login:
+
+
+
+Entering yes will disable remote login.
+
+**Impact:**
+
+The SSH server built-in to macOS should not be enabled on a standard user computer, particularly one that changes locations and IP addresses. A standard user that runs local applications, including email, web browser and productivity tools, should not use the same device as a server. There are Enterprise management tool-sets that do utilize SSH. If they are in use, the computer should be locked down to only respond to known, trusted IP addresses and appropriate admin service accounts.
+
+For macOS computers that are being used for specialized functions, there are several options to harden the SSH server to protect against unauthorized access including brute force attacks. There are some basic criteria that need to be considered:
+
+- Do not open an SSH server to the internet without controls in place to mitigate SSH brute force attacks. This is particularly important for systems bound to Directory environments. It is great to have controls in place to protect the system, but if they trigger after the user is already locked out of their account, they are not optimal. If authorization happens after authentication directory accounts for users that don't even use the system can be locked out.
+- Do not use SSH key pairs when there is no insight to the security of the client system that will authenticate into the server with a private key. If an attacker gets access to the remote system and can find the key they may not need a password or a key logger to access the SSH server.
+- Detailed instructions on hardening an SSH server, if needed, are available in the CIS Linux Benchmarks, but it is beyond the scope of this benchmark.
+query title: Disable DVD or CD Sharing
+query description: DVD or CD Sharing allows users to access the system's optical drive remotely. While Apple does not ship Macs with built-in optical drives any longer, external optical drives are still recognized when connected. In testing the sharing of an external optical drive persists when a drive is reconnected.
+query remediation: Perform the following to disable DVD or CD Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck DVD or CD sharing
+
+_Terminal Method:_
+
+Run the following command to disable DVD or CD Sharing:
+
+
+
+**Note:**
+If using the Terminal method, the GUI will still show the service checked until after a reboot.
+
+**Impact:**
+
+Many Apple devices are now sold without optical drives, and drive sharing may be needed for legacy optical media. The media should be explicitly re-shared as needed rather than using a persistent share. Optical drives should not be used for long term storage. To store necessary data from an optical drive, it should be copied to another form of external storage. Optionally, an image can be made of the optical drive so that it is stored in it's original form on another form of external storage
+query title: Disable Bluetooth Sharing
+query description: Bluetooth Sharing allows files to be exchanged with Bluetooth-enabled devices.
+query remediation: Perform the following to disable Bluetooth Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Bluetooth Sharing
+
+Run the following command to disable Bluetooth Sharing is disabled:
+
+
+
+**Impact:**
+
+Control 2.1.1 discusses disabling Bluetooth if no paired devices exist. There is a general expectation that Bluetooth peripherals will be used by most users in Apple's ecosystem. It is possible that sharing is required and Bluetooth peripherals are not. Bluetooth must be enabled if sharing is an acceptable use case.
+query title: Disable File Sharing
+query description: Server Message Block (SMB), Common Internet File System (CIFS) When Windows (or possibly Linux) computers need to access file shared on a Mac, SMB/CIFS file sharing is commonly used. Apple warns that SMB sharing stores passwords is a less secure fashion than AFP sharing and anyone with system access can gain access into the password for that account. When sharing with SMB, each user that will access the Mac must have SMB enabled.
+query remediation: Perform the following to disable File Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck File Sharing
+
+_Terminal Method:_
+
+Run the following command to disable SMB file sharing:
+
+
+
+**Impact:**
+
+File Sharing can be used to share documents with other users but hardened servers should be used rather than user endpoints. Turning on file sharing increases the visibility and attack surface of a system unnecessarily.
+query title: Disable Remote Management
+query description: Remote Management is the client portion of Apple Remote Desktop (ARD). Remote Management can be used by remote administrators to view the current screen, install software, report on, and generally manage client Macs.
+
+The screen sharing options in Remote Management are identical to those in the Screen Sharing section. In fact, only one of the two can be configured. If Remote Management is used, refer to the Screen Sharing section above on issues regarding screen sharing.
+
+Remote Management should only be enabled when a Directory is in place to manage the accounts with access. Computers will be available on port 5900 on a macOS System and could accept connections from untrusted hosts depending on the configuration, which is definitely a concern for mobile systems.
+query remediation: Perform the following to disable Remote Management:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Remote Management
+
+_Terminal Method:_
+
+Run the following command to disable Remote Management:
+
+
+
+**Impact:**
+
+Many organizations utilize ARD for client management.
+query title: Disable Content Caching
+query description: Starting with 10.13 (macOS High Sierra) Apple introduced a service to make it easier to deploy data from Apple, including software updates, where there are bandwidth constraints to the Internet and fewer constraints and greater bandwidth on the local subnet. This capability can be very valuable for organizations that have throttled and possibly metered Internet connections. In heterogeneous enterprise networks with multiple subnets the effectiveness of this capability would be determined on how many Macs were on each subnet at the time new large updates were made available upstream.
+This capability requires the use of mac OS clients as P2P nodes for updated Apple content. Unless there is a business requirement to manage operational Internet connectivity bandwidth user endpoints should not store content and act as a cluster to provision data.
+
+[Content types supported by Content Caching in macOS](https://support.apple.com/en-us/HT204675)
+query remediation: Perform the following to disable Content Caching:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Content Caching
+
+_Terminal Method:_
+
+Run the following command to disable Content Caching:
+
+
+
+The output will include 
+
+**Impact:**
+
+This setting will adversely affect bandwidth usage between local subnets and the Internet.
+query title: Disable Media Sharing
+query description: Starting with macOS 10.15 Apple has provided a control to allow a user to share Apple downloaded content on all Apple devices that are signed in with the same Apple ID. This allows a user to share downloaded Movies, Music or TV shows with other controlled macOS, iOS and iPadOS devices as well as photos with Apple TVs.
+
+With this capability guest users can also use media downloaded on the computer.
+
+The recommended best practice is not to use the computer as a server but to utilize Apple's cloud storage to download and use content stored there if content stored with Apple is used on multiple devices.
+
+[https://support.apple.com/guide/mac-help/set-up-media-sharing-on-mac-mchlp13371337/mac](https://support.apple.com/guide/mac-help/set-up-media-sharing-on-mac-mchlp13371337/mac)
+
+This capability requires the use of macOS clients as P2P nodes for updated Apple content. Unless there is a business requirement to manage operational Internet connectivity bandwidth user endpoints should not store content and act as a cluster to provision data.
+
+[Content types supported by content caching in macOS](https://support.apple.com/en-us/HT204675)
+query remediation: Perform the following to disable Media Sharing:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Sharing
+3. Uncheck Media Sharing
+
+_Terminal Method:_
+
+Run the following command to disable Media Sharing:
+
+
+
+**Impact:**
+
+Media Sharing allows for pre-downloaded content on a Mac to be available to other Apple devices on the same network. Leaving this disabled forces device users to stream or download content from each Apple authorized device. This sharing could even allow unauthorized devices on the same network media access.
+query title: Ensure AirDrop Is Disabled
+query description: AirDrop is Apple's built-in on demand ad hoc file exchange system that is compatible with both macOS and iOS. It uses Bluetooth LE for discovery that limits connectivity to Mac or iOS users that are in close proximity. Depending on the setting it allows everyone or only Contacts to share files when they are nearby to each other.
+
+In many ways this technology is far superior to the alternatives. The file transfer is done over a TLS encrypted session, does not require any open ports that are required for file sharing, does not leave file copies on email servers or within cloud storage, and allows for the service to be mitigated so that only people already trusted and added to contacts can interact with you.
+
+While there are positives to AirDrop, there are privacy concerns that could expose personal information. For that reason, AirDrop should be disabled, and should only be enabled when needed and disabled afterwards.
+query remediation: Perform the following to disable AirDrop:
+
+_Graphical Method:_
+
+1. Open Finder
+2. Select Go
+3. Select AirDrop
+4. Set Allow me to be discovered by: No One
+
+_Terminal Method:_
+
+Run the following commands to disable AirDrop:
+
+
+
+**Impact:**
+
+Disabling AirDrop can limit the ability to move files quickly over the network without using file shares.
+query title: Enable FileVault
+query description: FileVault secures a system's data by automatically encrypting its boot volume and requiring a password or recovery key to access it.
+
+FileVault may also be enabled using command line using the 
+command. To use this functionality, consult the Der Flounder blog for more details:
+
+[https://derflounder.wordpress.com/2015/02/02/managing-yosemites-filevault-2-with-fdesetup/](https://derflounder.wordpress.com/2015/02/02/managing-yosemites-filevault-2-with-fdesetup/) [https://derflounder.wordpress.com/2019/01/15/unlock-or-decrypt-your-filevault-encrypted-boot-drive-from-the-command-line-on-macos-mojave/](https://derflounder.wordpress.com/2019/01/15/unlock-or-decrypt-your-filevault-encrypted-boot-drive-from-the-command-line-on-macos-mojave/)
+query remediation: Perform the following to enable FileVault:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Security & Privacy
+3. Select FileVault
+4. Select Turn on FileVault
+
+**Impact:**
+
+Mounting a FileVaulted volume from an alternate boot source will require a valid password to decrypt it.
+query title: Enable Gatekeeper
+query description: Gatekeeper is Apple's application white-listing control that restricts downloaded applications from launching. It functions as a control to limit applications from unverified sources from running without authorization.
+query remediation: Perform the following to implement the prescribed state:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Security & Privacy
+3. Select General
+4. Set Allow apps downloaded from to App Store and identified developers
+
+_Terminal Method:_
+
+Run the following command to enable Gatekeeper to allow applications from App Store and identified developers:
+
+
+query title: Enable Firewall
+query description: A firewall is a piece of software that blocks unwanted incoming connections to a system. Apple has posted general documentation about the application firewall.
+
+[http://support.apple.com/en-us/HT201642](http://support.apple.com/en-us/HT201642)
+query remediation: Perform the following to turn the firewall on:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Security & Privacy
+3. Select Firewall
+4. Select Turn On Firewall
+
+_Terminal Method:_
+
+Run the following command to enable the firewall:
+
+
+
+For the 
+, use either 
+, specific services, or 
+, essential services only.
+
+**Impact:**
+
+The firewall may block legitimate traffic. Applications that are unsigned will require special handling.
+query title: Enable Firewall Stealth Mode
+query description: While in Stealth mode the computer will not respond to unsolicited probes, dropping that traffic.
+
+[http://support.apple.com/en-us/HT201642](http://support.apple.com/en-us/HT201642)
+query remediation: Perform the following to enable stealth mode:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Security & Privacy
+3. Select Firewall Options
+4. Turn on Enable stealth mode
+
+_Terminal Method:_
+
+Run the following command to enable stealth mode:
+
+
+
+**Impact:**
+
+Traditional network discovery tools like ping will not succeed. Other network tools that measure activity and approved applications will work as expected.
+
+This control aligns with the primary macOS use case of a laptop that is often connected to untrusted networks where host segregation may not be configured. In that use case hiding from the other inmates is likely more than desirable. In use cases where use is only on trusted LANs with static IP addresses stealth mode may not be desirable.
+query title: Enable security auditing
+query description: macOS's audit facility, 
+, receives notifications from the kernel when certain system calls, such as 
+, 
+, and 
+, are made. These notifications are captured and written to an audit log.
+query remediation: Perform the following to enable security auditing:
+
+Run the following command to load auditd:
+
+
+query title: Retain install.log for 365 or more days with no maximum size
+query description: macOS writes information pertaining to system-related events to the file 
+and has a configurable retention policy for this file. The default logging setting limits the file size of the logs and the maximum size for all logs. The default allows for an errant application to fill the log files and does not enforce sufficient log retention. The Benchmark recommends a value based on standard use cases. The value should align with local requirements within the organization.
+
+The default value has an "all_max" file limitation, no reference to a minimum retention and a less precise rotation argument.
+
+The all_max flag control will remove old log entries based only on the size of the log files. Log size can vary widely depending on how verbose installing applications are in their log entries. The decision here is to ensure that logs go back a year and depending on the applications a size restriction could compromise the ability to store a full year.
+
+While this Benchmark is not scoring for a rotation flag the default rotation is sequential rather than using a timestamp. Auditors may prefer timestamps in order to simply review specific dates where event information is desired.
+
+Please review the File Rotation section in the man page for more information.
+
+
+
+- The maximum file size limitation string should be removed "all_max="
+- An organization appropriate retention should be added "ttl="
+- The rotation should be set with timestamps "rotate=utc" or "rotate=local"
+query remediation: Perform the following to ensure that install logs are retained for at least 365 days:
+
+Edit the  file and add or modify the  value to  or greater on the  line. Also, remove the  setting and value from the  line.
+
+**Impact:**
+
+Without log files system maintenance and security forensics cannot be properly performed.
+query title: Ensure security auditing retention
+query description: The macOS audit capability contains important information to investigate security or operational issues. This resource is only completely useful if it is retained long enough to allow technical staff to find the root cause of anomalies in the records.
+
+Retention can be set to respect both size and longevity. To retain as much as possible under a certain size the recommendation is to use the following:
+
+expire-after:60d OR 1G
+
+More info in the man page
+man audit_control
+query remediation: Perform the following to set the audit retention length:
+
+Edit the  file so that  is at least 
+
+**Impact:**
+
+The recommendation is that at least 60 days or 1 gigabyte of audit records are retained. Systems that have very little remaining disk space may have issues retaining sufficient data.
+query title: Control access to audit records
+query description: The audit system on macOS writes important operational and security information that can be both useful for an attacker and a place for an attacker to attempt to obfuscate unwanted changes that were recorded. As part of defense-in-depth the /etc/security/audit_control configuration and the files in /var/audit should be owned only by root with group wheel with read-only rights and no other access allowed. macOS ACLs should not be used for these files.
+query remediation: Run the following to commands to set the audit records to the root user and wheel group:
+
+
+
+**Note:**
+It is recommended to do a thorough verification process on why the audit logs have been changed before following the remediation steps. If the system has different access controls on the audit logs, and the changes cannot be traced, a new install may be prudent. Check for signs of file tampering as well as unapproved OS changes.
+
+**Impact:**
+
+This control is only checking the default configuration to ensure that unwanted access to audit records is not available.
+query title: Ensure Firewall is configured to log
+query description: The socketfilter firewall is what is used when the firewall is turned on in the Security Preference Pane. In order to appropriately monitor what access is allowed and denied logging must be enabled.
+query remediation: Run the following command to enable logging of the firewall:
+
+
+
+**Impact:**
+
+Detailed logging may result in excessive storage.
+query title: Disable Bonjour advertising service
+query description: Bonjour is an auto-discovery mechanism for TCP/IP devices which enumerate devices and services within a local subnet. DNS on macOS is integrated with Bonjour and should not be turned off, but the Bonjour advertising service can be disabled.
+query remediation: Run the following command to disable Bonjour Advertising services:
+
+
+
+**Impact:**
+
+Some applications, like Final Cut Studio and AirPort Base Station management, may not operate properly if the 
+is turned off.
+query title: Enable "Show Wi-Fi status in menu bar"
+query description: The Wi-Fi status in the menu bar indicates if the system's wireless internet capabilities are enabled. If so, the system will scan for available wireless networks to connect to. At the time of this revision all computers Apple builds have wireless network capability, which has not always been the case. This control only pertains to systems that have a wireless NIC available. Operating systems running in a virtual environment may not score as expected either.
+query remediation: Perform the following to enable Wi-Fi status in the menu bar:
+
+_Graphical Method:_
+
+1. Open System Preferences
+2. Select Network
+3. Select Wi-Fi
+4. Set Show Wi-Fi status in menu bar
+
+_Terminal Method:_
+
+For each user, run the following to turn the Wi-Fi status on in the menu bar
+
+
+
+_Please note!  Both 18 and 2 are valid values for this parameter._
+
+**Impact:**
+
+The user of the system should have a quick check on their wireless network status available.
+query title: Ensure http server is not running
+query description: macOS used to have a graphical front-end to the embedded Apache web server in the Operating System. Personal web sharing could be enabled to allow someone on another computer to download files or information from the user's computer. Personal web sharing from a user endpoint has long been considered questionable, and Apple has removed that capability from the GUI. Apache however is still part of the Operating System and can be easily turned on to share files and provide remote connectivity to an end-user computer. Web sharing should only be done through hardened web servers and appropriate cloud services.
+query remediation: Run the following command to disable the http server services:
+
+
+
+**Impact:**
+
+The web server is both a point of attack for the system and a means for unauthorized file transfers.
+query title: Ensure NFS server is not running
+query description: macOS can act as an NFS file server. NFS sharing could be enabled to allow someone on another computer to mount shares and gain access to information from the user's computer. File sharing from a user endpoint has long been considered questionable, and Apple has removed that capability from the GUI. NFSD is still part of the Operating System and can be easily turned on to export shares and provide remote connectivity to an end-user computer.
+query remediation: Run the following command to disable the nfsd file server services:
+
+
+
+**Impact:**
+
+The NFS server is both a point of attack for the system and a means for unauthorized file transfers.
+query title: Set a minimum password length
+query description: A minimum password length is the fewest number of characters a password can contain to meet a system's requirements.
+
+Ensure that a minimum of a 15-character password is part of the password policy on the computer.
+
+Where the confidentiality of encrypted information in FileVault is more of a concern requiring a longer password or passphrase may be sufficient rather than imposing additional complexity requirements that may be self-defeating.
+query remediation: Run the following command to set the password length to greater than or equal to 15:
+
+
+
+**Impact:**
+
+Short passwords can be easily attacked.
+query title: Password Age
+query description: Over time passwords can be captured by third-parties through mistakes, phishing attacks, third party breaches or merely brute force attacks. To reduce the risk of exposure and to decrease the incentives of password reuse (passwords that are not forced to be changed periodically generally are not ever changed) users should reset passwords periodically.
+This control uses 365 days as the acceptable value. Some organizations may be more or less restrictive. This control mainly exists to mitigate against password reuse of the macOS account password in other realms that may be more prone to compromise. Attackers take advantage of exposed information to attack other accounts.
+query remediation: Run the following command to require that passwords expire after at most 365 days:
+
+
+
+**Impact:**
+
+Required password changes will lead to some locked computers requiring admin assistance.
+query title: Password History
+query description: Over time passwords can be captured by third-parties through mistakes, phishing attacks, third party breaches or merely brute force attacks. To reduce the risk of exposure and to decrease the incentives of password reuse (passwords that are not forced to be changed periodically generally are not ever changed) users must reset passwords periodically. This control ensures that previous passwords are not reused immediately by keeping a history of previous password hashes. Ensure that password history checks are part of the password policy on the computer. This control checks whether a new password is different than the previous 15.
+The latest NIST guidance based on exploit research referenced in this section details how one of the greatest risks is password exposure rather than password cracking. Passwords should be changed to a new unique value whenever a password might have been exposed to anyone other than the account holder. Attackers have maintained persistent control based on predictable password change patterns and substantially different patterns should be used in case of a leak.
+query remediation: Run the following command to require that the password must to be different from at least the last 15 passwords:
+
+
+
+**Impact:**
+
+Required password changes will lead to some locked computers requiring admin assistance.
+query title: Reduce the sudo timeout period
+query description: The sudo command allows the user to run programs as the root user. Working as the root user allows the user an extremely high level of configurability within the system. This control along with the control to use a separate timestamp for each tty limits the window where an unauthorized user, process or attacker could utilize legitimate credentials that are valid for longer than required.
+query remediation: Run the following command to edit the sudo settings:
+
+
+
+Add the line 
+in the 
+section.
+
+**Impact:**
+
+This control has a serious impact where users often have to use sudo. It is even more of an impact where users have to use sudo multiple times in quick succession as part of normal work processes. Organizations with that common use case will likely find this control too onerous and are better to accept the risk of not requiring a 0 grace period.
+
+In some ways the use of sudo -s, which is undesirable, is better than a long grace period since that use does change the hash to show that it is a root shell rather than a normal shell where sudo commands will be implemented without a password.
+query title: Do not enable the "root" account
+query description: The root account is a superuser account that has access privileges to perform any actions and read/write to any file on the computer. With some Linux distros the system administrator may commonly use the root account to perform administrative functions.
+query remediation: Perform the following to ensure that the root user is disabled:
+
+_Graphical Method:_
+
+1. Open /System/Library/CoreServices/Applications/Directory Utility
+2. Click the lock icon to unlock the service
+3. Click Edit
+4. Click Disable Root User
+
+_Terminal Method:_
+
+Run the following command to disable the root user:
+
+
+
+**Impact:**
+
+Some legacy POSIX software might expect an available root account.
+query title: Ensure automatic checking of software updates enabled
+query description: This check determines where automatic checking for software updates is enabled
+
+query remediation: Perform the following to enable automatic checking for updates:
+
+_Graphical Method:_
+
+1.  Open **System Preferences**.
+2.  Select **Software Update**.
+3.  Select **Advanced**.
+4.  Select **Check for updates**.
+
+_Terminal Method:_
+
+Run the following command to enable auto update:
+
+
+query title: Ensure automatic download of software updates enabled
+query description: This check determines whether automatic downloads of software updates is enabled
+
+query remediation: Perform the following to enable automatic downloads of updates:
+
+_Graphical Method:_
+
+1.  Open **System Preferences**.
+2.  Select **Software Update**.
+3.  Select **Advanced**.
+4.  Select **Check for updates**.
+
+_Terminal Method:_
+
+Run the following command to enable auto update:
+
+
+query title: Ensure critical updates are installed automatically
+query description: This check determines whether critical software updates are installed automatically
+
+query remediation: Perform the following to enable automatic installation of critical updates:
+
+_Graphical Method:_
+
+1.  Open **System Preferences**.
+2.  Select **Software Update**.
+3.  Select **Advanced**.
+4.  Select **Check for updates**.
+
+_Terminal Method:_
+
+Run the following command to enable auto update:
+
+
+policy description: ## Overview
+
+This policy provides prescriptive guidance for establishing a secure configuration posture for Apple macOS. This guide was tested against Apple macOS 10, 11, 12, and 13.
+
+## Local scan
+
+Local scan refer to scans of files and operating systems where  is installed.
+
+To scan the  against this policy: 
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+group summary: Core
+group summary: Account Security
+group summary: Logging

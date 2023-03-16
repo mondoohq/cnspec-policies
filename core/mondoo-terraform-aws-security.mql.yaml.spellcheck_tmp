@@ -1,0 +1,112 @@
+query title: Providers should not contain hard-coded credentials
+query description: Hard-coded credentials are not recommended in any Terraform configuration, and risks secret leakage should this file ever be committed to a public version control system.
+
+query audit: Check for the existence of hard-coded credentials in the AWS provider
+
+
+
+query remediation: The following are more secure alternatives for configuring the AWS provider:
+
+__Environment Variables__
+You can provide your credentials via the  and  environment variables representing your AWS Access Key and AWS Secret Key, respectively. Note that setting your AWS credentials using either these (or legacy) environment variables will override the use of  and . The  and  environment variables are also used, if applicable:
+
+
+
+query title: API Gateway must have cache enabled
+query description: Ensure that all methods in Amazon API Gateway stages have cache enabled and cache encrypted
+query audit: Check if  is set to 
+
+
+
+query remediation: Enable cache encryption by setting  to 
+
+
+
+query title: Ensure that all methods in Amazon API Gateway stage have logging enabled
+query title: Ensure AWS X-Ray tracing is enabled on Amazon API Gateway REST APIs
+query title: Ensure Authentication for API Gateway methods is activated
+query title: Ensure that the API Gateway uses a secure SSL/TLS configuration
+query title: Ensure that Amazon Elastic Block Store (EBS) encryption is enabled by default
+query title: Ensure Instance Metadata Service Version 2 (IMDSv2) with session authentication tokens is active
+query title: Ensure EC2 instance user data does not contain secrets
+query title: Ensure IAM policy do not use wildcards and instead apply the principle of least privilege
+query title: Ensure that versioning is enabled for your S3 buckets
+query title: Ensure logging is enabled for your S3 buckets
+query title: Ensure Amazon Simple Storage Service (Amazon S3) buckets are not publicly accessible
+query description: [Blocking public access to your Amazon S3 storage](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html) provides very specific documentation about the various settings for s3 bucket policies.
+
+ -  - By blocking  ACLs, PUT requests will fail if the object has any public ACL defined
+ -  - By ignoring the bucket ACL, PUT calls with public ACLs will still work, but public ACL will be ignored
+ -  - Prevents users from putting a policy that enable public access
+ -  - Restricts access to the bucket owner and AWS Services if the bucket has a public policy
+
+query title: Ensure S3 buckets has the Amazon S3 default encryption enabled
+query description: Amazon S3 default encryption is an optional configuration that sets the default encryption behavior for an S3 bucket. Enabling default SSE configures S3 buckets so that all new objects are encrypted when they are stored in the bucket. The objects are encrypted using server-side encryption with either Amazon S3-managed keys (SSE-S3) or AWS KMS keys stored in AWS Key Management Service (AWS KMS) (SSE-KMS).
+
+Enabling SSE by default reduces the risk of unauthorized access to objects stored in the bucket.
+
+query title: Ensure Amazon S3 buckets do not allow public read access
+query title: EKS should have the encryption of secrets enabled
+query description: EKS cluster resources should have the encryption_config block set with protection of the secrets resource.
+
+__Possible Impact__
+
+EKS secrets could be read if compromised
+
+__Suggested Resolution__
+
+Enable encryption of EKS secrets
+
+query audit: The following example will fail the  check:
+
+
+
+query remediation: The following example will pass the  check:
+
+
+
+query title: EKS Clusters should restrict access to public API server
+query description: EKS Clusters have public access CIDRs set to 0.0.0.0/0 by default which is wide open to the internet. This should be explicitly set to a more specific private CIDR range.
+
+__Possible Impact__
+
+EKS can be accessed from the internet
+
+__Suggested Resolution__
+
+Don't enable public access to EKS Clusters.
+
+query audit: The following example will fail the eks-no-public-cluster-access-to-cidr check.
+
+
+
+query remediation: The following example will pass the eks-no-public-cluster-access-to-cidr check:
+
+
+
+policy description: ## Overview
+
+This policy checks for security misconfigurations in Terraform for Amazon Web Services.
+
+## Local scan
+
+Local scan refer to scans of files and operating systems where  is installed.
+
+### Scan a Terraform project
+
+Open a terminal and run the following command:  
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+
+group summary: AWS General
+group summary: Amazon API Gateway
+group summary: Amazon Elastic Compute Cloud (Amazon EC2)
+group summary: AWS Identity and Access Management (IAM)
+group summary: Amazon Simple Storage Service (Amazon S3)
+group summary: AWS Elastic Kubernetes Service (EKS) Security for Terraform

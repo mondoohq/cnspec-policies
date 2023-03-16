@@ -1,0 +1,129 @@
+query title: Ensure that instances are not configured to use the default service account
+query description: New projects that have enabled the Compute Engine API have a Compute Engine default service account, which has the following email:
+
+
+
+The Compute Engine default service account is created with the IAM basic Editor role, but you can modify your service account's roles to control the service account's access to Google APIs.
+
+You can disable or delete this service account from your project, but doing so might cause any applications that depend on the service account's credentials to fail. If you accidentally delete the Compute Engine default service account, you can try to recover the account within 30 days. For more information, see Creating and managing service accounts.
+
+It is recommended that you do not configure instances with the default service account. Instead, create a user account using the principle of least privilege.
+
+query audit: __cnquery run__
+
+To audit your Google Cloud Project with :
+
+1. Ensure the  cli is configured to the GCP project: 
+  
+  
+
+query remediation: ###Terraform
+
+To provision or update a compute instance with a custom service account:
+
+
+
+query title: Ensure instances are not configured to use the default service account with full access to all Cloud APIs
+query description: Google compute instances provisioned with full access to all cloud APIs pose a security risk to a GCP environment. Instances should instead be provisioned using a non-default service account, and limited permissions to cloud APIs using the principle of least privilege.
+
+query audit: __cnquery run__
+
+ To audit your Google Cloud Project with :
+
+ 1. Ensure the  cli is configured to the GCP project: 
+   
+   
+
+query remediation: ###Terraform
+
+To provision or update a compute instance with Terraform:
+
+
+
+query title: Ensure "Block Project-wide SSH keys" is enabled for VM instances
+query description: Project-wide SSH keys can be used to login into all instances within a project. While using project-wide SSH keys eases SSH key management, if SSH keys are compromised, the potential security risk can impact all instances within a project.
+
+The recommended approach is to use instance-specific SSH keys instead of common/shared project-wide SSH keys.
+
+query audit: __cnquery run__
+
+ To audit your Google Cloud Project with :
+
+ 1. Ensure the  cli is configured to the GCP project: 
+   
+   
+
+query remediation: ###Terraform
+
+To provision or update a compute instance with Terraform:
+
+
+
+query title: Ensure oslogin is enabled for compute instances
+query description: OS Login lets you use Compute Engine Identity and Access Management (IAM) roles to grant or revoke SSH access to your Linux instances. OS Login is an alternative to managing instance access by adding and removing SSH keys in metadata.
+
+query audit: __cnquery run__
+
+ To audit your Google Cloud Project with :
+
+ 1. Ensure the  cli is configured to the GCP project: 
+   
+   
+
+query remediation: ###Terraform
+
+To configure OS Login for a project:
+
+
+
+query title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
+query description: Public access prevention protects Cloud Storage buckets and objects from being accidentally exposed to the public. When you enforce public access prevention, no one can make data in applicable buckets public through IAM policies or ACLs.
+
+query audit: __cnquery run__
+
+ To audit your Google Cloud Project with :
+
+ 1. Ensure the  cli is configured to the GCP project: 
+   
+   
+
+query remediation: ###Terraform
+
+To update public access configuration using Terraform, ensure  and  are not set:
+
+     
+
+query title: Ensure that Cloud Storage buckets have uniform bucket-level access enabled
+query description: Cloud Storage offers two systems for granting users permission to access your buckets and objects: IAM and Access Control Lists (ACLs). These systems act in parallel - in order for a user to access a Cloud Storage resource, only one of the systems needs to grant the user permission. IAM is used throughout Google Cloud and allows you to grant a variety of permissions at the bucket and project levels. ACLs are used only by Cloud Storage and have limited permission options, but they allow you to grant permissions on a per-object basis.
+
+It is recommended to enable uniform bucket-level access on Cloud Storage buckets. Uniform bucket-level access is used to unify and simplify how you grant access to your Cloud Storage resources. Cloud Storage offers two systems that act in parallel to grant users permission to access buckets and objects:
+
+query audit: __cnquery run__
+
+ To audit your Google Cloud Project with :
+
+ 1. Ensure the  cli is configured to the GCP project: 
+   
+   
+
+query remediation: ###Terraform
+
+
+
+policy description: ## Overview
+
+Google Cloud Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for Google Cloud.
+
+## Remote scan
+
+Remote scans use native transports in  to provide on demand scan results without the need to install any agents, or integration. 
+
+For a complete list of native transports run: 
+
+      
+  
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 

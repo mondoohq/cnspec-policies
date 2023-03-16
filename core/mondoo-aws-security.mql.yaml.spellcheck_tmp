@@ -1,0 +1,622 @@
+query title: Ensure no root user account access key exists
+query description: AWS strongly recommends that you not use the root user for your everyday tasks, even administrative ones. Instead, adhere to the best practice of using the root user only to create your first IAM user. Then securely lock away the root user credentials and use them to perform only a few account and service management tasks. Anyone with root user credentials for your AWS account has unrestricted access to all the resources in your account, including billing information.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: If any access keys exist for the root user, see [Deleting access keys for the root user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html#id_root-user_manage_delete-key) in the AWS documentation.
+
+query title: Ensure MFA is enabled for the "root user" account
+query description: AWS highly recommends that you follow the security best practice to enable multi-factor authentication (MFA) for your root account. Because your root user can perform sensitive operations in your account, adding an additional layer of authentication helps you to better secure your account. Multiple types of MFA are available.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query:
+
+   
+
+query remediation: Note: this control uses the AWS Credential Report, which has a grace period of 4 hours before changes to credentials take effect.
+
+__Terraform__
+
+The following snippet demonstrates creating a virtual device for the root user and returning the QRCode.
+After creating the virtual MFA device, the root user can follow the procedure described under the AWS Console section.
+
+
+
+query title: Checks whether the account password policy for IAM users meets the specified requirements
+query description: AWS allows for custom password policies on your AWS account to specify complexity requirements and mandatory rotation periods for your IAM users' passwords. IAM user passwords must meet the default AWS password policy if you don't set a custom password policy. AWS security best practices recommends the following password complexity requirements:
+
+- Require at least one uppercase character in passwords.
+- Require at least one lowercase character in passwords.
+- Require at least one symbol in passwords.
+- Require at least one number in passwords.
+- Require a minimum password length of at least 14 characters.
+- Require at least 24 passwords before allowing reuse.
+- Require at least 90 before password expiration.
+This controls checks all of the specified password policy requirements.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query:
+
+   
+
+query remediation: 
+__Terraform__
+
+
+
+query title: Checks whether the active access keys are rotated within the number of days specified in maxAccessKeyAge (default 90)
+query description: It is highly recommended that you regularly rotate (change) IAM user access keys to reduce the risk of unwanted access to your account.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: To learn how to rotate AWS access keys, see [Rotating access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey) in the AWS documentation.
+
+query title: Checks whether the AWS IAM users have multi-factor authentication (MFA) enabled
+query description: Multi-factor authentication (MFA) is a best practice that adds an extra layer of protection on top of user names and passwords. With MFA, when a user signs in to the AWS Management Console, they are required to provide a time-sensitive authentication code provided by a registered virtual or physical device.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Run the command .
+3. Run the following query: 
+
+  
+
+query remediation: Note: this control uses the AWS Credential Report, which has a grace period of 4 hours before changes to credentials take effect.
+
+__Terraform__
+
+When it comes to Terraform, there are a few options to remediate the absence of MFA devices. You probably already have a sensible structure for organizing your users into groups and restrictive policies.
+
+The following example shows how to:
+1. Create users.
+2. Create users' login profiles with a PGP public key.
+3. Create a group and group policy that allows self-management of IAM profiles.
+4. Attach users to a group.
+5. Create Virtual MFA devices for users.
+6. Provide each user with the output QR Code and password.
+
+
+
+query title: Checks whether IAM groups have at least one IAM user
+query description: AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: To delete empty IAM groups, see [Deleting an IAM user group](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage_delete.html) in the AWS documentation.
+
+query title: Ensure there is only one active access key available for any single IAM user
+query description: This control checks for the existence of more than one access key for each user within an AWS account. Each AWS key within an account is something that must be protected, and rotated regularly. Since AWS access keys are long-term credentials, one of the best ways to protect your account is to not allow users to have multiple access keys, which reduces the overall number of keys, reducing the risk of exposure.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query:
+   
+   
+
+query remediation: 
+__From Console:__
+
+1. Sign in to the AWS Management Console and navigate to IAM dashboard at https://console.aws.amazon.com/iam/.
+2. In the left navigation panel, choose **Users**.
+3. Click on the IAM user name that you want to examine.
+4. On the IAM user configuration page, select **Security Credentials** tab.
+5. In the Access Keys section, choose one access key that is less than 90 days old. This should be the only active key used by this IAM user to access AWS resources programmatically. Test your application(s) to make sure that the chosen access key is working.
+6. In the same Access Keys section, identify your non-operational access keys (other than the chosen one) and deactivate it by clicking the Make Inactive link.
+
+If you receive the Change Key Status confirmation box, click Deactivate to switch off the selected key.
+
+Repeat steps no. 3 - 7 for each IAM user in your AWS account.
+
+__From Command Line:__
+
+Using the IAM user and access key information provided in the Audit CLI, choose one access key that is less than 90 days old. This should be the only active key used by this IAM user to access AWS resources programmatically. Test your application(s) to make sure that the chosen access key is working.
+
+Run the `````
+
+The command output should expose the metadata for each access key associated with the IAM user. If the non-operational key pair(s) Status is set to Inactive, the key has been successfully deactivated and the IAM user access configuration adheres now to this recommendation.
+
+Repeat steps no. 1 - 3 for each IAM user in your AWS account.
+
+query title: Ensure IAM Users Receive Permissions Only Through Groups
+query description: AWS that IAM users must inherit permissions from IAM groups or roles. This policy checks that none of your IAM users have policies attached directly to the user. The rule is NONCOMPLIANT if there is at least one IAM user with policies attached.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: To learn how to remove inline policies from IAM users, see [Removing a permissions policy from a user (console)](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html#users_change_permissions-remove-policy-console) in the AWS documentation.
+
+query title: Ensure the default security group of every VPC restricts all traffic
+query description: The rules for a default security group allow all ingress and egress traffic. To keep users from using the default security group (which cannot be deleted) of a VPC, delete all ingress and egress rules to block all traffic.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query: 
+
+  
+
+query remediation: __Terraform__
+
+Terraform provides the resource , which differently from other Terraform resources, has the following effects in the state of the infrastructure.
+
+1. "Adopts" the default security group for the provided .
+2. Removes all inbound (ingress) and outbound (egress) rules for the security group.
+
+In order to remediate this control using Terraform, please apply the following for every region the account has access to by aliasing the providers. 
+
+**Notice:** it is necessary to create a new security group for all VPCs in order to reassign any resources created and previously using the default security groups.
+
+
+
+query title: Checks if the required S3 public access block settings are configured from the account level
+query description: Amazon S3 Block Public Access provides settings for access points, buckets, and accounts to help you manage public access to Amazon S3 resources. By default, new buckets, access points, and objects do not allow public access.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query: 
+
+
+
+query remediation: 
+__Terraform__
+
+The following Terraform resource configures account level access to S3:
+
+
+
+query title: Ensure EBS volume encryption is enabled by default
+query description: New Amazon EBS volumes aren't encrypted by default. However, there is a setting in the Amazon Elastic Compute Cloud (Amazon EC2) console that turns on encryption by default for all new Amazon EBS volumes and snapshot copies created within a specified Region.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query:
+
+  
+
+query remediation: __Terraform__
+
+The  resource can be used to enable EBS encryption by default. This must be applied to each region.
+
+
+
+query title: Checks if Amazon Simple Storage Service (S3) has bucket-level public access restrictions at the bucket level
+query description: This control checks whether S3 buckets have bucket-level public access blocks applied. This control fails if any of the following settings are set to false:
+
+1. ignorePublicAcls
+2. blockPublicPolicy
+3. blockPublicAcls
+4. restrictPublicBuckets
+
+Block Public Access at the S3 bucket level provides controls to ensure that objects never have public access. Public access is granted to buckets and objects through access control lists (ACLs), bucket policies, or both.
+Unless you intend to have your S3 buckets publicly accessible, you should configure the bucket-level Amazon S3 Block Public Access feature.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+The following resource will create a Public Access Block resource and apply it to the specific bucket.
+
+
+
+query title: Ensures no instances have a public IP
+query description: EC2 instances with a public IP address are at an increased risk of compromise. It is recommended that EC2 instances not be configured with a public IP address. 
+query audit: 
+__cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query to return a list of all running EC2 instances across all enabled regions that along with the , , and the configured 
+
+  
+query remediation: __Terraform__
+
+Use the  argument with the  resource to ensure EC2 instances are provisioned without a public IP address
+
+
+query title: Checks whether the instance metadata version is configured with IMDSv2 (http tokens required)
+query description: EC2 instances should be configured to use IMDSv2 to prevent unauthorized access to instance metadata from application vulnerabilities such as Server Side Request Forgery (SSRF). IMDSv1 has been involved in security exploits.
+
+By default, you can use either IMDSv1 or IMDSv2, or both. The instance metadata service distinguishes between IMDSv1 and IMDSv2 requests based on whether, for any given request, either the PUT or GET headers, which are unique to IMDSv2, are present in that request. For more information, see [Add defense in depth against open firewalls, reverse proxies, and SSRF vulnerabilities with enhancements to the EC2 Instance Metadata Service](http://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/).
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query
+
+  
+
+query remediation: In order to remediate this control, there are a series of steps necessary to transition to IMDSv2, which not only involve the configuration of existing instances - i.e. changing your Terraform EC2 resources, but also update CLIs, SDKs and software that uses Role credentials.
+
+If your existing EC2 instance uses IMDSv1, you can reconfigure it to use IMDSv2. For details, see: [Transition to using Instance Metadata Service Version 2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-transition-to-version-2)
+
+__Terraform__
+
+Use the  block to configure 
+
+
+
+query title: Ensure VPC flow logging is enabled in all VPCs
+query description: This control checks whether Amazon VPC Flow Logs are found and enabled for all VPCs. Default VPCs should always fail this control as they do not come with flow logs activated.
+
+query audit: __cnspec Shell__
+
+1. Open a Terminal.
+2. Connect cnspec Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: There are a few considerations while remediating this control:
+
+1. Default VPCs should not be used, therefore they should be deleted to avoid enabling flow logs for them.
+2. Any default or non-default VPC must have flow logs activated.
+3. Therefore the best way to remediate this control is to: 
+  
+  * Migrate resources from default to non-default VPCs.
+  * Delete default VPCs.
+  * Enable flow logs for the non-default VPCs.
+
+We recommend using either Terraform or the AWS console as there is automation to delete VPC and its dependencies in place.
+
+__Terraform__
+
+Open source Terraform modules can help us obtain this result by providing ways to delete VPCs and children dependencies.
+
+**Notice:** The following example is destructive and irreversible. It destroys all child dependencies of default VPCs, including:
+
+1. Subnets
+2. Route tables
+3. NACLs
+4. Internet Gateways
+
+This module execution will fail for VPCs containing resources attached to the network interfaces. In this case, review the resources and redeploy them to a non-default VPC.
+
+
+
+query title: Ensure IAM Users Receive Permissions Only Through Groups
+query description: AWS that IAM users must inherit permissions from IAM groups or roles. This policy checks that none of your IAM users have policies attached directly to the user. The rule is NONCOMPLIANT if there is at least one IAM user with policies attached.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: To learn how to remove inline policies from IAM users, see [Removing a permissions policy from a user (console)](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html#users_change_permissions-remove-policy-console) in the AWS documentation.
+
+query title: Checks whether IAM groups have at least one IAM user
+query description: AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: To delete empty IAM groups, see [Deleting an IAM user group](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage_delete.html) in the AWS documentation.
+
+query title: Ensure the default security group of every VPC restricts all traffic
+query description: The rules for a default security group allow all ingress and egress traffic. To keep users from using the default security group (which cannot be deleted) of a VPC, delete all ingress and egress rules to block all traffic.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query: 
+
+  
+
+query remediation: __Terraform__
+
+Terraform provides the resource , which differently from other Terraform resources, has the following effects in the state of the infrastructure.
+
+1. "Adopts" the default security group for the provided .
+2. Removes all inbound (ingress) and outbound (egress) rules for the security group.
+
+In order to remediate this control using Terraform, please apply the following for every region the account has access to by aliasing the providers. 
+
+**Notice:** it is necessary to create a new security group for all VPCs in order to reassign any resources created and previously using the default security groups.
+
+
+
+query title: Checks if Amazon Simple Storage Service (S3) has bucket-level public access restrictions at the bucket level
+query description: This control checks whether S3 buckets have bucket-level public access blocks applied. This control fails if any of the following settings are set to false:
+
+1. ignorePublicAcls
+2. blockPublicPolicy
+3. blockPublicAcls
+4. restrictPublicBuckets
+
+Block Public Access at the S3 bucket level provides controls to ensure that objects never have public access. Public access is granted to buckets and objects through access control lists (ACLs), bucket policies, or both.
+Unless you intend to have your S3 buckets publicly accessible, you should configure the bucket-level Amazon S3 Block Public Access feature.
+
+query audit: __cnspec shell__
+
+1. Open a Terminal.
+2. Connect cnspec shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+The following resource will create a Public Access Block resource and apply it to the specific bucket.
+
+
+
+query title: Ensure VPC flow logging is enabled in all VPCs
+query description: This control checks whether Amazon VPC Flow Logs are found and enabled for all VPCs. Default VPCs should always fail this control as they do not come with flow logs activated.
+
+query audit: __cnspec Shell__
+
+1. Open a Terminal.
+2. Connect cnspec Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: There are a few considerations while remediating this control:
+
+1. Default VPCs should not be used, therefore they should be deleted to avoid enabling flow logs for them.
+2. Any default or non-default VPC must have flow logs activated.
+3. Therefore the best way to remediate this control is to: 
+  
+  * Migrate resources from default to non-default VPCs.
+  * Delete default VPCs.
+  * Enable flow logs for the non-default VPCs.
+
+We recommend using either Terraform or the AWS console as there is automation to delete VPC and its dependencies in place.
+
+__Terraform__
+
+Open source Terraform modules can help us obtain this result by providing ways to delete VPCs and children dependencies.
+
+**Notice:** The following example is destructive and irreversible. It destroys all child dependencies of default VPCs, including:
+
+1. Subnets
+2. Route tables
+3. NACLs
+4. Internet Gateways
+
+This module execution will fail for VPCs containing resources attached to the network interfaces. In this case, review the resources and redeploy them to a non-default VPC.
+
+
+
+query title: Checks that all DynamoDB tables are encrypted with AWS Key Management Service (KMS)
+query description: Checks whether all DynamoDB tables are encrypted with a customer managed KMS key (non-default).
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+To remediate this control, create an AWS KMS Key and use it to encrypt the violating DynamoDB resource.
+
+
+
+query title: Checks whether lambda functions are configured with function-level concurrent execution limit
+query title: Checks that all rds instances are not publicly accessible
+query description: Check whether the Amazon Relational Database Service instances are not publicly accessible. The rule is NON_COMPLIANT if the publiclyAccessible field is true in the instance configuration item.
+
+The default behavior varies depending on whether  is specified.
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+   
+
+query remediation: __Terraform__
+
+Use the  resource to explicitly state that publicly_accessible = false. 
+
+
+
+query title: Checks whether Redshift clusters are publicly accessible
+query description: The PubliclyAccessible attribute of the Amazon Redshift cluster configuration indicates whether the cluster is publicly accessible. When the cluster is configured with PubliclyAccessible set to true, it is an Internet-facing instance that has a publicly resolvable DNS name, which resolves to a public IP address.
+
+When the cluster is not publicly accessible, it is an internal instance with a DNS name that resolves to a private IP address. Unless you intend for your cluster to be publicly accessible, the cluster should not be configured with PubliclyAccessible set to true.
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+To remediate this control, it is necessary to modify the redshift cluster resource and set  to , the default value is .
+
+
+
+query title: Checks whether EBS volumes are attached to EC2 instances and configured for deletion on instance termination
+query description: Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account in order to lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential/sensitive data leaving your premise. Additionally, this control also checks whether EC2 instances archived configured to delete volumes on termination.
+
+By default, EC2 instances are configured to delete the data in any EBS volumes associated with the instance, and to delete the root EBS volume of the instance. However, any non-root EBS volumes attached to the instance, at launch or during execution, get persisted after termination by default. 
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+In order to prevent this scenario using Terraform, create EC2 instances with embedded EBS blocks. This ensures that any EBS blocks associated with the instance (not only the root) will be deleted on instance termination by having the attribute  defaulted to .
+
+
+
+query title: Checks that all EBS snapshots are not publicly restorable
+query title: Checks that all methods in Amazon API Gateway have caching enabled and encrypted
+query description: This control checks whether all methods in API Gateway REST API stages that have cache enabled are encrypted. The control fails if any method in an API Gateway REST API stage is configured to cache and the cache is not encrypted.
+
+API Gateway REST API caches should be encrypted at rest for an added layer of security.
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+
+
+__AWS Console__
+
+To configure API caching for a given stage
+
+1. Open the API Gateway console at https://console.aws.amazon.com/apigateway/.
+2. Choose the API.
+3. Choose Stages.
+4. In the Stages list for the API, choose the stage to add caching to.
+5. Choose Settings.
+6. Choose Enable API cache.
+7. Update the desired settings, then select Encrypt cache data.
+8. Choose Save Changes.
+
+query title: Checks whether EFS is configured to encrypt file data using KMS
+query description: Amazon EFS supports two forms of encryption for file systems, encryption of data in transit and encryption at rest. This control checks that all EFS file systems are configured with encryption-at-rest across all enabled regions in the account.
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+The following code snippet can be used to create a KMS encrypted EFS (Note:  attribute is optional, and a key will be created if no kms key id is passed)
+
+
+
+query title: Checks that all log groups in Amazon CloudWatch Logs are encrypted with KMS
+query title: Checks whether elastic load balancing has deletion protection enabled
+query title: Checks that all ES domains have encryption at rest configuration enabled
+query title: Ensure rotation for customer created CMKs is enabled
+query title: Checks that all SageMaker notebook instances are configured to use KMS
+query title: Checks that all CloudTrail trails are configured to use the server side encryption KMS
+query description: This control checks whether CloudTrail is configured to use the server-side encryption (SSE) AWS KMS key encryption. The check passes if the KmsKeyId is defined.
+
+For more information on CloudTrail encryption at rest, please see:
+
+  1. [Server Side Encryption with AWS KMS-managed key (SSE-KMS)](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html)
+  2. [Amazon Server Side Encryption with Amazon S3-managed encryption keys (SSE-S3)](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingServerSideEncryption.html)
+
+query audit: __Mondoo Shell__
+
+1. Open a Terminal.
+2. Connect Mondoo Shell to your AWS environment 
+3. Run the following query 
+
+  
+
+query remediation: __Terraform__
+
+
+
+query title: Checks that all incoming SSH traffic for the security groups is restricted
+property title: Define the maximum number of days an IAM key is allowed to exist before rotation
+property title: Define the maximum number of days a credential can go unused
+property title: Define the maximum number of days a password is allowed to exist before being rotated
+property title: Minimum password length
+property title: Number of passwords before allowing reuse
+property title: Denotes whether lowercase characters are required for passwords
+property title: Denotes whether numbers are required for passwords
+property title: Denotes whether symbols are required for passwords
+property title: Denotes whether uppercase characters are required for passwords
+property title: Defines a blocked TCP port
+property title: Defines a blocked TCP port
+property title: Defines a blocked TCP port
+property title: Defines a blocked TCP port
+property title: Defines a blocked TCP port
+property title: Denotes whether public ACLs should be blocked
+property title: Denotes whether public policies should be blocked
+property title: Denotes whether public ACLs should be ignored
+property title: Denotes whether public buckets should be blocked
+property title: Count of days a high severity finding is allowed to exist in a non-archived state
+property title: Count of days a low severity finding is allowed to exist in a non-archived state
+property title: Count of days a medium severity finding is allowed to exist in a non-archived state
+property title: Specify the number of days a certificate is allowed to exist before expiration
+property title: Define the number of regions that should have Security Hub enabled
+property title: Defines whether instances should be configured to delete volumes on termination
+policy description: ## Overview
+
+AWS Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for AWS. The controls in this policy bundle are based on AWS's Operational Best Practices recommendations as part of the [AWS Config conformance packs](https://docs.aws.amazon.com/config/latest/developerguide/conformance-packs.html).
+
+## Remote scan
+
+Remote scans use native transports in  to provide on demand scan results without installing any agents or integrations. 
+
+For a complete list of native transports run: 
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 

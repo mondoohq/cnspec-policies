@@ -1,0 +1,22 @@
+query title: Ensure no CNAME is used for root domain
+query title: Ensure NS and MX records are not pointing to IP addresses
+query title: Don’t use legacy Office 365 DNS MX records anymore
+query title: Correct Settings for Google Workspaces
+policy description: ## Overview
+
+The DNS Security by Mondoo provides baseline controls for assessing the configuration of DNS servers.
+
+## Remote scan
+
+Remote scans use native transports in  to provide on demand scan results without the need to install any agents, or integration. 
+
+For a complete list of native transports run: 
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable. 
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. 
+

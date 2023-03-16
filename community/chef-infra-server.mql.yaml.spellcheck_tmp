@@ -1,0 +1,61 @@
+query title: Ensure /etc/opscode/ is owned by root:root with 755 permissions
+query description: The /etc/opscode directory contains sensitive files configuring Chef Infra Server should not be world writeable
+
+query remediation: Run the following commands to set proper permissions on your /etc/opscode directory:
+
+
+
+query title: Ensure /etc/opscode/pivotal.pem is owned by opscode:root with 600 permissions
+query description: The /etc/opscode/pivotal.pem file gives super admin privileges on the Infra Server and should be properly secured.
+
+query remediation: Run the following commands to set proper permissions on your /etc/opscode/pivotal.pem file:
+
+
+
+query title: Ensure /etc/opscode/private-chef-secrets.json is owned by root:root with 600 permissions
+query description: The /etc/opscode/private-chef-secrets.json stores all secrets for the running Infra Server configuration and should be properly secured.
+
+query remediation: Run the following commands to set proper permissions on your /etc/opscode/private-chef-secrets.json file:
+
+
+
+query title: Ensure /etc/opscode/webui_priv.pem is owned by opscode:root with 600 permissions
+query description: The /etc/opscode/webui_priv.pem file gives super admin privileges on the Infra Server and should be properly secured.
+
+query remediation: Run the following commands to set proper permissions on your /etc/opscode/webui_priv.pem file:
+
+
+
+query title: Ensure /etc/opscode/chef-server.rb is owned by root:root with 640 permissions
+query description: The /etc/opscode/chef-server.rb configuration file contains sensitive Infra Server configuration information. It should be owned by root:root and permissions should be set to 640.
+query remediation: Run the following commands to set proper permissions on your /etc/opscode/chef-server.rb file:
+
+
+
+query title: Ensure a non-EOL Chef Infra Server release is used
+query description: Only the current major release of Chef Infra Server is supported. Prior releases do not receive security updates and should not be used in production environments.
+query remediation: Upgrade to a non-EOL release of Chef Infra Server. Note that this will require downtime for component upgrade processes.
+query title: Ensure EOL Reporting add-on package is not installed
+query description: The Opscode Reporting add-on for Infra Server is EOL and no longer receives security updates.
+query remediation: Uninstall the Reporting package and run 
+query title: Ensure EOL Push Jobs Server add-on package is not installed
+query description: Chef Push Jobs Server is EOL and no longer receives security updates.
+query remediation: Uninstall the Push Jobs Server package and run 
+query title: Ensure EOL Analytics add-on package is not installed
+query description: Opscode Analytics is EOL and no longer receives security updates.
+query remediation: Uninstall the Opscode Analytics package and run 
+query title: Ensure EOL Chef HA add-on package is not installed
+query description: Chef HA is EOL and not longer receives security updates.
+query remediation: Uninstall the Chef HA package and run 
+query title: Ensure TLS versions before 1.2 are disabled
+query description: Chef Infra Server should be configured to only support modern TLS versions (currently 1.2 only as 1.3 is not supported)
+query remediation: Upgrade to the latest releases of Infra Server where this becomes the default.
+query title: Disable insecure_addon_compat feature
+query description: Chef Infra Server provides backwards compatibility for legacy Infra Server add-ons that require less secure secrets storage. All currently supported add-ons currently support secure secrets management.
+query remediation: Upgrade to Chef Manage 2.5+ and set  in the  config.
+policy description: Chef Infra Server Policy identifies several misconfigurations and end of life components that allow attackers to expose node information:
+  - Insecure disk permissions on critical directories and configuration files.
+  - End of life components installed on the Chef Infra Server such as Push Jobs, Analytics, or Reporting, which no longer receive security updates.
+  - Insecure servers settings such non-secure TLS support or legacy add-on compatibility.
+  
+If you have questions, comments, or have identified ways to improve this policy, please write me at tim@mondoo.com, or reach out in the [Mondoo Slack Community](https://mondoo.link/slack).

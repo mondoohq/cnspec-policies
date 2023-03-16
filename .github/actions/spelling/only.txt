@@ -1,2 +1,1 @@
-\.md$
-\.mql.yaml$
+\.spellcheck_tmp

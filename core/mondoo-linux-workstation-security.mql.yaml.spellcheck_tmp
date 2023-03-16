@@ -1,0 +1,78 @@
+query title: Ensure permissions on bootloader config are configured
+query description: The grub files contain information on boot settings and passwords for unlocking boot options.
+
+If the system uses UEFI, /boot/efi is a vfat filesystem. The vfat filesystem itself doesn't have the concept of permissions but can be mounted under Linux with whatever permissions desired.
+query remediation: Run the following commands to set ownership and permissions on your grub configuration file(s):
+
+
+
+_Note: This may require a re-boot to enable the change_
+query title: Ensure Secure Boot is enabled
+query description: Secure Boot is required in order to ensure that the booting kernel hasn't been modified. It needs to be enabled in your computer's firmware and be supported by your Linux distribution.
+
+query audit: Run the  command and check whether it prints 
+
+query remediation: Enable Secure Boot in your computer's firmware and use a Linux distribution supporting Secure Boot
+
+query title: Ensure / and /home are encrypted
+query description: It is mandatory to encrypt the / and /home partitions in case of theft
+
+query audit: Get the device names serving  and  by running , check the device status using 
+query title: Ensure AES encryption algorithm is used
+query description: It is mandatory to encrypt the / and /home with the aes-xts-plain64 or aes-xts-benbi algorithm.
+
+query audit: Run the  command and check whether encryption is used.
+
+query remediation: Encrypt you complete disk with the following command:
+
+
+
+query title: Ensure system BIOS is running the latest available version
+query description: The system BIOS should be on the latest available version. This check depends on fwupdmgr to be available on the system.
+Warning: The fwupd daemon will try to connect to the Internet automatically to receive the latest updates.
+
+query audit: Runs the  command to find if the BIOS already running the latest version.
+
+query remediation: Make sure to keep your BIOS firmware up-to-date by running the following commands:
+
+1.
+
+
+Alternatively, use your manufacturer's manual update process.
+
+query title: Gather BIOS Information
+query title: Gather metadata on disk encryption
+query title: Gather metadata on current bootloader config
+query title: Print out the results of 'mokutil --sb-state' for troubleshooting purposes
+query title: Print out the ciphersuite used for disk encryption
+property title: Define the hardened key exchange algorithms for all SSH configurations
+property title: Define the accepted MAC algorithms
+property title: Define the hardened ciphers for all SSH configurations
+policy description: ## Overview
+This policy provides prescriptive guidance for establishing a secure configuration posture for Client Linux systems running on x86 and x64 platforms.
+
+Commands and scripts are provided which should work on most distributions however some translation to local styles may be required in places.
+
+Where possible Red Hat, Debian, and SUSE derivative styles are provided. Many lists are included including filesystem types, services, clients, and network protocols. Not all items in these lists are guaranteed to exist on all distributions and additional similar items may exist, which should be considered in addition to those explicitly mentioned. The guidance within broadly assumes that operations are being performed as the root user. Operations performed using sudo instead of the root user may produce unexpected results, or fail to make the intended changes to the system. Non-root users may not be able to access certain areas of the system, especially after remediation has been performed. It is advisable to verify root users path integrity and the integrity of any programs being run before execution of commands and scripts included in this benchmark.
+
+### Intended Audience
+
+This benchmark is intended for system and application administrators, security specialists, auditors, help desk, and platform deployment personnel who plan to develop, deploy, assess, or secure solutions that incorporate Linux on x86 or x64 platforms.
+
+## Local scan
+
+Local scan refer to scans of files and operating systems where  is installed.
+
+To scan the  against this policy:
+
+
+
+## Join the community!
+
+Our goal is to build policies that are simple to deploy, accurate, and actionable.
+
+If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
+
+group summary: Secure Boot
+group summary: Disk encryption
+group summary: BIOS Firmware up-to-date
