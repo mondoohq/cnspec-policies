@@ -99,7 +99,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.policies.signOn.where(_.rules.all(status == "ACTIVE")).all(_.rules.all(actions["signon"]["requireFactor"] == true))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
