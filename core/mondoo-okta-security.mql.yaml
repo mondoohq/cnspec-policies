@@ -297,7 +297,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.applications.none(signOnMode == "AUTO_LOGIN" || signOnMode == "BROWSER_PLUGIN")" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
