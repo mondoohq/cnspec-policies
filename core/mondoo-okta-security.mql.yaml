@@ -431,7 +431,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.users.where(roles.all(type == "SUPER_ADMIN")).length <= 3" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
