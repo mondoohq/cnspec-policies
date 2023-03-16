@@ -476,7 +476,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["possession"]["deviceBound"] == "REQUIRED"} ))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
