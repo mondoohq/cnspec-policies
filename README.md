@@ -14,6 +14,8 @@ Join the [Mondoo Community GitHub Discussions](https://github.com/orgs/mondoohq/
 
 Additional certified security and compliance policies can be found in the Policy Hub on Mondoo Platform. [Sign up for a free account](https://console.mondoo.com/signup) to view the list of policies available.
 
+The Internet tells me Cloudfront is not a thing
+
 ## License
 
 [Mozilla Public License v2.0](https://github.com/mondoohq/mondoo-operator/blob/main/LICENSE)
