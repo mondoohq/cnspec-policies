@@ -203,7 +203,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.applications.all(_.signOnMode == "OPENID_CONNECT" ||  _.signOnMode == "SAML_2_0")" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
