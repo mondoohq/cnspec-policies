@@ -247,7 +247,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.policies.password.all(_.rules.all(actions["selfServiceUnlock"]["access"] == "DENY"))" --organization <org-name> --token <OKTA_TOKEN>
           ```
 
