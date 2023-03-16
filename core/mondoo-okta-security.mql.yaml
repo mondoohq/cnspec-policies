@@ -138,11 +138,7 @@ queries:
       desc: |
         Session lifetime determines the maximum idle time of an end user's sign-on session to Okta. By enforcing a limited session lifetime for users, admins reduce the window of time wherein a malicious third party could attempt to access a user's applications from an active session.
         
-<<<<<<< HEAD
-        This is especially important considering the workforce is no longer strictly confined to within the walls of an office. This functionality is a must for any organization with employees, contractors, and partners that work from home or other remote locations like coffee shops and  airports. 
-=======
         This is especially important considering the workforce is no longer strictly confined to within the walls of an office. This functionality is necessary for any organization with employees, contractors, and partners working from home or other remote locations like coffee shops and airports.
->>>>>>> main
 
         The maximum session lifetime ensures that a session will expire after this maximum session time, even if idle time never expires. Setting an upper bound minimizes the risk of session cookies misuse or hijacking.
         The user session will expire when the user has been inactive on Okta for the set time period, regardless of Max Okta session lifetime. 
@@ -200,12 +196,7 @@ queries:
 
         SAML, in the most basic (and the most popular) setup, allows you to pass information about a user between an Identity Provider and a Service Provider (Client Application) via the user’s browser (User Agent). It does not require a direct connection between the Identity Provider and the Service Provider – everything happens via browser redirects. The user requests a signed document that confirms their identity from the Identity Provider, gets authenticated, and then sends the signed document to the Service Provider in order to log in. The signed document can also include information about the user’s privileges, groups, etc.
 
-<<<<<<< HEAD
-        Useful comparison can be found here, https://developer.okta.com/docs/guides/oin-sso-overview/
-        
-=======
         A useful comparison can be found here, https://developer.okta.com/docs/guides/oin-sso-overview/
->>>>>>> main
       audit: |
         __cnspec run__
 
@@ -247,17 +238,9 @@ queries:
     severity: 60
     docs:
       desc: |
-<<<<<<< HEAD
-
-        User account that has been locked due to exceeding the password entry limitation, or other reasons, should only inform the administrator and he/she should not be able to unlock themselves.
-
-        In contrast the self-service password recovery might be considered for Okta Admins, https://support.okta.com/help/s/article/How-to-configure-selfservice-account-recovery?language=en_US
-        
-=======
         A user account that has been locked due to exceeding the password entry limitation, or for other reasons, should only notify the Okta administrator. Users should not be able to unlock themselves.
 
         In contrast, the self-service password recovery might be considered for Okta Admins, https://support.okta.com/help/s/article/How-to-configure-selfservice-account-recovery?language=en_US
->>>>>>> main
       audit: |
         __cnspec run__
 
@@ -288,20 +271,12 @@ queries:
         ### Okta Console
 
         To update via the Okta portal:
-<<<<<<< HEAD
-        1. Log in as Administrator to the related Okta organization (Identity Engine)
-        2. Select from Security the "Authenticators" and the password
-        3. You can add completely the new password policy by "Add New Password Policy" or edit the existent one. 
-        4. Then "Add rule" and make sure under "Users can perform self-service", the "Unlock account" has been not selected. 
-        5. Update the rule and you are done!
-=======
         1. Log in as an administrator to the related Okta organization (Identity Engine)
         2. Select from Applications the "Applications" 
         3. Select from Security the "Authenticators" and the password
         4. You can add a new password policy by selecting "Add New Password Policy" or edit the existing policy. 
         5. Select "Add rule" and make sure under "Users can perform self-service", the "Unlock account" has been not selected. 
         6. Update the rule and you are done!
->>>>>>> main
     query: |
       okta.policies.password.all(_.rules.all(actions["selfServiceUnlock"]["access"] == "DENY")) 
   - uid: mondoo-okta-security-okta-auth-swa-critical
@@ -406,12 +381,7 @@ queries:
       desc: |
         If enabled, when a user reopens the same browser, they will not be asked to sign-in again if the session is still active. 
 
-<<<<<<< HEAD
-        Session Cookies (Non-Persistent cookies) are stored in memory and never written to the disk. Session cookies remain active as long as the browser remains active – once the browser is closed, the cookies vanish
-
-=======
         Session Cookies (Non-Persistent cookies) are stored in memory and never written to the disk. Session cookies remain active as long as the browser remains active – once the browser is closed, the cookies vanish.
->>>>>>> main
       audit: |
         __cnspec run__
 
@@ -454,14 +424,8 @@ queries:
     severity: 80
     docs:
       desc: |
-<<<<<<< HEAD
-        Super Admin role has the highest permissions of all the admins in Okta. Super Admins can create other admins, assign or remove permissions, and  perform all other admin activities.
-        By limiting the number of administrators who have this level of permissions, we can reduce the odds of a bad actor gaining access to one of these highly privileged accounts.
-
-=======
         The Super Admin role has the highest permissions of all the admins in Okta. Super Admins can create other admins, assign or remove permissions, and perform all other admin activities.
         Limiting the number of administrators with this level of permissions can reduce the odds of a bad actor gaining access to one of these highly privileged accounts.
->>>>>>> main
       audit: |
         __cnspec run__
 
@@ -506,13 +470,8 @@ queries:
         
         Traditionally popular factors like "security questions" and sms have proven problematic. Bad actors can easily find the answers to security questions online, and SMS can leave users vulnerable to phishing and SIM jacking attacks.
         
-<<<<<<< HEAD
-        To increase the security. administrators should require users to authenticate  via strong factors, like software-based "Authenticators", and make sure nobody is Phone and Email "Authenticators"
-
-=======
         To increase security administrators should require users to authenticate via strong factors, like software-based authenticators, and ensure no one uses phone or email authenticators.
       audit: |
->>>>>>> main
         __cnspec run__
 
         To audit Okta `cnspec run`:
@@ -561,13 +520,8 @@ queries:
           * Possession - Something you have, such as a security key or Authenticator App
           * Inherence -  Something you are, such as a unique biometric or behavioral characteristic
 
-<<<<<<< HEAD
-        Among the options that Okta currently offers in MFA configuration part, the combination of Password/IdP plus Another factor is the best practice.
-
-=======
         Among the options that Okta currently offers in MFA configuration part, the combination of Password/IdP plus another factor is the best practice.
       audit: |
->>>>>>> main
         __cnspec run__
 
         To audit Okta `cnspec run`:
@@ -613,24 +567,14 @@ queries:
     severity: 60
     docs:
       desc: |
-<<<<<<< HEAD
-        
-        The best practice is To prompt the user to re-enter the password and MFA code periodically. Like most topics in information security, the re-authentication interval has a tradeoff between security and convenience: a short amount has better security but is inconvenient, while a longer amount is more convenient but has lower security.
-=======
         The best practice is to prompt the user to re-enter their password and MFA code periodically. Like most topics in information security, the re-authentication interval has a tradeoff between security and convenience: a short amount has better security but is inconvenient, while a longer amount is more convenient but has lower security.
->>>>>>> main
 
         It should be tested that following two options never being configured for password and other factors: 
           * Every sign-in attempt
           * Never re-authenticate if the session is active 
 
-<<<<<<< HEAD
-          Our recommendations is to configure the Password re-authentication after 4 hours and other factor every 8 hours. 
-
-=======
           Our recommendation is to configure the password re-authentication after 4 hours and other factor every 8 hours.
       audit: |
->>>>>>> main
         __cnspec run__
 
         To audit Okta `cnspec run`:
