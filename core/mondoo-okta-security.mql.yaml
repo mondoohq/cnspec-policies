@@ -579,7 +579,7 @@ queries:
 
         Run the following query:
 
-          ```mql
+          ```bash
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT0S"} ))" --organization <org-name> --token <OKTA_TOKEN>
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["constraints"] { _["knowledge"]["reauthenticateIn"] != "PT43800H"} ))" --organization <org-name> --token <OKTA_TOKEN>
           cnspec run okta -c "okta.policies.accessPolicy.where(name == "MFA").all(rules.all(actions["appSignOn"]["verificationMethod"]["reauthenticateIn"] != "PT0S" ))" --organization <org-name> --token <OKTA_TOKEN>
