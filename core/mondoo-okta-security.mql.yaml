@@ -283,7 +283,6 @@ queries:
     severity: 60
     docs:
       desc: |
-
         Secure Web Authentication (SWA) is an Okta technology that provides Single Sign-On (SSO) functionality to external web applications that don't support federated protocols.
 
         Administrators can set the credentials for the application, or the end user can enter a specific username and password. Okta keeps the credentials for that application inside a secure store, encrypted with strong AES-256  encryption. After setting the credentials, end users only need to authenticate with Okta, and then they can SSO directly into the application. 
