@@ -81,7 +81,7 @@ policies:
       mondoo-azure-security-ensure-deny-public-access-mariadb: null
       mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql: null
       mondoo-azure-security-ensure-disabled-public-access-sql: null
-      mondoo-azure-security-keyvault-public-access-diabled: null 
+      mondoo-azure-security-keyvault-public-access-disabled: null 
       mondoo-azure-security-sql-server-audit-on: null
       mondoo-azure-security-sql-server-tde-on: null
 queries: 
@@ -1670,7 +1670,7 @@ queries:
         4. In `Public network access` settings, click on Disabled or `Selected networks` with activated Firewall rules or Virtual networks
     query: |
       azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0 )
-  - uid: mondoo-azure-security-keyvault-public-access-diabled
+  - uid: mondoo-azure-security-keyvault-public-access-disabled
     title: Ensure default Public Network access for key vault disabled
     severity: 80
     docs:
