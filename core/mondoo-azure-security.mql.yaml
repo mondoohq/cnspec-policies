@@ -66,7 +66,7 @@ policies:
       mondoo-azure-security-ensure-security-defaults-is-enabled-on-azure-active-directory: null
       mondoo-azure-security-enable-azure-ad-identity-protection-sign-in-risk-policies: null
       mondoo-azure-security-enable-azure-ad-identity-protection-user-risk-policies: null
-      mondoo-azure-security-ensure-auditing-retention-greater-than-90-days: null 
+      mondoo-azure-security-ensure-auditing-retention-greater-than-30-days: null 
       mondoo-azure-security-ensure-auditing-on: null
       mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access: null
       mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service: null
@@ -81,6 +81,9 @@ policies:
       mondoo-azure-security-ensure-deny-public-access-mariadb: null
       mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql: null
       mondoo-azure-security-ensure-disabled-public-access-sql: null
+      mondoo-azure-security-keyvault-public-access-diabled: null 
+      mondoo-azure-security-sql-server-audit-on: null
+      mondoo-azure-security-sql-server-tde-on: null
 queries: 
   - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multi-factor authentication has been enabled for all users
@@ -906,12 +909,12 @@ queries:
       azure.sql.servers {
         auditingPolicy['state'] == "Enabled"
       }
-  - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-90-days
-    title: Ensure that 'Auditing' Retention is 'greater than 90 days'
+  - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days
+    title: Ensure that 'Auditing' Retention is 'greater than 30 days'
     severity: 80
     docs:
       desc: |
-        This control checks that 'Auditing' Retention is 'greater than or equal to 90 days'
+        This control checks that 'Auditing' Retention is 'greater than or equal to 30 days'
       audit: |
         __cnspec run__
 
@@ -950,13 +953,13 @@ queries:
             storage_endpoint           = azure_storage_account.example.primary_blob_endpoint
             storage_account_access_key = azure_storage_account.example.primary_access_key
             storage_account_access_key_is_secondary = true
-            retention_in_days                       = 90
+            retention_in_days                       = 30
           }
         }
         ```     
     query: |
       azure.sql.servers {
-        auditingPolicy['retentionDays'] >= 90
+        auditingPolicy['retentionDays'] >= 30
       }
   - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0
     title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)
@@ -1227,6 +1230,12 @@ queries:
     docs:
       desc: |
         Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a Key Vault can cause serious problems in any organization.
+
+        Soft Delete is a feature of Key Vault that retains Key Vaults and Key Vault items after initial deletion. By default, new Key Vaults created through the portal will have soft delete for 90 days configured.
+        Once enabled, soft delete can not be disabled. When soft delete is enabled, it is possible to purge soft deleted vaults and vault items.
+
+        Purge protection is another feature of Key Vaults that is used to protect deleted Key Vaults for a certain period, called the "retention period." Once enabled, purge protection prevents deleted key vaults from being purged until the retention period has been reached. This selection cannot be changed once the Key Vault is created. 
+        If a Key Vault is created with purge protection, you can still delete it, but you will not be able to purge it once it is deleted. In this case, the deleted Key Vaults will have to wait for 90 days to pass to be permanently purged.
       audit: |
         __cnspec run__
 
@@ -1633,7 +1642,7 @@ queries:
         Run the following query:
 
           ```bash
-          cnspec run azure -c "azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0  ||  properties["publicNetworkAccess"] == "Enabled" && properties["privateEndpointConnections"].length > 0  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnspec shell__
@@ -1649,7 +1658,7 @@ queries:
         2. Run the following query:
 
           ```mql
-          azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0  ||  properties["publicNetworkAccess"] == "Enabled" && properties["privateEndpointConnections"].length > 0  )
+          azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0 )
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1661,3 +1670,153 @@ queries:
         4. In `Public network access` settings, click on Disabled or `Selected networks` with activated Firewall rules or Virtual networks
     query: |
       azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0 )
+  - uid: mondoo-azure-security-keyvault-public-access-diabled
+    title: Ensure default Public Network access for key vault disabled
+    severity: 80
+    docs:
+      desc: |
+        The default Public Network Access to the Key Vault must be disabled in order to add a layer of security to one of the most important component in the Azure environment.
+        By default, when you create a new key vault, the Azure Key Vault firewall is disabled. All applications and Azure services can access the key vault and send requests to the key vault. This configuration doesn't mean that any user will be able to perform operations on your key vault. The key vault still restricts access to secrets, keys, and certificates stored in key vault by requiring Azure Active Directory authentication and access policy permissions.
+
+        To enhance network security, you can configure your vault to disable public access. This will deny all public configurations and allow only connections through private endpoints. It is also possible to allow public access from specific virtual networks and IP addresses. 
+
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.keyVault.vaults.all ( properties["publicNetworkAccess"] == "Disabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.keyVault.vaults.all ( properties["publicNetworkAccess"] == "Disabled" )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to `Key vaults`
+        3. For each key vault server, click on `Networking` under Settings
+        4. In `Firewalls and virtual networks` settings, click on "Disable public access" 
+    query: |
+      azure.keyVault.vaults.all ( properties["publicNetworkAccess"] == "Disabled" )
+  - uid: mondoo-azure-security-sql-server-audit-on
+    title: Ensure that all activities on SQL server is audited
+    severity: 60
+    docs:
+      desc: |
+        Auditing is a very important feature and should be configured for every database or server in your deployment in Azure.
+        When server level auditing is enabled, it’s enabled for all existing databases and new databases which will be created in future.
+
+        Enable Server audit when you must audit all databases for that logical server, enable database level audit when you want audit different action groups for a specific database or write to different target for a specific database.
+
+        If you are enabling both server and database level audit for a database, then you can choose predicate expression to filter the events to ensure you are not capturing duplicate data.
+
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.sql.servers.all( auditingPolicy["state"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.sql.servers.all( auditingPolicy["state"] == "Enabled" )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to `SQL servers`
+        3. For each SQL server Click on `Auditing` and make sure `Enable Azure SQL Auditing` is set to `On`
+    query: |
+      azure.sql.servers.all( auditingPolicy["state"] == "Enabled" )
+  - uid: mondoo-azure-security-sql-server-tde-on
+    title: Ensure that transparent data encryption is enabled on sql server
+    severity: 60
+    docs:
+      desc: |
+        Transparent data encryption (TDE) encrypts SQL Server, Azure SQL Database, and Azure Synapse Analytics data files. This encryption is known as encrypting data at rest.
+
+        TDE does real-time I/O encryption and decryption of data and log files. The encryption uses a database encryption key (DEK). The database boot record stores the key for availability during recovery. The DEK is a symmetric key. It's secured by a certificate that the server's master database stores or by an asymmetric key that an EKM module protects.
+
+        TDE protects data at rest, which is the data and log files. It lets you follow many laws, regulations, and guidelines established in various industries. This ability lets software developers encrypt data by using AES and 3DES encryption algorithms without changing existing applications.
+
+        Note:  TDE is not available for system databases.
+
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to `SQL servers`
+        3. For each DB instance Click on `Transparent data encryption` and make sure `Data encryption` is set to `On`
+    query: |
+      azure.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }
+
+
+
