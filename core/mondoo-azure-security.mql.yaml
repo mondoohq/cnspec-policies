@@ -1126,7 +1126,6 @@ queries:
     docs:
       desc: |
         It is highly recommended to use the latest TLS version available with Azure App Services for all secure Web App connections. Currently Azure App Services supports TLS 1.2.
-        Since at the time of writing this document, azure App services still does not support TLS version 1.3, therefore our policy has been set on version 1.2.
 
       audit: |
         __cnspec run__
