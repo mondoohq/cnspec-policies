@@ -80,6 +80,7 @@ policies:
       mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mariadb: null
       mondoo-azure-security-ensure-deny-public-access-mariadb: null
       mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql: null
+      mondoo-azure-security-ensure-disabled-public-access-sql: null
 queries: 
   - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multi-factor authentication has been enabled for all users
@@ -1611,3 +1612,52 @@ queries:
     query: |
       azure.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )
       azure.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )
+  - uid: mondoo-azure-security-ensure-disabled-public-access-sql
+    title: Ensure Public Network access for SQL server disabled or only possible through firewall rules
+    severity: 80
+    docs:
+      desc: |
+        Customers can choose to connect to a database by using one of the following ways:
+          * public endpoints (with IP-based server-level firewall rules or with virtual-network firewall rules)
+          * private endpoints (by using Azure Private Link)
+
+        When Public network access is set to Disable, only connections from private endpoints are allowed. All connections from public endpoints will be denied.
+
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0  ||  properties["publicNetworkAccess"] == "Enabled" && properties["privateEndpointConnections"].length > 0  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0  ||  properties["publicNetworkAccess"] == "Enabled" && properties["privateEndpointConnections"].length > 0  )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to `SQL servers`
+        3. For each server, click on `Networking` under Security
+        4. In `Public network access` settings, click on Disabled or `Selected networks` with activated Firewall rules or Virtual networks
+    query: |
+      azure.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0 )
