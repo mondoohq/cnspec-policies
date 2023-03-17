@@ -34,7 +34,7 @@ policies:
       ```
       ### Prerequisites
 
-      Remote scans of Azure require API credentials with access to the subscription. 
+      Remote scans of Azure require API credentials with access to the subscription.
 
       ### Scan an Azure subscription
 
@@ -76,6 +76,10 @@ policies:
       mondoo-azure-security-ensure-logging-enabled-kv: null
       mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group: null
       mondoo-azure-security-ensure-that-notify-about-alerts-with-high-severity-is-on: null 
+      mondoo-azure-security-ensure-that-ssl-enabled-postgresql: null
+      mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mariadb: null
+      mondoo-azure-security-ensure-deny-public-access-mariadb: null
+      mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql: null
 queries: 
   - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multi-factor authentication has been enabled for all users
@@ -87,11 +91,14 @@ queries:
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`:
-   
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
           ```bash
           cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
-          Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         __cnspec shell__
 
@@ -102,8 +109,6 @@ queries:
           ```bash
           cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
-          
-          Note: It is also possible to use a client secret for app connection instead of a certificate.
         
         2. Run the following query:
 
@@ -208,8 +213,8 @@ queries:
         To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com as a global administrator.
          2. Navigate to Azure Active Directory
-         3. Select **Users -> New user **.
-         4. If there are not enough global admins, create one:
+         3. Select **Users -> New user **.  
+         4. If there are not enough global admins, create one: 
             * Select the user name.
             * Under **Roles**, select **Global Administrator ** and then select **Save changes**.
          5. Remove the Global Admin, if there are more than four Global Administrators
@@ -534,15 +539,18 @@ queries:
         }
         ```
     query: |
-      azure.network.securityGroups {
-        securityRules.where ( 
-          _.properties['access'] == 'Allow' && 
-          _.properties['direction'] == 'Inbound' &&
-          _.properties['protocol'] == /TCP|\*/ && 
-          _.properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ 
-        ) { 
-            destinationPortRange { _['fromPort'] > 22 || _['toPort'] < 22 
-          }
+      azure.network.securityGroups { 
+        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /TCP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        } { 
+          securityRules {
+            properties["destinationPortRange"] != "*"
+            properties["destinationPortRange"] != 22
+            if (properties["destinationPortRange"].split("-").length > 1) {
+              a = properties["destinationPortRange"].split("-")[0] < 22 && properties["destinationPortRange"].split("-")[1] < 22
+              b = properties["destinationPortRange"].split("-")[0] > 22 && properties["destinationPortRange"].split("-")[1] > 22
+              a || b
+            }
+            properties["destinationPortRanges"].all( _ != 22 )
         }
       }
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet
@@ -604,17 +612,19 @@ queries:
         }
         ```
     query: |
-      azure.network.securityGroups {
-        securityRules.where ( 
-          _.properties['access'] == 'Allow' && 
-          _.properties['direction'] == 'Inbound' && 
-          _.properties['protocol'] == /TCP|\*/ && 
-          _.properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ 
-        ) {
-            destinationPortRange {
-              _['fromPort'] > 3389 || _['toPort'] < 3389
+      azure.network.securityGroups { 
+        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /TCP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        } { 
+          securityRules {
+            properties["destinationPortRange"] != "*"
+            properties["destinationPortRange"] != 3389
+            if (properties["destinationPortRange"].split("-").length > 1) {
+              a = properties["destinationPortRange"].split("-")[0] < 3389 && properties["destinationPortRange"].split("-")[1] < 3389
+              b = properties["destinationPortRange"].split("-")[0] > 3389 && properties["destinationPortRange"].split("-")[1] > 3389
+              a || b
             }
-          }
+            properties["destinationPortRanges"].all( _ != 3389 )
+        }
       }
   - uid: mondoo-azure-security-secure-transfer-required-enabled
     title: Ensure that 'Secure transfer required' is set to 'Enabled'
@@ -729,11 +739,7 @@ queries:
         --account-key <account_key>
         ```
     query: |
-      azure.storage.accounts {
-        containers {
-          properties['publicAccess'] == "None"
-        }
-      }
+      azure.storage.accounts.all( properties["allowBlobPublicAccess"] == "false" ) || azure.storage.accounts.all ( containers { properties["publicAccess"] == "None" } )
   - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny
     title: Ensure the default network access rule for Storage Accounts is set to deny
     severity: 80
@@ -796,9 +802,7 @@ queries:
         }
         ```      
     query: |
-      azure.storage.accounts {
-        properties['networkAcls']['defaultAction'] == "Deny"
-      }
+      azure.storage.accounts.all( properties["networkAcls"]["defaultAction"] == "Deny" )
   - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access
     title: Ensure 'Trusted Microsoft Services' is enabled for Storage Account access
     severity: 80
@@ -814,7 +818,7 @@ queries:
         2. Run the following query:
 
           ```bash
-          cnspec run azure -c "azure.storage.accounts { containers { properties['publicAccess'] == "None" } }"
+          cnspec run azure -c "azure.storage.accounts.all ( properties['networkAcls']['bypass'] == "AzureServices")"
           ```
 
         __cnspec shell__
@@ -831,7 +835,7 @@ queries:
         3. Run the following query:
 
           ```mql
-          azure.storage.accounts { containers { properties['publicAccess'] == "None" } }
+          azure.storage.accounts.all ( properties['networkAcls']['bypass'] == "AzureServices")
           ```
       remediation: |
         ###Terraform
@@ -847,9 +851,7 @@ queries:
         }
         ``` 
     query: |
-      azure.storage.accounts {
-        properties['networkAcls']['bypass'] == "AzureServices"
-      }
+      azure.storage.accounts.all ( properties['networkAcls']['bypass'] == "AzureServices")
   - uid: mondoo-azure-security-ensure-auditing-on
     title: Ensure that 'Auditing' is set to 'On' for SQL servers
     severity: 80
@@ -1083,7 +1085,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -1124,6 +1126,7 @@ queries:
     docs:
       desc: |
         It is highly recommended to use the latest TLS version available with Azure App Services for all secure Web App connections. Currently Azure App Services supports TLS 1.2.
+        Since at the time of writing this document, azure App services still does not support TLS version 1.3, therefore our policy has been set on version 1.2.
 
       audit: |
         __cnspec run__
@@ -1223,7 +1226,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a Key Vault can cause serious problems in any organization. 
+        Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a Key Vault can cause serious problems in any organization.
       audit: |
         __cnspec run__
 
@@ -1308,7 +1311,7 @@ queries:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Navigate to **Key vaults**.
         3. Select "Properties" and ensure Soft delete has been enabled on this key vault
-        4. At the bottom of the page, select "Enable Purge Protection"
+        4. At the bottom of the page, select "Enable Purge Protection" 
     query: |
       azure.keyvault.vaults { 
         diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  )
@@ -1357,7 +1360,7 @@ queries:
         2. Navigate to the "Monitor" blade
           1. Select "Alerts"
           2. Select "Create" and then "Alert rule" 
-          3. Under the Scope tab, select "Select scope" 
+          3. Under the Scope tab, select "Select scope"
           4. In the "Select a resource" window, select the appropriate filters:
             - Filter by subscription: "< choose the subscription alerts are needed for >""
             - Filter by resource location: **"Network security groups"**
@@ -1427,5 +1430,185 @@ queries:
         4. Select on `Email notifications` and ensure that the `Notify about alerts with the following severity (or higher)` setting is checked and set to `High`
     query: |
       azure.cloudDefender.securityContacts.all( alertNotifications["minimalSeverity"] == "High" && alertNotifications["state"] == "On" )
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql
+    title: Ensure SSL connection enabled for PostgreSQL Database Server
+    severity: 80
+    docs:
+      desc: |
+        All communications between the clients and the postgreSQL server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
+      audit: |
+        __cnspec run__
 
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
 
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.postgresql.servers.all( properties["sslEnforcement"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.postgresql.servers.all( properties["sslEnforcement"] == "Enabled" )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to Azure Database for `PostgreSQL server`
+        3. For each database, click on `Connection security`
+        4. In `SSL` settings, click on `ENABLED` to enforce SSL connections
+    query: |
+      azure.postgresql.servers.all( properties["sslEnforcement"] == "Enabled" )
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mariadb
+    title: Ensure SSL connection enabled for MariaDB Database Server with the latest version
+    severity: 80
+    docs:
+      desc: |
+        All communications between the clients and the mariadb server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.mariaDb.servers.all( properties["sslEnforcement"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.mariaDb.servers.all( properties["sslEnforcement"] == "Enabled" )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to Azure Database for `MariaDB server`
+        3. For each database, click on `Connection security`
+        4. In `SSL` settings, click on `ENABLED` to enforce SSL connections
+        5. In TLS setting, make the latest version chosen as minimum tls version
+    query: |
+      azure.mariaDb.servers.all( properties["sslEnforcement"] == "Enabled" )
+      azure.mariaDb.servers.all( properties["minimalTlsVersion"] == "TLS1_2" )
+  - uid: mondoo-azure-security-ensure-deny-public-access-mariadb
+    title: Ensure Public Network access for MariaDB disabled
+    severity: 80
+    docs:
+      desc: |
+        All public access to mariadb should be blocked and only allow connections through private endpoints to further enhance the network security.
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to Azure Database for `MariaDB server`
+        3. For each database, click on `Connection security`
+        4. In `Deny Public network access` settings, click on Yes
+    query: |
+      azure.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
+    title: Ensure SSL connection enabled for mySQL Database Server with the latest version
+    severity: 80
+    docs:
+      desc: |
+        All communications between the clients and the mmySQL server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        it is possible also to use client-secret for app connection instead of the certificate. 
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )
+          azure.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to Azure Database for `mySQL server`
+        3. For each database, click on `Connection security`
+        4. In `SSL` settings, click on `ENABLED` to enforce SSL connections
+        5. In TLS setting, make the latest version chosen as minimum tls version
+    query: |
+      azure.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )
+      azure.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )
