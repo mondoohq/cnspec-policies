@@ -1434,7 +1434,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        All communications between the clients and the postgreSQL server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
+        All communications between the clients and the PostgreSQL server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
       audit: |
         __cnspec run__
 
@@ -1568,7 +1568,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        All communications between the clients and the mmySQL server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
+        All communications between the clients and the mySQL server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
       audit: |
         __cnspec run__
 
