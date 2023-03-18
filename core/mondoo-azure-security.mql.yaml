@@ -1894,7 +1894,7 @@ queries:
         Diagnostic setting controls how the diagnostic logs are exported and what type of data need to be collected and be exported to the defined destination.
         By default no log categories are selected when the Diagnostic Setting is created. Capturing the appropriate log categories for the activities performed within your subscriptions provides proper insight into the environment and will help the SOC team in analyzing.
 
-        We recommend at minimum collect following cetegories:
+        We recommend at minimum collect following categories:
 
           * Security
           * Alert
