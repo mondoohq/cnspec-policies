@@ -84,6 +84,8 @@ policies:
       mondoo-azure-security-keyvault-public-access-disabled: null 
       mondoo-azure-security-sql-server-audit-on: null
       mondoo-azure-security-sql-server-tde-on: null
+      mondoo-azure-diagnostic-settings-exist: null
+      mondoo-azure-diagnostic-settings-essential-categories: null
 queries: 
   - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-all-roles
     title: Ensure that multi-factor authentication has been enabled for all users
@@ -96,7 +98,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -217,7 +219,7 @@ queries:
         To update using the Microsoft Azure portal:
          1. Log into the Microsoft Azure portal at https://portal.azure.com as a global administrator.
          2. Navigate to Azure Active Directory
-         3. Select **Users -> New user **.  
+         3. Select **Users -> New user **.
          4. If there are not enough global admins, create one: 
             * Select the user name.
             * Under **Roles**, select **Global Administrator ** and then select **Save changes**.
@@ -1136,7 +1138,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1184,7 +1186,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1241,7 +1243,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1290,7 +1292,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1317,10 +1319,10 @@ queries:
         ### Microsoft Azure Portal
 
         To update using the Microsoft Azure portal:
-        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com
         2. Navigate to **Key vaults**.
         3. Select "Properties" and ensure Soft delete has been enabled on this key vault
-        4. At the bottom of the page, select "Enable Purge Protection" 
+        4. At the bottom of the page, select "Enable Purge Protection"
     query: |
       azure.keyvault.vaults { 
         diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  )
@@ -1336,7 +1338,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1406,7 +1408,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1450,7 +1452,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1488,13 +1490,13 @@ queries:
     severity: 80
     docs:
       desc: |
-        All communications between the clients and the mariadb server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
+        All communications between the clients and the Mariadb server should be through SSL/TLS to add a layer of encryption to prevent any man in the middle attacks.
       audit: |
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1534,13 +1536,13 @@ queries:
     severity: 80
     docs:
       desc: |
-        All public access to mariadb should be blocked and only allow connections through private endpoints to further enhance the network security.
+        All public access to MariaDB should be blocked, and only connections through private endpoints should be allowed to further enhance network security.
       audit: |
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -1570,7 +1572,7 @@ queries:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Go to Azure Database for `MariaDB server`
         3. For each database, click on `Connection security`
-        4. In `Deny Public network access` settings, click on Yes
+        4. In `Deny Public network access` settings, select **Yes**
     query: |
       azure.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
@@ -1584,7 +1586,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -1615,9 +1617,9 @@ queries:
         To update using the Microsoft Azure portal:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Go to Azure Database for `mySQL server`
-        3. For each database, click on `Connection security`
-        4. In `SSL` settings, click on `ENABLED` to enforce SSL connections
-        5. In TLS setting, make the latest version chosen as minimum tls version
+        3. For each database, select `Connection security`
+        4. In `SSL` settings, select `ENABLED` to enforce SSL connections
+        5. At end, in TLS setting, choose the latest tls version
     query: |
       azure.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )
       azure.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )
@@ -1637,7 +1639,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -1685,7 +1687,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -1735,7 +1737,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate. 
 
         Run the following query:
 
@@ -1785,7 +1787,7 @@ queries:
 
         To audit Microsoft Azure with `cnspec run`:
       
-        it is possible also to use client-secret for app connection instead of the certificate. 
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
 
         Run the following query:
 
@@ -1814,9 +1816,131 @@ queries:
         To update using the Microsoft Azure portal:
         1. Log in to the Microsoft Azure portal at https://portal.azure.com 
         2. Go to `SQL servers`
-        3. For each DB instance Click on `Transparent data encryption` and make sure `Data encryption` is set to `On`
+        3. For each DB instance, select `Transparent data encryption` and make sure `Data encryption` is set to `On`
     query: |
       azure.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }
+  - uid: mondoo-azure-diagnostic-settings-exist
+    title: Ensure that Diagnostic Setting exists in our setup
+    severity: 80
+    docs:
+      desc: |
+       The diagnostic settings is an important piece in the security puzzle, and it is highly recommended by Microsoft in Azure Security Center. 
+       
+       To understand what exactly the "diagnostic settings" is, we need to understand the data source on Monitor component in Azure. 
+
+       Azure Monitor is based on different Logs and Metrics that we can collect from multiple resources. These data can be analyzed using a set of tools provided in Azure Monitor.
+       Azure Resources generate a significant amount of monitoring data which categorized into two mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv:
+
+        * Metrics : Numerical values that describe some aspect of a system at a particular point of time.
+        * Logs  :  Provide detailed diagnostic and auditing information for Azure resources.
+      
+       The Logs itself can be categorized into two types: 
+
+        * Resource logs aren't collected until they're routed to a destination.
+        * Activity logs exist on their own but can be routed to other locations.
+
+       Each Azure resource requires its own diagnostic setting, which defines the following criteria:
+
+        * Sources: The type of metric and log data to send to the destinations defined in the setting. The available types vary by resource type.
+        * Destinations: One or more destinations to send to.
 
 
+       A diagnostic setting basically controls how logs are exported. By default, logs are retained only for 90 days. 
+       By having the diagnostic settings, we can export the logs and store them for longer period in order to analyze the activities and find any security related issues.
+       
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.monitor.diagnosticSettings.length > 0" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.monitor.diagnosticSettings.length > 0
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to `Monitor` and select `Activity Logs`
+        3. Select a subscription, and make sure there is already a "diagnostic settings" for that subscription
+    query: |
+      azure.monitor.diagnosticSettings.length > 0
+  - uid: mondoo-azure-diagnostic-settings-essential-categories
+    title: Ensure that Diagnostic Setting collect essential security categories
+    severity: 80
+    docs:
+      desc: |
+      
+        Diagnostic setting controls how the diagnostic logs are exported and what type of data need to be collected and be exported to the defined destination.
+        By default no log categories are selected when the Diagnostic Setting is created. Capturing the appropriate log categories for the activities performed within your subscriptions provides proper insight into the environment and will help the SOC team in analyzing.
+
+        We recommend at minimum collect following cetegories:
+
+          * Security
+          * Alert
+          * Administrative 
+
+      audit: |
+        __cnspec run__
+
+        To audit Microsoft Azure with `cnspec run`:
+      
+        Note: It is also possible to use a client secret for app connection instead of a certificate.
+
+        Run the following query:
+
+          ```bash
+          cnspec run azure -c "azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+
+        __cnspec shell__
+
+        To audit Microsoft Azure with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          ```
+        
+        2. Run the following query:
+
+          ```mql
+          azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )
+          azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )
+          azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )
+          ```
+      remediation: |
+        ### Microsoft Azure Portal
+
+        To update using the Microsoft Azure portal:
+        1. Log in to the Microsoft Azure portal at https://portal.azure.com 
+        2. Go to `Monitor` and select `Activity Logs`
+        3. Select a subscription, and make sure there is already a "diagnostic settings" for that subscription
+    query: |
+      azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )
+      azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )
+      azure.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )
 
