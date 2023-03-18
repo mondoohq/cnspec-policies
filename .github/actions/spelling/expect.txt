@@ -267,6 +267,4 @@ xts
 XUtn
 yournamespace
 YWQ
-tde
-EKM
 DEK
