@@ -269,3 +269,8 @@ yournamespace
 YWQ
 DEK
 tde
+CLDAP
+Portmap
+SNMPv
+SSDP
+virtualmachines
