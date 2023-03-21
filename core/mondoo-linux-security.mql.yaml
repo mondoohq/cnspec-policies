@@ -1438,7 +1438,7 @@ queries:
         -w /usr/share/selinux/ -p wa -k MAC-policy
         ```
 
-        Add the following lines, for Apparmor:
+        Add the following lines, for AppArmor:
 
         ```
         -w /etc/apparmor/ -p wa -k MAC-policy
