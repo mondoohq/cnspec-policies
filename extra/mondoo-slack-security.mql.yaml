@@ -85,6 +85,10 @@ queries:
   - uid: mondoo-slack-security-name-external-channels
     title: Use clear naming for external channels
     query: slack.conversations.where(isExtShared && isChannel ) { name == props.externalChannelName }
+  - uid: mondoo-slack-security-external-channels
+    title: Do not share information with external channels
+    query: slack.conversations.none(isExtShared) # needs resource to create a check for file sharing
+
 
   # Data Collection
   - uid: mondoo-slack-security-list-admins
@@ -93,3 +97,6 @@ queries:
   - uid: mondoo-slack-security-team
     title: Slack Team
     query: slack.team { id name }
+  - uid: mondoo-slack-monitor-external-channels
+    title: Do not share information with external channels
+    query: slack.conversations.where(isExtShared == true) { id name }
