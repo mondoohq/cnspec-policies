@@ -270,6 +270,5 @@ YWQ
 DEK
 tde
 CLDAP
-SNMPv
 SSDP
 virtualmachines
