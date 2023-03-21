@@ -221,7 +221,7 @@ queries:
          1. Log into the Microsoft Azure portal at https://portal.azure.com as a global administrator.
          2. Navigate to Azure Active Directory
          3. Select **Users -> New user **.
-         4. If there are not enough global admins, create one: 
+         4. If there are not enough global admins, create one:
             * Select the user name.
             * Under **Roles**, select **Global Administrator ** and then select **Save changes**.
          5. Remove the Global Admin, if there are more than four Global Administrators
