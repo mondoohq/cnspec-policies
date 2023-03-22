@@ -92,9 +92,18 @@ queries:
     title: Do not share information with external channels
     query: slack.conversations.none(isExtShared) # needs resource to create a check for file sharing
 
-  - uid: mondoo-slack-security-at-least-one-private-channel
-    title: Make sure there's at least one private channel
-    query: slack.conversations.none(isExtShared) # needs resource to create a check for file sharing
+  - uid: mondoo-slack-security-at-least-one-workspace-internal-channel
+    title: Make sure there is at least one workspace internal channel
+    desc: |
+      There should be at least one internal channel per workspace which isn't shared with any other workspace, org or externally, or is about to be shared externally.
+    query: |
+      slack.conversations.where(isChannel == true)
+        .where(
+          _.isShared == false &&
+          _.isOrgShared == false &&
+          _.isExtShared == false &&
+          _.isPendingExtShared == false
+        )
 
 
   # Data Collection
