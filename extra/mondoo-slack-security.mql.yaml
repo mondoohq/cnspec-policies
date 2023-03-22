@@ -98,13 +98,33 @@ queries:
       There should be at least one internal channel per workspace which isn't shared with any other workspace, org or externally, or is about to be shared externally.
     query: |
       slack.conversations.where(isChannel == true)
-        .where(
+        .any(
           _.isShared == false &&
           _.isOrgShared == false &&
           _.isExtShared == false &&
           _.isPendingExtShared == false
         )
 
+  - uid: mondoo-slack-security-at-least-one-workspace-internal-channel-no-ext-members
+    title: Make sure there is at least one workspace internal channel and there are no external members
+    desc: |
+      There should be at least one internal channel per workspace which isn't shared with any other workspace, org or externally, or is about to be shared externally. This double-checks if there aren't any members in the channels in question that do no belong, such as guest users, strangers and single-channel-guest-users.
+    query: |
+      slack.conversations.where(isChannel == true)
+        .where(
+          _.isShared == false &&
+          _.isOrgShared == false &&
+          _.isExtShared == false &&
+          _.isPendingExtShared == false
+        )
+        .all(
+          members.none(
+            isStranger == true &&
+            isRestricted == true &&
+            isUltraRestricted == true
+          )
+        )
+# slack.conversations.where(isChannel == true).where(_.isShared == false && _.isExtShared == false && isPendingExtShared == false).all(members.none(isStranger == true && isRestricted == true && isUltraRestricted == true))
 
   # Data Collection
   - uid: mondoo-slack-security-list-admins
