@@ -2951,7 +2951,7 @@ queries:
   severity: 30
   docs:
     desc: |
-      Amazon EFS supports two forms of encryption for file systems, encryption of data in transit and encryption at rest. This check ensures that all EFS file systems are configured with encryption-at-rest across all enabled regions in the account.
+      Amazon EFS supports two forms of encryption for file systems, encryption of data in transit and encryption at rest. This check ensures that all EFS file systems are configured with encryption at rest across all enabled regions in the account.
     audit: |
       __cnspec Shell__
 

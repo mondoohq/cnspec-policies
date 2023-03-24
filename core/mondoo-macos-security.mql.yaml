@@ -614,7 +614,7 @@ queries:
 
         Traditional network discovery tools like ping will not succeed. Other network tools that measure activity and approved applications will work as expected.
 
-        This check aligns with the primary macOS use case of a laptop that is often connected to untrusted networks where host segregation may not be configured. In that use case hiding from the other inmates is likely more than desirable. In use cases where use is only on trusted LANs with static IP addresses stealth mode may not be desirable.
+        This check aligns with the primary macOS use case of a laptop that is often connected to untrusted networks where host segregation may not be configured. In this use case, hiding from the other inmates is likely to be important. In use cases where the device is only on trusted LANs with static IP addresses, you might not want stealth mode.
     query: |
       command('/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode') { stdout == /Stealth mode enabled/ }
   - uid: mondoo-macos-security-enable-security-auditing
@@ -717,7 +717,7 @@ queries:
 
         **Impact:**
 
-        This check is only checking the default configuration to ensure that unwanted access to audit records is not available.
+        This check ensures that unwanted access to audit records is not available.
     query: |
       file('/etc/security/audit_control').permissions {
         user_readable
