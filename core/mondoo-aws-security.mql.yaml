@@ -2777,7 +2777,7 @@ queries:
   severity: 30
   docs:
     desc: |
-      Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account in order to lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential/sensitive data leaving your premise. Additionally, this check also checks whether EC2 instances archived configured to delete volumes on termination.
+      Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account can lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential or sensitive data leaving your premises. This check ensures there are no EBS volumes that are not attached to an instance. Additionally, it checks whether archived EC2 instances are configured to delete volumes on termination.
 
       By default, EC2 instances are configured to delete the data in any EBS volumes associated with the instance, and to delete the root EBS volume of the instance. However, any non-root EBS volumes attached to the instance, at launch or during execution, get persisted after termination by default. 
     audit: |
