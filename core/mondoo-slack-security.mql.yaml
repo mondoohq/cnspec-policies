@@ -1,0 +1,283 @@
+policies:
+  - uid: mondoo-slack-security
+    name: Slack Team Security by Mondoo
+    version: 1.1.0
+    tags:
+      mondoo.com/platform: slack-team,saas
+      mondoo.com/category: security
+    authors:
+      - name: Mondoo, Inc
+        email: hello@mondoo.com
+    docs:
+      desc: |
+        ## Overview
+
+        The Slack Team Security policy ensure best-practice settings for securing Slack Teams.
+
+        ### Prerequisites
+
+        To run this query pack, you will need access to the Slack API. To get a token, you need to create an App for the Slack workspace
+        and assign the appropriate permissions:
+
+        1. Sign in to [the Slack website](https://api.slack.com/apps/), and view **Your Apps**
+        2. Select **Create New App**
+        3. Select **From scratch**
+        4. Enter an "App Name" e.g. cnquery and select the workspace, then select **Create App**
+        5. In the section **Add features & functionality** select **Permissions**
+        6. Scroll to **Scopes** and then **User Token Scopes**
+
+          Note: Bots are very limited in their access; therefore we need to set the user scopes
+
+        7. Add the required permissions to **User Token Scopes**
+
+          | OAuth Scope  |
+          | ---- |
+          | [channels:read](https://api.slack.com/scopes/channels:read) |
+          | [groups:read](https://api.slack.com/scopes/groups:read) |
+          | [im:read](https://api.slack.com/scopes/im:read) |
+          | [mpim:read](https://api.slack.com/scopes/mpim:read) |
+          | [team:read](https://api.slack.com/scopes/team:read) |
+          | [usergroups:read](https://api.slack.com/scopes/usergroups:read) |
+          | [users:read](https://api.slack.com/scopes/users:read) |
+
+        8. Scroll up to **OAuth Tokens for Your Workspace** and select **Install to Workspace**
+        9. Copy the provided **User OAuth Token**, it will look like `xoxp-1234567890123-1234567890123-1234567890123-12345cea5ae0d3bed30dca43cb34c2d1`
+
+        ### Run policy
+
+        To run this policy against a Slack Workspace:
+
+        ```bash
+        export SLACK_TOKEN=xoxp-TOKEN
+        cnspec scan slack --policy-bundle mondoo-slack-security.mql.yaml
+        ```
+
+        Alternatively, you can use the CLI flag to connect to your Slack workspace:
+
+        ```bash
+        cnspec scan slack --token TOKEN --policy-bundle mondoo-slack-security.mql.yaml
+        ```
+
+        ## Note:
+        You need to set the two properties in this policy to some values that make sense for your organizations.
+        Modify the blocks show below as needed:
+
+        ```mql
+          - uid: externalChannelName
+            title: Enter your naming pattern for externally shared Slack channels
+            mql: |
+              return /ext|extern|ex_/
+          - uid: whitelistedDomains
+            title: Enter your whitelisted domains here
+            mql: |
+              return /mondoo.com|example.com/
+        ```
+
+        ## Join the community!
+
+        Our goal is to build policies that are simple to deploy, accurate, and actionable.
+
+        If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
+    groups:
+      - filters: platform.family.contains(_ == 'slack')
+        checks:
+          - uid: mondoo-slack-security-limit-admin-accounts
+          - uid: mondoo-slack-security-admins-secure-2fa-methods
+          - uid: mondoo-slack-security-use-strong-factors
+          - uid: mondoo-slack-security-name-external-channels
+          - uid: mondoo-slack-security-at-least-one-workspace-internal-channel
+          - uid: mondoo-slack-security-at-least-one-workspace-internal-channel-no-ext-members
+          - uid: mondoo-slack-domain-whitelisting-enforced-on-internal-channels
+        queries:
+          - uid: mondoo-slack-security-list-admins
+          - uid: mondoo-slack-security-team
+          - uid: mondoo-slack-monitor-external-channels
+queries:
+  - uid: mondoo-slack-security-limit-admin-accounts
+    title: Ensure that only 2-4 users have Admin Permissions
+    mql: |
+      slack.users.admins.length < 5 && slack.users.admins.length > 1
+    impact: 60
+    docs:
+      desc: |
+        Having more than one administrator account is especially important to avoid single points of failure. For larger organizations, it is also useful to have several administrators to share the workload.
+      audit: |
+        Run the command in MQL and verify that the length is in the range between 2 and 4.
+
+          ```mql
+          slack.users.admins.length
+          ```
+      remediation: |
+        Make sure the number of Admin accounts is somewhere in the range of 2-4
+
+  - uid: mondoo-slack-security-admins-secure-2fa-methods
+    title: Ensure that admins use secure 2FA methods
+    mql: |
+      # needs resource
+      #slack.users.admins.all(has2FA == true && twoFactorType == "app")
+      if (false) {"check manually"}
+    impact: 70
+    docs:
+      desc: |
+        Administrator accounts should be secured with the more secure version of 2FA, which employs an application such as `Authy`, instead of relying on the less secure method via SMS, which is prone to SIM Swapping Attacks.
+      audit: |
+        Run the command in MQL and verify that 
+
+          ```mql
+          slack.users.admins {has2FA twoFactorType name}
+          ```
+      remediation: |
+        Make sure that Admin accounts only use the secure `app` setting and `sms` ist not allowed.
+
+  - uid: mondoo-slack-security-use-strong-factors
+    title: Ensure 2-Step Verification (Multi-Factor Authentication) is enforced for all users
+    mql: |
+      slack.users.members.all( has2FA == true || enterpriseUser != null || id=="USLACKBOT" )
+    impact: 60
+    docs:
+      desc: |
+        All user accounts should be protected with 2-factor authorization for enhanced protection against account takeovers by attackers.
+      audit: |
+        Run the command in MQL and verify that all users have 2-factor authorization enabled.
+
+          ```mql
+          slack.users.where(enterpriseUser == null || id !="USLACKBOT") {has2FA twoFactorType name}
+          ```
+      remediation: |
+        Make sure that all users have some form of 2FA enabled.
+
+  - uid: mondoo-slack-security-name-external-channels
+    title: Use clear naming for external channels
+    mql: |
+      slack.conversations.where(isExtShared && isChannel ).all(name == props.externalChannelName )
+    impact: 30
+    props:
+      - uid: externalChannelName
+        title: Enter your naming pattern for externally shared Slack channels
+        mql: |
+          return /ext|extern|ex_/
+    docs:
+      desc: |
+        A clear naming pattern for all channels externally shared with other organizations makes it easier to spot faulty channels, and can prevent the involuntary disclosure of internal information.
+      audit: |
+        Run the command in MQL and verify all externally shared channels adhere to your naming pattern.
+        Note: You need to specify your custom naming pattern in the properties of this policy `props.externalChannelName` .
+
+          ```mql
+          slack.conversations.where(isExtShared && isChannel ) {name}
+          ```
+      remediation: |
+        Make sure to use a fixed pattern for all externally shared accounts.
+
+  - uid: mondoo-slack-security-at-least-one-workspace-internal-channel
+    title: Make sure there is at least one internal channel per workspace
+    mql: |
+      slack.conversations.where(isChannel == true)
+        .any(
+          _.isShared == false &&
+          _.isOrgShared == false &&
+          _.isExtShared == false &&
+          _.isPendingExtShared == false
+        )
+    impact: 20
+    docs:
+      desc: |
+        There should be at least one internal channel per workspace which is not shared with any other workspace, org or externally, or is about to be shared externally.
+      audit: |
+        The command below will provide you with a list of all channels that are not shared with any other workspace, org or externally, or are about to be shared externally.
+
+        ```mql
+        slack.conversations.where(isChannel == true)
+        .where(
+          _.isShared == false &&
+          _.isOrgShared == false &&
+          _.isExtShared == false &&
+          _.isPendingExtShared == false
+        )
+        ```
+      remediation: |
+        Make sure to create at least one channel which is for internal workspace use only.
+
+  - uid: mondoo-slack-security-at-least-one-workspace-internal-channel-no-ext-members
+    title: Make sure there is at least one workspace internal channel and there are no external members
+    mql: |
+      slack.conversations.where(isChannel == true)
+        .where(
+          _.isShared == false &&
+          _.isOrgShared == false &&
+          _.isExtShared == false &&
+          _.isPendingExtShared == false
+        )
+        .all(
+          members.none(
+            isStranger == true &&
+            isRestricted == true &&
+            isUltraRestricted == true
+          )
+        )
+    impact: 50
+    docs:
+      desc: |
+        There should be at least one internal channel per workspace which isn't shared with any other workspace, org or externally, or is about to be shared externally.
+        This double-checks if there aren't any members in the channels in question that do no belong, such as guest users, strangers and single-channel-guest-users for any reason.
+      audit: |
+        The command below will provide you with a list of all users in the channels that are not shared with any other workspace, org or externally, or are about to be shared externally and specify the attributes `isStranger`, `isRestricted` or `isUltraRestricted` and their `name`.
+
+        ```mql
+        slack.conversations.where(isChannel == true)
+        .where(
+          _.isShared == false &&
+          _.isOrgShared == false &&
+          _.isExtShared == false &&
+          _.isPendingExtShared == false
+        )
+        {
+          members {
+            name
+            isStranger
+            isRestricted
+            isUltraRestricted
+          }
+        }
+        ```
+      remediation: |
+        Make sure to create at least one channel which is for internal workspace use only. Make sure that no user who do not belong are part of this or those channel(s).
+
+  - uid: mondoo-slack-domain-whitelisting-enforced-on-internal-channels
+    title: Make sure you enforce domain whitelisting on internal
+    mql:
+      slack.conversations.where(isExtShared == false ).all(
+        members.all(
+          profile['email'] == props.whitelistedDomains
+        )
+      )
+    props:
+    - uid: whitelistedDomains
+      title: Enter your whitelisted domains here
+      mql: |
+        return /mondoo.com|example.com/
+    impact: 75
+    docs:
+      desc: |
+        Make sure there are no users from unwanted domains in your internal channels
+      audit: |
+        Run the command in MQL and verify that all users non-externally shared channels adhere to your whitelisted domains.
+
+          ```mql
+          slack.conversations.where(isExtShared == false ) {name members {name profile['email']}
+          ```
+      remediation: |
+        Make sure to block or remove any users that don't belong.
+
+  # Data Collection
+  - uid: mondoo-slack-security-list-admins
+    title: Slack Admins
+    query: slack.users.admins { id name }
+
+  - uid: mondoo-slack-security-team
+    title: Slack Team
+    query: slack.team { id name }
+
+  - uid: mondoo-slack-monitor-external-channels
+    title: All externally shared channels
+    query: slack.conversations.where(isExtShared == true) { id name }
