@@ -372,7 +372,7 @@ queries:
     severity: 80
     docs:
       desc: |
-        This check ensures that all required CI tests have passed before collaborators can merge changes to a protected branch. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is recommended that both the default branch and any release branches have branch protection enabled, with branch protection rules applied.
+        This check ensures that all required CI tests pass before collaborators can merge changes to a protected branch. Branch protection enforces certain workflows or requirements are met before a collaborator can push changes to a branch in a repository. It is recommended that both the default branch and any release branches have branch protection enabled, with branch protection rules applied.
       audit: |
         __cnspec shell__
 
