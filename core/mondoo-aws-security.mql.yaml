@@ -16,7 +16,7 @@ policies:
 
       ## Remote scan
 
-      Remote scans use native transports in `cnspec` to provide on demand scan results without installing any agents or integrations.
+      Remote scans use native transports in `cnspec` to provide on-demand scan results without installing any agents or integrations.
       
       For a complete list of native transports run:
       
