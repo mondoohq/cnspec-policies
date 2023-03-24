@@ -26,7 +26,7 @@ policies:
 
       ### Prerequisites
 
-      Remote scanning of AWS accounts with `cnspec` leverages the access key ID and secret access key configured for the AWS CLI. For more information on configuring these keys in the AWS CLI, see [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
+      Remote scanning of AWS accounts with `cnspec` relies on the access key ID and secret access key configured for the AWS CLI. For more information on configuring these keys in the AWS CLI, see [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
       
       ### Scan an AWS account
 
