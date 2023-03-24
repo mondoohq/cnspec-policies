@@ -1008,7 +1008,7 @@ queries:
       1. "Adopts" the default security group for the provided `vpc_id`.
       2. Removes all inbound (ingress) and outbound (egress) rules for the security group.
 
-      In order to remediate this check using Terraform, please apply the following for every region the account has access to by aliasing the providers. 
+      In order to remediate this check using Terraform, apply the following logic for every region the account has access to by aliasing the providers. 
       
       **Notice:** it is necessary to create a new security group for all VPCs in order to reassign any resources created and previously using the default security groups.
 
