@@ -1435,7 +1435,7 @@ queries:
         ```
 
     remediation: |
-      In order to remediate this check, there are a series of steps necessary to transition to IMDSv2, which not only involve the configuration of existing instances - i.e. changing your Terraform EC2 resources, but also update CLIs, SDKs and software that uses Role credentials.
+      In order to remediate this check, there are a series of steps necessary to transition to IMDSv2. The steps include both configuring existing instances (such as changing your Terraform EC2 resources), and updating CLIs, SDKs, and software that uses role credentials.
 
       If your existing EC2 instance uses IMDSv1, you can reconfigure it to use IMDSv2. For details, see: [Transition to using Instance Metadata Service Version 2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-transition-to-version-2)
       
