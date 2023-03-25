@@ -2003,7 +2003,7 @@ queries:
         Defaults log_host, log_year, logfile="/var/log/sudo.log"
         ```
     query: |
-      file('/etc/sudoers').content.lines.where( _ == /^[^#]/ ).contains(/logfile\=\"\/var\/log\/sudo\.log\"/)
+      command('sudo sudo -V').stdout.contains('Path to log file: /var/log/sudo.log')
   - uid: mondoo-linux-security-permissions-on-etcsshsshd-config-are-configured
     title: Ensure secure permissions on /etc/ssh/sshd_config are set
     severity: 100
