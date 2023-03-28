@@ -129,7 +129,7 @@ queries:
         Make sure that all admin accounts use authentication applications for two-factor authentication rather than SMS. To learn about setting up two-factor authentication to use an application, read [Set up two-factor authentication](https://slack.com/help/articles/204509068-Set-up-two-factor-authentication) in the Slack documentation.
 
   - uid: mondoo-slack-security-use-strong-factors
-    title: Ensure 2-Step Verification (Multi-Factor Authentication) is enforced for all users
+    title: Ensure all users use 2FA
     mql: |
       slack.users.members.all( has2FA == true || enterpriseUser != null || id=="USLACKBOT" )
     impact: 60
