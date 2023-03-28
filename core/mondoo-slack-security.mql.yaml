@@ -20,7 +20,7 @@ policies:
 
         1. Sign in to [the Slack website](https://api.slack.com/apps/) and view **Your Apps**.
         2. Select **Create New App**.
-        3. Select **From scratch**
+        3. Select **From scratch**.
         4. Enter an "App Name" e.g. cnquery and select the workspace, then select **Create App**
         5. In the section **Add features & functionality** select **Permissions**
         6. Scroll to **Scopes** and then **User Token Scopes**
