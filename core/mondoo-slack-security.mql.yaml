@@ -243,7 +243,7 @@ queries:
         Create at least one channel which is for internal workspace use only. Make sure that no user who does not belong to your organization is in the channel(s).
 
   - uid: mondoo-slack-domain-whitelisting-enforced-on-internal-channels
-    title: Make sure you enforce domain whitelisting on internal
+    title: Make sure you enforce domain whitelisting on internal channels
     mql:
       slack.conversations.where(isExtShared == false ).all(
         members.all(
