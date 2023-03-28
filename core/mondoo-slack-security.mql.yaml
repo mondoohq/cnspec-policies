@@ -134,9 +134,7 @@ queries:
   - uid: mondoo-slack-security-admins-secure-2fa-methods
     title: Ensure that admins use the most secure 2FA method
     mql: |
-      # needs resource
-      #slack.users.admins.all(has2FA == true && twoFactorType == "app")
-      if (false) {"check manually"}
+      slack.users.admins.all(has2FA == true && twoFactorType == "app")
     impact: 70
     docs:
       desc: |
