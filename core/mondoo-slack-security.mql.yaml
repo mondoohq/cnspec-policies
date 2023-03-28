@@ -27,7 +27,7 @@ policies:
 
           Note: Bots are very limited in their access so you must assign user scopes.
 
-        7. Add the required permissions to **User Token Scopes**
+        7. Add the required permissions to **User Token Scopes**:
 
           | OAuth Scope  |
           | ---- |
