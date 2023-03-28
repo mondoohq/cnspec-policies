@@ -12,7 +12,7 @@ policies:
       desc: |
         ## Overview
 
-        The Slack Team Security policy ensure best-practice settings for securing Slack Teams.
+        The Slack Team Security by Mondoo policy ensures that Slack Teams configurations follow best security practices.
 
         ### Prerequisites
 
