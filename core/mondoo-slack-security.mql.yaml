@@ -135,7 +135,7 @@ queries:
     impact: 60
     docs:
       desc: |
-        All user accounts should be protected with 2-factor authorization for enhanced protection against account takeovers by attackers.
+        All user accounts should be protected with two-factor authentication. This enhances protection against account takeovers by attackers.
       audit: |
         Run the command in MQL and verify that all users have 2-factor authorization enabled.
 
