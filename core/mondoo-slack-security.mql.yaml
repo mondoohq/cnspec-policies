@@ -137,7 +137,7 @@ queries:
       desc: |
         All user accounts should be protected with two-factor authentication. This enhances protection against account takeovers by attackers.
       audit: |
-        Run the command in MQL and verify that all users have 2-factor authorization enabled.
+        Run this command to learn which users have two-factor authentication enabled:
 
           ```mql
           slack.users.where(enterpriseUser == null || id !="USLACKBOT") {has2FA twoFactorType name}
