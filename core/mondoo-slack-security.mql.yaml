@@ -25,7 +25,7 @@ policies:
         5. In the **Add features & functionality** section, select **Permissions**.
         6. Scroll to **Scopes** and select **User Token Scopes**.
 
-          Note: Bots are very limited in their access; therefore we need to set the user scopes
+          Note: Bots are very limited in their access so you must assign user scopes.
 
         7. Add the required permissions to **User Token Scopes**
 
