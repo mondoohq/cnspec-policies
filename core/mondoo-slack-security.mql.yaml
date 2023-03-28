@@ -183,7 +183,7 @@ queries:
       desc: |
         Every workspace should have at least one internal channel that is not shared (or about to be shared) with external users or other workspaces or organizations. 
       audit: |
-        The command below will provide you with a list of all channels that are not shared with any other workspace, org or externally, or are about to be shared externally.
+        Run this command to see a list of channels that are not shared (or about to be shared) with external users or other workspaces or organizations. 
 
         ```mql
         slack.conversations.where(isChannel == true)
