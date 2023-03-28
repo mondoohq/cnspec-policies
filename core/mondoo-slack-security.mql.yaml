@@ -40,7 +40,7 @@ policies:
           | [users:read](https://api.slack.com/scopes/users:read) |
 
         8. Scroll up to **OAuth Tokens for Your Workspace** and select **Install to Workspace**.
-        9. Copy the provided **User OAuth Token**, it will look like `xoxp-1234567890123-1234567890123-1234567890123-12345cea5ae0d3bed30dca43cb34c2d1`
+        9. Copy the provided **User OAuth Token**. It looks like this: `xoxp-1234567890123-1234567890123-1234567890123-12345cea5ae0d3bed30dca43cb34c2d1`
 
         ### Run policy
 
