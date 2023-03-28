@@ -157,7 +157,7 @@ queries:
           return /ext|extern|ex_/
     docs:
       desc: |
-        A clear naming pattern for all channels externally shared with other organizations makes it easier to spot faulty channels, and can prevent the involuntary disclosure of internal information.
+        A clear naming pattern for all channels shared with external users or organizations makes it easier to spot faulty channels, and can prevent the involuntary disclosure of internal information.
       audit: |
         Run the command in MQL and verify all externally shared channels adhere to your naming pattern.
         Note: You need to specify your custom naming pattern in the properties of this policy `props.externalChannelName` .
