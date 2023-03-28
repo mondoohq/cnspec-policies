@@ -44,7 +44,7 @@ policies:
 
         ### Run cnspec using this policy
 
-        To run this policy against a Slack Workspace:
+        To run this policy against a Slack workspace:
 
         ```bash
         export SLACK_TOKEN=xoxp-TOKEN
