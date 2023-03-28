@@ -93,7 +93,7 @@ policies:
           - uid: mondoo-slack-monitor-external-channels
 queries:
   - uid: mondoo-slack-security-limit-admin-accounts
-    title: Ensure that only 2-4 users have Admin Permissions
+    title: Ensure that between 2 and 4 users have admin permissions
     mql: |
       slack.users.admins.length < 5 && slack.users.admins.length > 1
     impact: 60
