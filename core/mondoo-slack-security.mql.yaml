@@ -110,7 +110,7 @@ queries:
         Adjust the number of users who have admin privileges to be between 2 and 4. To learn how, read [Change a member's role](https://slack.com/help/articles/218124397-Change-a-members-role) in the Slack documentation.
 
   - uid: mondoo-slack-security-admins-secure-2fa-methods
-    title: Ensure that admins use secure 2FA methods
+    title: Ensure that admins use the most secure 2FA method
     mql: |
       # needs resource
       #slack.users.admins.all(has2FA == true && twoFactorType == "app")
