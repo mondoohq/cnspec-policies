@@ -220,7 +220,7 @@ queries:
         There should be at least one internal channel per workspace that isn't shared with (or about to be shared with) external users or other workspaces or organizations. 
         This checks if there are members in the channels that do no belong, such as guest users, strangers, and single-channel-guest-users.
       audit: |
-        The command below will provide you with a list of all users in the channels that are not shared with any other workspace, org or externally, or are about to be shared externally and specify the attributes `isStranger`, `isRestricted` or `isUltraRestricted` and their `name`.
+        Enter this command to see a list of users in the channels that are not shared (or about to be shared) externally or with any other workspace or organization. The list shows the user attributes `isStranger`, `isRestricted`,  `isUltraRestricted` and `name`:
 
         ```mql
         slack.conversations.where(isChannel == true)
