@@ -198,7 +198,7 @@ queries:
         Create at least one channel that is for internal workspace use only. To learn more, read [Slack Connect: Manage channel invitation settings and permissions](https://slack.com/help/articles/1500012572621-Slack-Connect--Manage-channel-invitation-settings-and-permissions-) in the Slack documentation.
 
   - uid: mondoo-slack-security-at-least-one-workspace-internal-channel-no-ext-members
-    title: Make sure there is at least one workspace internal channel and there are no external members
+    title: Make sure there is at least one internal channel in the workspace and there are no external members
     mql: |
       slack.conversations.where(isChannel == true)
         .where(
