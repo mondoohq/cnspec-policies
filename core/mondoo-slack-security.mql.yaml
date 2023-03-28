@@ -166,7 +166,7 @@ queries:
           slack.conversations.where(isExtShared && isChannel ) {name}
           ```
       remediation: |
-        Make sure to use a fixed pattern for all externally shared accounts.
+        Make sure to use a fixed pattern for all externally shared channels. To learn more, read [Create guidelines for channel names](https://slack.com/help/articles/217626408-Create-guidelines-for-channel-names) in the Slack documentation.
 
   - uid: mondoo-slack-security-at-least-one-workspace-internal-channel
     title: Make sure there is at least one internal channel per workspace
