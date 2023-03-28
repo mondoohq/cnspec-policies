@@ -118,7 +118,7 @@ queries:
     impact: 70
     docs:
       desc: |
-        Administrator accounts should be secured with the more secure version of 2FA, which employs an application such as `Authy`, instead of relying on the less secure method via SMS, which is prone to SIM Swapping Attacks.
+        Administrator accounts should use more secure two-factor authentication, using an authentication application like Authy. They should not rely on SMS verification, which is prone to SIM swapping attacks.
       audit: |
         Run the command in MQL and verify that 
 
