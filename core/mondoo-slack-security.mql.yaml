@@ -240,7 +240,7 @@ queries:
         }
         ```
       remediation: |
-        Make sure to create at least one channel which is for internal workspace use only. Make sure that no user who do not belong are part of this or those channel(s).
+        Create at least one channel which is for internal workspace use only. Make sure that no user who does not belong to your organization is in the channel(s).
 
   - uid: mondoo-slack-domain-whitelisting-enforced-on-internal-channels
     title: Make sure you enforce domain whitelisting on internal
