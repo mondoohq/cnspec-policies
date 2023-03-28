@@ -17,7 +17,6 @@ policies:
         ### Prerequisites
 
         To run this query pack, you need access to the Slack API. This requires creating a new app in the Slack workspace, so you can retrieve a token.
-        and assign the appropriate permissions:
 
         1. Sign in to [the Slack website](https://api.slack.com/apps/), and view **Your Apps**
         2. Select **Create New App**
