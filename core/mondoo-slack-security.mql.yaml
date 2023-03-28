@@ -23,7 +23,7 @@ policies:
         3. Select **From scratch**.
         4. Enter an app name (such as `cnquery`), select the workspace, then select **Create App**.
         5. In the **Add features & functionality** section, select **Permissions**.
-        6. Scroll to **Scopes** and then **User Token Scopes**
+        6. Scroll to **Scopes** and select **User Token Scopes**.
 
           Note: Bots are very limited in their access; therefore we need to set the user scopes
 
