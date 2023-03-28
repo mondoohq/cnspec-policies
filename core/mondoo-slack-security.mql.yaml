@@ -222,7 +222,7 @@ queries:
     impact: 30
     props:
       - uid: externalChannelName
-        title: Enter your naming pattern for externally shared Slack channels
+        title: Enter your naming pattern for externally shared Slack channels in the mql below
         mql: |
           return /ext|extern|ex_/
     docs:
@@ -368,7 +368,7 @@ queries:
       )
     props:
     - uid: whitelistedDomains
-      title: Enter your whitelisted domains here
+      title: Enter your whitelisted domains in the mql below
       mql: |
         return /mondoo.com|example.com/
     impact: 75
