@@ -260,7 +260,7 @@ queries:
       desc: |
         Make sure there are no users from unwanted domains in your internal channels
       audit: |
-        Run the command in MQL and verify that all users non-externally shared channels adhere to your whitelisted domains.
+        Run this command to verify that all users non-externally shared channels adhere to your whitelisted domains:
 
           ```mql
           slack.conversations.where(isExtShared == false ) {name members {name profile['email']}
