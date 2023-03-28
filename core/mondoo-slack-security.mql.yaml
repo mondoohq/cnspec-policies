@@ -143,7 +143,7 @@ queries:
           slack.users.where(enterpriseUser == null || id !="USLACKBOT") {has2FA twoFactorType name}
           ```
       remediation: |
-        Make sure that all users have some form of 2FA enabled.
+        Make sure that all users have some form of two-factor authentication enabled. To learn about setting up two-factor authentication, read [Set up two-factor authentication](https://slack.com/help/articles/204509068-Set-up-two-factor-authentication) in the Slack documentation.
 
   - uid: mondoo-slack-security-name-external-channels
     title: Use clear naming for external channels
