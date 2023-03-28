@@ -59,7 +59,7 @@ policies:
 
         ## Note:
         You need to set the two properties in this policy to some values that make sense for your organizations.
-        Modify the blocks show below as needed:
+        Modify the blocks below as needed:
 
         ```mql
           - uid: externalChannelName
