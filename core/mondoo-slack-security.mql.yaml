@@ -99,7 +99,7 @@ queries:
     impact: 60
     docs:
       desc: |
-        Having more than one administrator account is especially important to avoid single points of failure. For larger organizations, it is also useful to have several administrators to share the workload.
+        Having more than one administrator account is especially important to avoid single points of failure. For larger organizations, it's also useful to have several administrators to share the workload. More than 4 admins, however, creates unnecessary risk.
       audit: |
         Run the command in MQL and verify that the length is in the range between 2 and 4.
 
