@@ -76,7 +76,7 @@ policies:
 
         Our goal is to build policies that are simple to deploy, accurate, and actionable.
 
-        If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
+        If you have any suggestions for improving this policy or if you need support, join [the Mondoo community in GitHub Discussions](https://github.com/orgs/mondoohq/discussions).
     groups:
       - filters: platform.family.contains(_ == 'slack')
         checks:
