@@ -865,6 +865,7 @@ queries:
         title: Pod Lifecycle - Container probes
   - uid: mondoo-kubernetes-best-practices-pod-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: |
       k8s.pod {
         podSpec['hostAliases'] == null
@@ -894,6 +895,7 @@ queries:
         title: Adding entries to Pod /etc/hosts with HostAliases
   - uid: mondoo-kubernetes-best-practices-cronjob-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: |
       k8s.cronjob {
         manifest['spec']['jobTemplate']['spec']['template']['spec']['hostAliases'] == null
@@ -923,6 +925,7 @@ queries:
         title: Adding entries to Pod /etc/hosts with HostAliases
   - uid: mondoo-kubernetes-best-practices-statefulset-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: "k8s.statefulset {      \n  manifest['spec']['template']['spec']['hostAliases'] == null\n}\n"
     docs:
       desc: |
@@ -949,6 +952,7 @@ queries:
         title: Adding entries to Pod /etc/hosts with HostAliases
   - uid: mondoo-kubernetes-best-practices-deployment-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: |
       k8s.deployment {
         manifest['spec']['template']['spec']['hostAliases'] == null
@@ -980,6 +984,7 @@ queries:
         title: Adding entries to Pod /etc/hosts with HostAliases
   - uid: mondoo-kubernetes-best-practices-job-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: "k8s.job {      \n  manifest['spec']['template']['spec']['hostAliases'] == null\n}\n"
     docs:
       desc: |
@@ -1006,6 +1011,7 @@ queries:
         title: Adding entries to Pod /etc/hosts with HostAliases
   - uid: mondoo-kubernetes-best-practices-replicaset-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: "k8s.replicaset {      \n  manifest['spec']['template']['spec']['hostAliases'] == null\n}\n"
     docs:
       desc: |
@@ -1032,6 +1038,7 @@ queries:
         title: Adding entries to Pod /etc/hosts with HostAliases
   - uid: mondoo-kubernetes-best-practices-daemonset-hostalias
     title: Pod should not define hostAliases
+    impact: 60
     mql: "k8s.daemonset {      \n  manifest['spec']['template']['spec']['hostAliases'] == null\n}\n"
     docs:
       desc: |
