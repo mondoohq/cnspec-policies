@@ -79,21 +79,21 @@ queries:
       desc: |
         All user accounts should be protected with two-factor authentication. This enhances protection against account takeovers by attackers.
       audit: |
-        Run on of the following commands to learn the number of admins:
+        Run on of the following commands to see the enforcement and enrollment status of 2FA for all users:
 
         __cnspec run__
 
-        To audit Slack with `cnspec run`:
+        To audit Google Workspace with `cnspec run`:
 
         Run the following query:
 
           ```bash
-          cnspec run google-workspace --customer-id <CUSTOMERID> --impersonated-user-email <EMAIL> -c "googleworkspace.users { fullName primaryEmail isEnforcedIn2Sv isAdmin }"
+          cnspec run google-workspace --customer-id <CUSTOMERID> --impersonated-user-email <EMAIL> -c "googleworkspace.users { fullName primaryEmail isEnforcedIn2Sv isEnrolledIn2Sv isAdmin }"
           ```
 
         __cnspec shell__
 
-        To audit Slack with `cnspec shell`:
+        To audit Google Workspace with `cnspec shell`:
 
         1. Launch `cnspec shell`:
 
@@ -111,9 +111,43 @@ queries:
         Make sure that all users have some form of two-factor authentication enabled. To learn about setting up two-factor authentication, read [Protect your business with 2-Step Verification] (https://support.google.com/a/answer/175197?hl=en#zippy=%2Cenforce--step-verification-for-administrators-and-key-users).
 
   - uid: mondoo-googleworkspace-security-limit-super-admins
-    title: Ensure fewer than three users have super admin permissions
-    mql: googleworkspace.report.users.where(security["isSuperAdmin"] == true).length <= 3
+    title: Ensure fewer than four users have super admin permissions
+    mql: googleworkspace.report.users.where(security["isSuperAdmin"] == true).length <= 4
     impact: 60
+    docs:
+      desc: |
+        For larger organizations, it's useful to have several administrators to share the workload. Having more than 4 super admins, however, creates unnecessary risk.
+      audit: |
+        Run on of the following commands to learn the number of admins:
+
+        __cnspec run__
+
+        To audit Google Workspace with `cnspec run`:
+
+        Run the following query:
+
+          ```bash
+          cnspec run google-workspace --customer-id <CUSTOMERID> --impersonated-user-email <EMAIL> -c "googleworkspace.users.where(isAdmin == true) { fullName primaryEmail }"
+          ```
+
+        __cnspec shell__
+
+        To audit Google Workspace with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell google-workspace --customer-id <CUSTOMERID> --impersonated-user-email <EMAIL>
+
+          ```
+
+        2. Run the following query:
+
+          ```mql
+          googleworkspace.users.where(isAdmin == true) { fullName primaryEmail }
+          ```
+      remediation: |
+        Adjust the number of users who have admin privileges to be between 2 and 4. To learn how, read [Admin roles for businesses](https://support.google.com/a/topic/9832445?hl=en&ref_topic=2785005) in the Google Workspace documentation.
 
   - uid: mondoo-googleworkspace-security-minimum-super-admins
     title: Ensure more than one user has super admin permissions
