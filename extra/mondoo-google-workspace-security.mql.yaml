@@ -153,6 +153,40 @@ queries:
     title: Ensure more than one user has super admin permissions
     mql: googleworkspace.report.users.where(security["isSuperAdmin"] == true).length > 1
     impact: 60
+    docs:
+      desc: |
+        Having more than one administrator account is especially important to avoid single points of failure.
+      audit: |
+        Run on of the following commands to learn the number of admins:
+
+        __cnspec run__
+
+        To audit Google Workspace with `cnspec run`:
+
+        Run the following query:
+
+          ```bash
+          cnspec run google-workspace --customer-id <CUSTOMERID> --impersonated-user-email <EMAIL> -c "googleworkspace.users.where(isAdmin == true) { fullName primaryEmail }"
+          ```
+
+        __cnspec shell__
+
+        To audit Google Workspace with `cnspec shell`:
+
+        1. Launch `cnspec shell`:
+
+          ```bash
+          cnspec shell google-workspace --customer-id <CUSTOMERID> --impersonated-user-email <EMAIL>
+
+          ```
+
+        2. Run the following query:
+
+          ```mql
+          googleworkspace.users.where(isAdmin == true) { fullName primaryEmail }
+          ```
+      remediation: |
+        Adjust the number of users who have admin privileges to be between 2 and 4. To learn how, read [Admin roles for businesses](https://support.google.com/a/topic/9832445?hl=en&ref_topic=2785005) in the Google Workspace documentation.
 
   - uid: mondoo-googleworkspace-security-less-secure-app-access-should-not-be-allowed
     title: Users should not be allowed less secure app access
