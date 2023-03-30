@@ -74,15 +74,24 @@ queries:
   - uid: mondoo-googleworkspace-security-two-step-verification-enforced
     title: Ensure 2-step verification (multi-factor authentication) is enforced for all users
     mql: googleworkspace.users.all ( isEnforcedIn2Sv == true )
+    impact: 60
+
   - uid: mondoo-googleworkspace-security-limit-super-admins
     title: Ensure fewer than three users have super admin permissions
     mql: googleworkspace.report.users.where(security["isSuperAdmin"] == true).length <= 3
+    impact: 60
+
   - uid: mondoo-googleworkspace-security-minimum-super-admins
     title: Ensure more than one user has super admin permissions
     mql: googleworkspace.report.users.where(security["isSuperAdmin"] == true).length > 1
+    impact: 60
+
   - uid: mondoo-googleworkspace-security-less-secure-app-access-should-not-be-allowed
     title: Users should not be allowed less secure app access
     mql: googleworkspace.report.users.all(security["isLessSecureAppsAccessAllowed"] == false)
+    impact: 70
+
   - uid: mondoo-googleworkspace-security-super-admins-should-use-hardware-based-2fa
     title: Super users should use hardware-based security keys
     mql: googleworkspace.report.users.where(security["isSuperAdmin"] == true).all(security["numSecurityKeys"] >= 1)
+    impact: 70
