@@ -13,7 +13,7 @@ policies:
       desc: |
         ## Overview
 
-        The Mondoo Google Workspace Incident Response query pack gathers configuration data about your Google Workspace investigation during a security incident.
+        The Mondoo Google Workspace Security policy by Mondoo ensures that Google Workspace configurations follow best security practices.
 
         ### Prerequisites
 
