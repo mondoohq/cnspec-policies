@@ -74,6 +74,7 @@ policies:
       MondooMacAlgos: ""
       MondooSshdCiphers: ""
       MondooSudoGroup: ""
+      MondooSudoersFiles: ""
     scoring_system: 2
     specs:
       - title: Core
@@ -229,6 +230,11 @@ props:
     title: Define the members of the sudo or wheel group
     query: |
       return /root|ec2-user|centos|ubuntu/
+  - uid: MondooSudoersFiles
+    title: Return the files from /etc/sudoers.d
+    query: |
+      sudoersfiles = files.find(from: "/etc/sudoers.d/", type: "file").list.map(path) + ["/etc/sudoers"]
+      return sudoersfiles.map(file(_).content)
 queries:
   - uid: mondoo-linux-security-aide-is-installed
     title: Ensure Advanced Intrusion Detection Environment (AIDE) is installed
@@ -2003,7 +2009,7 @@ queries:
         Defaults log_host, log_year, logfile="/var/log/sudo.log"
         ```
     query: |
-      command('sudo sudo -V').stdout.contains('Path to log file: /var/log/sudo.log')
+      props.MondooSudoersFiles.one(/^[^#]\w+\s+logfile=\"\/var\/log\/sudo\.log\"/)
   - uid: mondoo-linux-security-permissions-on-etcsshsshd-config-are-configured
     title: Ensure secure permissions on /etc/ssh/sshd_config are set
     severity: 100
