@@ -1136,16 +1136,16 @@ queries:
         ```
     query: |
       if( file("/boot/grub2/grub.cfg" ).exists) {
-        file("/boot/grub2/grub.cfg").content.contains('audit=1')
+        file("/boot/grub2/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
       }
       if( file("/boot/grub/grub.cfg").exists ) {
-        file("/boot/grub/grub.cfg").content.contains('audit=1')
+        file("/boot/grub/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
       }
       if( file("/boot/grub/grub.conf").exists ) {
-        file("/boot/grub/grub.conf").content.contains('audit=1')
+        file("/boot/grub/grub.conf").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
       }
       if( file('/etc/secboot/config.json').exists ) {
-        parse.json('/etc/secboot/config.json').params['kernel-params'].contains('audit=1')
+        parse.json('/etc/secboot/config.json').params['kernel-params'] == /audit(\s+)?\=(\s+)?1/
       }
   - uid: mondoo-linux-security-audit-log-storage-size-is-configured
     title: Ensure audit log storage size is configured
