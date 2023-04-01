@@ -224,8 +224,7 @@ props:
   - uid: MondooSudoersFiles
     title: Return the files from /etc/sudoers.d
     query: |
-      sudoersfiles = files.find(from: "/etc/sudoers.d/", type: "file").list.map(path) + ["/etc/sudoers"]
-      return sudoersfiles.map(file(_).content)
+      return (files.find(from: "/etc/sudoers.d/", type: "file").list.map(path) + ["/etc/sudoers"]).map(file(_).content)
 queries:
   - uid: mondoo-linux-security-aide-is-installed
     title: Ensure Advanced Intrusion Detection Environment (AIDE) is installed
