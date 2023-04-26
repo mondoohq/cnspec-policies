@@ -128,15 +128,14 @@ queries:
   - uid: mondoo-tls-security-mitigate-beast
     title: Mitigate BEAST attacks on the server-side
     mql: |-
-      switch {
-        case tls.versions.containsOnly(["tls1.2", "tls1.3"]):
-          score(100);
-        case tls.ciphers.all( /rc4/i ):
-          score(100);
-        case tls.ciphers.none( /null|dh_anon|export|des|rc2|idea/ ):
-          score(80);
-        default:
-          score(0);
+      if (tls.versions.containsOnly(["tls1.2", "tls1.3"])) {
+          score(100)
+      } else if (tls.ciphers.all( /rc4/i )) {
+          score(100)
+      } else if (tls.ciphers.none( /null|dh_anon|export|des|rc2|idea/ )) {
+          score(80)
+      } else {
+        score(0)
       }
     refs:
       - url: https://kb.vmware.com/s/article/2008784
