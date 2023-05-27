@@ -175,7 +175,6 @@ unlinkat
 userlist
 USLACKBOT
 utc
-Verfiy
 vtpm
 wallace
 webui
