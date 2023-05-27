@@ -523,7 +523,7 @@ queries:
       remediation: 
         - id: console 
           desc: |
-            See [Enable and configure Okta Verfiy](https://help.okta.com/en-us/Content/Topics/Mobile/okta-verify-overview.htm) in Okta's documentation site.
+            See [Enable and configure Okta Verify](https://help.okta.com/en-us/Content/Topics/Mobile/okta-verify-overview.htm) in Okta's documentation site.
   - uid: mondoo-okta-security-enable-okta-verify-with-push-for-mfa-terraform-hcl
     title: Enable Okta Verify (with Push if available) for MFA
     impact: 80
