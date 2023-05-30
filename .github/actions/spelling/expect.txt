@@ -20,8 +20,6 @@ benbi
 bigfish
 bigquery
 blockdevices
-blocklist
-blocklisting
 bonzo
 bootkits
 Bpcy
@@ -35,7 +33,6 @@ cea
 cecpq
 certfile
 chacha
-checkboxes
 ciphersuite
 CMDLINE
 COMNAP
