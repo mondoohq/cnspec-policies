@@ -14,7 +14,7 @@ policies:
       desc: |
         # Overview
 
-        The Mondoo Okta Security policy bundle provides security recommendations for Okta organizations. This policy supports scanning of Okta Organizations as well as Terraform projects using the [Okta Terraform provider](https://registry.terraform.io/providers/okta/okta/latest/docs) from the HashiCorp Terraform Registry.
+        The Mondoo Okta Security policy bundle provides security recommendations for Okta organizations. This policy supports scanning of Okta organizations as well as Terraform projects using the [Okta Terraform provider](https://registry.terraform.io/providers/okta/okta/latest/docs) from the HashiCorp Terraform Registry.
 
         ## About remote scanning
 
