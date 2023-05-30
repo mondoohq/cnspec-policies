@@ -202,9 +202,9 @@ queries:
 
             1. In the Admin Console, go to **Security > Administrators**.
             2. Under **Admin Roles**, select the Super filter to display only super administrators.
-            3. Next to each user entry, click **Edit**. The Edit Administrator window is displayed.
+            3. Next to each user entry, select **Edit**. The Edit Administrator window is displayed.
             4. From the list of administrator roles, assign a role other than super admin to the user.
-            5. Click **Update Administrator**.
+            5. Select **Update Administrator**.
 
   - uid: mondoo-okta-security-threatinsight-block-suspicous-ip-addresses
     title: Enable Okta ThreatInsight to block suspicious IP addresses
@@ -247,27 +247,27 @@ queries:
             Block specific IP addresses to deny access to your Okta org.
 
             1. In the Admin Console, go to SecurityNetworks.
-            2. In the list of zones, click Edit for the BlockedIpZone network zone.
+            2. In the list of zones, select Edit for the BlockedIpZone network zone.
             3. Select Block access from IPs matching conditions listed in this zone.
-            4. Click Save.
+            4. Select Save.
             
             ### Block IP addresses in a dynamic zone
             Block IP addresses in a dynamic zone from accessing your Okta org.
 
             1. In the Admin Console, go to SecurityNetworks.
-            2. Click Add Zone > Dynamic Zone.
+            2. Select Add Zone > Dynamic Zone.
             3. Define a location or proxy type.
             4. Select Block access from IPs matching conditions listed in this zone.
-            5. Click Save.
+            5. Select Save.
 
             ### Block Tor anonymizer proxy IP addresses
             Block IP addresses identified as a Tor anonymizer proxy from accessing your Okta org.
 
             1. In the Admin Console, go to SecurityNetworks.
-            2. Click Add Zone > Dynamic Zone.
+            2. Select Add Zone > Dynamic Zone.
             3. Select Tor anonymizer proxy for IP Type.
             4. Select Block access from IPs matching conditions listed in this zone.
-            5. Click Save.
+            5. Select Save.
   - uid: mondoo-okta-security-threatinsight-block-suspicous-ip-addresses-terraform-hcl
     title: Enable Okta ThreatInsight to block suspicious IP addresses
     impact: 100
@@ -378,8 +378,8 @@ queries:
           desc: | 
             ### Enable strong factors for factor enrollment
             1. In the Admin Console, go to SecurityMultifactor.
-            2. Click Factor Enrollment.
-            3. Click Edit.
+            2. Select Factor Enrollment.
+            3. Select Edit.
             4. Set the factor of your choice to Required, Optional, or Disabled.
   - uid: mondoo-okta-security-disable-weaker-mfa-factors-in-factor-enrollment-policies-terraform-hcl
     title: Disable weaker MFA factors in factor enrollment policies
@@ -639,10 +639,10 @@ queries:
           desc: |
             ### Set a required factor in an MFA enrollment policy
             1. In the Admin Console, go to **Security > Multifactor**. The **Factor Types** page appears.
-            2. Click **Factor Enrollment** to switch to factor enrollment policies and rules.
-            3. Select a policy and click **Edit** to modify it.
+            2. Select **Factor Enrollment** to switch to factor enrollment policies and rules.
+            3. Select a policy and select **Edit** to modify it.
             4. From the list of eligible factors, set at least one factor to **Required**.
-            5. Click **Update Policy**.
+            5. Select **Update Policy**.
 
             ### Prompt an end user to enroll in a required factor
             To prompt an end user to enroll in a required factor, you may do one of the following:
@@ -652,25 +652,25 @@ queries:
             - Set a factor enrollment policy rule that prompts the user to enroll in a factor the first time they sign in to their org.
 
             ### Create an Okta sign-on policy rule that prompts for factor enrollment
-            1. From the Admin Console menu, click Security > Authentication. The Authentication policies page appears.
-            2. Click Sign On to access Sign-On Policies.
-            3. Select the policy and from the list of associated rules, click Edit to start modifying an existing policy rule. You can also create a rule.
+            1. From the Admin Console menu, select Security > Authentication. The Authentication policies page appears.
+            2. Select Sign On to access Sign-On Policies.
+            3. Select the policy and from the list of associated rules, select Edit to start modifying an existing policy rule. You can also create a rule.
             4. From the Edit Rule window, select Prompt for Factor.
-            5. Click **Update Rule**.
+            5. Select **Update Rule**.
 
             ### Create a factor enrollment policy rule that allows users to enroll in a factor when challenged for MFA
             1. In the Admin Console, go to **Security > Multifactor**. The **Factor Types** page appears.
-            2. Click **Factor Enrollment**.
-            3. Choose one of the active policy rules in the list and click Edit. The Edit Rule dialog appears.
+            2. Select **Factor Enrollment**.
+            3. Choose one of the active policy rules in the list and select Edit. The Edit Rule dialog appears.
             4. Under the condition THEN Enroll in multi-factor, select the first time a user is challenged for MFA.
-            5. Click **Update Rule**.
+            5. Select **Update Rule**.
             
             ### Create a factor enrollment policy rule that prompts new users to enroll in a factor the first time they sign in to their org
             1. In the Admin Console, go to **Security > Multifactor**. The **Factor Types** page appears.
-            2. Click **Factor Enrollment**.
-            3. Choose one of the active policy rules in the list and click Edit. The Edit Rule dialog appears.
+            2. Select **Factor Enrollment**.
+            3. Choose one of the active policy rules in the list and select Edit. The Edit Rule dialog appears.
             4. Under the condition THEN Enroll in multi-factor, select the first time a user signs in.
-            5. Click **Update Rule**.
+            5. Select **Update Rule**.
 
   - uid: mondoo-okta-security-okta-enforce-session-lifetime
     title: Enforce a limited session lifetime for all policies
@@ -718,10 +718,10 @@ queries:
           desc: |
             ### Set the session lifetime for a policy
             1. In the Admin Console, go to **Security > Authentication**.
-            2. Click **Sign On**.
-            3. Click **Add Rule** or **Edit** to modify an existing policy rule.
+            2. Select **Sign On**.
+            3. Select **Add Rule** or **Edit** to modify an existing policy rule.
             4. Under **Session expires after**, set the session lifetime duration in minutes, hours, or days.
-            5. Click **Create Rule** or **Save Rule** once your changes have been made.
+            5. Select **Create Rule** or **Save Rule** once your changes have been made.
 
   - uid: mondoo-okta-security-okta-auth-openid-saml
     title: Enable SAML or OIDC authentication for supported apps
@@ -911,7 +911,7 @@ queries:
 
             If you disable the Report suspicious activity via email option, the Report Suspicious Activity button is removed from the email templates that use it.
 
-            When you enable the Report suspicious activity via email option, events reported when users click the Report Suspicious Activity button appear on the Admin Console. Click Review Security Event to view the event details in the System Log. The event name is:
+            When you enable the Report suspicious activity via email option, events reported when users select the Report Suspicious Activity button appear on the Admin Console. Select Review Security Event to view the event details in the System Log. The event name is:
             
             ```
             user.account.report_suspicious_activity_by_enduser
@@ -925,9 +925,9 @@ queries:
             - Password Changed
             
             1. In the Admin Console, go to SecurityGeneral.
-            2. In the Security notification emails section, click Edit.
+            2. In the Security notification emails section, select Edit.
             3. Select either Enabled or Disabled from the dropdown beside the option that you want to enable or disable.
-            4. Click Save.
+            4. Select Save.
   - uid: mondoo-okta-security-enable-suspicious-activity-reporting-terraform-hcl
     title: Enable Suspicious Activity Reporting 
     impact: 80
@@ -1002,9 +1002,9 @@ queries:
           desc: |
             ### Enable sign-on notification emails for end users
             1. In the Admin Console, go to **Security > General**.
-            2. Under **Security Notification Emails**, click **Edit**.
+            2. Under **Security Notification Emails**, select **Edit**.
             3. Set **New sign-on notification email** to **Enabled**.
-            4. Click **Save**.
+            4. Select **Save**.
   - uid: mondoo-okta-security-sign-on-notifications-for-end-users-terraform-hcl
     title: Enable sign-on notifications for end users
     impact: 80
@@ -1078,9 +1078,9 @@ queries:
           desc: |
             ### Configure factor enrollment notifications for end users
             1. In the Admin Console, go to **Security > General**.
-            2. Under **Security Notification Emails**, click **Edit**.
+            2. Under **Security Notification Emails**, select **Edit**.
             3. Set **MFA enrolled notification email** to **Enabled**.
-            4. Click **Save**.
+            4. Select **Save**.
   - uid: mondoo-okta-security-factor-enrollment-notifications-terraform-hcl
     title: Enable factor enrollment notifications for end users
     impact: 80
@@ -1154,9 +1154,9 @@ queries:
           desc: |
             ### Configure factor reset notifications
             1. In the Admin Console, go to **Security > General**.
-            2. Under **Security Notification Emails**, click **Edit**.
+            2. Under **Security Notification Emails**, select **Edit**.
             3. Set **MFA reset notification email** to **Enabled**.
-            4. Click **Save**.
+            4. Select **Save**.
   - uid: mondoo-okta-security-factor-reset-notifications-for-end-users-terraform-hcl
     title: Enable factor reset notifications for end users
     impact: 80
@@ -1229,9 +1229,9 @@ queries:
           desc: |
             ### Configure factor reset notifications
             1. In the Admin Console, go to **Security > General**.
-            2. Under **Security Notification Emails**, click **Edit**.
+            2. Under **Security Notification Emails**, select **Edit**.
             3. Set **Password changed notification email** to **Enabled**.
-            4. Click **Save**.
+            4. Select **Save**.
   - uid: mondoo-okta-security-password-changed-notifications-for-end-users-terraform-hcl
     title: Enable password changed notification for end users
     impact: 80
@@ -1298,7 +1298,7 @@ queries:
             Configure password settings for password policies
 
             1. In the Admin Console menu, go to Security > Authentication.
-            2. In the Password tab, review each policy. To edit the policy, click Edit.
+            2. In the Password tab, review each policy. To edit the policy, select Edit.
             3. Edit the password settings based on the recommendations.
             4. To enable each setting, select the checkboxes for Password History, Password Age, Lock out, and Common Password Check.
     mql: |
