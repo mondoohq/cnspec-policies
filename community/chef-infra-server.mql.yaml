@@ -27,13 +27,18 @@ policies:
           platform.family.contains(_ == 'linux')
           file("/opt/opscode").exists
         checks:
-          - uid: chef-server-rb-permissions
           - uid: disable-insecure-addon-compat
+          - uid: secure-tls-only
+      - title: Insecure permissions
+        filters: |
+          platform.family.contains(_ == 'linux')
+          file("/opt/opscode").exists
+        checks:
+          - uid: chef-server-rb-permissions
+          - uid: webui-pem-permissions
           - uid: etc-opscode-directory-permissions
           - uid: pivotal-pem-permissions
           - uid: secrets-file-permissions
-          - uid: secure-tls-only
-          - uid: webui-pem-permissions
           - uid: remediate-cve-2023-28864
 queries:
   - uid: etc-opscode-directory-permissions
