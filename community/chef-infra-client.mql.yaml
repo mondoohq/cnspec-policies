@@ -12,7 +12,7 @@ policies:
     docs:
       desc: "Chef Infra Client Policy identifies insecure Chef Infra Client installations that could expose node credentials, as well as end of life client releases that no longer receive security updates per the [Chef Supported Versions documentation](https://docs.chef.io/versions/).\n  \nIf you have questions, comments, or have identified ways to improve this policy, please write me at tim@mondoo.com, or reach out in the [Mondoo Slack Community](https://mondoo.link/slack)."
     groups:
-      - title: Insecure permission
+      - title: Insecure permissions
         filters: |
           platform.family.contains(_ == 'unix')
           file("/opt/chef").exists
@@ -22,7 +22,7 @@ policies:
           - uid: etc-chef-directory-permissions
           - uid: var-chef-directory-permissions
           - uid: var-log-chef-directory-permissions
-      - title: Insecure configuration
+      - title: Insecure configurations
         filters: |
           platform.family.contains(_ == 'unix')
           file("/opt/chef").exists
