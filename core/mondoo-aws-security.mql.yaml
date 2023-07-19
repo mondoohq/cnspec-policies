@@ -70,17 +70,15 @@ policies:
     groups:
       - title: AWS IAM
         checks:
-          # account: asset.platform == "aws-account"
           - uid: mondoo-aws-security-access-keys-rotated
           - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
           - uid: mondoo-aws-security-root-account-mfa-enabled
-          - uid: mondoo-aws-security-iam-group-has-users-check
           - uid: mondoo-aws-security-iam-password-policy
           - uid: mondoo-aws-security-iam-root-access-key-check
-          - uid: mondoo-aws-security-iam-group-has-users-check-single-group
+          - uid: mondoo-aws-security-iam-users-only-one-access-key
+          - uid: mondoo-aws-security-iam-group-has-users-check
           - uid: mondoo-aws-security-iam-user-no-inline-policies-check
           - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
-          - uid: mondoo-aws-security-iam-users-only-one-access-key
       - title: AWS Lambda Function
         checks:
           - uid: mondoo-aws-security-lambda-concurrency-check
@@ -92,13 +90,9 @@ policies:
         checks:
           - uid: mondoo-aws-security-secgroup-restricted-ssh
       - title: AWS VPC
-        filters: |
-          asset.platform == "aws"
         checks:
           - uid: mondoo-aws-security-vpc-default-security-group-closed
-          - uid: mondoo-aws-security-vpc-default-security-group-closed-single-secgroup
           - uid: mondoo-aws-security-vpc-flow-logs-enabled
-          - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
       - title: AWS DynamoDB Table
         checks:
           - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
@@ -110,9 +104,6 @@ policies:
           - uid: mondoo-aws-security-redshift-cluster-public-access-check
       - title: AWS EC2
         checks:
-          - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
-          - uid: mondoo-aws-security-ec2-imdsv2-check
-          - uid: mondoo-aws-security-ec2-instance-no-public-ip
           - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
           - uid: mondoo-aws-security-ec2-imdsv2-check
           - uid: mondoo-aws-security-ec2-instance-no-public-ip
@@ -217,6 +208,7 @@ queries:
   - uid: mondoo-aws-security-iam-root-access-key-check
     title: Ensure no root user account access key exists
     impact: 100
+    filters:  asset.platform == "aws"
     mql: aws.iam.credentialReport.where( properties["user"] == "<root_account>").all( accessKey1Active == false && accessKey2Active == false )
     docs:
       desc: |
@@ -250,6 +242,7 @@ queries:
   - uid: mondoo-aws-security-root-account-mfa-enabled
     title: Ensure MFA is enabled for the "root user" account
     impact: 95
+    filters: asset.platform == "aws"
     mql: aws.iam.credentialReport.where( properties["user"] == "<root_account>").all( mfaActive == true )
     docs:
       desc: |
@@ -350,6 +343,7 @@ queries:
     - uid: iamPasswordPolicyRequireUppercaseCharacters
       title: Denotes whether uppercase characters are required for passwords
       mql: "true"
+    filters: asset.platform == "aws"
     mql: |
       aws.iam.accountPasswordPolicy['RequireUppercaseCharacters'] == props.iamPasswordPolicyRequireUppercaseCharacters
       aws.iam.accountPasswordPolicy['RequireLowercaseCharacters'] == props.iamPasswordPolicyRequireLowercaseCharacters
@@ -450,6 +444,7 @@ queries:
   - uid: mondoo-aws-security-access-keys-rotated
     title: Checks whether the active access keys are rotated within the number of days specified in maxAccessKeyAge (default 90)
     impact: 30
+    filters: asset.platform == "aws"
     mql: |
       aws.iam.credentialReport.where( accessKey1Active == true ).all(time.now - accessKey1LastRotated < 90 * time.day) 
 
@@ -510,6 +505,7 @@ queries:
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
     title: Checks whether the AWS IAM users have multi-factor authentication (MFA) enabled
     impact: 95
+    filters: asset.platform == "aws"
     mql: aws.iam.credentialReport.all( mfaActive == true )
     docs:
       desc: |
@@ -773,7 +769,9 @@ queries:
   - uid: mondoo-aws-security-iam-group-has-users-check
     title: Checks whether IAM groups have at least one IAM user
     impact: 30
-    mql: aws.iam.groups.all(usernames.length > 0)
+    variants:
+      - uid: mondoo-aws-security-iam-group-has-users-check-account
+      - uid: mondoo-aws-security-iam-group-has-users-check-single-group
     docs:
       desc: |
         AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.
@@ -806,9 +804,18 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html
         title: AWS Documentation -Managing IAM user groups
+  - uid: mondoo-aws-security-iam-group-has-users-check-account
+    title: Checks whether IAM groups have at least one IAM user
+    filters: asset.platform == "aws"
+    mql: aws.iam.groups.all( usernames.length > 0 )
+  - uid: mondoo-aws-security-iam-group-has-users-check-single-group
+    title: Checks whether IAM groups have at least one IAM user
+    filters: asset.platform == "aws-iam-group"
+    mql: aws.iam.group.usernames.length > 0
   - uid: mondoo-aws-security-iam-users-only-one-access-key
     title: Ensure there is only one active access key available for any single IAM user
     impact: 30
+    filters: asset.platform == "aws"
     mql: aws.iam.credentialReport.none( accessKey1Active == true && accessKey2Active == true )
     docs:
       desc: |
@@ -860,7 +867,9 @@ queries:
         Repeat steps no. 1 - 3 for each IAM user in your AWS account.
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check
     title: Ensure IAM Users Receive Permissions Only Through Groups
-    mql: aws.iam.users.all( attachedPolicies.length == 0 )
+    variants:
+      - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
+      - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
     impact: 30
     docs:
       desc: |
@@ -911,101 +920,20 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html
         title: Managed policies and inline policies
+  - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
+    title: Ensure IAM Users Receive Permissions Only Through Groups
+    filters: asset.platform == "aws"
+    mql: aws.iam.users.all( attachedPolicies.length == 0 )
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
     title: Ensure IAM Users Receive Permissions Only Through Groups
     filters: asset.platform == "aws-iam-user"
-    mql: aws.iam.users.all( attachedPolicies.length == 0 ) # TODO: this is not correct
-    impact: 30
-    docs:
-      desc: |
-        AWS that IAM users must inherit permissions from IAM groups or roles. This policy checks that none of your IAM users have policies attached directly to the user. The rule is NONCOMPLIANT if there is at least one IAM user with policies attached.
-      audit: |
-        __cnspec shell__
-
-        1. Open a Terminal.
-        2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
-
-          ```mql
-          aws.iam.users.where( policies.length != 0 || attachedPolicies.length != 0 ) { name arn policies attachedPolicies }
-          ```
-
-          Example output
-
-          ```mql
-          aws.iam.users.where: [
-            0: {
-              arn: \"arn:aws:iam::1234567890987:user/1234567890987-alice\"
-              name: \"1234567890987-alice\"
-              attachedPolicies: []
-              policies: [
-                0: \"excess_policy\"
-              ]
-            }
-            1: {
-              arn: \"arn:aws:iam::1234567890987:user/maria\"
-              name: \"maria\"
-              attachedPolicies: [
-                0: aws.iam.policy id = arn:aws:iam::1234567890987:policy/ec2-instance-connect-sendssh
-              ]
-              policies: []
-            }
-            2: {
-              arn: \"arn:aws:iam::1234567890987:user/bobby\"
-              name: \"bobby\"
-              attachedPolicies: [
-                0: aws.iam.policy id = arn:aws:iam::1234567890987:policy/terraform20210901011436036200000004
-              ]
-              policies: []
-            }
-          ]
-          ```
-      remediation: |
-        To learn how to remove inline policies from IAM users, see [Removing a permissions policy from a user (console)](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html#users_change_permissions-remove-policy-console) in the AWS documentation.
-    refs:
-      - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html
-        title: Managed policies and inline policies
-  - uid: mondoo-aws-security-iam-group-has-users-check-single-group
-    title: Checks whether IAM groups have at least one IAM user
-    impact: 30
-    filters: asset.platform == "aws-iam-group"
-    mql: aws.iam.groups.all( usernames.length > 0 ) # TODO: this is not correct
-    docs:
-      desc: |
-        AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.
-      audit: |
-        __cnspec shell__
-
-        1. Open a Terminal.
-        2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
-
-          ```mql
-          aws.iam.groups.where( usernames.length == 0 ) {*}
-          ```
-
-          Example output
-
-          ```mql
-          aws.iam.groups.where: [
-            0: {
-              name: \"MyUserGroup\"
-              id: \"AGPASSOFBMF7OMHVGHACB\"
-              createDate: 2022-01-11 18:19:26 +0000 UTC
-              usernames: []
-              arn: \"arn:aws:iam::177043759486:group/MyUserGroup\"
-            }
-          ]
-          ```
-      remediation: |
-        To delete empty IAM groups, see [Deleting an IAM user group](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage_delete.html) in the AWS documentation.
-    refs:
-      - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html
-        title: AWS Documentation - Managing IAM user groups
+    mql: aws.iam.user.attachedPolicies.length == 0
   - uid: mondoo-aws-security-vpc-default-security-group-closed
     title: Ensure the default security group of every VPC restricts all traffic
     impact: 80
-    mql: aws.ec2.securityGroups.where(name == "default").all( ipPermissions.length == 0 && ipPermissionsEgress.length == 0 )
+    variants:
+      - uid: mondoo-aws-security-vpc-default-security-group-closed-account
+      - uid: mondoo-aws-security-vpc-default-security-group-closed-secgroup
     docs:
       desc: |
         The rules for a default security group allow all ingress and egress traffic. To keep users from using the default security group (which cannot be deleted) of a VPC, delete all ingress and egress rules to block all traffic.
@@ -1155,9 +1083,20 @@ queries:
         title: AWS Documentation - AWS CLI Reference - EC2
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+  - uid: mondoo-aws-security-vpc-default-security-group-closed-account
+    title: Ensure the default security group of every VPC restricts all traffic
+    impact: 80
+    filters: asset.platform == "aws"
+    mql: aws.ec2.securityGroups.where(name == "default").all( ipPermissions.length == 0 && ipPermissionsEgress.length == 0 )
+  - uid: mondoo-aws-security-vpc-default-security-group-closed-secgroup
+    title: Ensure the default security group of every VPC restricts all traffic
+    impact: 80
+    filters: asset.platform == "aws-security-group"
+    mql: aws.ec2.securitygroup.ipPermissions.length == 0 && aws.ec2.securitygroup.ipPermissionsEgress.length == 0
   - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
     title: Ensure EBS volume encryption is enabled by default
     impact: 30
+    filters: asset.platform == "aws"
     mql: aws.ec2.ebsEncryptionByDefault.values.all(_ == true)
     docs:
       desc: |
@@ -1233,7 +1172,7 @@ queries:
   - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
     title: Checks if the required S3 public access block settings are configured from the account level
     impact: 30
-    filters: asset.platform == "aws-account"
+    filters: asset.platform == "aws"
     mql: aws.s3control.accountPublicAccessBlock.values.all( _ == true )
     docs:
       desc: |
@@ -1365,7 +1304,7 @@ queries:
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block
         title: Terraform Documentation - AWS Provider - aws_s3_bucket_public_access_block
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-account
-    filters: asset.platform == "aws-account"
+    filters: asset.platform == "aws"
     mql: aws.s3.buckets.all( publicAccessBlock != null && publicAccessBlock.values.all( _ == true ))
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
     filters: asset.platform == "aws-s3-bucket"
@@ -1373,6 +1312,7 @@ queries:
   - uid: mondoo-aws-security-ec2-instance-no-public-ip
     title: Ensures no instances have a public IP
     impact: 80
+    filters: asset.platform == "aws"
     mql: aws.ec2.instances.all( publicIp.length == 0 )
     docs:
       desc: 'EC2 instances with a public IP address are at an increased risk of compromise. It is recommended that EC2 instances not be configured with a public IP address. '
@@ -1444,6 +1384,7 @@ queries:
   - uid: mondoo-aws-security-ec2-imdsv2-check
     title: Checks whether the instance metadata version is configured with IMDSv2 (http tokens required)
     impact: 80
+    filters: asset.platform == "aws"
     mql: aws.ec2.instances.all( httpTokens == "required" )
     docs:
       desc: |
@@ -1524,9 +1465,10 @@ queries:
         ```
   - uid: mondoo-aws-security-vpc-flow-logs-enabled
     title: Ensure VPC flow logging is enabled in all VPCs
-    impact: 30
-    filters: asset.platform == "aws" || asset.platform == "aws-account"
-    mql: aws.vpcs.all( flowLogs.any( status == "ACTIVE" ))
+    impact: 30 
+    variants:
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
     docs:
       desc: |
         This check ensures Amazon VPC Flow Logs are found and enabled for all VPCs. Default VPCs should always fail this check as they do not come with flow logs activated.
@@ -1852,492 +1794,14 @@ queries:
         title: Terraform registry - Cloud Posse AWS Utils Provider
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
-  - uid: mondoo-aws-security-vpc-default-security-group-closed-single-secgroup
-    title: Ensure the default security group of every VPC restricts all traffic
-    impact: 80
-    mql: aws.ec2.securityGroups.where( name == "default").all( ipPermissions.length == 0 && ipPermissionsEgress.length == 0 )
-    docs:
-      desc: |
-        The rules for a default security group allow all ingress and egress traffic. To keep users from using the default security group (which cannot be deleted) of a VPC, delete all ingress and egress rules to block all traffic.
-      audit: |
-        __cnspec shell__
-
-        1. Open a Terminal.
-        2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query: 
-
-          ```mql
-          aws.ec2.securityGroups.where(
-            name == \"default\"
-          ).where(
-            ipPermissions.length != 0
-            || ipPermissionsEgress.length != 0
-          ){id name region ipPermissions{*} ipPermissionsEgress{*}}
-          ```
-
-          Example output:
-
-          ```mql
-          aws.ec2.securityGroups.where.where: [
-            0: {
-              ipPermissions: [
-                0: {
-                  id: \"sg-0bd4b1ef47132d3de-0\"
-                  fromPort: 0
-                  toPort: 0
-                  ipProtocol: \"-1\"
-                  ipv6Ranges: []
-                  ipRanges: []
-                }
-              ]
-              ipPermissionsEgress: []
-              name: \"default\"
-              region: \"eu-north-1\"
-              id: \"sg-0bd4b1ef47132d3de\"
-            }
-          ]
-          ```
-      remediation: |
-        __Terraform__
-
-        Terraform provides the resource `aws_default_security_group`, which differently from other Terraform resources, has the following effects in the state of the infrastructure.
-
-        1. \"Adopts\" the default security group for the provided `vpc_id`.
-        2. Removes all inbound (ingress) and outbound (egress) rules for the security group.
-
-        In order to remediate this check using Terraform, please apply the following for every region the account has access to by aliasing the providers. 
-
-        **Notice:** it is necessary to create a new security group for all VPCs in order to reassign any resources created and previously using the default security groups.
-
-        ```hcl
-        provider \"aws\" {
-          alias  = \"us_east_1\"
-          region = \"us-east-1\"
-        }
-
-        data \"aws_vpcs\" \"us_east_1\" {
-          provider = aws.us_east_1
-        }
-
-        resource \"aws_security_group\" \"replacement_for_default\" {
-          name     = \"AllowOrDenySomething\"
-          for_each = toset(data.aws_vpcs.us_east_1.ids)
-          vpc_id   = each.value
-          ingress {
-            # ... other configuration ...
-          }
-          egress {
-            # ... other configuration ...
-          }
-        }
-
-        resource \"aws_default_security_group\" \"us_east_1\" {
-          for_each = toset(data.aws_vpcs.us_east_1.ids)
-          vpc_id   = each.value
-          provider = aws.us_east_1
-        }
-        ```
-
-        __AWS Console__
-
-        To remediate this issue, create new security groups and assign those security groups to your resources (if needed). To prevent the default security groups from being used, remove their inbound and outbound rules.
-        To create new security groups and assign them to your resources:
-
-        1. Open the Amazon VPC console at https://console.aws.amazon.com/vpc/.
-        2. In the navigation pane, choose Security groups. View the default security groups details to see the resources that are assigned to them.
-        3. Create a set of least-privilege security groups for the resources. For details on how to create security groups, see [Creating a security group](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html#CreatingSecurityGroups) in the Amazon VPC User Guide.
-        4. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2/.
-        5. On the Amazon EC2 console, change the security group for the resources that use the default security groups to the least-privilege security group you created. See [Changing an instance's security groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html#SG_Changing_Group_Membership) in the Amazon VPC User Guide.
-
-        After you assign the new security groups to the resources, remove the inbound and outbound rules from the default security groups. This ensures that the default security groups are not used.
-
-        To remove the rules from the default security group:
-
-        1. Open the Amazon VPC console at https://console.aws.amazon.com/vpc/.
-        2. In the navigation pane, choose Security groups.
-        3. Select a default security group and choose the Inbound rules tab. Choose Edit inbound rules. Then delete all inbound rules. Choose Save rules.
-        4. Repeat the previous step for each default security group.
-        5. Select a default security group and choose the Outbound rule tab. Choose Edit outbound rules. Then delete all outbound rules. Choose Save rules.
-        6. Repeat the previous step for each default security group.
-        For more information, see [Working with security groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html#WorkingWithSecurityGroups) in the Amazon VPC User Guide.
-
-        __AWS CLI__
-
-        Apply the same logic to the AWS CLI to remediate this check.
-
-        **Notice:** Run this against all regions your account has access to.
-
-        1. Get the security groups in the region.
-
-        ```bash
-        aws ec2 describe-security-groups
-        ```
-
-        2. Create a new security group to replace the default in every VPC (if needed).
-
-        ```bash
-        aws ec2 create-security-group \\
-          --description \"AllowOrDenySomething\" \\
-          --group-name \"AllowOrDenySomething\" \\
-          --vpc-id <value>
-        ```
-
-        3. Modify security group to provide inbound and outbound rules.
-
-        ```bash
-        aws ec2 modify-security-group-rules \\
-          --group-id <value> \\
-          --security-group-rules <rules>
-        ```
-
-        4. Revoke security group rules from default security groups
-
-        ```bash
-        aws ec2 revoke-security-group-egress \\
-          --group-id <id_default_sg>
-        aws ec2 revoke-security-group-ingress \\
-          --group-id <id_default_sg>
-        ```
-
-        
-      refs:
-        - url: https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html
-          title: AWS Documentation - Security Hub controls reference
-        - url: https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/index.html
-          title: AWS Documentation - AWS CLI Reference - EC2
-        - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
-          title: Terraform Documentation - AWS Provider
+  - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
+    title: Ensure VPC flow logging is enabled in all VPCs
+    filters: asset.platform == "aws" || asset.platform == "aws"
+    mql: aws.vpcs.all( flowLogs.any( status == "ACTIVE" ))
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
     title: Ensure VPC flow logging is enabled in all VPCs
     filters: asset.platform == "aws-vpc"
-    impact: 30
-    mql: aws.vpcs.all( flowLogs.any( status == "ACTIVE" ))
-    docs:
-      desc: |
-        This check ensures Amazon VPC Flow Logs are found and enabled for all VPCs. Default VPCs should always fail this check as they do not come with flow logs activated.
-      audit: |
-        __cnspec Shell__
-
-        1. Open a Terminal.
-        2. Connect cnspec Shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
-
-        ```mql
-        aws.vpcs.where(
-          flowLogs.length == 0
-        ){id arn region state isDefault flowLogs tags}
-        ```
-
-        Example output: only showing 1 VPC, but default VPCs in all regions will fail this check.
-
-        ```mql
-        aws.vpcs.where: [
-          0: {
-            arn: \"arn:aws:vpc:eu-north-1:053121068929:id/vpc-0c3955e3d04d2e09a\"
-            flowLogs: []
-            id: \"vpc-0c3955e3d04d2e09a\"
-            isDefault: true
-            region: \"eu-north-1\"
-            state: \"available\"
-            tags: {}
-          }
-          ...
-        ]
-        ```
-      remediation: |
-        There are a few considerations while remediating this check:
-
-        1. Default VPCs should not be used, therefore they should be deleted to avoid enabling flow logs for them.
-        2. Any default or non-default VPC must have flow logs activated.
-        3. Therefore the best way to remediate this check is to: 
-          
-          * Migrate resources from default to non-default VPCs.
-          * Delete default VPCs.
-          * Enable flow logs for the non-default VPCs.
-
-        We recommend using either Terraform or the AWS console as there is automation to delete VPC and its dependencies in place.
-
-        __Terraform__
-
-        Open source Terraform modules can help us obtain this result by providing ways to delete VPCs and children dependencies.
-
-        **Notice:** The following example is destructive and irreversible. It destroys all child dependencies of default VPCs, including:
-
-        1. Subnets
-        2. Route tables
-        3. NACLs
-        4. Internet Gateways
-
-        This module execution will fail for VPCs containing resources attached to the network interfaces. In this case, review the resources and redeploy them to a non-default VPC.
-
-        ```hcl
-        terraform {
-          required_providers {
-            awsutils = {
-              source = \"cloudposse/awsutils\"
-            }
-          }
-        }
-
-        # Create one for each region
-        provider \"awsutils\" {
-          alias  = \"ap_northeast_1\"
-          region = \"ap-northeast-1\"
-        }
-
-        # Create one for each region - the creation of this resource will delete the default resources
-        resource \"awsutils_default_vpc_deletion\" \"us_east_1\" {
-          provider = awsutils.us_east_1
-        }
-        ```
-
-        To enable Flow logs for VPCs with customer-managed KMS keys:
-
-        ```hcl
-        data \"aws_caller_identity\" \"current\" {}
-
-        resource \"aws_kms_key\" \"vpc_flowlog\" {
-          description         = \"Key to provide encryption to VPC Flow Logs\"
-          enable_key_rotation = true
-          policy = jsonencode({
-            Version = \"2012-10-17\"
-            Statement = [
-              {
-                Effect = \"Allow\"
-                Action = [
-                  \"kms:Encrypt*\",
-                  \"kms:Decrypt*\",
-                  \"kms:ReEncrypt*\",
-                  \"kms:GenerateDataKey*\",
-                  \"kms:Describe*\"
-                ]
-                Principal = {
-                  Service = \"logs.<region>.amazonaws.com\"
-                }
-                Resource = \"arn:aws:kms:*:${data.aws_caller_identity.current.account_id}:key/*\"
-              },
-              {
-                Sid    = \"Enable IAM User Permissions\"
-                Effect = \"Allow\"
-                Principal = {
-                  \"AWS\" : \"arn:aws:iam::${data.aws_caller_identity.current.account_id}:root\"
-                }
-                Action   = \"kms:*\"
-                Resource = \"*\"
-              }
-            ]
-          })
-        }
-
-        resource \"aws_cloudwatch_log_group\" \"vpc_flowlog\" {
-          name              = \"VPCFlowLog\"
-          kms_key_id        = aws_kms_key.vpc_flowlog.arn
-          retention_in_days = <value>
-        }
-
-        resource \"aws_iam_role\" \"vpc_flowlog\" {
-          name = \"VPCFlowLog\"
-
-          assume_role_policy = jsonencode({
-            Version = \"2012-10-17\"
-            Statement = [
-              {
-                Sid    = \"VPCFlowLog\"
-                Effect = \"Allow\"
-                Principal = {
-                  Service = \"vpc-flow-logs.amazonaws.com\"
-                }
-                Action = \"sts:AssumeRole\"
-              }
-            ]
-          })
-        }
-
-        resource \"aws_iam_policy\" \"vpc_flowlog\" {
-          name = \"VpcFlowLog\"
-          policy = jsonencode({
-            Version = \"2012-10-17\"
-            Statement = [
-              {
-                Action = [
-                  \"logs:CreateLogGroup\",
-                  \"logs:CreateLogStream\",
-                  \"logs:PutLogEvents\",
-                  \"logs:DescribeLogGroups\",
-                  \"logs:DescribeLogStreams\",
-                ],
-                Effect   = \"Allow\",
-                Resource = \"*\"
-              }
-            ]
-          })
-        }
-
-        resource \"aws_iam_policy_attachment\" \"vpc_flowlog\" {
-          name       = \"${aws_iam_policy.vpc_flowlog.name}Attachment\"
-          roles      = [aws_iam_role.vpc_flowlog.id]
-          policy_arn = aws_iam_policy.vpc_flowlog.arn
-        }
-
-        resource \"aws_flow_log\" \"example\" {
-          iam_role_arn    = aws_iam_role.vpc_flowlog.arn
-          log_destination = aws_cloudwatch_log_group.vpc_flowlog.arn
-          traffic_type    = \"ALL\"
-          vpc_id          = aws_vpc.example.id
-        }
-        ```
-
-        __AWS Console__
-
-        To delete the default VPCs:
-
-        1. Open the Amazon VPC console at https://console.aws.amazon.com/vpc/.
-        2. Under Resources by Region, VPCs, choose See all regions.
-        3. For each region with a default VPC, choose the region to open the VPC home page for that region in another tab.
-        4. Under Your VPCs, check the default VPC.
-        5. Under Actions, choose Delete VPC.
-        6. In the Delete VPC form, acknowledge that you want to delete the default VPC.
-        7. Choose Delete VPC.
-        8. In case there are resources deployed to that VPC, an error will be sent back. In that case:
-          
-          * Create a VPC to hold the resources in the default VPC.
-          * Redeploy your resources to the non-default VPC.
-          * Try deleting the VPC again.
-
-        To enable VPC flow logging:
-
-        1. Open the Amazon VPC console at https://console.aws.amazon.com/vpc/.
-        2. Under Virtual Private Cloud, choose Your VPCs.
-        3. Select a VPC to update.
-        4. At the bottom of the page, choose Flow Logs.
-        5. Choose Create flow log.
-        6. For Filter, choose Reject.
-        7. For Destination log group, choose the log group to use.
-        8. For IAM role, choose the IAM role to use.
-        9. Choose Create.
-
-        __AWS CLI__
-
-        Deleting default VPCs using the CLI is discouraged. In order to maintain the idempotency of commands, there is no automated deletion of children resources in place.
-
-        We advise that AWS customers delete default VPCs using either Terraform or the AWS Console (see above).
-
-        To create flow logs for non-default VPCs and send them to CloudWatch (recommended), proceed as follows:
-
-        1. Create a policy (`key-policy.json`) to allow the CloudWatch principal access to KMS keys, replace `<account_id>`
-
-        ```javascript
-        {
-          \"Version\": \"2012-10-17\"
-          \"Statement\": [
-            {
-              \"Effect\": \"Allow\"
-              \"Action\": [
-                \"kms:Encrypt*\",
-                \"kms:Decrypt*\",
-                \"kms:ReEncrypt*\",
-                \"kms:GenerateDataKey*\",
-                \"kms:Describe*\"
-              ]
-              \"Principal\": {
-                \"Service\": \"logs.us-east-1.amazonaws.com\"
-              }
-              \"Resource\": \"arn:aws:kms:*:<account_id>:key/*\"
-            },
-            {
-              \"Sid\": \"Enable IAM User Permissions\"
-              \"Effect\": \"Allow\"
-              \"Principal\": {
-                \"AWS\": \"arn:aws:iam::<account_id>:root\"
-              }
-              \"Action\": \"kms:*\"
-              \"Resource\": \"*\"
-            }
-          ]
-        }
-        ```
-
-        ```bash
-        aws kms create-key \\
-          --description \"Key to provide encryption to VPC Flow Logs\" \\
-          --policy file://key-policy.json
-        ```
-
-        2. Enable key rotation
-
-        ```bash
-        aws kms enable-key-rotation \\
-          --key-id <value>
-        ```
-
-        3. Create a policy (`role-policy.json`) to allow CloudWatch to manage log groups
-
-        ```javascript
-        {
-          \"Version\": \"2012-10-17\"
-          \"Statement\": [
-            {
-              \"Action\": [
-                \"logs:CreateLogGroup\",
-                \"logs:CreateLogStream\",
-                \"logs:PutLogEvents\",
-                \"logs:DescribeLogGroups\",
-                \"logs:DescribeLogStreams\"
-              ],
-              \"Effect\": \"Allow\",
-              \"Resource\": \"*\"
-            }
-          ]
-        }
-        ```
-
-        4. Create a role
-
-        ```bash
-        aws iam create-role \\
-          --path \"/\" \\
-          --role-name \"VPCFlowLog\"
-        ```
-
-        5. Attach the policy to the role
-
-        ```bash
-        aws iam attach-role-policy \\
-          --role-name <value> \\
-          --policy-arn <value>
-        ```
-
-        6. Create a CloudWatch log group
-
-        ```bash
-        aws logs create-log-group \\
-          --log-group-name <value> \\
-          --kms-key-id <value>
-        ```
-
-        7. Create a CloudWatch log flow
-
-        ```bash
-        aws ec2 create-flow-logs \\
-          --deliver-logs-permission-arn <iam_role_arn> \\
-          --traffic-type \"ALL\" \\
-          --resource-ids \"<list>\" \"<vpcs>\" \"<ids>\" \\
-          --resource-type \"VPC\" \\
-          --log-destination-type \"cloud-watch-logs\" \\
-          --log-destination <arn_cloudwatch_log_group>
-        ```
-        "
-    refs:
-      - url: https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html
-        title: AWS Documentation - Security Hub controls reference
-      - url: https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/index.html
-        title: AWS Documentation - AWS CLI Command Reference - logs
-      - url: https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/index.html
-        title: AWS Documentation - AWS CLI Command Reference - ec2
-      - url: https://registry.terraform.io/providers/cloudposse/awsutils/latest/docs
-        title: Terraform registry - Cloud Posse AWS Utils Provider
-      - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
-        title: Terraform Documentation - AWS Provider
+    mql: aws.vpc.flowLogs.any( status == "ACTIVE" )
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
     title: Checks that all DynamoDB tables are encrypted with AWS Key Management Service (KMS)
     impact: 30
