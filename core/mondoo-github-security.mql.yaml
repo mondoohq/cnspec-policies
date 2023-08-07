@@ -350,7 +350,7 @@ queries:
     title: Ensure repository defines a security policy
     impact: 30
     mql: |
-      "github.repository.files.one( name.downcase == \"security.md\")"
+      github.repository.files.one( name.downcase == "security.md")
     docs:
       desc: |
         This check tries to determine that the repository defines a security policy.
@@ -364,7 +364,7 @@ queries:
         3. Run the following query
 
            ```mql
-           github.repository.files.where( name == /SECURITY.md/ )
+           github.repository.files.one( name.downcase == "security.md")
            ```
       remediation: |
         See [Adding a security policy to your repository](https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository#adding-a-security-policy-to-your-repository) on the GitHub documentation site.
