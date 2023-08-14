@@ -120,9 +120,19 @@ queries:
   - uid: mondoo-github-organization-security-security-policy
     title: Ensure repository defines a security policy
     impact: 30
-    mql: "if ( github.organization.repositories.one(name == \".github\") ) {\n  github.organization.repositories.where( name == \".github\").all( \n    files.one( name.downcase == \"security.md\")\n  ) || github.repository.files.one( name.downcase == \"security.md\")\n} else {\n  github.repository.files.one( name.downcase == \"security.md\")\n}\n"
+    mql: |
+      if ( github.organization.repositories.one(name == ".github") ) {
+        github.organization.repositories.where( name == ".github").all(
+          files.one( name.downcase == "security.md")
+        ) || github.repository.files.one( name.downcase == "security.md")
+      } else {
+        github.repository.files.one( name.downcase == "security.md")
+      }
     docs:
-      desc: "This check tries to determine that the repository defines a security policy. \n\nIt is recommended projects provide instructions for reporting a security vulnerability in your project by adding a security policy to your repository.\n"
+      desc: |
+        This check tries to determine that the repository defines a security policy.
+
+        It is recommended projects provide instructions for reporting a security vulnerability in your project by adding a security policy to your repository.
       audit: |
         __cnspec shell__
 
@@ -133,7 +143,8 @@ queries:
            ```mql
            github.repository.files.where( name == /SECURITY.md/ )
            ```
-      remediation: "See [Adding a security policy to your repository](https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository#adding-a-security-policy-to-your-repository) on the GitHub documentation site. \n"
+      remediation: |
+        See [Adding a security policy to your repository](https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository#adding-a-security-policy-to-your-repository) on the GitHub documentation site.
     refs:
       - url: https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository
         title: GitHub Docs - Adding a security policy to your repository
