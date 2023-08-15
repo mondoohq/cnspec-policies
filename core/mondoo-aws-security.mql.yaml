@@ -12,59 +12,59 @@ policies:
     docs:
       desc: |
         ## Overview
-        
+
         AWS Security by Mondoo provides guidance for establishing minimum recommended security and operational best practices for Amazon Web Services (AWS). The checks in this policy bundle are based on AWS's Operational Best Practices recommendations as part of the [AWS Config conformance packs](https://docs.aws.amazon.com/config/latest/developerguide/conformance-packs.html).
-        
+
         ## Remote scan
-        
+
         Remote scans use native transports in `cnspec` to provide on-demand scan results without installing any agents or integrations.
-        
+
         For a complete list of native transports run:
-        
+
         ```bash
         cnspec scan --help
         ```
-        
+
         ### Prerequisites
-        
+
         Remote scanning of AWS accounts with `cnspec` relies on the access key ID and secret access key configured for the AWS CLI. For more information on configuring these keys in the AWS CLI, see [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
-        
+
         ### Scan an AWS account
-        
+
         The following command will perform a scan of all enabled regions in an AWS account:
-        
+
         ```bash
         cnspec scan aws
         ```
-        
+
         ### Scan a single AWS region
-        
+
         To specify a single region to scan with cnspec, use the `--region` flag with the AWS region code:
-        
+
         ```bash
         cnspec scan aws --region us-west-2
         ```
-        
+
         For a complete list of AWS region codes, see [Regions and Zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html).
-        
+
         ### Scan an AWS account using a specific profile
-        
+
         If multiple AWS profiles are configured for the AWS CLI, `cnspec` can target a specific profile by setting the `AWS_PROFILE` environment variable or the `--profile` command line flag.
-        
+
         ```bash
         export AWS_PROFILE=my-profile
         cnspec scan aws
         ```
-        
+
         ```bash
         cnspec scan aws --profile my-profile
         ```
-        
+
         ## Join the community!
-        
-        Our goal is to build policies that are simple to deploy, accurate, and actionable. 
-        
-        If you have any suggestions on improving this policy or need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions. "
+
+        Our goal is to build policies that are simple to deploy, accurate, and actionable.
+
+        If you have any suggestions on improving this policy or need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
     groups:
       - title: AWS IAM
         checks:
@@ -105,12 +105,12 @@ policies:
           - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
           - uid: mondoo-aws-security-ec2-imdsv2-check
           - uid: mondoo-aws-security-ec2-instance-no-public-ip
-          - uid: mondoo-aws-security-ec2-volume-inuse-check             
+          - uid: mondoo-aws-security-ec2-volume-inuse-check
           - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
       - title: AWS EFS Filesystem
         checks:
           - uid: mondoo-aws-security-efs-encrypted-check
-      - title: AWS CloudWatch LogGroup        
+      - title: AWS CloudWatch LogGroup
         checks:
           - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
       - title: AWS ELB LoadBalancer
@@ -133,7 +133,7 @@ queries:
   - uid: mondoo-aws-security-iam-root-access-key-check
     title: Ensure no root user account access key exists
     impact: 85
-    filters:  asset.platform == "aws"
+    filters: asset.platform == "aws"
     mql: aws.iam.credentialReport.where(properties["user"] == "<root_account>").all(accessKey1Active == false && accessKey2Active == false)
     docs:
       desc: |
@@ -143,7 +143,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
           ```mql
           aws.iam.credentialReport.where( properties[\"user\"] == \"<root_account>\") { accessKey1Active accessKey2Active }
@@ -220,7 +220,7 @@ queries:
 
         __AWS CLI__
 
-        Similarly to non-root users, you can use the AWS CLI to: 
+        Similarly to non-root users, you can use the AWS CLI to:
 
         Create a virtual MFA device:
 
@@ -246,29 +246,29 @@ queries:
   - uid: mondoo-aws-security-iam-password-policy
     title: Checks whether the account password policy for IAM users meets the specified requirements
     impact: 60
-    props:
-    - uid: iamPasswordPolicyMaxPasswordAge
-      title: Define the maximum number of days a password is allowed to exist before being rotated
-      mql: "90"
-    - uid: iamPasswordPolicyMinimumPasswordLength
-      title: Minimum password length
-      mql: "14"
-    - uid: iamPasswordPolicyPasswordReusePrevention
-      title: Number of passwords before allowing reuse
-      mql: "24"
-    - uid: iamPasswordPolicyRequireLowercaseCharacters
-      title: Denotes whether lowercase characters are required for passwords
-      mql: "true"
-    - uid: iamPasswordPolicyRequireNumbers
-      title: Denotes whether numbers are required for passwords
-      mql: "true"
-    - uid: iamPasswordPolicyRequireSymbols
-      title: Denotes whether symbols are required for passwords
-      mql: "true"
-    - uid: iamPasswordPolicyRequireUppercaseCharacters
-      title: Denotes whether uppercase characters are required for passwords
-      mql: "true"
     filters: asset.platform == "aws"
+    props:
+      - uid: iamPasswordPolicyMaxPasswordAge
+        title: Define the maximum number of days a password is allowed to exist before being rotated
+        mql: "90"
+      - uid: iamPasswordPolicyMinimumPasswordLength
+        title: Minimum password length
+        mql: "14"
+      - uid: iamPasswordPolicyPasswordReusePrevention
+        title: Number of passwords before allowing reuse
+        mql: "24"
+      - uid: iamPasswordPolicyRequireLowercaseCharacters
+        title: Denotes whether lowercase characters are required for passwords
+        mql: "true"
+      - uid: iamPasswordPolicyRequireNumbers
+        title: Denotes whether numbers are required for passwords
+        mql: "true"
+      - uid: iamPasswordPolicyRequireSymbols
+        title: Denotes whether symbols are required for passwords
+        mql: "true"
+      - uid: iamPasswordPolicyRequireUppercaseCharacters
+        title: Denotes whether uppercase characters are required for passwords
+        mql: "true"
     mql: |
       aws.iam.accountPasswordPolicy['RequireUppercaseCharacters'] == props.iamPasswordPolicyRequireUppercaseCharacters
       aws.iam.accountPasswordPolicy['RequireLowercaseCharacters'] == props.iamPasswordPolicyRequireLowercaseCharacters
@@ -334,14 +334,14 @@ queries:
 
         __AWS Console__
 
-        To create a custom password policy: 
+        To create a custom password policy:
 
         1. Sign in to the AWS Management Console and open the IAM console at https://console.aws.amazon.com/iam/.
         2. In the navigation pane, choose Account settings.
         3. In the Password policy section, choose Change password policy.
         4. Select the options you want to apply to your password policy and choose Save changes.
 
-        To change a custom password policy: 
+        To change a custom password policy:
 
         1. Sign in to the AWS Management Console and open the IAM console at https://console.aws.amazon.com/iam/.
         2. In the navigation pane, choose Account settings.
@@ -385,12 +385,12 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.iam.credentialReport.where( accessKey1Active == true || accessKey2Active == true ) { properties['user'] accessKey1Active accessKey2Active accessKey1LastRotated accessKey2LastRotated }
         ```
-        
+
         Example output
 
         ```mql
@@ -443,7 +443,7 @@ queries:
 
         1. Open a Terminal.
         2. Run the command `cnspec shell aws`.
-        3. Run the following query: 
+        3. Run the following query:
 
         ```mql
         aws.iam.credentialReport.where(
@@ -534,7 +534,7 @@ queries:
                     \"iam:ListVirtualMFADevices\"
                 ],
                 \"Resource\": \"*\"
-            },       
+            },
             {
                 \"Sid\": \"AllowManageOwnPasswords\",
                 \"Effect\": \"Allow\",
@@ -664,12 +664,12 @@ queries:
           * In the Manage MFA Device wizard, choose Show secret key, and then type the secret key into your MFA app.
 
         10. When you finish, the virtual MFA device generates one-time passwords.
-        11. In the Manage MFA Device wizard, in the MFA code 1 box, type the one-time password that currently appears in the virtual MFA device. Wait up to 30 seconds for the device to generate a new one-time password. Then type the second one-time password into the MFA code 2 box. 
+        11. In the Manage MFA Device wizard, in the MFA code 1 box, type the one-time password that currently appears in the virtual MFA device. Wait up to 30 seconds for the device to generate a new one-time password. Then type the second one-time password into the MFA code 2 box.
         12. Choose Assign MFA.
 
         __AWS CLI__
 
-        Create an MFA device: 
+        Create an MFA device:
 
         ```bash
         aws iam create-virtual-mfa-device \\
@@ -697,9 +697,6 @@ queries:
   - uid: mondoo-aws-security-iam-group-has-users-check
     title: Checks whether IAM groups have at least one IAM user
     impact: 30
-    variants:
-      - uid: mondoo-aws-security-iam-group-has-users-check-account
-      - uid: mondoo-aws-security-iam-group-has-users-check-single-group
     docs:
       desc: |
         AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.
@@ -708,7 +705,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.iam.groups.where( usernames.length == 0 ) {*}
@@ -732,6 +729,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html
         title: AWS Documentation -Managing IAM user groups
+    variants:
+      - uid: mondoo-aws-security-iam-group-has-users-check-account
+      - uid: mondoo-aws-security-iam-group-has-users-check-single-group
   - uid: mondoo-aws-security-iam-group-has-users-check-account
     title: Checks whether IAM groups have at least one IAM user
     filters: asset.platform == "aws"
@@ -754,9 +754,9 @@ queries:
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
         3. Run the following query:
-          
+
         ```mql
-        aws.iam.users.where(accessKeys[0].length >= 1) 
+        aws.iam.users.where(accessKeys[0].length >= 1)
         ```
       remediation: |
         __From Console:__
@@ -795,9 +795,6 @@ queries:
         Repeat steps no. 1 - 3 for each IAM user in your AWS account.
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check
     title: Ensure IAM Users Receive Permissions Only Through Groups
-    variants:
-      - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
-      - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
     impact: 30
     docs:
       desc: |
@@ -807,7 +804,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.iam.users.where( policies.length != 0 || attachedPolicies.length != 0 ) { name arn policies attachedPolicies }
@@ -848,6 +845,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html
         title: Managed policies and inline policies
+    variants:
+      - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
+      - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
     title: Ensure IAM Users Receive Permissions Only Through Groups
     filters: asset.platform == "aws"
@@ -859,9 +859,6 @@ queries:
   - uid: mondoo-aws-security-vpc-default-security-group-closed
     title: Ensure the default security group of every VPC restricts all traffic
     impact: 60
-    variants:
-      - uid: mondoo-aws-security-vpc-default-security-group-closed-account
-      - uid: mondoo-aws-security-vpc-default-security-group-closed-secgroup
     docs:
       desc: |
         The rules for a default security group allow all ingress and egress traffic. To keep users from using the default security group (which cannot be deleted) of a VPC, delete all ingress and egress rules to block all traffic.
@@ -870,7 +867,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query: 
+        3. Run the following query:
 
         ```mql
         aws.ec2.securityGroups.where(
@@ -911,7 +908,7 @@ queries:
         1. \"Adopts\" the default security group for the provided `vpc_id`.
         2. Removes all inbound (ingress) and outbound (egress) rules for the security group.
 
-        In order to remediate this check using Terraform, apply the following logic for every region the account has access to by aliasing the providers. 
+        In order to remediate this check using Terraform, apply the following logic for every region the account has access to by aliasing the providers.
 
         **Notice:** it is necessary to create a new security group for all VPCs in order to reassign any resources created and previously using the default security groups.
 
@@ -1011,6 +1008,9 @@ queries:
         title: AWS Documentation - AWS CLI Reference - EC2
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+    variants:
+      - uid: mondoo-aws-security-vpc-default-security-group-closed-account
+      - uid: mondoo-aws-security-vpc-default-security-group-closed-secgroup
   - uid: mondoo-aws-security-vpc-default-security-group-closed-account
     title: Ensure the default security group of every VPC restricts all traffic
     impact: 60
@@ -1110,7 +1110,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
-        3. Run the following query: 
+        3. Run the following query:
 
         ```mql
         aws.s3control.accountPublicAccessBlock
@@ -1160,9 +1160,6 @@ queries:
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
     title: Checks if Amazon Simple Storage Service (S3) has bucket-level public access restrictions at the bucket level
     impact: 100
-    variants:
-      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-account
-      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
     docs:
       desc: |
         This check ensures S3 buckets have bucket-level public access blocks applied. This check fails if any of the following settings are set to false:
@@ -1176,19 +1173,19 @@ queries:
         Unless you intend to have your S3 buckets publicly accessible, you should configure the bucket-level Amazon S3 Block Public Access feature.
       audit: |
         __cnspec shell__
-        
+
         1. Open a Terminal.
         2. Connect cnspec shell to your AWS environment `cnspec shell aws`
         3. Run the following query
 
         ```mql
-          aws.s3.buckets.all( 
+          aws.s3.buckets.all(
             publicAccessBlock != null && publicAccessBlock.values.all(_ == true)
           )
         ```
-                    
+
         Example output
-                      
+
         ```mql
           [failed] [].all()
             actual:   [
@@ -1231,6 +1228,9 @@ queries:
         title: AWS CLI Command Reference - aws s3api put-public-access-block
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block
         title: Terraform Documentation - AWS Provider - aws_s3_bucket_public_access_block
+    variants:
+      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-account
+      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-account
     filters: asset.platform == "aws"
     mql: aws.s3.buckets.all(publicAccessBlock != null && publicAccessBlock.values.all(_ == true))
@@ -1243,7 +1243,7 @@ queries:
     filters: asset.platform == "aws"
     mql: aws.ec2.instances.all(publicIp.length == 0)
     docs:
-      desc: 'EC2 instances with a public IP address are at an increased risk of compromise. It is recommended that EC2 instances not be configured with a public IP address. '
+      desc: EC2 instances with a public IP address are at an increased risk of compromise. It is recommended that EC2 instances not be configured with a public IP address.
       audit: |
         __cnspec shell__
 
@@ -1252,9 +1252,9 @@ queries:
         3. Run the following query to return a list of all running EC2 instances across all enabled regions that along with the `instanceId`, `region`, and the configured `publicIp`
 
         ```mql
-        aws.ec2.instances.where( state = \"running\" && publicIp != \"\" ) { instanceId region tags publicIp }   
+        aws.ec2.instances.where( state = \"running\" && publicIp != \"\" ) { instanceId region tags publicIp }
         ```
-        
+
         Example output
 
         ```mql
@@ -1276,7 +1276,7 @@ queries:
 
         Use the `associate_public_ip_address = false` argument with the `aws_instance` resource to ensure EC2 instances are provisioned without a public IP address
 
-        ```hcl 
+        ```hcl
         resource \"aws_instance\" \"no_public_ip\" {
           ...
           associate_public_ip_address = false
@@ -1394,9 +1394,6 @@ queries:
   - uid: mondoo-aws-security-vpc-flow-logs-enabled
     title: Ensure VPC flow logging is enabled in all VPCs
     impact: 50
-    variants:
-      - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
-      - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
     docs:
       desc: |
         This check ensures Amazon VPC Flow Logs are found and enabled for all VPCs. Default VPCs should always fail this check as they do not come with flow logs activated.
@@ -1405,7 +1402,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect cnspec Shell to your AWS environment `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
           ```mql
           aws.vpcs.where(
@@ -1434,8 +1431,8 @@ queries:
 
         1. Default VPCs should not be used, therefore they should be deleted to avoid enabling flow logs for them.
         2. Any default or non-default VPC must have flow logs activated.
-        3. Therefore the best way to remediate this check is to: 
-          
+        3. Therefore the best way to remediate this check is to:
+
           * Migrate resources from default to non-default VPCs.
           * Delete default VPCs.
           * Enable flow logs for the non-default VPCs.
@@ -1584,7 +1581,7 @@ queries:
         6. In the Delete VPC form, acknowledge that you want to delete the default VPC.
         7. Choose Delete VPC.
         8. In case there are resources deployed to that VPC, an error will be sent back. In that case:
-          
+
           * Create a VPC to hold the resources in the default VPC.
           * Redeploy your resources to the non-default VPC.
           * Try deleting the VPC again.
@@ -1722,6 +1719,9 @@ queries:
         title: Terraform registry - Cloud Posse AWS Utils Provider
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+    variants:
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
     title: Ensure VPC flow logging is enabled in all VPCs
     filters: asset.platform == "aws"
@@ -1743,7 +1743,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
           ```mql
           aws.dynamodb.tables.where(
@@ -1847,7 +1847,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.rds.dbInstances.where(publiclyAccessible == true) {arn name region dbInstanceIdentifier tags}
@@ -1874,7 +1874,7 @@ queries:
       remediation: |
         __Terraform__
 
-        Use the `aws_db_instance` resource to explicitly state that publicly_accessible = false. 
+        Use the `aws_db_instance` resource to explicitly state that publicly_accessible = false.
 
         ```hcl
         resource \"aws_db_instance\" \"pass_public_accessible\" {
@@ -1956,7 +1956,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
           ```mql
           aws.redshift.clusters.where(
@@ -2022,20 +2022,20 @@ queries:
     docs:
       desc: |
         Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account can lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential or sensitive data leaving your premises. This check ensures there are no EBS volumes that are not attached to an instance. Additionally, it checks whether archived EC2 instances are configured to delete volumes on termination.
-        By default, EC2 instances are configured to delete the data in any EBS volumes associated with the instance, and to delete the root EBS volume of the instance. However, any non-root EBS volumes attached to the instance, at launch or during execution, get persisted after termination by default. 
+        By default, EC2 instances are configured to delete the data in any EBS volumes associated with the instance, and to delete the root EBS volume of the instance. However, any non-root EBS volumes attached to the instance, at launch or during execution, get persisted after termination by default.
       audit: |
         __cnspec Shell__
 
         1. Open a Terminal.
         2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.ec2.volumes.where( attachments.length == 0 ) {*}
         ```
 
         Example output
-        
+
         ```mql
         mondoo> aws.ec2.volumes.where( attachments.length == 0 ) {*}
         aws.ec2.volumes.where: [
@@ -2051,7 +2051,7 @@ queries:
               Name: \"Unattached Test\"
             }
           }
-        ]        
+        ]
         ```
       remediation: |
         __Terraform__
@@ -2106,7 +2106,7 @@ queries:
 
         1. Open a Terminal.
         2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.efs.filesystems.where( encrypted == false ) {*}
@@ -2130,13 +2130,13 @@ queries:
             encrypted: false
             arn: \"arn:aws:elasticfilesystem:us-west-2:12344375555:file-system/fs-0a73947e541509f0e\"
           }
-        ]       
+        ]
         ```
       remediation: |
         __Terraform__
 
         The following code snippet can be used to create a KMS encrypted EFS (Note: `kms_key_id` attribute is optional, and a key will be created if no kms key id is passed)
-        
+
         ```hcl
         resource \"aws_efs_file_system\" \"encrypted-efs\" {
           creation_token = \"my-kms-encrypted-efs\"
@@ -2146,16 +2146,16 @@ queries:
             Name = \"MyProduct\"
           }
         }
-        ```   
+        ```
 
         __AWS Console__
 
         To configure EFS with encryption using the AWS console, see [Encrypting a file system at rest using the console](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html).
-        
+
         __AWS CLI__
 
         It is important to notice that while creating EFS from the console enables encryption at rest by default, that is not true for EFS created using the CLI, API or SDK. The following example allows you to create an encrypted file system in your infrastructure.
-        
+
         ```bash
         aws efs create-file-system \\
         --backup \\
@@ -2207,12 +2207,12 @@ queries:
 
           1. [Server Side Encryption with AWS KMS-managed key (SSE-KMS)](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html)
           2. [Amazon Server Side Encryption with Amazon S3-managed encryption keys (SSE-S3)](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingServerSideEncryption.html)
-      audit: | 
+      audit: |
         __cnspec Shell__
 
         1. Open a Terminal.
         2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run the following query 
+        3. Run the following query
 
         ```mql
         aws.cloudtrail.trails.all(
@@ -2243,7 +2243,6 @@ queries:
           * To use an existing key, choose Existing, then from AWS KMS alias, choose the key.
           * The AWS KMS key and S3 bucket must be in the same Region.
         7. Choose Save.
-
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Checks that all incoming SSH traffic for the security groups is restricted
     impact: 80
