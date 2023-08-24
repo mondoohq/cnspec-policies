@@ -1,7 +1,7 @@
 policies:
-  - uid: email-security-policy
-    name: Email Security Policy (SPF, DKIM, DMARC)
-    version: "0.0.1"
+  - uid: email-security-policy-spf
+    name: Email Security Policy (SPF)
+    version: "0.0.2"
     authors:
       - name: Ben Rockwood
         email: ben@mondoo.com
@@ -12,7 +12,7 @@ policies:
       desc: |
         ## Overview
 
-        This policy bundle checks for best practices and common misconfigurations of SPF, DKIM, and DMARC records in DNS.
+        This policy bundle checks for best practices and common misconfigurations of SPF records in DNS.
 
         ### Running the Policy
 
@@ -133,11 +133,3 @@ queries:
     refs:
       - title: DNS SPF Records
         url: https://en.wikipedia.org/wiki/Sender_Policy_Framework#DNS_SPF_Records
-
-
-###
-# In the future, add DMARC Checks
-# dig -t txt _dmarc.mondoo.com
-# DMARC 1:"v=DMARC1; p=quarantine; rua=mailto:6407d6da13d24@ag.dmarcly.com; ruf=mailto:6407d6da13d24@fo.dmarcly.com; sp=quarantine; pct=100; fo=1;"
-#
-# Also, _mta-ts.mondoo.com and _smtp._tls.mondoo.com
