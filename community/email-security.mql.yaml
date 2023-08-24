@@ -28,6 +28,8 @@ policies:
       - asset_filter:
           query: mondoo.resources.contains("dns")
         scoring_queries:
+          dns-00: null
+          dns-01: null
           spf-01: null
           spf-02: null
           spf-03: null
@@ -35,13 +37,37 @@ policies:
           spf-05: null
           spf-06: null
 queries:
+  - uid: dns-00
+    title: Domain Apex should have a TXT record
+    query: dns.records.where( type == "TXT" ).length > 0
+    docs:
+      desc: |
+        A TXT record is a type of resource record in the Domain Name System (DNS) used to provide the ability to associate arbitrary text with a host or other name, such as human readable information about a server, network, data center, or other accounting information.
+      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set
+      remediation: |
+        Add a TXT record to your DNS zone file.
+    refs:
+      - title: TXT Record
+        url: https://en.wikipedia.org/wiki/TXT_record
+  - uid: dns-01
+    title: Domain Apex should have an anchor (A) record
+    query: dns.records.where( type == "A" ).length > 0
+    docs:
+      desc: |
+        A domains apex anchor record should be set to something, even if it's a redirect.
+      audit: Run the `dig -t A <domain>` command and verify that there is an A record
+      remediation: |
+        Add an A record to your DNS zone file, consider using a redirect to your corperate website.
+    refs:
+      - title: A Record
+        url: https://www.easyredir.com/blog/what-is-an-apex-domain/
   - uid: spf-01
     title: Ensure SPF record is set
     query: dns.params['TXT']['rData'].contains( /v=spf1/ )
     docs:
       desc: |
         SPF (Sender Policy Framework) is a method of preventing email spoofing by allowing the owner of a domain to publish a list of mail servers that are authorized to send email from that domain.
-      audit: Run the `dig TXT <domain>` command and verify that the SPF record is set
+      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set
       remediation: |
         Add a TXT record to your DNS zone file with the following format:
         ```
@@ -55,7 +81,7 @@ queries:
     query: dns.params['TXT']['rData'].where( /v=spf1/ ).length <= 1
     docs:
       desc: A domain should have only one SPF record.
-      audit: Run the `dig TXT <domain>` command and verify that there is only one SPF record
+      audit: Run the `dig -t TXT <domain>` command and verify that there is only one SPF record
       remediation: |
         Remove all but one SPF record from your DNS zone file.
     refs:
@@ -66,7 +92,7 @@ queries:
     query: dns.params['TXT']['rData'].where( /v=spf1/ ).length <= 255
     docs:
       desc: The SPF record should not be longer than 255 characters.
-      audit: Run the `dig TXT <domain>` command and verify that the SPF record is not longer than 255 characters
+      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is not longer than 255 characters
       remediation: |
         Remove some of the entries from your SPF record.
     refs:
@@ -77,7 +103,7 @@ queries:
     query: dns.params['TXT']['rData'].where( /v=spf1/ ).where( /\s{2,}/).length == 0
     docs:
       desc: The SPF record should not contain any unneccisary whitespace.
-      audit: Run the `dig TXT <domain>` command and verify that the SPF record does not contain any whitespace
+      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record does not contain any whitespace
       remediation: |
         Remove all excess whitespace from your SPF record.
     refs:
@@ -87,11 +113,11 @@ queries:
     title: SPF should be set to fail or soft fail all
     query: |
       dns.params['TXT']['rData'].where( /v=spf1/ ).any(/~all/)
-    docs: 
+    docs:
       desc: The SPF record should be set to soft fail all.
-      audit: Run the `dig TXT <domain>` command and verify that the SPF record is set to fail or soft fail all
+      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set to fail or soft fail all
       remediation: |
-        The SPF record should end with ~all. 
+        The SPF record should end with ~all.
     refs:
       - title: M3AAWG Email Authentication Recommended Best Practices (2020)
         url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
