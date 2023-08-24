@@ -36,6 +36,7 @@ policies:
           spf-04: null
           spf-05: null
           spf-06: null
+
 queries:
   - uid: dns-00
     title: Domain Apex should have a TXT record
@@ -132,3 +133,11 @@ queries:
     refs:
       - title: DNS SPF Records
         url: https://en.wikipedia.org/wiki/Sender_Policy_Framework#DNS_SPF_Records
+
+
+###
+# In the future, add DMARC Checks
+# dig -t txt _dmarc.mondoo.com
+# DMARC 1:"v=DMARC1; p=quarantine; rua=mailto:6407d6da13d24@ag.dmarcly.com; ruf=mailto:6407d6da13d24@fo.dmarcly.com; sp=quarantine; pct=100; fo=1;"
+#
+# Also, _mta-ts.mondoo.com and _smtp._tls.mondoo.com
