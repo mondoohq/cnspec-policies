@@ -10,7 +10,52 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: "## Overview\n\nThe GitLab Security by Mondoo policy bundle provides guidance for establishing minimum recommended security and operational best practices for GitLab groups and projects. This policy is early access.\n\n## Remote scan\n\nRemote scans use native transports in `cnspec` to provide on demand scan results without the need to install any agents, or integration. \n\nFor a complete list of native transports run: \n\n```bash\ncnspec scan --help\n``` \n\n### Prerequisites\n\nRemote scans of GitLab requires a [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) with access to the group.\n\n### Run a scan of a GitLab group\n\nOpen a terminal and configure an environment variable with your GitLab personal access token:\n\n```bash\nexport GITLAB_TOKEN=<your personal access token> \n```\n\nRun a remote scan of your GitLab group: \n\n```bash\ncnspec scan gitlab --group <group_name>\n```      \n  \n## Join the community!\n\nOur goal is to build policies that are simple to deploy, accurate, and actionable. \n\nIf you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions."
+      desc: |
+        ## Overview
+        
+        The GitLab Security policy by Mondoo offers guidance on establishing minimum recommended security best practices for GitLab groups and projects.        
+        
+        ## Remote scan
+        
+        Remote scans of GitLab groups and projects use native transports in `cnspec` to provide on demand scan results without the need to install agents or configure integrations.
+        
+        ### Prerequisites
+        
+        Remote scans of GitLab requires a [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) with access to the group and projects you plan to scan.
+        
+        ### Run a scan of a GitLab group and projects
+        
+        Open a terminal and configure an environment variable with your GitLab personal access token:
+        
+        ```bash
+        export GITLAB_TOKEN=<your personal access token>
+        ```
+        
+        Run a remote scan of your GitLab group:
+        
+        ```bash
+        cnspec scan gitlab --group <group_name>
+        ```
+
+        ### Run a scan of a single GitLab project
+        
+        Open a terminal and configure an environment variable with your GitLab personal access token:
+        
+        ```bash
+        export GITLAB_TOKEN=<your personal access token>
+        ```
+        
+        Run a remote scan of your GitLab group:
+        
+        ```bash
+        cnspec scan gitlab --group <group_name> --project <project_name>
+        ```
+        
+        ## Join the community!
+        
+        Our goal is to build policies that are simple to deploy, accurate, and actionable.
+        
+        If you have any suggestions on how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions."
     groups:
       - title: GitLab Group
         filters: asset.platform == "gitlab" || asset.platform == "gitlab-group"
