@@ -45,7 +45,7 @@ policies:
         export GITLAB_TOKEN=<your personal access token>
         ```
         
-        Run a remote scan of your GitLab group:
+        Scan a GitLab group:
         
         ```bash
         cnspec scan gitlab --group <group_name> --project <project_name>
