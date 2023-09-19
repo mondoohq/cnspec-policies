@@ -21,7 +21,7 @@ policies:
         
         ### Prerequisites
         
-        Remote scans of GitLab requires a [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) with access to the group and projects you plan to scan.
+        Remote scans of GitLab require a [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) with access to the group and projects you plan to scan.
         
         ### Run a scan of a GitLab group and projects
         
