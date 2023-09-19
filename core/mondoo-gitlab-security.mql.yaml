@@ -37,7 +37,7 @@ policies:
         cnspec scan gitlab --group <group_name>
         ```
 
-        ### Run a scan of a single GitLab project
+        ### Scan a single GitLab project
         
         Open a terminal and configure an environment variable with your GitLab personal access token:
         
