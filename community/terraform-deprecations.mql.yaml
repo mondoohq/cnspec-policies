@@ -1,7 +1,10 @@
+# Copyright (c) Mondoo, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 policies:
   - uid: terraform-deprecations
     name: Terraform HCL Deprecations Policy
-    version: 0.1.0
+    version: 0.2.0
     authors:
       - name: Christoph Hartmann
         email: chris@mondoo.com

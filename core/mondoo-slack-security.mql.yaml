@@ -1,7 +1,10 @@
+# Copyright (c) Mondoo, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 policies:
   - uid: mondoo-slack-security
     name: Slack Team Security
-    version: 1.1.0
+    version: 1.2.0
     tags:
       mondoo.com/category: security
       mondoo.com/platform: slack-team,saas
