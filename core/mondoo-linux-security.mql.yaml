@@ -239,7 +239,10 @@ queries:
     title: Ensure filesystem integrity is regularly checked
     impact: 50
     mql: |
-      command("crontab -u root -l | grep aide").stdout.contains("aide --check") || command("crontab -u root -l | grep aide").stdout.contains("aide.conf --check") || service('aidecheck').enabled || parse.ini("/etc/default/aide").params["CRON_DAILY_RUN"] == "yes"
+      ["/etc/default/aide"].where(file(_).exists).all(parse.ini(_).params["CRON_DAILY_RUN"] == "yes") ||
+      command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide --check")) ||
+      command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide.conf --check")) ||
+      service('aidecheck').enabled
     docs:
       desc: Periodic checking of the filesystem integrity is needed to detect changes to the filesystem.
       remediation: |-
@@ -1129,7 +1132,10 @@ queries:
     title: Ensure audit log storage size is configured
     impact: 40
     mql: |
-      parse.ini("/etc/audit/auditd.conf").params["max_log_file"] > 0
+      file("/etc/audit/auditd.conf").exists;
+      ["/etc/audit/auditd.conf"].where(file(_).exists) {
+        parse.ini(_).params["max_log_file"] > 0
+      }
     docs:
       desc: Configure the maximum size of the audit log file. Once the log reaches the maximum size, it will be rotated and a new log file will be started.
       remediation: |-
@@ -1143,7 +1149,10 @@ queries:
     title: Ensure audit logs are not automatically deleted
     impact: 40
     mql: |
-      parse.ini("/etc/audit/auditd.conf").params["max_log_file_action"].downcase == "keep_logs"
+      file("/etc/audit/auditd.conf").exists;
+      ["/etc/audit/auditd.conf"].where(file(_).exists) {
+        parse.ini(_).params["max_log_file_action"].downcase == "keep_logs"
+      }
     docs:
       desc: |-
         The `max_log_file_action`
@@ -1159,10 +1168,13 @@ queries:
     title: Ensure system is disabled when audit logs are full
     impact: 40
     mql: |
-      parse.ini("/etc/audit/auditd.conf") {
-        params["space_left_action"].downcase == "email"
-        params["action_mail_acct"].downcase == "root"
-        params["admin_space_left_action"].downcase == "halt"
+      file("/etc/audit/auditd.conf").exists;
+      ["/etc/audit/auditd.conf"].where(file(_).exists) {
+        parse.ini(_) {
+          params["space_left_action"].downcase == "email"
+          params["action_mail_acct"].downcase == "root"
+          params["admin_space_left_action"].downcase == "halt"
+        }
       }
     docs:
       desc: |-
@@ -1188,8 +1200,8 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers\.d\/\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers\.d(\/?)\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers(\/?)\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
     docs:
       desc: |-
         Monitor scope changes for system administrators. If the system has been properly configured to force system administrators to log in as themselves first and then use the `sudo`
@@ -1288,8 +1300,8 @@ queries:
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/run\/utmp\s+\-p\s+wa\s+\-k\s+session(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/wtmp\s+\-p\s+wa\s+\-k\s+logins(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/btmp\s+\-p\s+wa\s+\-k\s+logins(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/wtmp\s+\-p\s+wa\s+\-k\s+(logins|session)(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/btmp\s+\-p\s+wa\s+\-k\s+(logins|session)(\s+)?$/))
     docs:
       desc: |-
         Monitor session initiation events. The parameters in this section track changes to the files associated with session events.
@@ -1336,8 +1348,8 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+adjtimex\s+\-S\s+settimeofday\s+\-k\s+time-change(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+adjtimex\s+\-S\s+settimeofday\s+\-S\s+stime\s+\-k\s+time-change(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+adjtimex(\s+\-S\s+|,)settimeofday(\s+\-S\s+|,)?(clock_settime)?\s+\-k\s+time-change(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+adjtimex(\s+\-S\s+|,)settimeofday(\s+\-S\s+|,)?(clock_settime)?(stime)?\s+\-k\s+time-change(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+clock\_settime\s+\-k\s+time-change(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+clock\_settime\s+\-k\s+time-change(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/localtime\s+\-p\s+wa\s+\-k\s+time-change(\s+)?$/))
@@ -1407,8 +1419,11 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/selinux\/\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/usr\/share\/selinux\/\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
+      appArmorSys = props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/apparmor(\/?)\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
+        && props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/apparmor.d(\/?)\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
+      seLinuxSys = props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/selinux(\/?)\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
+       && props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/usr\/share\/selinux(\/?)\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
+      appArmorSys || seLinuxSys
     docs:
       desc: |-
         Monitor SELinux/AppArmor mandatory access controls. The parameters below monitor any write access (potential additional,
@@ -1551,12 +1566,12 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+chmod\s+\-S\s+fchmod\s+\-S\s+fchmodat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+perm\_mod(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+chmod\s+\-S\s+fchmod\s+\-S\s+fchmodat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+perm\_mod(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+chown\s+\-S\s+fchown\s+\-S\s+fchownat\s+\-S\s+lchown\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+perm\_mod(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+chown\s+\-S\s+fchown\s+\-S\s+fchownat\s+\-S\s+lchown\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+perm\_mod(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+setxattr\s+\-S\s+lsetxattr\s+\-S\s+fsetxattr\s+\-S\s+removexattr\s+\-S\s+lremovexattr\s+\-S\s+fremovexattr\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+perm\_mod(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+setxattr\s+\-S\s+lsetxattr\s+\-S\s+fsetxattr\s+\-S\s+removexattr\s+\-S\s+lremovexattr\s+\-S\s+fremovexattr\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+perm\_mod(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+chmod(\s+\-S\s+|,)fchmod(\s+\-S\s+|,)fchmodat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+key=perm\_mod(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+chown(\s+\-S\s+|,)fchown(\s+\-S\s+|,)lchown(\s+\-S\s+|,)fchownat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+key\=perm\_mod(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+chmod(\s+\-S\s+|,)fchmod(\s+\-S\s+|,)fchmodat\s+\-F+\s+auid\>\=1000\s+\-F\s+auid\!=(4294967295|unset|-1)\s+\-F\s+key\=perm_mod$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+lchown(\s+\-S\s+|,)fchown(\s+\-S\s+|,)chown(\s+\-S\s+|,)fchownat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+key\=perm\_mod(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+setxattr(\s+\-S\s+|,)lsetxattr(\s+\-S\s+|,)fsetxattr(\s+\-S\s+|,)removexattr(\s+\-S\s+|,)lremovexattr(\s+\-S\s+|,)fremovexattr\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+key\=perm\_mod(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+setxattr(\s+\-S\s+|,)lsetxattr(\s+\-S\s+|,)fsetxattr(\s+\-S\s+|,)removexattr(\s+\-S\s+|,)lremovexattr(\s+\-S\s+|,)fremovexattr\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+key\=perm\_mod(\s+)?$/))
     docs:
       desc: |-
         Monitor changes to file permissions, attributes, ownership and group. The parameters in this section track changes for system calls that affect file permissions and attributes.
@@ -1632,8 +1647,8 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EACCES\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+access(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EACCES\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+access(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EPERM\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+access(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EPERM\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+access(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EACCES\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EACCES\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EPERM\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EPERM\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/))
     docs:
       desc: |-
         Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation ( `creat` ), opening ( `open`, `openat` ) and
@@ -1703,8 +1718,8 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/passwd\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/group\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/passwd\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/gshadow\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/shadow\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
       props.auditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/security\/opasswd\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
@@ -1755,7 +1770,7 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+mounts(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+mounts(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+mounts(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+mounts(\s+)?$/))
     docs:
       desc: |-
         Monitor the use of the `mount`
@@ -1808,8 +1823,8 @@ queries:
           auditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return auditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+rename\,unlink\,unlinkat\,renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=unset\s+\-F\s+key\=delete(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+unlink\s+\-S\s+unlinkat\s+\-S\s+rename\s+\-S\s+renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+delete(\s+)?$/))
-      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+rename\,unlink\,unlinkat\,renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=unset\s+\-F\s+key\=delete(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+unlink\s+\-S\s+unlinkat\s+\-S\s+rename\s+\-S\s+renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=4294967295\s+\-k\s+delete(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+rename\,unlink\,unlinkat\,renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=unset\s+\-F\s+key\=delete(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+unlink\s+\-S\s+unlinkat\s+\-S\s+rename\s+\-S\s+renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+delete(\s+)?$/))
+      props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+rename\,unlink\,unlinkat\,renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=unset\s+\-F\s+key\=delete(\s+)?$/)) || props.auditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+unlink\s+\-S\s+unlinkat\s+\-S\s+rename\s+\-S\s+renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+delete(\s+)?$/))
     docs:
       desc: |-
         Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the `unlink`
@@ -2122,8 +2137,10 @@ queries:
     title: Ensure journald is configured to write logfiles to persistent disk
     impact: 50
     mql: |
-      if (file("/etc/systemd/journald.conf").exists) {
-        parse.ini("/etc/systemd/journald.conf").sections["Journal"]["Storage"] == "persistent"
+      ["/etc/systemd/journald.conf"].where(file(_).exists) {
+        file(_) {
+          parse.ini("/etc/systemd/journald.conf").sections["Journal"]["Storage"] == "persistent"
+        }
       }
     docs:
       desc: Data from journald may be stored in volatile memory or persisted locally on the server. Logs in memory will be lost upon a system reboot. Persisting logs to a local disk on the server protects logs loss.
@@ -2358,16 +2375,14 @@ queries:
     title: Ensure only strong ciphers are used
     impact: 100
     props:
-      - uid: MondooSshdCiphers
+      - uid: sshdCiphers
         title: Define the hardened ciphers for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./ ) {
-            return ["aes256-ctr", "aes192-ctr", "aes128-ctr"]
-          }
-          return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
+          return ["chacha20-poly1305@openssh.com", "aes256-gcm@openssh.com", "aes128-gcm@openssh.com", "aes256-ctr", "aes192-ctr", "aes128-ctr"]
     mql: |
       sshd.config.ciphers != null
-      sshd.config.ciphers.containsOnly(props.MondooSshdCiphers)
+      sshd.config.ciphers != []
+      sshd.config.ciphers.containsOnly(props.sshdCiphers)
     docs:
       desc: This variable limits the ciphers that SSH can use during communication.
       remediation: |-
@@ -2380,18 +2395,17 @@ queries:
         ```
   - uid: mondoo-linux-security-only-strong-mac-algorithms-are-used
     title: Ensure only strong MAC algorithms are used
-    impact: 100
+    impact: 80
     props:
-      - uid: MondooMacAlgos
+      - uid: macAlgos
         title: Define the accepted MAC algorithms
         mql: |
-          if( package('openssh-server').version == /6./ ) {
-            return ["hmac-sha2-512","hmac-sha2-256","hmac-ripemd160"]
-          }
-          return ["hmac-sha2-512-etm@openssh.com","hmac-sha2-256-etm@openssh.com","umac-128-etm@openssh.com","hmac-sha2-512","hmac-sha2-256"]
+          return ["umac-64-etm@openssh.com","umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
+                  "hmac-sha1-etm@openssh.com","umac-64@openssh.com","umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512","hmac-sha1","hmac-sha1-etm@openssh.com"]
     mql: |
       sshd.config.macs != null
-      sshd.config.macs.containsOnly(props.MondooMacAlgos)
+      sshd.config.macs != []
+      sshd.config.macs.containsOnly(props.macAlgos)
     docs:
       desc: This variable limits the types of MAC algorithms that SSH can use during communication.
       remediation: |-
@@ -2406,19 +2420,15 @@ queries:
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
     props:
-      - uid: MondooKexAlgos
+      - uid: kexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./ || package('openssh-server').version == /7./ ) {
-            return ["curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
-          }
-          if( package('openssh-server').version == /8\.[0|1|2|3|4|5]/ ) {
-            return ["sntrup4591761x25519-sha512@tinyssh.org","curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
-          }
-          return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
+          return ["ecdh-sha2-nistp256","ecdh-sha2-nistp384","ecdh-sha2-nistp521","diffie-hellman-group-exchange-sha256",
+               "diffie-hellman-group16-sha512","diffie-hellman-group18-sha512","diffie-hellman-group14-sha256","curve25519-sha256","curve25519-sha256@libssh.org"]
     mql: |
       sshd.config.kexs != null
-      sshd.config.kexs.containsOnly(props.MondooKexAlgos)
+      sshd.config.kexs != []
+      sshd.config.kexs.containsOnly(props.kexAlgos)
     docs:
       desc: Key exchange is any method in cryptography by which cryptographic keys are exchanged between two parties, allowing use of a cryptographic algorithm. If the sender and receiver wish to exchange encrypted messages, each must be equipped to encrypt messages to be sent and decrypt messages received
       remediation: |-
