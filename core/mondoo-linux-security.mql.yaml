@@ -1,6 +1,3 @@
-# Copyright (c) Mondoo, Inc.
-# SPDX-License-Identifier: BUSL-1.1
-
 policies:
   - uid: mondoo-linux-security
     name: Linux Security
@@ -2124,7 +2121,9 @@ queries:
     title: Ensure journald is configured to compress large log files
     impact: 50
     mql: |
-      parse.ini("/etc/systemd/journald.conf").sections["Journal"]["Compress"] == "yes"
+      if (file("/etc/systemd/journald.conf").exists) {
+        parse.ini("/etc/systemd/journald.conf").sections["Journal"]["Compress"] == "yes"
+      }
     docs:
       desc: The journald system includes the capability of compressing overly large files to avoid filling up the system with logs or making the logs unmanageably large.
       remediation: |-
