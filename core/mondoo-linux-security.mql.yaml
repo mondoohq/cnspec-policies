@@ -2107,8 +2107,10 @@ queries:
     title: Ensure journald is configured to send logs to rsyslog
     impact: 50
     mql: |
-      if (file("/etc/systemd/journald.conf").exists) {
-        parse.ini("/etc/systemd/journald.conf").sections["Journal"]["ForwardToSyslog"] == "yes"
+      ["/etc/systemd/journald.conf"].where(file(_).exists) {
+        file(_) {
+          parse.ini("/etc/systemd/journald.conf").sections["Journal"]["ForwardToSyslog"] == "yes"
+        }
       }
     docs:
       desc: |-
@@ -2124,8 +2126,10 @@ queries:
     title: Ensure journald is configured to compress large log files
     impact: 50
     mql: |
-      if (file("/etc/systemd/journald.conf").exists) {
-        parse.ini("/etc/systemd/journald.conf").sections["Journal"]["Compress"] == "yes"
+      ["/etc/systemd/journald.conf"].where(file(_).exists) {
+        file(_) {
+          parse.ini("/etc/systemd/journald.conf").sections["Journal"]["Compress"] == "yes"
+        }
       }
     docs:
       desc: The journald system includes the capability of compressing overly large files to avoid filling up the system with logs or making the logs unmanageably large.
@@ -2473,7 +2477,7 @@ queries:
         Edit the `/etc/ssh/sshd_config` file to set the `ClientAliveInterval` and `ClientAliveCountMax` parameters according to site policy:
 
         ```
-        ClientAliveInterval 300
+        ClientAliveInterval no greater than 900 seconds(15 minutes)
         ClientAliveCountMax 0
         ```
   - uid: mondoo-linux-security-ssh-logingracetime-is-set-to-one-minute-or-less
@@ -2494,12 +2498,10 @@ queries:
     title: Ensure SSH access is limited
     impact: 60
     mql: |
-      sshd.config.params["AllowUsers"] != null || sshd.config.params["AllowGroups"] != null || sshd.config.params["DenyUsers"] != null || sshd.config.params["DenyGroups"] != null
-
-      if (sshd.config.params["AllowUsers"] != null) { sshd.config.params["AllowUsers"] != "" }
-      if (sshd.config.params["AllowGroups"] != null) { sshd.config.params["AllowGroups"] != "" }
-      if (sshd.config.params["DenyUsers"] != null) { sshd.config.params["DenyUsers"] != "" }
-      if (sshd.config.params["DenyGroups"] != null) { sshd.config.params["DenyGroups"] != "" }
+      sshd.config.params["AllowUsers"] != empty ||
+       sshd.config.params["AllowGroups"] != empty ||
+        sshd.config.params["DenyUsers"] != empty ||
+         sshd.config.params["DenyGroups"] != empty
     docs:
       desc: |-
         There are several options available to limit which users and groups can access the system via SSH. It is recommended that at least one of the following options be leveraged: `AllowUsers`
@@ -2525,9 +2527,6 @@ queries:
     title: Ensure SSH warning banner is configured
     impact: 30
     mql: |
-      sshd.config.params["Banner"] != ""
-      sshd.config.params["Banner"] != "none"
-      sshd.config.params["Banner"] != null
       sshd.config.params["Banner"] == "/etc/issue.net"
     docs:
       desc: The `Banner` parameter specifies a file whose contents must be sent to the remote user before authentication is permitted. By default, no banner is displayed.
@@ -2819,7 +2818,7 @@ queries:
     title: Ensure default group for the root account is GID 0
     impact: 80
     mql: |
-      users.where( name == "root" ).list { gid == 0 }
+      users.where(name == "root").list.all(gid == 0)
     docs:
       desc: |
         The usermod command can be used to specify which group the root user belongs to. This affects permissions of files that are created by the root user.
@@ -2833,7 +2832,7 @@ queries:
     title: Ensure each user is a member of a group
     impact: 70
     mql: |
-      users.list { name gid != null }
+      users.list.all(name && gid != null)
     docs:
       desc: |
         Each user MUST be a member of at least one group.
@@ -2849,7 +2848,7 @@ queries:
     title: Ensure all GIDs in /etc/passwd exist in /etc/group
     impact: 80
     mql: |
-      users.list { name group != null }
+      users.list.all(name && group != null)
     docs:
       desc: |
         Every GID mentioned in the /etc/passwd file must be defined in the /etc/group file.
@@ -2875,7 +2874,8 @@ queries:
   - uid: mondoo-linux-security-shadow-group-is-empty
     title: Ensure shadow group is empty
     impact: 80
-    mql: groups.where( name == "shadow").list { members.length == 0 }
+    mql: |
+      groups.where( name == "shadow").list { members.length == 0 }
     docs:
       desc: The shadow group allows system programs or defined users the ability to read the `/etc/shadow` file. No users should be assigned to the shadow group.
       remediation: Remove all users from the shadow group in `/etc/group`, and change the primary group of any users with shadow as their primary group.
@@ -2970,7 +2970,7 @@ queries:
         ```
         wheel:x:10:root,<user list>
         ```
-        NOTE: The users allowed in the wheel group are defined in the properties `props.MondooSudoGroup` field of this policy. By default the users "root", "ec2-user", "centos" and "ubuntu" are included. To include custom users you need to manually modify this policy. Otherwise the check will fail.
+        NOTE: The users allowed in the wheel group are defined in the properties `props.SudoGroup` field of this policy. By default the users "root", "ec2-user", "centos" and "ubuntu" are included. To include custom users you need to manually modify this policy. Otherwise the check will fail.
 
         If you want to lock down the use of the command `su` entirely instead, you need to create an empty group, for example `sugroup`:
 
