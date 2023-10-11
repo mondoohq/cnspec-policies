@@ -5051,12 +5051,12 @@ queries:
     title: Pods should not run with NET_RAW capability
     impact: 80
     mql: |
-      k8s.pod.podSpec['ephemeralContainers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.pod.podSpec['ephemeralContainers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.pod.podSpec['initContainers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.pod.podSpec['initContainers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.pod.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.pod.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
+      k8s.pod.podSpec['ephemeralContainers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.pod.podSpec['ephemeralContainers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.pod.podSpec['initContainers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.pod.podSpec['initContainers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.pod.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.pod.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
     docs:
       desc: |
         Pods should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
@@ -5106,8 +5106,8 @@ queries:
     title: DaemonSets should not run with NET_RAW capability
     impact: 80
     mql: |
-      k8s.daemonset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.daemonset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
+      k8s.daemonset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.daemonset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
     docs:
       desc: |
         DaemonSets should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
@@ -5161,8 +5161,8 @@ queries:
     title: ReplicaSets should not run with NET_RAW capability
     impact: 80
     mql: |
-      k8s.replicaset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.replicaset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
+      k8s.replicaset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.replicaset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
     docs:
       desc: |
         ReplicaSets should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
@@ -5215,7 +5215,8 @@ queries:
   - uid: mondoo-kubernetes-security-job-capability-net-raw
     title: Jobs should not run with NET_RAW capability
     impact: 80
-    mql: k8s.deployment.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
+    mql: |
+      k8s.deployment.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
     docs:
       desc: |
         Jobs should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
@@ -5324,8 +5325,8 @@ queries:
     title: StatefulSets should not run with NET_RAW capability
     impact: 80
     mql: |
-      k8s.statefulset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.statefulset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
+      k8s.statefulset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.statefulset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
     docs:
       desc: |
         StatefulSets should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
@@ -5379,8 +5380,8 @@ queries:
     title: CronJobs should not run with NET_RAW capability
     impact: 80
     mql: |
-      k8s.cronjob.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^NET_RAW$|^ALL$/ ) } )
-      k8s.cronjob.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _ == /^NET_RAW$|^ALL$/ ) } )
+      k8s.cronjob.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^NET_RAW$|^ALL$/ ) } )
+      k8s.cronjob.podSpec['containers'].all( _['securityContext']['capabilities'] { _['drop'].any( _.upcase == /^NET_RAW$|^ALL$/ ) } )
     docs:
       desc: |
         CronJobs should not run with NET_RAW capability. This allows a process to write raw packets to the network interface which can allow crafting packets like malicious ARP and/or DNS responses.
@@ -5438,9 +5439,9 @@ queries:
     title: Pods should not run with SYS_ADMIN capability
     impact: 80
     mql: |
-      k8s.pod.podSpec['initContainers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
-      k8s.pod.podSpec['ephemeralContainers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
-      k8s.pod.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.pod.podSpec['initContainers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.pod.podSpec['ephemeralContainers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.pod.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         Pods should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5473,7 +5474,7 @@ queries:
     title: DaemonSets should not run with SYS_ADMIN capability
     impact: 80
     mql: |
-      k8s.daemonset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.daemonset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         DaemonSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5508,7 +5509,7 @@ queries:
     title: ReplicaSets should not run with SYS_ADMIN capability
     impact: 80
     mql: |
-      k8s.replicaset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.replicaset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         ReplicaSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5543,7 +5544,7 @@ queries:
     title: Jobs should not run with SYS_ADMIN capability
     impact: 80
     mql: |
-      k8s.job.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.job.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         Jobs should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5577,7 +5578,7 @@ queries:
   - uid: mondoo-kubernetes-security-deployment-capability-sys-admin
     title: Deployments should not run with SYS_ADMIN capability
     impact: 80
-    mql: k8s.deployment.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+    mql: k8s.deployment.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         Deployments should not run wIt even allows containers not running as root to run certain tasks as if the user was root with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5612,7 +5613,7 @@ queries:
     title: StatefulSets should not run with SYS_ADMIN capability
     impact: 80
     mql: |
-      k8s.statefulset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.statefulset.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         StatefulSets should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5647,7 +5648,7 @@ queries:
     title: CronJobs should not run with SYS_ADMIN capability
     impact: 80
     mql: |
-      k8s.cronjob.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'].none( _ == /^SYS_ADMIN$|^ALL$/ ) } )
+      k8s.cronjob.podSpec['containers'].all( _['securityContext']['capabilities'] { _['add'] == null || _['add'].none( _.upcase == /^SYS_ADMIN$|^ALL$/ ) } )
     docs:
       desc: |
         CronJobs should not run with SYS_ADMIN capability. The SYS_ADMIN capability enables a wide range of elevated system calls.
@@ -5684,8 +5685,8 @@ queries:
     title: Pods should not bind to a host port
     impact: 80
     mql: |
-      k8s.pod.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
-      k8s.pod.podSpec['initContainers'].all( _['ports'].none( _['hostPort'] ) )
+      k8s.pod.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
+      k8s.pod.podSpec['initContainers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         Pods should not bind to the underlying host port. This allows bypassing certain network access control systems.
@@ -5722,7 +5723,7 @@ queries:
     title: DaemonSets should not bind to a host port
     impact: 80
     mql: |
-      k8s.daemonset.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
+      k8s.daemonset.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         DaemonSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
@@ -5761,7 +5762,7 @@ queries:
     title: ReplicaSets should not bind to a host port
     impact: 80
     mql: |
-      k8s.replicaset.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
+      k8s.replicaset.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         ReplicaSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
@@ -5800,7 +5801,7 @@ queries:
     title: Jobs should not bind to a host port
     impact: 80
     mql: |
-      k8s.job.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
+      k8s.job.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         Jobs should not bind to the underlying host port. This allows bypassing certain network access control systems.
@@ -5838,7 +5839,8 @@ queries:
   - uid: mondoo-kubernetes-security-deployment-ports-hostport
     title: Deployments should not bind to a host port
     impact: 80
-    mql: k8s.deployment.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
+    mql: | 
+      k8s.deployment.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         Deployments should not bind to the underlying host port. This allows bypassing certain network access control systems.
@@ -5877,7 +5879,7 @@ queries:
     title: StatefulSets should not bind to a host port
     impact: 80
     mql: |
-      k8s.statefulset.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
+      k8s.statefulset.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         StatefulSets should not bind to the underlying host port. This allows bypassing certain network access control systems.
@@ -5916,7 +5918,7 @@ queries:
     title: CronJobs should not bind to a host port
     impact: 80
     mql: |
-      k8s.cronjob.podSpec['containers'].all( _['ports'].none( _['hostPort'] ) )
+      k8s.cronjob.podSpec['containers'].all( _['ports'] == null || _['ports'].none( _['hostPort']))
     docs:
       desc: |
         CronJobs should not bind to the underlying host port. This allows bypassing certain network access control systems.
