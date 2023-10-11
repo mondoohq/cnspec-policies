@@ -1089,16 +1089,16 @@ queries:
     title: Ensure auditing for processes that start prior to auditd is enabled
     impact: 50
     mql: |
-      if( file("/boot/grub2/grub.cfg" ).exists) {
+      ["/boot/grub2/grub.cfg"].where(file(_).exists) {
         file("/boot/grub2/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
       }
-      if( file("/boot/grub/grub.cfg").exists ) {
+      ["/boot/grub/grub.cfg"].where(file(_).exists) {
         file("/boot/grub/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
       }
-      if( file("/boot/grub/grub.conf").exists ) {
-        file("/boot/grub/grub.conf").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
+      ["/boot/grub/grub.conf"].where(file(_).exists) {
+        file("/boot/grub/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
       }
-      if( file('/etc/secboot/config.json').exists ) {
+      ["/etc/secboot/config.json"].where(file(_).exists) {
         parse.json('/etc/secboot/config.json').params['kernel-params'] == /audit(\s+)?\=(\s+)?1/
       }
     docs:
