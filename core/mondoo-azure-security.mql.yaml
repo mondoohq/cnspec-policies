@@ -1168,7 +1168,7 @@ queries:
         1. Log into Microsoft Azure Portal at https://portal.azure.com
         2. Go to **App Services**.
         3. For each app:
-           a. Select the apps**.
+           a. Select the app.
            b. Select **Configuration** and select the **General settings** tab. 
            c. Under **Minimum Inbound TLS Version**, select **1.2**.
            d. Select **Save**.
