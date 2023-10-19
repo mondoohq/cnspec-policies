@@ -279,7 +279,7 @@ queries:
         To update using Microsoft Azure Portal:
 
         1. Log into Microsoft Azure Portal at https://portal.azure.com
-        2. Go to **Microsot Entra ID > Properties** and, at the bottom of the page, select **Manage security defaults**.
+        2. Go to **Microsoft Entra ID > Properties** and, at the bottom of the page, select **Manage security defaults**.
         3. Under **Security defaults**, select **Enabled**.
         4. Select the **Save** button.
   - uid: mondoo-azure-security-enable-azure-ad-identity-protection-sign-in-risk-policies
