@@ -1916,9 +1916,11 @@ queries:
         ### Microsoft Azure Portal
 
         To update using Microsoft Azure Portal:
-        1. Log into Microsoft Azure Portal at https://portal.azure.com
-        2. Go to `Monitor` and select `Activity Logs`
-        3. Select a subscription, and make sure there is already a "diagnostic settings" for that subscription
+        
+        1. Log into Microsoft Azure Portal at https://portal.azure.com.
+        2. Go to **Monitor** and select **Activity Log**.
+        3. Select **Export Activity logs**.
+        4. Select a subscription and select make sure there are diagnostic settings for **Administrative**, **Security**, and **Alert** data.
   - uid: mondoo-azure-security-disable-udp-virtualmachines
     title: Ensure direct UDP access to Azure virtual machines from the internet is restricted
     impact: 80
