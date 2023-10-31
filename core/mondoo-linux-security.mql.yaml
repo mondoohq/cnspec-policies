@@ -2410,12 +2410,12 @@ queries:
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
           if( package('openssh-server').version == /6./ || package('openssh-server').version == /7./ ) {
-            return ["curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
+            return ["diffie-hellman-group-exchange-sha256"]
           }
           if( package('openssh-server').version == /8\.[0|1|2|3|4|5]/ ) {
-            return ["sntrup4591761x25519-sha512@tinyssh.org","curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
+            return ["sntrup4591761x25519-sha512@tinyssh.org","diffie-hellman-group-exchange-sha256"]
           }
-          return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
+          return ["sntrup761x25519-sha512@openssh.com","diffie-hellman-group-exchange-sha256"]
     mql: |
       sshd.config.kexs != null
       sshd.config.kexs.containsOnly(props.MondooKexAlgos)
