@@ -2410,12 +2410,12 @@ queries:
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
           if( package('openssh-server').version == /6./ || package('openssh-server').version == /7./ ) {
-            return ["curve25519-sha256@libssh.org"]
+            return ["curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
           }
           if( package('openssh-server').version == /8\.[0|1|2|3|4|5]/ ) {
-            return ["sntrup4591761x25519-sha512@tinyssh.org","curve25519-sha256@libssh.org"]
+            return ["sntrup4591761x25519-sha512@tinyssh.org","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512","curve448-sha512"]
           }
-          return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org"]
+          return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512","curve448-sha512"]
     mql: |
       sshd.config.kexs != null
       sshd.config.kexs.containsOnly(props.MondooKexAlgos)
@@ -2427,19 +2427,19 @@ queries:
         openssh-server version 6.x or 7.x:
 
         ```
-        KexAlgorithms curve25519-sha256@libssh.org
+        KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group18-sha512
         ```
 
         openssh-server version 8.0 to 8.5:
 
         ```
-        KexAlgorithms sntrup4591761x25519-sha512@tinyssh.org,curve25519-sha256@libssh.org
+        KexAlgorithms sntrup4591761x25519-sha512@tinyssh.org,curve25519-sha256@libssh.org,diffie-hellman-group18-sha512,curve448-sha512
         ```
 
         openssh-server version 8.6 to 9:
 
         ```
-        KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256@libssh.org
+        KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256@libssh.org,diffie-hellman-group18-sha512,curve448-sha512
         ```
 
         NOTE:
