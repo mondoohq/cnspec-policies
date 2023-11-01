@@ -2409,7 +2409,10 @@ queries:
       - uid: MondooKexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./ || package('openssh-server').version == /7./ ) {
+          if( package('openssh-server').version == /6./) {
+            return ["curve25519-sha256@libssh.org"]
+          }
+          if( package('openssh-server').version == /7./) {
             return ["curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
           }
           if( package('openssh-server').version == /8\.[0|1|2|3|4|5]/ ) {
@@ -2424,7 +2427,13 @@ queries:
       remediation: |-
         Edit the `/etc/ssh/sshd_config` file to add or modify the `KexAlgorithms` parameter so that it contains a comma-separated list of the site approved key exchange algorithms
 
-        openssh-server version 6.x or 7.x:
+        openssh-server version 6.x
+
+        ```
+        KexAlgorithms curve25519-sha256@libssh.org
+        ```
+
+        openssh-server version 7.x:
 
         ```
         KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group18-sha512
