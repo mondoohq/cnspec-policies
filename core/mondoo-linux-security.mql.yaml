@@ -1092,7 +1092,9 @@ queries:
       switch {
         case file("/boot/grub2/grub.cfg").exists: file("/boot/grub2/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/);
         case file("/boot/grub/grub.cfg").exists: file("/boot/grub/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/);
-        case file().exists: file("/boot/grub/grub.cfg").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/)
+        case file("/boot/grub/grub.conf").exists: file("/boot/grub/grub.conf").content.lines.where( _ == /^[^#]/ ).any(_ == /audit(\s+)?\=(\s+)?1/);
+        case file("/etc/secboot/config.json").exists: parse.json('/etc/secboot/config.json').params['kernel-params'] == /audit(\s+)?\=(\s+)?1/;
+        default: return false
       }
 
 
