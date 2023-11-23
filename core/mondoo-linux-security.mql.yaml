@@ -2389,14 +2389,17 @@ queries:
     title: Ensure only strong ciphers are used
     impact: 100
     props:
-      - uid: sshdCiphers
+      - uid: MondooSshdCiphers
         title: Define the hardened ciphers for all SSH configurations
         mql: |
-          return ["chacha20-poly1305@openssh.com", "aes256-gcm@openssh.com", "aes128-gcm@openssh.com", "aes256-ctr", "aes192-ctr", "aes128-ctr"]
+          if( package('openssh-server').version == /6./ ) {
+            return ["aes256-ctr", "aes192-ctr", "aes128-ctr"]
+          }
+          return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
     mql: |
       sshd.config.ciphers != null
       sshd.config.ciphers != []
-      sshd.config.ciphers.containsOnly(props.sshdCiphers)
+      sshd.config.ciphers.containsOnly(props.MondooSshdCiphers)
     docs:
       desc: This variable limits the ciphers that SSH can use during communication.
       remediation: |-
