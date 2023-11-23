@@ -2891,7 +2891,7 @@ queries:
     title: Ensure shadow group is empty
     impact: 80
     mql: |
-      groups.where( name == "shadow").list { members.length == 0 }
+      groups.where(name == "shadow").all(members.length == 0)
     docs:
       desc: The shadow group allows system programs or defined users the ability to read the `/etc/shadow` file. No users should be assigned to the shadow group.
       remediation: Remove all users from the shadow group in `/etc/group`, and change the primary group of any users with shadow as their primary group.
@@ -2899,7 +2899,7 @@ queries:
     title: Ensure root group is empty
     impact: 100
     mql: |
-      groups.where( name == "root").list { members.length == 0 }
+      groups.where(name == "root").all(members.length == 0)
     docs:
       desc: The root group allows system programs or defined users the ability to read and write configurations and files on the system. No users should be assigned to the root group.
       remediation: Remove all users from the shadow group in `/etc/group`, and change the primary group of any users with root as their primary group, except the root user.
