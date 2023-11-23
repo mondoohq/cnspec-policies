@@ -2848,7 +2848,7 @@ queries:
     title: Ensure each user is a member of a group
     impact: 70
     mql: |
-      users.list.all(name && gid != null)
+      users.list.all(gid != null)
     docs:
       desc: |
         Each user MUST be a member of at least one group.
@@ -2864,7 +2864,7 @@ queries:
     title: Ensure all GIDs in /etc/passwd exist in /etc/group
     impact: 80
     mql: |
-      users.list.all(name && group != null)
+      users.list.all(group != null)
     docs:
       desc: |
         Every GID mentioned in the /etc/passwd file must be defined in the /etc/group file.
