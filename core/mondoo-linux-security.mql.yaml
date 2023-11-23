@@ -2417,8 +2417,8 @@ queries:
       - uid: macAlgos
         title: Define the accepted MAC algorithms
         mql: |
-          return ["umac-64-etm@openssh.com","umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
-                  "hmac-sha1-etm@openssh.com","umac-64@openssh.com","umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512","hmac-sha1","hmac-sha1-etm@openssh.com"]
+          return ["umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
+                  "umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512"]
     mql: |
       sshd.config.macs != null
       sshd.config.macs != []
