@@ -60,7 +60,7 @@ policies:
 
         ### Prerequisites
 
-        This policy depends on `cnspec` > [v9](https://releases.mondoo.com/cnspec/) to work properly.
+        This policy depends on `cnspec` v9+.  See [documentation](https://mondoo.com/docs/cnspec/) for more information.
 
         Remote scans of Linux hosts requires authentication such as SSH keys.
 
