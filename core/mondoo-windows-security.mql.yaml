@@ -2608,8 +2608,13 @@ queries:
   - uid: mondoo-windows-security-set-time-limit-for-active-but-idle-remote-desktop-services-sessions-is-set
     title: 'Ensure ''Set time limit for active but idle Remote Desktop Services sessions'' is set to ''Enabled: 15 minutes or less, but not Never (0)'''
     impact: 60
+    props:
+      - uid: MaxIdleTime
+        title: Define the maximum idletime
+        mql: |
+          900000
     mql: |
-      registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime' ).value <= 900000
+      registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime' ).value <= props.MaxIdleTime
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime' ).value != 0
     docs:
       desc: |-
