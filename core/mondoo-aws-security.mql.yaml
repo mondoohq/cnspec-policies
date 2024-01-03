@@ -2181,7 +2181,7 @@ queries:
     filters: asset.platform == "aws-elb-loadbalancer"
     mql: aws.elb.loadBalancers.all(attributes.all(_['Key'] == "delete_protection.enabled" && _['Value'] == true))
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
-    title: Ensure ES domains have encryption at rest configuration enabled
+    title: Ensure ES domains have encryption at rest enabled
     impact: 50
     filters: asset.platform == "aws-es-domain"
     mql: aws.es.domains.all(encryptionAtRestEnabled == true)
