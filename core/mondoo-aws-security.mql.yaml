@@ -1312,7 +1312,7 @@ queries:
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
         title: Terraform Registry - aws_instance
   - uid: mondoo-aws-security-ec2-imdsv2-check
-    title: Enable EC2 instances use IMDSv2
+    title: Ensure EC2 instances use IMDSv2
     impact: 80
     filters: asset.platform == "aws"
     mql: aws.ec2.instances.all(httpTokens == "required")
