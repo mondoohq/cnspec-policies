@@ -203,7 +203,7 @@ queries:
       - url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
         title: M3AAWG Email Authentication Recommended Best Practices (2020)
   - uid: mondoo-email-security-dmarc-ruf
-    title: Ensure DMARC RUA tag
+    title: Ensure DMARC RUF tag
     mql: dns("_dmarc." + asset.name).params['TXT']['rData'].all(/ruf=mailto/)
     docs:
       desc: |
