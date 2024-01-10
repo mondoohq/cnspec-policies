@@ -1853,8 +1853,19 @@ queries:
   - uid: mondoo-aws-security-lambda-concurrency-check
     title: Ensure Lambda functions are configured with function-level concurrent execution limits
     impact: 60
-    filters: asset.platform == "aws-lambda-function"
-    mql: aws.lambda.function.concurrency > 0
+    variants:
+      - uid: mondoo-aws-security-lambda-concurrency-check-single
+      - uid: mondoo-aws-security-lambda-concurrency-check-all
+  - uid: mondoo-aws-security-lambda-concurrency-check-single
+    filters: |
+      asset.platform == "aws-lambda-function"
+    mql: |
+      aws.lambda.function.concurrency > 0
+  - uid: mondoo-aws-security-lambda-concurrency-check-all
+    filters: |
+      asset.platform == "aws"
+    mql: |
+      aws.lambda.functions.all(concurrency > 0)
   - uid: mondoo-aws-security-rds-instance-public-access-check
     title: Ensure all RDS instances are not publicly accessible
     impact: 100
