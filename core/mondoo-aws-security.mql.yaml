@@ -1869,8 +1869,19 @@ queries:
   - uid: mondoo-aws-security-rds-instance-public-access-check
     title: Ensure all RDS instances are not publicly accessible
     impact: 100
-    filters: asset.platform == "aws-rds-dbinstance"
-    mql: aws.rds.dbInstances.all(publiclyAccessible == false)
+    variants:
+      - uid: mondoo-aws-security-rds-instance-public-access-check-all
+      - uid: mondoo-aws-security-rds-instance-public-access-check-single
+  - uid: mondoo-aws-security-rds-instance-public-access-check-all
+    filters: |
+      asset.platform == "aws"
+    mql: |
+      aws.rds.dbInstances.all(publiclyAccessible == false)
+  - uid: mondoo-aws-security-rds-instance-public-access-check-single
+    filters: |
+      asset.platform == "aws-rds-dbinstance"
+    mql: |
+      aws.rds.dbinstance.publiclyAccessible == false
     docs:
       desc: |
         Ensure the Amazon Relational Database Service instances are not publicly accessible. The rule is NON_COMPLIANT if the publiclyAccessible field is true in the instance configuration item.
