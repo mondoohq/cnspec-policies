@@ -2061,7 +2061,7 @@ queries:
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
     impact: 30
     filters: asset.platform == "aws-ec2-volume"
-    mql: aws.ec2.volumes.where(attachments.length > 0 ).all(attachments.all(_['DeleteOnTermination']))
+    mql: aws.ec2.volume.attachments.all(DeleteOnTermination == true)
     docs:
       desc: |
         Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account can lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential or sensitive data leaving your premises. This check ensures there are no EBS volumes that are not attached to an instance. Additionally, it checks whether archived EC2 instances are configured to delete volumes on termination.
