@@ -1249,12 +1249,12 @@ queries:
     filters: |
       asset.platform == "aws"
     mql: |
-      aws.ec2.instances.all(publicIp == "")
+      aws.ec2.instances.all(publicIp == empty)
   - uid: mondoo-aws-security-ec2-instance-no-public-ip-single
     filters: |
       asset.platform == "aws-ec2-instance"
     mql: |
-      aws.ec2.instance.publicIp == ""
+      aws.ec2.instance.publicIp == empty
     docs:
       desc: EC2 instances with public IP addresses are at an increased risk of compromise. It is recommended that EC2 instances not be configured with a public IP address.
       audit: |
