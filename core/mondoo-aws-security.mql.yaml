@@ -2217,8 +2217,10 @@ queries:
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
     title: Ensure Amazon CloudWatch log groups are encrypted with KMS
     impact: 40
-    filters: asset.platform == "aws-cloudwatch-loggroup"
-    mql: aws.cloudwatch.logGroups.all(kmsKey != null)
+    filters: |
+      asset.platform == "aws-cloudwatch-loggroup"
+    mql: |
+      aws.cloudwatch.loggroup.kmsKey != empty
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
     title: Ensure ELBs have deletion protection enabled
     impact: 50
@@ -2231,7 +2233,10 @@ queries:
     title: Ensure ES domains have encryption at rest enabled
     impact: 50
     filters: asset.platform == "aws-es-domain"
-    mql: aws.es.domains.all(encryptionAtRestEnabled == true)
+    mql: |
+      aws.es.domains
+        .where(name == asset.name)
+        .all(encryptionAtRestEnabled == true)
   - uid: mondoo-aws-security-rotation-customer-created-cmks-enabled
     title: Ensure rotation for customer created CMKs is enabled
     impact: 60
