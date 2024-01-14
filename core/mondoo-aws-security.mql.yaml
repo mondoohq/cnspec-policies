@@ -2223,7 +2223,10 @@ queries:
     title: Ensure ELBs have deletion protection enabled
     impact: 50
     filters: asset.platform == "aws-elb-loadbalancer"
-    mql: aws.elb.loadBalancers.all(attributes.all(_['Key'] == "delete_protection.enabled" && _['Value'] == true))
+    mql: |
+      aws.elb.loadBalancers
+        .where(name == asset.name)
+        .all(attributes.all(_['Key'] == "delete_protection.enabled" && _['Value'] == true))
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
     title: Ensure ES domains have encryption at rest enabled
     impact: 50
