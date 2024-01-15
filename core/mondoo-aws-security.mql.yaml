@@ -2240,8 +2240,11 @@ queries:
   - uid: mondoo-aws-security-rotation-customer-created-cmks-enabled
     title: Ensure rotation for customer created CMKs is enabled
     impact: 60
-    filters: asset.platform == "aws-kms-key"
-    mql: aws.kms.keys.where(metadata['KeyState'] == "Enabled").all(keyRotationEnabled == true)
+    filters: |
+      asset.platform == "aws-kms-key"
+      aws.kms.key.metadata.KeyState == "Enabled"
+    mql: |
+      aws.kms.keys.where(metadata['KeyState'] == "Enabled").all(keyRotationEnabled == true)
   - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured
     title: Ensure SageMaker notebook instances are configured to use KMS
     impact: 50
