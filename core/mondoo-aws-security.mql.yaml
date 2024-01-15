@@ -2257,8 +2257,10 @@ queries:
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
     impact: 50
-    filters: asset.platform == "aws-cloudtrail-trail"
-    mql: aws.cloudtrail.trails.all(kmsKey != null)
+    filters: |
+      asset.platform == "aws-cloudtrail-trail"
+    mql: |
+      aws.cloudtrail.trail.kmsKey != empty
     docs:
       desc: |
         This check ensures CloudTrail is configured to use the server-side encryption (SSE) AWS KMS key encryption. The check passes if the KmsKeyId is defined.
