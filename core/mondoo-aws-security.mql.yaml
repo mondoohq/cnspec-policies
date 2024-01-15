@@ -1763,13 +1763,14 @@ queries:
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-all
     filters: asset.platform == "aws"
     mql: |
-      aws.dynamodb.tables.all(sseDescription["SSEType"] == "KMS" && sseDescription["Status"] == "ENABLED")
+      aws.dynamodb.tables.all(sseDescription.SSEType == "KMS")
+      aws.dynamodb.tables.all(sseDescription.Status == "ENABLED")
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-single
     filters: |
       asset.platform == "aws-dynamodb-table"
     mql: |
-      aws.dynamodb.table.sseDescription["SSEType"] == "KMS"
-      aws.dynamodb.table.sseDescription["Status"] == "ENABLED"
+      aws.dynamodb.table.sseDescription.SSEType == "KMS"
+      aws.dynamodb.table.sseDescription.Status == "ENABLED"
     docs:
       desc: |
         Checks whether all DynamoDB tables are encrypted with a customer managed KMS key (non-default).
