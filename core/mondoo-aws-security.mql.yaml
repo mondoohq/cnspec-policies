@@ -2072,7 +2072,9 @@ queries:
   - uid: mondoo-aws-security-ec2-volume-inuse-check
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
     impact: 30
-    filters: asset.platform == "aws-ec2-volume"
+    filters: |
+      asset.platform == "aws-ec2-volume"
+      aws.ec2.volume.attachments.length > 0
     mql: aws.ec2.volume.attachments.all(DeleteOnTermination == true)
     docs:
       desc: |
