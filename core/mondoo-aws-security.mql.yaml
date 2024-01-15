@@ -2248,8 +2248,12 @@ queries:
   - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured
     title: Ensure SageMaker notebook instances are configured to use KMS
     impact: 50
-    filters: asset.platform == "aws-sagemaker-notebookinstance"
-    mql: aws.sagemaker.notebookInstances.all(details.kmsKey != null)
+    filters: |
+      asset.platform == "aws-sagemaker-notebookinstance"
+    mql: |
+      aws.sagemaker.notebookInstance
+        .where(asset.name == name)
+        .all(details.kmsKey != empty)
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
     impact: 50
