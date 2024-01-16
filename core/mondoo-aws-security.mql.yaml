@@ -736,11 +736,9 @@ queries:
       - uid: mondoo-aws-security-iam-group-has-users-check-account
       - uid: mondoo-aws-security-iam-group-has-users-check-single-group
   - uid: mondoo-aws-security-iam-group-has-users-check-account
-    title: Ensure IAM groups have at least one IAM user
     filters: asset.platform == "aws"
     mql: aws.iam.groups.all(usernames.length > 0)
   - uid: mondoo-aws-security-iam-group-has-users-check-single-group
-    title: Ensure IAM groups have at least one IAM user
     filters: asset.platform == "aws-iam-group"
     mql: aws.iam.group.usernames.length > 0
   - uid: mondoo-aws-security-iam-users-only-one-access-key
@@ -852,11 +850,9 @@ queries:
       - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
       - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
-    title: Ensure IAM users receive permissions only through groups
     filters: asset.platform == "aws"
     mql: aws.iam.users.all(attachedPolicies.length == 0)
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
-    title: Ensure IAM users receive permissions only through groups
     filters: asset.platform == "aws-iam-user"
     mql: aws.iam.user.attachedPolicies.length == 0
   - uid: mondoo-aws-security-vpc-default-security-group-closed
@@ -1747,11 +1743,9 @@ queries:
       - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
       - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
-    title: Ensure VPC flow logging is enabled in all VPCs
     filters: asset.platform == "aws"
     mql: aws.vpcs.all(flowLogs.any(status == "ACTIVE"))
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
-    title: Ensure VPC flow logging is enabled in all VPCs
     filters: asset.platform == "aws-vpc"
     mql: aws.vpc.flowLogs.any(status == "ACTIVE")
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
