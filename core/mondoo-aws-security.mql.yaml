@@ -2264,7 +2264,7 @@ queries:
       asset.platform == "aws-kms-key"
       aws.kms.key.metadata.KeyState == "Enabled"
     mql: |
-      aws.kms.keys.where(metadata['KeyState'] == "Enabled").all(keyRotationEnabled == true)
+      aws.kms.key.keyRotationEnabled == true
   - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured
     title: Ensure SageMaker notebook instances are configured to use KMS
     impact: 50
