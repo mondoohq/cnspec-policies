@@ -2158,7 +2158,9 @@ queries:
     filters: |
       asset.platform == "aws-efs-filesystem"
     mql: |
-      aws.efs.filesystems.all(encrypted == true && kmsKey != null)
+      aws.efs.filesystems
+        .where(id == asset.name)
+        .all(encrypted == true && kmsKey != null)
     docs:
       desc: |
         Amazon EFS supports two forms of encryption for file systems, encryption of data in transit and encryption at rest. This check ensures that all EFS file systems are configured with encryption at rest across all enabled regions in the account.
