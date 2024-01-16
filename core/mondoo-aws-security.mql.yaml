@@ -2000,7 +2000,7 @@ queries:
     title: Ensure Redshift clusters are not publicly accessible
     impact: 95
     filters: asset.platform == "aws-redshift-cluster"
-    mql: aws.redshift.clusters.all(publiclyAccessible == false)
+    mql: aws.redshift.cluster.publiclyAccessible == false
     docs:
       desc: |
         The PubliclyAccessible attribute of the Amazon Redshift cluster configuration indicates whether the cluster is publicly accessible. When the cluster is configured with PubliclyAccessible set to true, it is an Internet-facing instance that has a publicly resolvable DNS name, which resolves to a public IP address.
