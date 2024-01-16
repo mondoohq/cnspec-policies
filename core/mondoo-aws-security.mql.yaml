@@ -2143,7 +2143,7 @@ queries:
     title: Ensure EBS snapshots are not publicly restorable
     impact: 80
     filters: |
-      asset.platform == "aws-ec2-snapshot"
+      asset.platform == "aws-ec2-snapshot" || asset.platform == "aws-ebs-snapshot"
     mql: |
       aws.ec2.snapshot.createVolumePermission.none(Group == "all")
   - uid: mondoo-aws-security-efs-encrypted-check
