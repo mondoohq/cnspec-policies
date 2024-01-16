@@ -2148,13 +2148,17 @@ queries:
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
     title: Ensure EBS snapshots are not publicly restorable
     impact: 80
-    filters: asset.platform == "aws-ec2-snapshot"
-    mql: aws.ec2.snapshots.all(createVolumePermission.none(_['Group'] == "all"))
+    filters: |
+      asset.platform == "aws-ec2-snapshot"
+    mql: |
+      aws.ec2.snapshot.createVolumePermission.none(Group == "all")
   - uid: mondoo-aws-security-efs-encrypted-check
     title: Ensure EFS is configured to encrypt file data using KMS
     impact: 75
-    filters: asset.platform == "aws-efs-filesystem"
-    mql: aws.efs.filesystems.all(encrypted == true && kmsKey != null)
+    filters: |
+      asset.platform == "aws-efs-filesystem"
+    mql: |
+      aws.efs.filesystems.all(encrypted == true && kmsKey != null)
     docs:
       desc: |
         Amazon EFS supports two forms of encryption for file systems, encryption of data in transit and encryption at rest. This check ensures that all EFS file systems are configured with encryption at rest across all enabled regions in the account.
