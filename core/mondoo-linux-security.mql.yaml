@@ -2054,7 +2054,7 @@ queries:
     - uid: MondooSudoersFiles
       title: Return the files from /etc/sudoers.d
       mql: |
-        sudoerFiles = files.find(from: "/etc/sudoers.d/", type: 'file').list.map(path) + ["/etc/sudoers"]
+        sudoersFiles = files.find(from: "/etc/sudoers.d/", type: 'file').list.map(path) + ["/etc/sudoers"]
         return sudoerFiles.map(file(_).content.lines.where(_ == /^[^#]/)).flat
     mql: |
       props.MondooSudoersFiles
