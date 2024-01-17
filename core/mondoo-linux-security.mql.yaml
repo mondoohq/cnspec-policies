@@ -756,7 +756,9 @@ queries:
     impact: 75
     mql: |
       kernel.parameters['net.ipv4.ip_forward'] == 0
+        || kernel.parameters['net.ipv4.ip_forward'] == null
       kernel.parameters['net.ipv6.conf.all.forwarding'] == 0
+        || kernel.parameters['net.ipv6.conf.all.forwarding'] == null
     docs:
       desc: The `net.ipv4.ip_forward` and `net.ipv6.conf.all.forwarding` flags are used to tell the system whether it can forward packets or not.
       remediation: |-
