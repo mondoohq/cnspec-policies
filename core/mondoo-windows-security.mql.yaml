@@ -158,7 +158,7 @@ policies:
     mondoo.com/category: security
     mondoo.com/platform: windows
   uid: mondoo-windows-security
-  version: 2.1.0
+  version: 2.2.0
 queries:
 - docs:
     desc: |
