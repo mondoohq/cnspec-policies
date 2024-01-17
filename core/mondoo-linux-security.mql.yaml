@@ -894,7 +894,9 @@ queries:
     impact: 75
     mql: |
       kernel.parameters['net.ipv4.conf.all.secure_redirects'] == 0
+        || kernel.parameters['net.ipv4.conf.all.secure_redirects'] == null
       kernel.parameters['net.ipv4.conf.default.secure_redirects'] == 0
+        kernel.parameters['net.ipv4.conf.default.secure_redirects'] == null
     docs:
       desc: Secure ICMP redirects are the same as ICMP redirects, except they come from gateways listed on the default gateway list. It is assumed that these gateways are known to your system and are likely to be secure.
       remediation: |-
