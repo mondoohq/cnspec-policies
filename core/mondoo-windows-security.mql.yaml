@@ -628,8 +628,8 @@ queries:
             default: "Failure";
           }
     mql: |
-      auditpol.where(subcategoryguid == "6997984D-797A-11D9-BED3-505054503030").list != []
-      auditpol.where(subcategoryguid == "6997984D-797A-11D9-BED3-505054503030").all(inclusionsetting == props.auditpolSuccess || inclusionsetting == props.auditpolSuccessFailure)
+      auditpol.where(subcategoryguid == "0CCE922F-69AE-11D9-BED3-505054503030").list != []
+      auditpol.where(subcategoryguid == "0CCE922F-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.auditpolSuccess || inclusionsetting == props.auditpolSuccessFailure)
     docs:
       desc: |-
         This subcategory reports changes in audit policy including SACL changes. Events for this subcategory include:
@@ -968,8 +968,8 @@ queries:
             default: "Failure";
           }
     mql: |
-      auditpol.where(subcategoryguid == "0CCE9244-69AE-11D9-BED3-505054503030").list != []
-      auditpol.where(subcategoryguid == "0CCE9244-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.auditpolSuccessFailure)
+      auditpol.where(subcategoryguid == "0CCE9224-69AE-11D9-BED3-505054503030").list != []
+      auditpol.where(subcategoryguid == "0CCE9224-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.auditpolSuccessFailure)
     docs:
       desc: |-
         This policy setting allows you to audit attempts to access a shared folder.
