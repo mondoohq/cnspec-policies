@@ -926,9 +926,7 @@ queries:
     impact: 60
     mql: |
       kernel.parameters['net.ipv4.conf.all.log_martians'] == 1
-        || kernel.parameters['net.ipv4.conf.all.log_martians'] == null
       kernel.parameters['net.ipv4.conf.default.log_martians'] == 1
-        || kernel.parameters['net.ipv4.conf.default.log_martians'] == null
     docs:
       desc: When enabled, this feature logs packets with un-routable source addresses to the kernel log.
       remediation: |-
