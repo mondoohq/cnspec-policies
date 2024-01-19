@@ -2264,10 +2264,7 @@ queries:
     impact: 50
     filters: |
       asset.platform == "aws-sagemaker-notebookinstance"
-    mql: |
-      aws.sagemaker.notebookInstance
-        .where(asset.name == name)
-        .all(details.kmsKey != empty)
+    mql: aws.sagemaker.notebookinstance.details.kmsKey != empty
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
     impact: 50
