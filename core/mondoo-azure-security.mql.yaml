@@ -96,7 +96,7 @@ queries:
     title: Ensure that multi-factor authentication is enabled for all users
     impact: 100
     mql: |
-      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)
+      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2').all(_['score'] == 9)
     docs:
       desc: |
         This check ensures that MFA is enabled for all users in the Microsoft Azure tenant.
@@ -106,7 +106,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2').all(_['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: You can also use a client secret for the app connection instead of a certificate.
@@ -124,7 +124,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'MFARegistrationV2' &&  _['score'] == 9 )
+          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2').all(_['score'] == 9)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -144,7 +144,7 @@ queries:
     title: Ensure all users in administrative roles have MFA enabled
     impact: 100
     mql: |
-      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2').all(_['score'] == 10)
     docs:
       desc: |
         Enable multi-factor authentication for all users in administrative roles
@@ -154,7 +154,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2').all(_['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnspec shell__
@@ -170,7 +170,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'AdminMFAV2' && _['score'] == 10 )
+          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2').all(_['score'] == 10)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -190,7 +190,7 @@ queries:
     title: Ensure that at least three but not more than four global admins are designated
     impact: 60
     mql: |
-      microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+      microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 2 && assignments.length <= 4)
     docs:
       desc: |
         This check ensures that the right number of global admins exist in a single tenant.
@@ -203,7 +203,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 2 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
 
@@ -218,7 +218,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 1 && assignments.length <= 4)
+          microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 2 && assignments.length <= 4)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -285,7 +285,7 @@ queries:
     title: Enable sign-in risk policy for MFA
     impact: 80
     mql: |
-      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy').all(_['score'] == 7)
     docs:
       desc: |
         This check ensures that there are policies in place that can detect risky sign-ins in real time and offline. A risky sign-in is a sign-in attempt by someone Microsoft suspects is unauthorized.
@@ -297,7 +297,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy').all(_['score'] == 7)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
 
@@ -312,7 +312,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'SigninRiskPolicy' && _['score'] == 7 )
+          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy').all(_['score'] == 7)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -330,7 +330,7 @@ queries:
     title: Enable user risk policy for password change
     impact: 100
     mql: |
-      microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy').all(_['score'] == 7)
     docs:
       desc: |
         This check ensures that there are policies in place that can detect risky sign-in, both in real time and offline. A risky sign-in generally means a sign-in attempt performed by someone other than the account owner.
@@ -340,7 +340,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy').all(_['score'] == 7)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
 
@@ -355,7 +355,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.one( _['controlName'] == 'UserRiskPolicy' && _['score'] == 7 )
+          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy').all(_['score'] == 7)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -492,16 +492,15 @@ queries:
     mql: |
       azure.subscription.network.securityGroups {
         securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /TCP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
-        } {
-          securityRules {
+        {
+            name
             properties["destinationPortRange"] != "*"
-            properties["destinationPortRange"] != 22
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 22 && properties["destinationPortRange"].split("-")[1] < 22
-              b = properties["destinationPortRange"].split("-")[0] > 22 && properties["destinationPortRange"].split("-")[1] > 22
-              a || b
+            destinationPortRange {
+              a = fromPort < 22 && toPort < 22
+              b = fromPort > 22 && toPort > 22
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            properties["destinationPortRanges"].all( _ != 22 )
         }
       }
     docs:
@@ -565,16 +564,15 @@ queries:
     mql: |
       azure.subscription.network.securityGroups {
         securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /TCP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
-        } {
-          securityRules {
+        {
+            name
             properties["destinationPortRange"] != "*"
-            properties["destinationPortRange"] != 3389
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 3389 && properties["destinationPortRange"].split("-")[1] < 3389
-              b = properties["destinationPortRange"].split("-")[0] > 3389 && properties["destinationPortRange"].split("-")[1] > 3389
-              a || b
+            destinationPortRange {
+              a = fromPort < 3389 && toPort < 3389
+              b = fromPort > 3389 && toPort > 3389
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            properties["destinationPortRanges"].all( _ != 3389 )
         }
       }
     docs:
@@ -1175,12 +1173,8 @@ queries:
     title: Ensure that the expiration date is set for all keys and secrets in key vaults
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults {
-        keys.all( enabled && expires != null )
-      }
-      azure.subscription.keyVault.vaults {
-        secrets.all( enabled == true && expires != null )
-      }
+      azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))
+      azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))
     docs:
       desc: |
         The expiration date attribute identifies when you can no longer use the key/secret for a cryptographic operation. By default, keys/secrets never expire. Therefore, it is highly recommended that you rotate keys/secrets in the key vault and set an explicit expiration date.
@@ -1190,8 +1184,8 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults { keys.all( enabled && expires != null ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.keyVault.vaults { secrets.all( enabled == true && expires != null ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1209,8 +1203,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults { keys.all( enabled && expires != null ) }
-          azure.subscription.keyVault.vaults { secrets.all( enabled == true && expires != null ) }
+          azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))
+          azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1755,7 +1749,7 @@ queries:
     title: Ensure that transparent data encryption is enabled for SQL Server databases
     impact: 60
     mql: |
-      azure.subscription.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }
+      azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption["state"] == "Enabled"))
     docs:
       desc: |
         Transparent data encryption (TDE) encrypts SQL Server, Azure SQL Database, and Azure Synapse Analytics data files. This encryption is known as encrypting data at rest.
@@ -1771,7 +1765,7 @@ queries:
         To audit Microsoft Azure with `cnspec , run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption["state"] == "Enabled"))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1789,7 +1783,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.sql.servers { databases.where (name != "master").all( transparentDataEncryption["state"] == "Enabled" ) }
+          azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption["state"] == "Enabled"))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1806,7 +1800,7 @@ queries:
     title: Ensure that diagnostic settings exist for the subscription
     impact: 80
     mql: |
-      azure.subscription.monitor.diagnosticSettings.length > 0
+      azure.subscription.monitor.diagnosticSettings != empty
     docs:
       desc: |
         Diagnostic settings are an important piece in the security puzzle, Microsoft highly recommendeds using them in Azure Security Center. To understand what the diagnostic settings are, you must understand the data source of the Monitor component in Azure.
@@ -1834,7 +1828,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.length > 0" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings != empty" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1852,7 +1846,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.monitor.diagnosticSettings.length > 0
+          azure.subscription.monitor.diagnosticSettings != empty
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1867,9 +1861,11 @@ queries:
     title: Ensure that diagnostic settings collect essential security categories
     impact: 80
     mql: |
-      azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )
-      azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )
-      azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )
+      azure.subscription.monitor.diagnosticSettings != empty
+      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Administrative"))
+      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Security"))
+      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Alert"))
+      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Policy"))
     docs:
       desc: |
         Diagnostic settings control how the diagnostic logs are exported and what type of data is collected and exported to the defined destination.
@@ -1881,6 +1877,7 @@ queries:
           * Security
           * Alert
           * Administrative
+          * Policy
       audit: |
         __cnspec run__
 
@@ -1890,6 +1887,7 @@ queries:
           cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Policy" )  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1910,6 +1908,7 @@ queries:
           azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )
           azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )
           azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )
+          azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Policy" )  )
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1925,45 +1924,46 @@ queries:
     impact: 80
     mql: |
       azure.subscription.network.securityGroups {
-        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
-        } {
-          securityRules {
+        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        {
+            name
+            destinationPortRange
             properties["destinationPortRange"] != "*"
-            properties["destinationPortRange"] != "53"
-            properties["destinationPortRange"] != "123"
-            properties["destinationPortRange"] != "161"
-            properties["destinationPortRange"] != "389"
-            properties["destinationPortRange"] != "1900"
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 53 && properties["destinationPortRange"].split("-")[1] < 53
-              b = properties["destinationPortRange"].split("-")[0] > 53 && properties["destinationPortRange"].split("-")[1] > 53
-              a || b
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 53"
+              a = fromPort < 53 && toPort < 53
+              b = fromPort > 53 && toPort > 53
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 123 && properties["destinationPortRange"].split("-")[1] < 123
-              b = properties["destinationPortRange"].split("-")[0] > 123 && properties["destinationPortRange"].split("-")[1] > 123
-              a || b
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 123"
+              a = fromPort < 123 && toPort < 123
+              b = fromPort > 123 && toPort > 123
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 161 && properties["destinationPortRange"].split("-")[1] < 161
-              b = properties["destinationPortRange"].split("-")[0] > 161 && properties["destinationPortRange"].split("-")[1] > 161
-              a || b
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 161"
+              a = fromPort < 161 && toPort < 161
+              b = fromPort > 161 && toPort > 161
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 389 && properties["destinationPortRange"].split("-")[1] < 389
-              b = properties["destinationPortRange"].split("-")[0] > 389 && properties["destinationPortRange"].split("-")[1] > 389
-              a || b
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 389"
+              a = fromPort < 389 && toPort < 389
+              b = fromPort > 389 && toPort > 389
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            if (properties["destinationPortRange"].split("-").length > 1) {
-              a = properties["destinationPortRange"].split("-")[0] < 1900 && properties["destinationPortRange"].split("-")[1] < 1900
-              b = properties["destinationPortRange"].split("-")[0] > 1900 && properties["destinationPortRange"].split("-")[1] > 1900
-              a || b
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 1900"
+              a = fromPort < 1900 && toPort < 1900
+              b = fromPort > 1900 && toPort > 1900
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-            properties["destinationPortRanges"].all(_ != 53 )
-            properties["destinationPortRanges"].all(_ != 123 )
-            properties["destinationPortRanges"].all(_ != 161 )
-            properties["destinationPortRanges"].all(_ != 389 )
-            properties["destinationPortRanges"].all(_ != 1900 )
         }
       }
     docs:
@@ -1996,49 +1996,49 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.network.securityGroups {
-          securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
-          } {
-            securityRules {
-              properties["destinationPortRange"] != "*"
-              properties["destinationPortRange"] != "53"
-              properties["destinationPortRange"] != "123"
-              properties["destinationPortRange"] != "161"
-              properties["destinationPortRange"] != "389"
-              properties["destinationPortRange"] != "1900"
-              if (properties["destinationPortRange"].split("-").length > 1) {
-                a = properties["destinationPortRange"].split("-")[0] < 53 && properties["destinationPortRange"].split("-")[1] < 53
-                b = properties["destinationPortRange"].split("-")[0] > 53 && properties["destinationPortRange"].split("-")[1] > 53
-                a || b
-              }
-              if (properties["destinationPortRange"].split("-").length > 1) {
-                a = properties["destinationPortRange"].split("-")[0] < 123 && properties["destinationPortRange"].split("-")[1] < 123
-                b = properties["destinationPortRange"].split("-")[0] > 123 && properties["destinationPortRange"].split("-")[1] > 123
-                a || b
-              }
-              if (properties["destinationPortRange"].split("-").length > 1) {
-                a = properties["destinationPortRange"].split("-")[0] < 161 && properties["destinationPortRange"].split("-")[1] < 161
-                b = properties["destinationPortRange"].split("-")[0] > 161 && properties["destinationPortRange"].split("-")[1] > 161
-                a || b
-              }
-              if (properties["destinationPortRange"].split("-").length > 1) {
-                a = properties["destinationPortRange"].split("-")[0] < 389 && properties["destinationPortRange"].split("-")[1] < 389
-                b = properties["destinationPortRange"].split("-")[0] > 389 && properties["destinationPortRange"].split("-")[1] > 389
-                a || b
-              }
-              if (properties["destinationPortRange"].split("-").length > 1) {
-                a = properties["destinationPortRange"].split("-")[0] < 1900 && properties["destinationPortRange"].split("-")[1] < 1900
-                b = properties["destinationPortRange"].split("-")[0] > 1900 && properties["destinationPortRange"].split("-")[1] > 1900
-                a || b
-              }
-              properties["destinationPortRanges"].all(_ != 53 )
-              properties["destinationPortRanges"].all(_ != 123 )
-              properties["destinationPortRanges"].all(_ != 161 )
-              properties["destinationPortRanges"].all(_ != 389 )
-              properties["destinationPortRanges"].all(_ != 1900 )
-          }
-        }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+          cnspec run azure -c "      azure.subscription.network.securityGroups {
+        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        {
+            name
+            destinationPortRange
+            properties["destinationPortRange"] != "*"
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 53"
+              a = fromPort < 53 && toPort < 53
+              b = fromPort > 53 && toPort > 53
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 123"
+              a = fromPort < 123 && toPort < 123
+              b = fromPort > 123 && toPort > 123
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 161"
+              a = fromPort < 161 && toPort < 161
+              b = fromPort > 161 && toPort > 161
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 389"
+              a = fromPort < 389 && toPort < 389
+              b = fromPort > 389 && toPort > 389
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 1900"
+              a = fromPort < 1900 && toPort < 1900
+              b = fromPort > 1900 && toPort > 1900
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+        }
+        }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
 
@@ -2055,48 +2055,49 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.network.securityGroups {
-            securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
-            } {
-              securityRules {
-                properties["destinationPortRange"] != "*"
-                properties["destinationPortRange"] != "53"
-                properties["destinationPortRange"] != "123"
-                properties["destinationPortRange"] != "161"
-                properties["destinationPortRange"] != "389"
-                properties["destinationPortRange"] != "1900"
-                if (properties["destinationPortRange"].split("-").length > 1) {
-                  a = properties["destinationPortRange"].split("-")[0] < 53 && properties["destinationPortRange"].split("-")[1] < 53
-                  b = properties["destinationPortRange"].split("-")[0] > 53 && properties["destinationPortRange"].split("-")[1] > 53
-                  a || b
-                }
-                if (properties["destinationPortRange"].split("-").length > 1) {
-                  a = properties["destinationPortRange"].split("-")[0] < 123 && properties["destinationPortRange"].split("-")[1] < 123
-                  b = properties["destinationPortRange"].split("-")[0] > 123 && properties["destinationPortRange"].split("-")[1] > 123
-                  a || b
-                }
-                if (properties["destinationPortRange"].split("-").length > 1) {
-                  a = properties["destinationPortRange"].split("-")[0] < 161 && properties["destinationPortRange"].split("-")[1] < 161
-                  b = properties["destinationPortRange"].split("-")[0] > 161 && properties["destinationPortRange"].split("-")[1] > 161
-                  a || b
-                }
-                if (properties["destinationPortRange"].split("-").length > 1) {
-                  a = properties["destinationPortRange"].split("-")[0] < 389 && properties["destinationPortRange"].split("-")[1] < 389
-                  b = properties["destinationPortRange"].split("-")[0] > 389 && properties["destinationPortRange"].split("-")[1] > 389
-                  a || b
-                }
-                if (properties["destinationPortRange"].split("-").length > 1) {
-                  a = properties["destinationPortRange"].split("-")[0] < 1900 && properties["destinationPortRange"].split("-")[1] < 1900
-                  b = properties["destinationPortRange"].split("-")[0] > 1900 && properties["destinationPortRange"].split("-")[1] > 1900
-                  a || b
-                }
-                properties["destinationPortRanges"].all(_ != 53 )
-                properties["destinationPortRanges"].all(_ != 123 )
-                properties["destinationPortRanges"].all(_ != 161 )
-                properties["destinationPortRanges"].all(_ != 389 )
-                properties["destinationPortRanges"].all(_ != 1900 )
+        azure.subscription.network.securityGroups {
+        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        {
+            name
+            destinationPortRange
+            properties["destinationPortRange"] != "*"
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 53"
+              a = fromPort < 53 && toPort < 53
+              b = fromPort > 53 && toPort > 53
+              isPortRangeValid = a || b
+              isPortRangeValid
             }
-          }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 123"
+              a = fromPort < 123 && toPort < 123
+              b = fromPort > 123 && toPort > 123
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 161"
+              a = fromPort < 161 && toPort < 161
+              b = fromPort > 161 && toPort > 161
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 389"
+              a = fromPort < 389 && toPort < 389
+              b = fromPort > 389 && toPort > 389
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+            destinationPortRange {
+              "Evaluating Destination Port Range of Port 1900"
+              a = fromPort < 1900 && toPort < 1900
+              b = fromPort > 1900 && toPort > 1900
+              isPortRangeValid = a || b
+              isPortRangeValid
+            }
+        }
+        }
           ```
       remediation: |
         Disable direct UDP access to your Azure virtual machines from the internet. There are other options you can use to access UDP-based services running on these virtual machines:
