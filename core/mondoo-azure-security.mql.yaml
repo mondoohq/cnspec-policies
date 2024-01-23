@@ -1173,8 +1173,8 @@ queries:
     title: Ensure that the expiration date is set for all keys and secrets in key vaults
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))
-      azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))
+      azure.subscription.keyVault.vaults.all(keys.all(enabled == true && expires != empty))
+      azure.subscription.keyVault.vaults.all(secrets.all(enabled == true && expires != empty))
     docs:
       desc: |
         The expiration date attribute identifies when you can no longer use the key/secret for a cryptographic operation. By default, keys/secrets never expire. Therefore, it is highly recommended that you rotate keys/secrets in the key vault and set an explicit expiration date.
