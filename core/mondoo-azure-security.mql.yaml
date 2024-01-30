@@ -96,7 +96,7 @@ queries:
     title: Ensure that multi-factor authentication is enabled for all users
     impact: 100
     mql: |
-      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2').all(_['score'] == 9)
+      microsoft.security.latestSecureScores.controlScores.where(controlName == 'MFARegistrationV2').all(_['score'] == 9)
     docs:
       desc: |
         This check ensures that MFA is enabled for all users in the Microsoft Azure tenant.
@@ -106,7 +106,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2').all(_['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(controlName == 'MFARegistrationV2').all(_['score'] == 9)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: You can also use a client secret for the app connection instead of a certificate.
@@ -124,7 +124,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2').all(_['score'] == 9)
+          microsoft.security.latestSecureScores.controlScores.where(controlName == 'MFARegistrationV2').all(_['score'] == 9)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -144,7 +144,7 @@ queries:
     title: Ensure all users in administrative roles have MFA enabled
     impact: 100
     mql: |
-      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2').all(_['score'] == 10)
+      microsoft.security.latestSecureScores.controlScores.where(controlName == 'AdminMFAV2').all(_['score'] == 10)
     docs:
       desc: |
         Enable multi-factor authentication for all users in administrative roles
@@ -154,7 +154,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2').all(_['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(controlName == 'AdminMFAV2').all(_['score'] == 10)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnspec shell__
@@ -170,7 +170,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2').all(_['score'] == 10)
+          microsoft.security.latestSecureScores.controlScores.where(controlName == 'AdminMFAV2').all(_['score'] == 10)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -190,7 +190,7 @@ queries:
     title: Ensure that at least three but not more than four global admins are designated
     impact: 60
     mql: |
-      microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 2 && assignments.length <= 4)
+      microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length.inRange(2,4))
     docs:
       desc: |
         This check ensures that the right number of global admins exist in a single tenant.
@@ -203,7 +203,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 2 && assignments.length <= 4)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length.inRange(2,4))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
 
@@ -218,7 +218,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length > 2 && assignments.length <= 4)
+          microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator").all(assignments.length.inRange(2,4))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -235,7 +235,7 @@ queries:
     title: Ensure that the security defaults are enabled
     impact: 80
     mql: |
-      microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == true
+      microsoft.policies.identitySecurityDefaultsEnforcementPolicy.isEnabled == true
     docs:
       desc: |
         This check ensures that the security defaults (which are enabled by default) are enabled in Microsoft Entra ID (formerly Azure Active Directory).
@@ -254,7 +254,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.policies.identitySecurityDefaultsEnforcementPolicy.isEnabled == true" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         __cnspec shell__
@@ -270,7 +270,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.policies.identitySecurityDefaultsEnforcementPolicy["isEnabled"] == false
+          microsoft.policies.identitySecurityDefaultsEnforcementPolicy.isEnabled == true
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -285,7 +285,7 @@ queries:
     title: Enable sign-in risk policy for MFA
     impact: 80
     mql: |
-      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy').all(_['score'] == 7)
+      microsoft.security.latestSecureScores.controlScores.where(controlName == 'SigninRiskPolicy').all(_['score'] == 7)
     docs:
       desc: |
         This check ensures that there are policies in place that can detect risky sign-ins in real time and offline. A risky sign-in is a sign-in attempt by someone Microsoft suspects is unauthorized.
@@ -297,7 +297,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy').all(_['score'] == 7)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(controlName == 'SigninRiskPolicy').all(_['score'] == 7)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
 
@@ -312,7 +312,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy').all(_['score'] == 7)
+          microsoft.security.latestSecureScores.controlScores.where(controlName == 'SigninRiskPolicy').all(_['score'] == 7)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -330,7 +330,7 @@ queries:
     title: Enable user risk policy for password change
     impact: 100
     mql: |
-      microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy').all(_['score'] == 7)
+      microsoft.security.latestSecureScores.controlScores.where(controlName == 'UserRiskPolicy').all(_['score'] == 7)
     docs:
       desc: |
         This check ensures that there are policies in place that can detect risky sign-in, both in real time and offline. A risky sign-in generally means a sign-in attempt performed by someone other than the account owner.
@@ -340,7 +340,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy').all(_['score'] == 7)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "microsoft.security.latestSecureScores.controlScores.where(controlName == 'UserRiskPolicy').all(_['score'] == 7)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
         __cnspec shell__
 
@@ -355,7 +355,7 @@ queries:
         2. Run this query:
 
           ```mql
-          microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy').all(_['score'] == 7)
+          microsoft.security.latestSecureScores.controlScores.where(controlName == 'UserRiskPolicy').all(_['score'] == 7)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -373,11 +373,7 @@ queries:
     title: Ensure that OS disks are encrypted
     impact: 80
     mql: |
-      azure.subscription.compute.vms {
-        osDisk {
-          properties['encryption'] != null
-        }
-      }
+      azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)
     docs:
       desc: |
         This check ensures that both OS disks (boot volumes) are encrypted. Customer managed keys can be either Azure Disk Encryption (ADE) or server-side encryption (SSE).
@@ -390,7 +386,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.compute.vms { osDisk { properties['encryption'] } }"
+          cnspec run azure -c "azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)"
           ```
 
         __cnspec shell__
@@ -407,7 +403,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.compute.vms { osDisk { properties['encryption'] } }
+          azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)
           ```
       remediation: |
         ### Terraform
@@ -481,7 +477,7 @@ queries:
         ### Azure CLI
 
         ```bash
-        az vm encryption enable -g <resource_group> --name <vm_name> --disk-encryption-keyvault <keyvault_name>
+        az vm encryption enable -g <resource_group> --name <vm_name> --disk-encryption-keyvault <keyvault_name> --key-encryption-key <key_name> --volume-type [ALL|OS|DATA]
         ```
     refs:
       - url: https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption-overview
@@ -491,10 +487,10 @@ queries:
     impact: 80
     mql: |
       azure.subscription.network.securityGroups {
-        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /TCP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /TCP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
         {
             name
-            properties["destinationPortRange"] != "*"
+            properties.destinationPortRange != "*"
             destinationPortRange {
               a = fromPort < 22 && toPort < 22
               b = fromPort > 22 && toPort > 22
@@ -563,10 +559,10 @@ queries:
     impact: 80
     mql: |
       azure.subscription.network.securityGroups {
-        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /TCP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /TCP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
         {
             name
-            properties["destinationPortRange"] != "*"
+            properties.destinationPortRange != "*"
             destinationPortRange {
               a = fromPort < 3389 && toPort < 3389
               b = fromPort > 3389 && toPort > 3389
@@ -634,9 +630,7 @@ queries:
     title: Ensure that all data must be encrypted in transit
     impact: 80
     mql: |
-      azure.subscription.storage.accounts {
-        properties['supportsHttpsTrafficOnly'] == true || properties['enableHttpsTrafficOnly'] == true
-      }
+      azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)
     docs:
       desc: |
         This check ensures that "Secure transfer required" is enabled.
@@ -649,7 +643,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts { properties['supportsHttpsTrafficOnly'] }"
+          cnspec run azure -c "azure.subscription.storage.accounts { properties.EnableHttpsTrafficOnly }"
           ```
 
         __cnspec shell__
@@ -666,7 +660,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts { properties['supportsHttpsTrafficOnly'] }
+          azure.subscription.storage.accounts { properties.EnableHttpsTrafficOnly }
           ```
       remediation: |
         ### Terraform
@@ -681,7 +675,8 @@ queries:
     title: Ensure that anonymous access to blob containers and public access on storage accounts are disabled
     impact: 80
     mql: |
-      azure.subscription.storage.accounts.all( properties["allowBlobPublicAccess"] == "false" ) || azure.subscription.storage.accounts.all ( containers { properties["publicAccess"] == "None" } )
+      azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" ) ||
+       azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
     docs:
       desc: |
         This check ensures that anonymous access to blob containers is disabled. It also checks that public access on storage accounts is disabled.
@@ -694,7 +689,8 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }"
+          cnspec run azure -c "azure.subscription.storage.accounts { properties.AllowBlobPublicAccess == "false" }"
+          cnspec run azure -c "azure.subscription.storage.accounts { containers { properties.publicAccess == "None" } }"
           ```
 
         __cnspec shell__
@@ -711,7 +707,9 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }
+          azure.subscription.storage.accounts { properties.AllowBlobPublicAccess == "false" }
+          azure.subscription.storage.accounts { containers { properties.publicAccess == "None" } }
+
           ```
       remediation: |
         ### Terraform
@@ -748,7 +746,7 @@ queries:
     title: Ensure the default network access rule for Storage Accounts is set to deny
     impact: 80
     mql: |
-      azure.subscription.storage.accounts.all( properties["networkAcls"]["defaultAction"] == "Deny" )
+      azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")
     docs:
       desc: |
         This check ensures that access to the default network for storage accounts is set to deny.
@@ -761,7 +759,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }"
+          cnspec run azure -c "azure.subscription.storage.accounts {properties.NetworkRuleSet.defaultAction == "Deny"}"
           ```
 
         __cnspec shell__
@@ -778,7 +776,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts { containers { properties['publicAccess'] == "None" } }
+          azure.subscription.storage.accounts {properties.NetworkRuleSet.defaultAction == "Deny"}
           ```
       remediation: |
         ### Terraform
@@ -811,7 +809,7 @@ queries:
     title: Ensure "Trusted Microsoft Services" is enabled for storage account access
     impact: 80
     mql: |
-      azure.subscription.storage.accounts.all ( properties['networkAcls']['bypass'] == "AzureServices")
+      azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
     docs:
       desc: |
         This check ensures that "Trusted Microsoft Services" is enabled for storage account access.
@@ -824,7 +822,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts.all ( properties['networkAcls']['bypass'] == "AzureServices")"
+          cnspec run azure -c "azure.subscription.storage.accounts {properties.NetworkRuleSet.bypass.contains("AzureServices")}"
           ```
 
         __cnspec shell__
@@ -841,7 +839,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts.all ( properties['networkAcls']['bypass'] == "AzureServices")
+          azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
           ```
       remediation: |
         ### Terraform
@@ -860,9 +858,7 @@ queries:
     title: Ensure that auditing is enabled for SQL Server
     impact: 80
     mql: |
-      azure.subscription.sql.servers {
-        auditingPolicy['state'] == "Enabled"
-      }
+      azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
     docs:
       desc: |
         This check ensures that "Auditing" is turned on for SQL Server.
@@ -875,7 +871,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers { auditingPolicy['state'] }"
+          cnspec run azure -c "azure.subscription.sql.servers {auditingPolicy.state == "Enabled"}"
           ```
 
         __cnspec shell__
@@ -892,7 +888,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.sql.servers { auditingPolicy['state'] }
+          azure.subscription.sql.servers { auditingPolicy.state }
           ```
       remediation: |
         ### Terraform
@@ -913,9 +909,8 @@ queries:
     title: Ensure that audit logs are retained for at least 30 days
     impact: 80
     mql: |
-      azure.subscription.sql.servers {
-        auditingPolicy['retentionDays'] >= 30
-      }
+      azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) ||
+       azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)
     docs:
       desc: |
         This check ensures that auditing retention is set to greater than or equal to 30 days.
@@ -928,7 +923,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers { auditingPolicy['retentionDays'] }"
+          cnspec run azure -c "azure.subscription.sql.servers {auditingPolicy.retentionDays >= 30}"
           ```
 
         __cnspec shell__
@@ -945,7 +940,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.sql.servers { auditingPolicy['retentionDays'] }
+          azure.subscription.sql.servers { auditingPolicy.retentionDays }
           ```
       remediation: |
         ### Terraform
@@ -965,30 +960,10 @@ queries:
     title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)
     impact: 80
     mql: |
-      azure.subscription.sql.servers {
-        firewallRules.length >= 1
-        firewallRules {
-          startIpAddress != '0.0.0.0'
-        }
-      }
-      azure.subscription.postgreSql.servers {
-        firewallRules.length >= 1
-        firewallRules {
-          startIpAddress != '0.0.0.0'
-        }
-      }
-      azure.subscription.mySql.servers {
-        firewallRules.length >= 1
-        firewallRules {
-          startIpAddress != '0.0.0.0'
-        }
-      }
-      azure.subscription.mariaDb.servers {
-        firewallRules.length >= 1
-        firewallRules {
-          startIpAddress != '0.0.0.0'
-        }
-      }
+      azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
     docs:
       desc: |
         This check ensures that no SQL databases allow ingress connections from "0.0.0.0".
@@ -1080,9 +1055,8 @@ queries:
     title: Ensure that app services can authenticate with Microsoft Entra ID
     impact: 80
     mql: |
-      azure.subscription.web.apps {
-        identity["type"] == "SystemAssigned" || identity["principalId"] != null
-      }
+      azure.subscription.web.apps.all(identity.type == "SystemAssigned") ||
+       azure.subscription.web.apps.all(identity.principalId != empty)
     docs:
       desc: |
         This check ensures that all app services can authenticate through Microsoft Entra ID (formerly Azure AD). This approach removes secrets from the app itself. Instead, the app connects to other Azure services securely without the need for user names and passwords.
@@ -1092,7 +1066,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.web.apps { identity["type"] == "SystemAssigned" || identity["principalId"] != null }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != null }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for the app connection instead of a certificate.
@@ -1110,7 +1084,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.web.apps { identity["type"] == "SystemAssigned" || identity["principalId"] != null }
+          azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != null }
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1126,9 +1100,7 @@ queries:
     title: Ensure that Web Apps use the latest available version of TLS encryption
     impact: 80
     mql: |
-      azure.subscription.web.apps {
-        configuration.properties["minTlsVersion"] == "1.2"
-      }
+      azure.subscription.web.apps.all(configuration.properties.minTlsVersion == "1.2")
     docs:
       desc: |
         It is highly recommended to use the latest TLS version available with Azure App Services for all secure Web App connections. Currently Azure App Services supports TLS 1.2.
@@ -1138,7 +1110,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.web.apps { configuration.properties["minTlsVersion"] == "1.2" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.web.apps { configuration.properties.minTlsVersion == "1.2" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1156,7 +1128,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.web.apps { configuration.properties["minTlsVersion"] == "1.2" }
+          azure.subscription.web.apps { configuration.properties.minTlsVersion == "1.2" }
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1173,8 +1145,10 @@ queries:
     title: Ensure that the expiration date is set for all keys and secrets in key vaults
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults.all(keys.all(enabled == true && expires != empty))
-      azure.subscription.keyVault.vaults.all(secrets.all(enabled == true && expires != empty))
+      azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
+      azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
+      azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
+      azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
     docs:
       desc: |
         The expiration date attribute identifies when you can no longer use the key/secret for a cryptographic operation. By default, keys/secrets never expire. Therefore, it is highly recommended that you rotate keys/secrets in the key vault and set an explicit expiration date.
@@ -1221,10 +1195,8 @@ queries:
     title: Ensure it is possible to recover key vaults
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults {
-        properties["enablePurgeProtection"] == "true"
-        properties["enableSoftDelete"] == "true"
-      }
+      azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
+      azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
     docs:
       desc: |
         Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a key vault can cause serious problems in any organization.
@@ -1277,9 +1249,7 @@ queries:
     title: Ensure all operations in Azure Key Vault are logged
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults {
-        diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  )
-      }
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))
     docs:
       desc: |
         Monitoring how, by whom, and when key vaults are accessed creates an audit trail of interactions with confidential information, keys, secrets, and certificates.
@@ -1291,7 +1261,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults { diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults { diagnosticSettings.any( properties.logs.where(category == "AuditEvent" && retentionPolicy.days >= 180 )  ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1309,7 +1279,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults { diagnosticSettings.any( properties["logs"].where( _["category"] == "AuditEvent" && _["retentionPolicy"]["days"] >= 180 )  ) }
+          azure.subscription.keyVault.vaults { diagnosticSettings.any( properties.logs.where(category == "AuditEvent" && retentionPolicy.days >= 180 )  ) }
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1326,8 +1296,8 @@ queries:
     title: Ensure that activity log alerts exist for the commands Create, Update, and Delete Network Security Group
     impact: 80
     mql: |
-      azure.subscription.monitor.activityLog.alerts.where( actions.length > 0 ).any( conditions.any( _["equals"] == "Microsoft.Network/networkSecurityGroups/write" && _["fieldName"] == "operationName" ) )
-      azure.subscription.monitor.activityLog.alerts.where( actions.length > 0 ).any( conditions.any( _["equals"] == "Microsoft.Network/networkSecurityGroups/delete" && _["fieldName"] == "operationName" ) )
+      azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Authorization/policyAssignments/write" && fieldName == "operationName"))
+      azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName"))
     docs:
       desc: |
         Monitoring network security group events can give clear insight into network access changes and is useful for detecting suspicious activity.
@@ -1337,8 +1307,8 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.monitor.activityLog.alerts.where( actions.length > 0 ).any( conditions.any( _["equals"] == "Microsoft.Network/networkSecurityGroups/write" && _["fieldName"] == "operationName" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.activityLog.alerts.where( actions.length > 0 ).any( conditions.any( _["equals"] == "Microsoft.Network/networkSecurityGroups/delete" && _["fieldName"] == "operationName" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/write" && fieldName == "operationName" ))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName" ))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1356,8 +1326,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.monitor.activityLog.alerts.where( actions.length > 0 ).any( conditions.any( _["equals"] == "Microsoft.Network/networkSecurityGroups/write" && _["fieldName"] == "operationName" ) )
-          azure.subscription.monitor.activityLog.alerts.where( actions.length > 0 ).any( conditions.any( _["equals"] == "Microsoft.Network/networkSecurityGroups/delete" && _["fieldName"] == "operationName" ) )
+          azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/write" && fieldName == "operationName" ))
+          azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName" ))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1387,7 +1357,8 @@ queries:
     title: Ensure that "Notify about alerts with high severity" is enabled
     impact: 80
     mql: |
-      azure.subscription.cloudDefender.securityContacts.all( alertNotifications["minimalSeverity"] == "High" && alertNotifications["state"] == "On" )
+      azure.subscription.cloudDefender.securityContacts.all(alertNotifications.minimalSeverity == "High")
+      azure.subscription.cloudDefender.securityContacts.all(alertNotifications.state == "On")
     docs:
       desc: |
         Enabling security alert email ensures that Microsoft makes administrators aware of any potential security issues so they can react quickly.
@@ -1397,7 +1368,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.cloudDefender.securityContacts.all( alertNotifications["minimalSeverity"] == "High" && alertNotifications["state"] == "On" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.cloudDefender.securityContacts.all(alertNotifications.minimalSeverity == "High" && alertNotifications.state == "On" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1415,7 +1386,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.cloudDefender.securityContacts.all( alertNotifications["minimalSeverity"] == "High" && alertNotifications["state"] == "On" )
+          azure.subscription.cloudDefender.securityContacts.all( alertNotifications.minimalSeverity == "High" && alertNotifications.state == "On" )
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1430,7 +1401,7 @@ queries:
     title: Ensure SSL connection enabled for PostgreSQL database servers
     impact: 80
     mql: |
-      azure.subscription.postgreSql.servers.all( properties["sslEnforcement"] == "Enabled" )
+      azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")
     docs:
       desc: |
         All communication between clients and PostgreSQL database servers should be through SSL/TLS. This added layer of encryption prevents man-in-the-middle attacks.
@@ -1440,7 +1411,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.postgreSql.servers.all( properties["sslEnforcement"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1458,7 +1429,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.postgreSql.servers.all( properties["sslEnforcement"] == "Enabled" )
+          azure.subscription.postgreSql.servers.all( properties.sslEnforcement == "Enabled" )
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1472,8 +1443,8 @@ queries:
     title: Ensure MariaDB database servers are the latest TLS version and have SSL enabled
     impact: 80
     mql: |
-      azure.subscription.mariaDb.servers.all( properties["sslEnforcement"] == "Enabled" )
-      azure.subscription.mariaDb.servers.all( properties["minimalTlsVersion"] == "TLS1_2" )
+      azure.subscription.mariaDb.servers.all(properties.sslEnforcement == "Enabled")
+      azure.subscription.mariaDb.servers.all(properties.minimalTlsVersion == "TLS1_2")
     docs:
       desc: |
         All communication between clients and MariaDB servers should be through SSL/TLS. This adds a layer of encryption to prevent man-in-the-middle attacks.
@@ -1483,7 +1454,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.mariaDb.servers.all( properties["sslEnforcement"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.mariaDb.servers.all( properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1501,7 +1472,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.mariaDb.servers.all( properties["sslEnforcement"] == "Enabled" )
+          azure.subscription.mariaDb.servers.all( properties.sslEnforcement == "Enabled" )
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1518,7 +1489,7 @@ queries:
     title: Ensure public network access for MariaDB is blocked
     impact: 80
     mql: |
-      azure.subscription.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )
+      azure.subscription.mariaDb.servers.all(properties.publicNetworkAccess == "Disabled")
     docs:
       desc: |
         All public access to MariaDB should be blocked. You should only allow connections through private endpoints.
@@ -1528,7 +1499,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.mariaDb.servers.all( properties.publicNetworkAccess == "Disabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1546,7 +1517,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.mariaDb.servers.all( properties["publicNetworkAccess"] == "Disabled" )
+          azure.subscription.mariaDb.servers.all( properties.publicNetworkAccess == "Disabled" )
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1560,8 +1531,8 @@ queries:
     title: Ensure SSL connection enabled for MySQL Database Server with the latest version
     impact: 80
     mql: |
-      azure.subscription.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )
-      azure.subscription.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )
+      azure.subscription.mySql.servers.all (properties.sslEnforcement == "Enabled" )
+      azure.subscription.mySql.servers.all (properties.minimalTlsVersion == "TLS1_2" )
     docs:
       desc: |
         All communication between clients and MySQL servers should be through SSL/TLS. This adds a layer of encryption to prevent man-in-the-middle attacks.
@@ -1571,8 +1542,8 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.mySql.servers.all (properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.mySql.servers.all (properties.minimalTlsVersion == "TLS1_2" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1590,8 +1561,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.mySql.servers.all ( properties["sslEnforcement"] == "Enabled" )
-          azure.subscription.mySql.servers.all ( properties["minimalTlsVersion"] == "TLS1_2" )
+          azure.subscription.mySql.servers.all (properties.sslEnforcement == "Enabled")
+          azure.subscription.mySql.servers.all (properties.minimalTlsVersion == "TLS1_2")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1604,10 +1575,11 @@ queries:
            b. Enable **SSL**.
            c. Ensure that the latest version of TLS is selected as the minimum.
   - uid: mondoo-azure-security-ensure-disabled-public-access-sql
-    title: Ensure public network access for SQL server is blocked or only possible through firewall rules
+    title: Ensure public network access for SQL server is blocked or Limited to Use Selected Networks Instead of All Networks
     impact: 80
     mql: |
-      azure.subscription.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0 )
+      azure.subscription.sql.servers.all (properties.publicNetworkAccess == "Disabled") ||
+       azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(properties.virtualNetworkRules != empty)
     docs:
       desc: |
         Customers can choose to connect to a database by either:
@@ -1621,7 +1593,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.sql.servers.all (properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(properties.virtualNetworkRules != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1639,7 +1611,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.sql.servers.all ( properties["publicNetworkAccess"] == "Disabled" || properties["publicNetworkAccess"] == "Enabled" && firewallRules.length > 0 )
+          azure.subscription.sql.servers.all (properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(properties.virtualNetworkRules != empty)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1655,7 +1627,7 @@ queries:
     title: Ensure default public network access for Azure Key Vault is disabled
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults.all ( properties["publicNetworkAccess"] == "Disabled" )
+      azure.subscription.keyVault.vaults.all (properties.publicNetworkAccess == "Disabled")
     docs:
       desc: |
         The default public network access to Azure Key Vault must be disabled to add a layer of security to one of the most important components in the Azure environment.
@@ -1669,7 +1641,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all ( properties["publicNetworkAccess"] == "Disabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all (properties.publicNetworkAccess == "Disabled")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1687,7 +1659,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults.all ( properties["publicNetworkAccess"] == "Disabled" )
+          azure.subscription.keyVault.vaults.all (properties.publicNetworkAccess == "Disabled")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1703,7 +1675,7 @@ queries:
     title: Ensure that all activities on SQL server are audited
     impact: 60
     mql: |
-      azure.subscription.sql.servers.all( auditingPolicy["state"] == "Enabled" )
+      azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
     docs:
       desc: |
         Auditing is a very important feature and should be configured for every database or server in your Azure deployment. When you enable server-level auditing, you enable it for all existing databases and for new databases you create in the future.
@@ -1717,7 +1689,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all( auditingPolicy["state"] == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1735,7 +1707,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.sql.servers.all( auditingPolicy["state"] == "Enabled" )
+          azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1749,7 +1721,7 @@ queries:
     title: Ensure that transparent data encryption is enabled for SQL Server databases
     impact: 60
     mql: |
-      azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption["state"] == "Enabled"))
+      azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))
     docs:
       desc: |
         Transparent data encryption (TDE) encrypts SQL Server, Azure SQL Database, and Azure Synapse Analytics data files. This encryption is known as encrypting data at rest.
@@ -1765,7 +1737,7 @@ queries:
         To audit Microsoft Azure with `cnspec , run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption["state"] == "Enabled"))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1783,7 +1755,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption["state"] == "Enabled"))
+          azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1862,10 +1834,10 @@ queries:
     impact: 80
     mql: |
       azure.subscription.monitor.diagnosticSettings != empty
-      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Administrative"))
-      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Security"))
-      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Alert"))
-      azure.subscription.monitor.diagnosticSettings.all(properties["logs"].where(_["enabled"] == "true").any(_["category"] == "Policy"))
+      azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Administrative").all(enabled == true))
+      azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Security").all(enabled == true))
+      azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Alert").all(enabled == true))
+      azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Policy").all(enabled == true))
     docs:
       desc: |
         Diagnostic settings control how the diagnostic logs are exported and what type of data is collected and exported to the defined destination.
@@ -1884,10 +1856,10 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Policy" )  )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Administrative").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Security").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Alert").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Policy").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1905,10 +1877,10 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Administrative" ) )
-          azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Security" ) )
-          azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Alert" )  )
-          azure.subscription.monitor.diagnosticSettings.all( properties["logs"].where( _["enabled"] == "true" ).any( _["category"] == "Policy" )  )
+          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Administrative").all(enabled == true))
+          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Security").all(enabled == true))
+          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Alert").all(enabled == true))
+          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Policy").all(enabled == true))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1924,11 +1896,11 @@ queries:
     impact: 80
     mql: |
       azure.subscription.network.securityGroups {
-        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /UDP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
         {
             name
             destinationPortRange
-            properties["destinationPortRange"] != "*"
+            properties.destinationPortRange != "*"
             destinationPortRange {
               "Evaluating Destination Port Range of Port 53"
               a = fromPort < 53 && toPort < 53
@@ -1996,12 +1968,12 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "      azure.subscription.network.securityGroups {
-        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+          cnspec run azure -c "azure.subscription.network.securityGroups {
+        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /UDP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
         {
             name
             destinationPortRange
-            properties["destinationPortRange"] != "*"
+            properties.destinationPortRange != "*"
             destinationPortRange {
               "Evaluating Destination Port Range of Port 53"
               a = fromPort < 53 && toPort < 53
@@ -2056,11 +2028,11 @@ queries:
 
           ```mql
         azure.subscription.network.securityGroups {
-        securityRules.where( properties['access'] == 'Allow' && properties['direction'] == 'Inbound' && properties['protocol'] == /UDP|\*/ && properties['sourceAddressPrefix'] == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/ )
+        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /UDP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
         {
             name
             destinationPortRange
-            properties["destinationPortRange"] != "*"
+            properties.destinationPortRange != "*"
             destinationPortRange {
               "Evaluating Destination Port Range of Port 53"
               a = fromPort < 53 && toPort < 53
