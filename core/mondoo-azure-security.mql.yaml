@@ -63,9 +63,7 @@ policies:
           - uid: mondoo-azure-security-enable-azure-ad-identity-protection-sign-in-risk-policies
           - uid: mondoo-azure-security-enable-azure-ad-identity-protection-user-risk-policies
           - uid: mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group
-          - uid: mondoo-azure-security-ensure-auditing-on
           - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days
-          - uid: mondoo-azure-security-ensure-deny-public-access-mariadb
           - uid: mondoo-azure-security-ensure-disabled-public-access-sql
           - uid: mondoo-azure-security-ensure-logging-enabled-kv
           - uid: mondoo-azure-security-ensure-multifactor-authentication-is-enabled-for-all-users-in-administrative-roles
@@ -75,7 +73,6 @@ policies:
           - uid: mondoo-azure-security-ensure-security-defaults-is-enabled-on-azure-active-directory
           - uid: mondoo-azure-security-ensure-that-between-two-and-four-global-admins-are-designated
           - uid: mondoo-azure-security-ensure-that-notify-about-alerts-with-high-severity-is-on
-          - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mariadb
           - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
           - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql
           - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv
@@ -633,7 +630,8 @@ queries:
       azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)
     docs:
       desc: |
-        This check ensures that "Secure transfer required" is enabled.
+        This check ensures that "Secure transfer required" is enabled.  This setting enforces the use of HTTPS for data operations, ensuring that data transmitted to and from Azure storage accounts is secured. It's an important security measure to protect data from interception or tampering during transmission, aligning with best practices for data security in the cloud.
+        When the 'secure transfer required' setting is enabled in Azure, it mandates the use of HTTPS for accessing storage accounts through REST APIs. Any HTTP requests are automatically rejected. This also impacts the Azure files service; unencrypted connections, including certain SMB protocols and some Linux SMB clients, will fail. However, it's important to note that Azure storage doesn't support HTTPS for custom domain names, so this security feature doesn't apply when using a custom domain. This setting is crucial for ensuring that data in transit is encrypted and secure.
       audit: |
         __cnspec run__
 
@@ -812,7 +810,7 @@ queries:
       azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
     docs:
       desc: |
-        This check ensures that "Trusted Microsoft Services" is enabled for storage account access.
+        This check ensures that "Trusted Microsoft Services" is enabled for storage account access. When using Azure storage accounts, certain Azure services might need to bypass network rules due to their operational networks. The "Allow trusted Azure services" exception allows these services to access the storage account securely, using strong authentication. This exception is crucial for services that interact directly with storage accounts but are not able to conform to network rules. Services such as Azure Backup, Azure Site Recovery, Azure DevTest Labs, Azure Event Grid, Azure Event Hubs, Azure Networking, Azure Monitor, and Azure SQL Data Warehouse are examples of services that can be granted access through this exception when they are registered in the subscription. This setup is important for maintaining both functionality and security in Azure environments.
       audit: |
         __cnspec run__
 
@@ -851,57 +849,6 @@ queries:
             ...
             bypass = ["AzureServices"]
             ...
-          }
-        }
-        ```
-  - uid: mondoo-azure-security-ensure-auditing-on
-    title: Ensure that auditing is enabled for SQL Server
-    impact: 80
-    mql: |
-      azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
-    docs:
-      desc: |
-        This check ensures that "Auditing" is turned on for SQL Server.
-      audit: |
-        __cnspec run__
-
-        To audit Microsoft Azure with `cnspec run`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
-
-          ```bash
-          cnspec run azure -c "azure.subscription.sql.servers {auditingPolicy.state == "Enabled"}"
-          ```
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.sql.servers { auditingPolicy.state }
-          ```
-      remediation: |
-        ### Terraform
-
-        ```hcl
-        resource "azure_sql_server" "example_sql_server" {
-          ...
-
-          extended_auditing_policy {
-            storage_endpoint                        = azure_storage_account.example.primary_blob_endpoint
-            storage_account_access_key              = azure_storage_account.example.primary_access_key
-            storage_account_access_key_is_secondary = true
-            retention_in_days                       = 90
           }
         }
         ```
@@ -1066,7 +1013,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != null }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != empty }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for the app connection instead of a certificate.
@@ -1084,7 +1031,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != null }
+          azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != empty }
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1214,7 +1161,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults { properties["enablePurgeProtection"] == "true" properties["enableSoftDelete"] == "true" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults { properties.enablePurgeProtection == "true" properties.enableSoftDelete == "true" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1232,7 +1179,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults { properties["enablePurgeProtection"] == "true" properties["enableSoftDelete"] == "true" }
+          azure.subscription.keyVault.vaults { properties.enablePurgeProtection == "true" properties.enableSoftDelete == "true" }
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1439,100 +1386,12 @@ queries:
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Go to **Azure Database for PostgreSQL**.
         3. For each database, select **Connection security** and enable SSL.
-  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mariadb
-    title: Ensure MariaDB database servers are the latest TLS version and have SSL enabled
-    impact: 80
-    mql: |
-      azure.subscription.mariaDb.servers.all(properties.sslEnforcement == "Enabled")
-      azure.subscription.mariaDb.servers.all(properties.minimalTlsVersion == "TLS1_2")
-    docs:
-      desc: |
-        All communication between clients and MariaDB servers should be through SSL/TLS. This adds a layer of encryption to prevent man-in-the-middle attacks.
-      audit: |
-        __cnspec run__
-
-        To audit Microsoft Azure with `cnspec run`, run this query:
-
-          ```bash
-          cnspec run azure -c "azure.subscription.mariaDb.servers.all( properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.mariaDb.servers.all( properties.sslEnforcement == "Enabled" )
-          ```
-      remediation: |
-        ### Microsoft Azure Portal
-
-        To update using Microsoft Azure Portal:
-
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Azure Database for MariaDB server**.
-        3. For each database:
-           a. Select **Connection security**.
-           b. Enable **SSL**.
-           c. Ensure that the latest version of TLS is selected as the minimum.
-  - uid: mondoo-azure-security-ensure-deny-public-access-mariadb
-    title: Ensure public network access for MariaDB is blocked
-    impact: 80
-    mql: |
-      azure.subscription.mariaDb.servers.all(properties.publicNetworkAccess == "Disabled")
-    docs:
-      desc: |
-        All public access to MariaDB should be blocked. You should only allow connections through private endpoints.
-      audit: |
-        __cnspec run__
-
-        To audit Microsoft Azure with `cnspec run`, run this query:
-
-          ```bash
-          cnspec run azure -c "azure.subscription.mariaDb.servers.all( properties.publicNetworkAccess == "Disabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.mariaDb.servers.all( properties.publicNetworkAccess == "Disabled" )
-          ```
-      remediation: |
-        ### Microsoft Azure Portal
-
-        To update using Microsoft Azure Portal:
-
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Azure Database for MariaDB server**.
-        3. For each database, select **Connection security** and for **Deny Public network access**, select **Yes**.
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
     title: Ensure SSL connection enabled for MySQL Database Server with the latest version
     impact: 80
     mql: |
-      azure.subscription.mySql.servers.all (properties.sslEnforcement == "Enabled" )
-      azure.subscription.mySql.servers.all (properties.minimalTlsVersion == "TLS1_2" )
+      azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled")
+      azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2")
     docs:
       desc: |
         All communication between clients and MySQL servers should be through SSL/TLS. This adds a layer of encryption to prevent man-in-the-middle attacks.
@@ -1578,8 +1437,8 @@ queries:
     title: Ensure public network access for SQL server is blocked or Limited to Use Selected Networks Instead of All Networks
     impact: 80
     mql: |
-      azure.subscription.sql.servers.all (properties.publicNetworkAccess == "Disabled") ||
-       azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(properties.virtualNetworkRules != empty)
+      azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") ||
+       azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)
     docs:
       desc: |
         Customers can choose to connect to a database by either:
@@ -1593,7 +1452,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all (properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(properties.virtualNetworkRules != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1611,7 +1470,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.sql.servers.all (properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(properties.virtualNetworkRules != empty)
+          azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1624,24 +1483,28 @@ queries:
            a. Under **Security**, select **Networking**.
            b. For **Public network access**, select **Disable** or **Selected networks**.
   - uid: mondoo-azure-security-keyvault-public-access-disabled
-    title: Ensure default public network access for Azure Key Vault is disabled
+    title: Ensure default public network access for Azure Key Vault is disabled or Limited to Use Selected Networks Instead of All Networks
     impact: 80
     mql: |
-      azure.subscription.keyVault.vaults.all (properties.publicNetworkAccess == "Disabled")
+      azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") ||
+        azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)
     docs:
       desc: |
-        The default public network access to Azure Key Vault must be disabled to add a layer of security to one of the most important components in the Azure environment.
+        To enhance the security of Azure Key Vault, a critical component in the Azure environment, it's advisable to restrict public network access. By default, a new key vault has its firewall disabled, permitting unrestricted access from applications and Azure services, though operations are still restricted by Microsoft Entra authentication and access policies.
 
-        By default, when you create a new key vault, the Azure Key Vault firewall is disabled. All applications and Azure services can access the key vault and send requests to the key vault. (This configuration doesn't mean that any user will be able to perform operations on your key vault. Azure still restricts access to secrets, keys, and certificates stored in Azure Key Vault by requiring Microsoft Entra authentication and access policy permissions.)
+        For stronger network security, consider these options:
 
-        To enhance network security, you can disable public access to your vault. This denies all public configurations and allows only connections through private endpoints. It is also possible to allow public access from specific virtual networks and IP addresses.
+          * Disable Public Network Access: This blocks all public internet connections to the key vault, allowing only connections through private endpoints.
+          * Limit Access to Selected Networks: If public access is necessary, restrict it by configuring the Azure Key Vault firewall. You can define specific virtual networks or set firewall rules by adding IP ranges, limiting access to trusted internet sources or your on-premises networks.
+
+        Implementing these measures ensures that only authorized networks and applications can access your key vault, significantly bolstering its security.
       audit: |
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all (properties.publicNetworkAccess == "Disabled")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") || azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1659,7 +1522,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults.all (properties.publicNetworkAccess == "Disabled")
+          azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") ||
+        azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)
           ```
       remediation: |
         ### Microsoft Azure Portal
