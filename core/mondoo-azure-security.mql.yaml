@@ -483,19 +483,16 @@ queries:
     title: Ensure that SSH access is restricted from the internet
     impact: 80
     mql: |
-      azure.subscription.network.securityGroups {
-        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /TCP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
-        {
-            name
-            properties.destinationPortRange != "*"
-            destinationPortRange {
-              a = fromPort < 22 && toPort < 22
-              b = fromPort > 22 && toPort > 22
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-        }
-      }
+      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgTCP.all(properties.destinationPortRange != "*")
+      allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 22 && toPort >= 22)))
     docs:
       desc: |
         This check ensures that SSH on port 22 is not configured to allow access from anywhere with the CIDR block "0.0.0.0".
@@ -508,7 +505,16 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.network.securityGroups { securityRules }"
+          cnspec run azure -c "allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+        )
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 22 && toPort >= 22)))"
           ```
 
         __cnspec shell__
@@ -525,7 +531,16 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.network.securityGroups { securityRules }
+          allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+        )
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 22 && toPort >= 22)))
           ```
       remediation: |
         ### Terraform
@@ -555,19 +570,16 @@ queries:
     title: Ensure that RDP access is restricted from the internet
     impact: 80
     mql: |
-      azure.subscription.network.securityGroups {
-        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /TCP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
-        {
-            name
-            properties.destinationPortRange != "*"
-            destinationPortRange {
-              a = fromPort < 3389 && toPort < 3389
-              b = fromPort > 3389 && toPort > 3389
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-        }
-      }
+      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgTCP.all(properties.destinationPortRange != "*")
+      allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389)))
     docs:
       desc: |
         This check ensures that RDP on port 3389 is not configured to allow access from anywhere with the CIDR block "0.0.0.0".
@@ -580,7 +592,16 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.network.securityGroups { securityRules }"
+          cnspec run azure -c "allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+        )
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389)))"
           ```
 
         __cnspec shell__
@@ -597,7 +618,16 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.network.securityGroups { securityRules }
+          allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+        )
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389)))
           ```
       remediation: |
         ### Terraform
@@ -641,7 +671,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts { properties.EnableHttpsTrafficOnly }"
+          cnspec run azure -c " azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)"
           ```
 
         __cnspec shell__
@@ -658,7 +688,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts { properties.EnableHttpsTrafficOnly }
+           azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)
           ```
       remediation: |
         ### Terraform
@@ -687,8 +717,8 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts { properties.AllowBlobPublicAccess == "false" }"
-          cnspec run azure -c "azure.subscription.storage.accounts { containers { properties.publicAccess == "None" } }"
+          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" ) ||
+            azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))"
           ```
 
         __cnspec shell__
@@ -705,8 +735,8 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts { properties.AllowBlobPublicAccess == "false" }
-          azure.subscription.storage.accounts { containers { properties.publicAccess == "None" } }
+          azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" ) ||
+            azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
 
           ```
       remediation: |
@@ -757,7 +787,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts {properties.NetworkRuleSet.defaultAction == "Deny"}"
+          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")"
           ```
 
         __cnspec shell__
@@ -774,7 +804,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts {properties.NetworkRuleSet.defaultAction == "Deny"}
+          azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")
           ```
       remediation: |
         ### Terraform
@@ -820,7 +850,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts {properties.NetworkRuleSet.bypass.contains("AzureServices")}"
+          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))"
           ```
 
         __cnspec shell__
@@ -870,7 +900,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers {auditingPolicy.retentionDays >= 30}"
+          cnspec run azure -c "azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) || azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)"
           ```
 
         __cnspec shell__
@@ -887,7 +917,7 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.sql.servers { auditingPolicy.retentionDays }
+          azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) || azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)
           ```
       remediation: |
         ### Terraform
@@ -923,10 +953,10 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.sql.servers { firewallRules { startIpAddress } }"
-          cnspec run azure -c "azure.subscription.postgreSql.servers { firewallRules { startIpAddress } }"
-          cnspec run azure -c "azure.subscription.mariaDb.servers { firewallRules { startIpAddress } }"
-          cnspec run azure -c "azure.subscription.mySql.servers { firewallRules { startIpAddress } }"
+          cnspec run azure -c "azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
+          cnspec run azure -c "azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
+          cnspec run azure -c "azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
+          cnspec run azure -c "azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
           ```
 
         __cnspec shell__
@@ -943,10 +973,10 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.sql.servers { firewallRules { startIpAddress } }
-          azure.subscription.postgreSql.servers { firewallRules { startIpAddress } }
-          azure.subscription.mariaDb.servers { firewallRules { startIpAddress } }
-          azure.subscription.mySql.servers { firewallRules { startIpAddress } }
+          azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+          azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+          azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+          azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
           ```
       remediation: |
         ### Terraform
@@ -1013,7 +1043,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != empty }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.web.apps.all(identity.type == "SystemAssigned") || azure.subscription.web.apps.all(identity.principalId != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for the app connection instead of a certificate.
@@ -1031,7 +1061,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.web.apps { identity.type == "SystemAssigned" || identity.principalId != empty }
+          azure.subscription.web.apps.all(identity.type == "SystemAssigned") || azure.subscription.web.apps.all(identity.principalId != empty)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1057,7 +1087,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.web.apps { configuration.properties.minTlsVersion == "1.2" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.web.apps.all(configuration.properties.minTlsVersion == "1.2")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1075,7 +1105,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.web.apps { configuration.properties.minTlsVersion == "1.2" }
+          azure.subscription.web.apps.all(configuration.properties.minTlsVersion == "1.2")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1124,8 +1154,10 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))
-          azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))
+          azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
+          azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
+          azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
+          azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1161,7 +1193,8 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults { properties.enablePurgeProtection == "true" properties.enableSoftDelete == "true" }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1179,7 +1212,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults { properties.enablePurgeProtection == "true" properties.enableSoftDelete == "true" }
+          azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
+          azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1208,7 +1242,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults { diagnosticSettings.any( properties.logs.where(category == "AuditEvent" && retentionPolicy.days >= 180 )  ) }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1226,7 +1260,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults { diagnosticSettings.any( properties.logs.where(category == "AuditEvent" && retentionPolicy.days >= 180 )  ) }
+          azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1333,7 +1367,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.cloudDefender.securityContacts.all( alertNotifications.minimalSeverity == "High" && alertNotifications.state == "On" )
+          azure.subscription.cloudDefender.securityContacts.all(alertNotifications.minimalSeverity == "High")
+          azure.subscription.cloudDefender.securityContacts.all(alertNotifications.state == "On")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1358,7 +1393,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1376,7 +1411,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.postgreSql.servers.all( properties.sslEnforcement == "Enabled" )
+          azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1401,8 +1436,8 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.mySql.servers.all (properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.mySql.servers.all (properties.minimalTlsVersion == "TLS1_2" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1420,8 +1455,8 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.mySql.servers.all (properties.sslEnforcement == "Enabled")
-          azure.subscription.mySql.servers.all (properties.minimalTlsVersion == "TLS1_2")
+          azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled")
+          azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2")
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1759,49 +1794,20 @@ queries:
     title: Ensure direct UDP access to Azure virtual machines from the internet is restricted
     impact: 80
     mql: |
-      azure.subscription.network.securityGroups {
-        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /UDP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
-        {
-            name
-            destinationPortRange
-            properties.destinationPortRange != "*"
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 53"
-              a = fromPort < 53 && toPort < 53
-              b = fromPort > 53 && toPort > 53
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 123"
-              a = fromPort < 123 && toPort < 123
-              b = fromPort > 123 && toPort > 123
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 161"
-              a = fromPort < 161 && toPort < 161
-              b = fromPort > 161 && toPort > 161
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 389"
-              a = fromPort < 389 && toPort < 389
-              b = fromPort > 389 && toPort > 389
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 1900"
-              a = fromPort < 1900 && toPort < 1900
-              b = fromPort > 1900 && toPort > 1900
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-        }
-      }
+      allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgUDP.all(properties.destinationPortRange != "*")
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))
     docs:
       desc: |
         The main security issue with exposing UDP services over the internet is the broad attack surface that allows attackers to use reflection amplification attack against virtual machines.
@@ -1832,49 +1838,20 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.network.securityGroups {
-        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /UDP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
-        {
-            name
-            destinationPortRange
-            properties.destinationPortRange != "*"
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 53"
-              a = fromPort < 53 && toPort < 53
-              b = fromPort > 53 && toPort > 53
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 123"
-              a = fromPort < 123 && toPort < 123
-              b = fromPort > 123 && toPort > 123
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 161"
-              a = fromPort < 161 && toPort < 161
-              b = fromPort > 161 && toPort > 161
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 389"
-              a = fromPort < 389 && toPort < 389
-              b = fromPort > 389 && toPort > 389
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 1900"
-              a = fromPort < 1900 && toPort < 1900
-              b = fromPort > 1900 && toPort > 1900
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-        }
-        }" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>```
+          cnspec run azure -c "allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+        )
+        allNsgUDP.all(properties.destinationPortRange != "*")
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
 
@@ -1891,49 +1868,20 @@ queries:
         2. Run this query:
 
           ```mql
-        azure.subscription.network.securityGroups {
-        securityRules.where(properties.access == 'Allow' && direction == 'Inbound' && properties.protocol == /UDP|\*/ && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/)
-        {
-            name
-            destinationPortRange
-            properties.destinationPortRange != "*"
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 53"
-              a = fromPort < 53 && toPort < 53
-              b = fromPort > 53 && toPort > 53
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 123"
-              a = fromPort < 123 && toPort < 123
-              b = fromPort > 123 && toPort > 123
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 161"
-              a = fromPort < 161 && toPort < 161
-              b = fromPort > 161 && toPort > 161
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 389"
-              a = fromPort < 389 && toPort < 389
-              b = fromPort > 389 && toPort > 389
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-            destinationPortRange {
-              "Evaluating Destination Port Range of Port 1900"
-              a = fromPort < 1900 && toPort < 1900
-              b = fromPort > 1900 && toPort > 1900
-              isPortRangeValid = a || b
-              isPortRangeValid
-            }
-        }
-        }
+        allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+        )
+        allNsgUDP.all(properties.destinationPortRange != "*")
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))
           ```
       remediation: |
         Disable direct UDP access to your Azure virtual machines from the internet. There are other options you can use to access UDP-based services running on these virtual machines:
