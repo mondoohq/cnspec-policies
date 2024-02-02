@@ -47,7 +47,14 @@ policies:
           - uid: mondoo-email-security-spf-fail
           - uid: mondoo-email-security-spf-dns-record
           - uid: mondoo-email-security-dkim
+          - uid: mondoo-email-security-reverse-ip-ptr-record-set
 queries:
+  - uid: mondoo-email-security-reverse-ip-ptr-record-set
+    title: Ensure Reverse IP Lookup PTR record is set
+    mql: |
+      dns("171.219.85.209.in-addr.arpa").params.PTR.rData.first.contains(asset.fqdn)
+
+
   - uid: mondoo-email-security-txt-record
     title: Domain Apex should have a TXT record
     mql: dns.records.where(type == "TXT") != empty

@@ -47,16 +47,7 @@ policies:
           - uid: mondoo-dns-security-no-cname-for-root-domain
           - uid: mondoo-dns-security-no-ip-for-ns-mx-records
           - uid: mondoo-dns-security-no-legacy-office-365-mx-records
-          - uid: mondoo-dns-security-reverse-ip-ptr-record-set
 queries:
-  - uid: mondoo-dns-security-reverse-ip-ptr-record-set
-    title: Ensure Reverse IP Lookup PTR record is set
-    mql: |
-      dns("171.219.85.209.in-addr.arpa").params.PTR.rData.first.contains(asset.fqdn)
-
-
-
-
   - uid: mondoo-dns-security-no-cname-for-root-domain
     title: Ensure no CNAME is used for root domain
     mql: |
