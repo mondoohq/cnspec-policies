@@ -72,6 +72,8 @@ queries:
     refs:
       - url: https://en.wikipedia.org/wiki/Reverse_DNS_lookup
         title: Reverse DNS Lookup
+      - url: https://support.google.com/a/answer/81126?hl=en#ip
+        title: Google Email sender guidelines - IP Addresses
 
   - uid: mondoo-email-security-txt-record
     title: Domain Apex should have a TXT record
