@@ -61,11 +61,12 @@ queries:
       dns(reverseDNSDomain).params.PTR.rData.first.contains(asset.fqdn)
     docs:
       desc: |
-        Reverse DNS lookups for IPv4 addresses use the special domain in-addr.arpa. In this domain, an IPv4 address is represented as a concatenated sequence of four decimal numbers, separated by dots, to which is appended the second level domain suffix .in-addr.arpa. The four decimal numbers are obtained by splitting the 32-bit IPv4 address into four octets and converting each octet into a decimal number. These decimal numbers are then concatenated in the order: least significant octet first (leftmost), to most significant octet last (rightmost). It is important to note that this is the reverse order to the usual dotted-decimal convention for writing IPv4 addresses in textual form.
+        Reverse DNS queries for IPv4 addresses use the special domain in-addr.arpa. In this domain, the IPv4 address is represented as a concatenated sequence of four decimal numbers separated by periods, to which is added the second-level domain suffix .in-addr.arpa. The four decimal numbers are obtained by splitting the 32-bit IPv4 address into four octets and converting each octet to a decimal number. These decimal numbers are then arranged in the following order: the smallest octet is first (leftmost) and the most significant octet is last (rightmost). It is important to note that this is the reverse order of the usual convention for writing IPv4 addresses in text form.
 
-        For example, to do a reverse lookup of the IP address 8.8.4.4 the PTR record for the domain name 4.4.8.8.in-addr.arpa would be looked up, and found to point to dns.google.
+        For example, to query the IP address 8.8.4.4 in reverse order, the PTR record for the domain name 4.4.8.8.in-addr.arpa is queried, which points to dns.google.
 
-        If the A record for dns.google in turn pointed back to 8.8.4.4 then it would be said to be forward-confirmed.
+        If the A record for dns.google in turn points back to 8.8.4.4.4, it will be said to be forward confirmed.
+Translated with DeepL.com (free version)
       audit: Run the `dig -t PTR <special-reverse-domain>` command and verify that the it points to your mail domain.
       remediation: |
         Add a PTR record to the Reverse your DNS zone file.
