@@ -58,7 +58,7 @@ queries:
           +  dns.params.A.rData.first.split(".")[1] + "."
           +  dns.params.A.rData.first.split(".")[0]
           + ".in-addr.arpa"
-      dns(reverseDNSDomain).params.PTR.rData.first.contains(asset.fqdn)
+      dns(reverseDNSDomain).params.PTR.rData.any(_.contains(asset.fqdn))
     docs:
       desc: |
         Reverse DNS queries for IPv4 addresses use the special domain in-addr.arpa. In this domain, the IPv4 address is represented as a concatenated sequence of four decimal numbers separated by periods, to which is added the second-level domain suffix .in-addr.arpa. The four decimal numbers are obtained by splitting the 32-bit IPv4 address into four octets and converting each octet to a decimal number. These decimal numbers are then arranged in the following order: the smallest octet is first (leftmost) and the most significant octet is last (rightmost). It is important to note that this is the reverse order of the usual convention for writing IPv4 addresses in text form.
