@@ -77,17 +77,16 @@ policies:
 queries:
   - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account
     title: Ensure that instances are not configured to use the default service account
-    impact: 80
-    mql: |
-      gcloud.compute.instances
-        .where( name != /^gke/ )
-        .all( serviceAccounts { email != /^.*compute@developer\.gserviceaccount\.com$/ } )
+    impact: 95
+    variants:
+      - uid: gcp-compute-instances-configured-use-default-service-account-all
+      - uid: gcp-compute-instances-configured-use-default-service-account-single
     docs:
       desc: |
-        New projects that have enabled the Compute Engine API have a Compute Engine default service account, which has the following email:
+        New projects that have enabled the Compute Engine API have a Compute Engine default service account, which contains the following email pattern:
 
         ```bash
-        PROJECT_NUMBER-compute@developer.gserviceaccount.com
+        -compute@developer.gserviceaccount.com
         ```
 
         The Compute Engine default service account is created with the IAM basic Editor role, but you can modify your service account's roles to control the service account's access to Google APIs.
@@ -100,38 +99,26 @@ queries:
 
         To audit your Google Cloud Project with `cnquery run`:
 
-        1. Ensure the `gcloud` cli is configured to the GCP project:
-
-          ```bash
-          gcloud project set <project_id>
-          ```
-
-        2. Run this query:
+        1. Run this query:
 
           ```mql
-          cnquery run gcp -c "gcloud.compute.instances.where( name != /^gke/ ) serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ )"
+          cnquery run gcp project <project-id> -c "gcp.compute.instances.where( name != /^gke/ ) {id name serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) }"
           ```
 
         __cnquery shell__
 
         To audit your Google Cloud Project with `cnquery shell`:
 
-        1. Ensure the `gcloud` cli is configured to the GCP project:
+        1. Launch `cnquery shell`:
 
           ```bash
-          gcloud project set <project_id>
+          cnquery run gcp project <project-id>
           ```
 
-        2. Launch `cnquery shell`:
-
-          ```bash
-          cnquery shell gcp
-          ```
-
-        3. Run this query:
+        2. Run this query:
 
           ```mql
-          gcloud.compute.instances.where( name != /^gke/ ) serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ )
+          gcp.compute.instances.where( name != /^gke/ ) { id name serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) }
           ```
       remediation: |
         ### Terraform
@@ -188,6 +175,22 @@ queries:
           ```bash
           gcloud compute instances start INSTANCE_NAME
           ```
+  - uid: gcp-compute-instances-configured-use-default-service-account-all
+    filters: asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.compute.instances.where(name != /^gke-/).all(
+        serviceAccounts.none(
+          email == /^.*compute@developer\.gserviceaccount\.com$/
+        )
+      )
+  - uid: gcp-compute-instances-configured-use-default-service-account-single
+    filters: |
+      asset.platform == "gcp-compute-instance"
+      gcp.compute.instance.name != /^gke-/
+    mql: |
+        gcp.compute.instance.serviceAccounts.none(
+          email == /^.*compute@developer\.gserviceaccount\.com$/
+        )
   - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api
     title: Ensure instances are not configured to use the default service account with full access to all Cloud APIs
     impact: 90
