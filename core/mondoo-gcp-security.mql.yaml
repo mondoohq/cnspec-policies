@@ -194,10 +194,9 @@ queries:
   - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api
     title: Ensure instances are not configured to use the default service account with full access to all Cloud APIs
     impact: 90
-    mql: |
-      gcloud.compute.instances
-        .where( name != /^gke/ )
-        .all( serviceAccounts { scopes { _ != "https://www.googleapis.com/auth/cloud-platform" } } )
+    variants:
+      - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-all
+      - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
     docs:
       desc: |
         Google compute instances provisioned with full access to all cloud APIs pose a security risk to a GCP environment. Instances should instead be provisioned using a non-default service account, and limited permissions to cloud APIs using the principle of least privilege.
@@ -294,6 +293,22 @@ queries:
           ```bash
           gcloud compute instances start INSTANCE_NAME
           ```
+  - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-all
+    filters: asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.compute.instances.where(name != /^gke-/).all(
+        serviceAccounts.none(
+          scopes == "https://www.googleapis.com/auth/cloud-platform"
+        )
+      )
+  - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
+    filters: |
+      asset.platform == "gcp-compute-instance"
+      gcp.compute.instance.name != /^gke-/
+    mql: |
+      gcp.compute.instance.serviceAccounts.none(
+        scopes == "https://www.googleapis.com/auth/cloud-platform"
+      )
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
     title: Ensure "Block Project-wide SSH keys" is enabled for VM instances
     impact: 70
