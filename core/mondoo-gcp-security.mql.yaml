@@ -346,7 +346,7 @@ queries:
          2. Run this query:
 
            ```mql
-           cnquery run gcp -c "gcloud.compute.instances { metadata['block-project-ssh-keys'] }"
+           cnquery run gcp -c "gcp.compute.instances {id name metadata['block-project-ssh-keys'] }"
            ```
 
          __cnquery shell__
@@ -368,7 +368,7 @@ queries:
          3. Run this query:
 
            ```mql
-           gcloud.compute.instances { metadata['block-project-ssh-keys'] }
+           gcp.compute.instances {id name metadata['block-project-ssh-keys'] }
            ```
       remediation: |
         ### Terraform
@@ -435,23 +435,35 @@ queries:
 
          To audit your Google Cloud Project with `cnquery run`:
 
-         1. Run this query:
+         1. Ensure the `gcloud` cli is configured to the GCP project:
+
+           ```bash
+           gcloud config set project <project_id>
+           ```
+
+         2. Run this query:
 
            ```mql
-           cnquery run gcp project <project-id> -c "gcp.compute.instances.all(metadata['enable-oslogin'] == true)"
+           cnquery run gcp project <project-id> -c "gcp.compute.instances {id name metadata['enable-oslogin'] == true}"
            ```
 
          __cnquery shell__
 
          To audit your Google Cloud Project with `cnquery shell`:
 
-         1. Launch `cnquery shell`:
+         1. Ensure the `gcloud` cli is configured to the GCP project:
+
+           ```bash
+           gcloud config set project <project_id>
+           ```
+
+         2. Launch `cnquery shell`:
 
            ```bash
            cnquery shell gcp project <project-id>
            ```
 
-         2. Run this query:
+         3. Run this query:
 
            ```mql
            gcp.compute.instances {id name metadata['enable-oslogin'] }
@@ -696,8 +708,8 @@ queries:
     filters: asset.platform == "gcp" || asset.platform == "gcp-project"
     mql: |
       gcp.storage.buckets.all(
-        iamConfiguration.UniformBucketLevelAccess.enabled == true
+        iamConfiguration.UniformBucketLevelAccess.Enabled == true
       )
   - uid: gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
     filters: asset.platform == "gcp-storage-bucket"
-    mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
+    mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.Enabled == true
