@@ -387,9 +387,9 @@ queries:
   - uid: mondoo-gcp-security-oslogin-enabled-project
     title: Ensure oslogin is enabled for compute instances
     impact: 70
-    mql: |
-      gcloud.compute.instances
-        .all( metadata['enable-oslogin'] == true )
+    variants:
+      - uid: gcp-compute-oslogin-enabled-project-all
+      - uid: gcp-compute-oslogin-enabled-project-single
     docs:
       desc: |
         OS Login lets you use Compute Engine Identity and Access Management (IAM) roles to grant or revoke SSH access to your Linux instances. OS Login is an alternative to managing instance access by adding and removing SSH keys in metadata.
@@ -398,38 +398,26 @@ queries:
 
          To audit your Google Cloud Project with `cnquery run`:
 
-         1. Ensure the `gcloud` cli is configured to the GCP project:
-
-           ```bash
-           gcloud project set <project_id>
-           ```
-
-         2. Run this query:
+         1. Run this query:
 
            ```mql
-           cnquery run gcp -c "gcloud.compute.instances { metadata['enable-oslogin'] }"
+           cnquery run gcp project <project-id> -c "gcp.compute.instances.all(metadata['enable-oslogin'].downcase == "true")"
            ```
 
          __cnquery shell__
 
          To audit your Google Cloud Project with `cnquery shell`:
 
-         1. Ensure the `gcloud` cli is configured to the GCP project:
+         1. Launch `cnquery shell`:
 
            ```bash
-           gcloud project set <project_id>
+           cnquery shell gcp project <project-id>
            ```
 
-         2. Launch `cnquery shell`:
-
-           ```bash
-           cnquery shell gcp
-           ```
-
-         3. Run this query:
+         2. Run this query:
 
            ```mql
-           gcloud.compute.instances { metadata['enable-oslogin'] }
+           gcp.compute.instances {id name metadata['enable-oslogin'] }
            ```
       remediation: |
         ### Terraform
@@ -489,6 +477,16 @@ queries:
           ```bash
           gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
           ```
+  - uid: gcp-compute-oslogin-enabled-project-all
+    filters: asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.compute.instances.all(
+        metadata['enable-oslogin'].downcase == "true"
+      )
+  - uid: gcp-compute-oslogin-enabled-project-single
+    filters: asset.platform == "gcp-compute-instance"
+    mql:
+      gcp.compute.instance.metadata['enable-oslogin'].downcase == "true"
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
     impact: 90
