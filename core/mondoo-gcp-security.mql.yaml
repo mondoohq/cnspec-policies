@@ -493,15 +493,9 @@ queries:
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
     impact: 90
     mql: |
-      gcloud.storage.buckets
-        .all(
-          iamPolicy {
-            members {
-              _ != "allUsers"
-              _ != "allAuthenticatedUsers"
-            }
-          }
-        )
+    variants:
+      - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-all
+      - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
     docs:
       desc: |
         Public access prevention protects Cloud Storage buckets and objects from being accidentally exposed to the public. When you enforce public access prevention, no one can make data in applicable buckets public through IAM policies or ACLs.
@@ -580,6 +574,16 @@ queries:
         ```bash
         gcloud storage buckets update gs://BUCKET_NAME --no-pap
         ```
+  - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-all
+    filters: asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.storage.buckets.all(iamPolicy.all(members.none(_ == "allUsers")))
+      gcp.storage.buckets.all(iamPolicy.all(members.none(_ == "allAuthenticatedUsers")))
+  - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
+    filters: asset.platform == "gcp-storage-bucket"
+    mql: |
+      gcp.storage.bucket.iamPolicy.all(members.none(_ == "allUsers"))
+      gcp.storage.bucket.iamPolicy.all(members.none(_ == "allAuthenticatedUsers"))
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
     title: Ensure that Cloud Storage buckets have uniform bucket-level access enabled
     impact: 60
