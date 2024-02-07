@@ -708,8 +708,8 @@ queries:
     filters: asset.platform == "gcp" || asset.platform == "gcp-project"
     mql: |
       gcp.storage.buckets.all(
-        iamConfiguration.UniformBucketLevelAccess.Enabled == true
+        iamConfiguration.UniformBucketLevelAccess.enabled == true
       )
   - uid: gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
     filters: asset.platform == "gcp-storage-bucket"
-    mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.Enabled == true
+    mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
