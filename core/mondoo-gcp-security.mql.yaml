@@ -99,26 +99,38 @@ queries:
 
         To audit your Google Cloud Project with `cnquery run`:
 
-        1. Run this query:
+         1. Ensure the `gcloud` cli is configured to the GCP project:
+
+           ```bash
+           gcloud config set project <project_id>
+           ```
+
+        2. Run this query:
 
           ```mql
-          cnquery run gcp project <project-id> -c "gcp.compute.instances.where( name != /^gke/ ) {id name serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) }"
+          cnquery run gcp project <project-id> -c "gcp.compute.instances.where( name != /^gke/ ) {id name serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ )}"
           ```
 
         __cnquery shell__
 
         To audit your Google Cloud Project with `cnquery shell`:
 
-        1. Launch `cnquery shell`:
+         1. Ensure the `gcloud` cli is configured to the GCP project:
+
+           ```bash
+           gcloud config set project <project_id>
+           ```
+
+        2. Launch `cnquery shell`:
 
           ```bash
           cnquery run gcp project <project-id>
           ```
 
-        2. Run this query:
+        3. Run this query:
 
           ```mql
-          gcp.compute.instances.where( name != /^gke/ ) { id name serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) }
+          gcp.compute.instances.where( name != /^gke/ ) {id name serviceAccounts.where(email == /^.*compute@developer\.gserviceaccount\.com$/ )}
           ```
       remediation: |
         ### Terraform
@@ -208,13 +220,13 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Run this query:
 
            ```mql
-           cnquery run gcp -c "gcloud.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) { email scopes } } "
+           cnquery run gcp project <project-id> -c "gcp.compute.instances.where( name != /^gke/ ) {id name serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) {email scopes}}"
            ```
 
          __cnquery shell__
@@ -224,7 +236,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Launch `cnquery shell`:
@@ -236,7 +248,7 @@ queries:
          3. Run this query:
 
            ```mql
-           gcloud.compute.instances.where( name != /^gke/ ) { serviceAccounts.where( email == /^.*compute@developer\.gserviceaccount\.com$/ ) { email scopes } }
+           gcp.compute.instances.where(name != /^gke/) {id name serviceAccounts.where(email == /^.*compute@developer\.gserviceaccount\.com$/) {email scopes}}
            ```
       remediation: |
         ### Terraform
@@ -328,7 +340,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Run this query:
@@ -344,7 +356,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Launch `cnquery shell`:
@@ -529,7 +541,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Run this query:
@@ -545,7 +557,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Launch `cnquery shell`:
@@ -625,7 +637,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Run this query:
@@ -641,7 +653,7 @@ queries:
          1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
-           gcloud project set <project_id>
+           gcloud config set project <project_id>
            ```
 
          2. Launch `cnquery shell`:
