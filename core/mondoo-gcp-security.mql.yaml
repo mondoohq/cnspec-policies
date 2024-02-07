@@ -490,7 +490,6 @@ queries:
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
     impact: 90
-    mql: |
     variants:
       - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-all
       - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
