@@ -297,9 +297,9 @@ queries:
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
     title: Ensure "Block Project-wide SSH keys" is enabled for VM instances
     impact: 70
-    mql: |
-      gcloud.compute.instances
-        .all( metadata['block-project-ssh-keys'] == true )
+    variants:
+      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-all
+      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
     docs:
       desc: |
         Project-wide SSH keys can be used to login into all instances within a project. While using project-wide SSH keys eases SSH key management, if SSH keys are compromised, the potential security risk can impact all instances within a project.
@@ -384,6 +384,16 @@ queries:
           ```bash
           gcloud compute instances add-metadata INSTANCE_NAME --metadata block-projectssh-keys=TRUE
           ```
+  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-all
+    filters: asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.compute.instances.all(
+        metadata['block-project-ssh-keys'] == true
+      )
+  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
+    filters: asset.platform == "gcp-compute-instance"
+    mql: |
+      gcp.compute.instance.metadata['block-project-ssh-keys'] == true
   - uid: mondoo-gcp-security-oslogin-enabled-project
     title: Ensure oslogin is enabled for compute instances
     impact: 70
@@ -401,7 +411,7 @@ queries:
          1. Run this query:
 
            ```mql
-           cnquery run gcp project <project-id> -c "gcp.compute.instances.all(metadata['enable-oslogin'].downcase == "true")"
+           cnquery run gcp project <project-id> -c "gcp.compute.instances.all(metadata['enable-oslogin'] == true)"
            ```
 
          __cnquery shell__
@@ -481,12 +491,12 @@ queries:
     filters: asset.platform == "gcp" || asset.platform == "gcp-project"
     mql: |
       gcp.compute.instances.all(
-        metadata['enable-oslogin'].downcase == "true"
+        metadata['enable-oslogin'] == true
       )
   - uid: gcp-compute-oslogin-enabled-project-single
     filters: asset.platform == "gcp-compute-instance"
     mql:
-      gcp.compute.instance.metadata['enable-oslogin'].downcase == "true"
+      gcp.compute.instance.metadata['enable-oslogin'] == true
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
     impact: 90
