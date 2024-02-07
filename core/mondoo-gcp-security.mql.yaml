@@ -99,7 +99,7 @@ queries:
 
         To audit your Google Cloud Project with `cnquery run`:
 
-         1. Ensure the `gcloud` cli is configured to the GCP project:
+        1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
            gcloud config set project <project_id>
@@ -115,7 +115,7 @@ queries:
 
         To audit your Google Cloud Project with `cnquery shell`:
 
-         1. Ensure the `gcloud` cli is configured to the GCP project:
+        1. Ensure the `gcloud` cli is configured to the GCP project:
 
            ```bash
            gcloud config set project <project_id>
