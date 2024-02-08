@@ -64,8 +64,8 @@ policies:
     groups:
       - title: GCP Project
         filters: |
-          asset.platform == "gcp" || asset.platform == "gcp-project"
-          asset.kind == "api" || asset.kind == "gcp-object"
+          asset.family.contains("google")
+          asset.runtime == "gcp"
         checks:
           - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
           - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
