@@ -707,13 +707,12 @@ queries:
       asset.kind == "azure-object"
     mql: |
       azure.subscription.storage.account.properties.NetworkRuleSet.bypass.contains("AzureServices")
-
   - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days
     title: Ensure that audit logs are retained for at least 30 days
     impact: 80
-    mql: |
-      azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) ||
-       azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)
+    variants:
+      - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days-single
+      - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days-api
     docs:
       desc: |
         This check ensures that auditing retention is set to greater than or equal to 30 days.
@@ -759,6 +758,22 @@ queries:
           }
         }
         ```
+  - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days-single
+    filters: |
+      asset.platform == "azure-sql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.sql.server.auditingPolicy.state == "Enabled"
+      azure.subscription.sql.server.auditingPolicy.retentionDays >= 30 ||
+       azure.subscription.sql.server.auditingPolicy.retentionDays == 0
+  - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
+      azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) ||
+       azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)
   - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0
     title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)
     impact: 80
