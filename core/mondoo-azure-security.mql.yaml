@@ -648,8 +648,9 @@ queries:
   - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access
     title: Ensure "Trusted Microsoft Services" is enabled for storage account access
     impact: 80
-    mql: |
-      azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
+    variants:
+      - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-single
+      - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-api
     docs:
       desc: |
         This check ensures that "Trusted Microsoft Services" is enabled for storage account access. When using Azure storage accounts, certain Azure services might need to bypass network rules due to their operational networks. The "Allow trusted Azure services" exception allows these services to access the storage account securely, using strong authentication. This exception is crucial for services that interact directly with storage accounts but are not able to conform to network rules. Services such as Azure Backup, Azure Site Recovery, Azure DevTest Labs, Azure Event Grid, Azure Event Hubs, Azure Networking, Azure Monitor, and Azure SQL Data Warehouse are examples of services that can be granted access through this exception when they are registered in the subscription. This setup is important for maintaining both functionality and security in Azure environments.
@@ -694,6 +695,19 @@ queries:
           }
         }
         ```
+  - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
+  - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-single
+    filters: |
+      asset.platform == "azure-storage-account"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.storage.account.properties.NetworkRuleSet.bypass.contains("AzureServices")
+
   - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days
     title: Ensure that audit logs are retained for at least 30 days
     impact: 80
