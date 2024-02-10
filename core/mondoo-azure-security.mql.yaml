@@ -572,8 +572,9 @@ queries:
   - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny
     title: Ensure the default network access rule for Storage Accounts is set to deny
     impact: 80
-    mql: |
-      azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")
+    variants:
+      - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-single
+      - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-api
     docs:
       desc: |
         This check ensures that access to the default network for storage accounts is set to deny.
@@ -632,6 +633,18 @@ queries:
           ...
         }
         ```
+  - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")
+  - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-single
+    filters: |
+      asset.platform == "azure-storage-account"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.storage.account.properties.NetworkRuleSet.defaultAction == "Deny"
   - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access
     title: Ensure "Trusted Microsoft Services" is enabled for storage account access
     impact: 80
