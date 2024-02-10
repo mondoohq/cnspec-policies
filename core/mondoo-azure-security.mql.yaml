@@ -199,6 +199,27 @@ queries:
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet
     title: Ensure that SSH access is restricted from the internet
     impact: 80
+    variants:
+      - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
+      - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
+  - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
+    filters: |
+      asset.platform == "azure-network-security-group"
+      asset.kind == "azure-object"
+    mql: |
+      allNsgTCP= azure.subscription.network.securityGroup.securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      allNsgTCP.all(properties.destinationPortRange != "*")
+      allNsgTCP.none(destinationPortRange.any(fromPort <= 22 && toPort >= 22))
+  - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
     mql: |
       allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
         .where(
