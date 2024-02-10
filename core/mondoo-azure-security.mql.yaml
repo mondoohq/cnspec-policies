@@ -86,6 +86,19 @@ queries:
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
     title: Ensure that OS disks are encrypted
     impact: 80
+    variants:
+      - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
+      - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-api
+  - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
+    filters: |
+      asset.platform == "azure-compute-vm-api"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.compute.vm.osDisk.properties.encryption != empty
+  - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
     mql: |
       azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)
     docs:
