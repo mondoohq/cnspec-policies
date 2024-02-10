@@ -86,6 +86,9 @@ queries:
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
     title: Ensure that OS disks are encrypted
     impact: 80
+    variants:
+      - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
+      - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-api
     docs:
       desc: |
         This check ensures that both OS disks (boot volumes) are encrypted. Customer managed keys can be either Azure Disk Encryption (ADE) or server-side encryption (SSE).
@@ -194,9 +197,6 @@ queries:
     refs:
       - url: https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption-overview
         title: Overview of managed disk encryption options
-    variants:
-      - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
-      - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-api
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
     filters: |
       asset.platform == "azure-compute-vm-api"
@@ -212,6 +212,9 @@ queries:
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet
     title: Ensure that SSH access is restricted from the internet
     impact: 80
+    variants:
+      - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
+      - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
     docs:
       desc: |
         This check ensures that SSH on port 22 is not configured to allow access from anywhere with the CIDR block "0.0.0.0".
@@ -285,9 +288,6 @@ queries:
           }
         }
         ```
-    variants:
-      - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
-      - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
     filters: |
       asset.platform == "azure-network-security-group"
@@ -320,6 +320,9 @@ queries:
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet
     title: Ensure that RDP access is restricted from the internet
     impact: 80
+    variants:
+      - uid: mondoo-azure-security-rdp-access-restricted-from-internet-single
+      - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
     docs:
       desc: |
         This check ensures that RDP on port 3389 is not configured to allow access from anywhere with the CIDR block "0.0.0.0".
@@ -393,9 +396,6 @@ queries:
           }
         }
         ```
-    variants:
-      - uid: mondoo-azure-security-rdp-access-restricted-from-internet-single
-      - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet-single
     filters: |
       asset.platform == "azure-network-security-group"
@@ -428,8 +428,9 @@ queries:
   - uid: mondoo-azure-security-secure-transfer-required-enabled
     title: Ensure that all data must be encrypted in transit
     impact: 80
-    mql: |
-      azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)
+    variants:
+      - uid: mondoo-azure-security-secure-transfer-required-enabled-api
+      - uid: mondoo-azure-security-secure-transfer-required-enabled-single
     docs:
       desc: |
         This check ensures that "Secure transfer required" is enabled.  This setting enforces the use of HTTPS for data operations, ensuring that data transmitted to and from Azure storage accounts is secured. It's an important security measure to protect data from interception or tampering during transmission, aligning with best practices for data security in the cloud.
@@ -471,6 +472,18 @@ queries:
           enable_https_traffic_only = true
         }
         ```
+  - uid: mondoo-azure-security-secure-transfer-required-enabled-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.storage.accounts.all(properties.EnableHTTPSTrafficOnly == true)
+  - uid: mondoo-azure-security-secure-transfer-required-enabled-single
+    filters: |
+      asset.platform == "azure-storage-account"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.storage.account.properties.EnableHTTPSTrafficOnly == true
   - uid: mondoo-azure-security-public-access-level-private-blob-containers
     title: Ensure that anonymous access to blob containers and public access on storage accounts are disabled
     impact: 80
