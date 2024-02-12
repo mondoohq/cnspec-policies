@@ -1592,14 +1592,14 @@ queries:
            a. Select the database.
            b. Under **Security**, select **Data encryption**.
            c. On the **Transparent data encryption** tab, make sure **Data encryption** is set to **On**.
-  - uid: mondoo-azure-security-sql-server-audit-on-single
+  - uid: mondoo-azure-security-sql-server-tde-on-single
     filters: |
       asset.platform == "azure-sql-server"
       asset.kind == "azure-object"
       azure.subscription.sql.server.databases.any(name != "master")
     mql: |
       azure.subscription.sql.server.databases.where(name != "master").all(transparentDataEncryption.state == "Enabled")
-  - uid: mondoo-azure-security-sql-server-audit-on-api
+  - uid: mondoo-azure-security-sql-server-tde-on-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
