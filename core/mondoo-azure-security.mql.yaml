@@ -1070,8 +1070,9 @@ queries:
   - uid: mondoo-azure-security-ensure-logging-enabled-kv
     title: Ensure all operations in Azure Key Vault are logged
     impact: 80
-    mql: |
-      azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))
+    variants:
+      - uid: mondoo-azure-security-ensure-logging-enabled-kv-single
+      - uid: mondoo-azure-security-ensure-logging-enabled-kv-api
     docs:
       desc: |
         Monitoring how, by whom, and when key vaults are accessed creates an audit trail of interactions with confidential information, keys, secrets, and certificates.
@@ -1114,6 +1115,18 @@ queries:
            c. Select **Audit** and **All logs**.
            d. Select **Archive to a storage account** and choose a storage account.
            e. Select **Save**.
+  - uid: mondoo-azure-security-ensure-logging-enabled-kvsingle
+    filters: |
+      asset.platform == "azure-keyvault-vault"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.keyVault.vault.diagnosticSettings.all(properties.logs.where(category == "AuditEvent").all(retentionPolicy {days >= 180}))
+  - uid: mondoo-azure-security-ensure-logging-enabled-kv-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))
   - uid: mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group
     title: Ensure that activity log alerts exist for the commands Create, Update, and Delete Network Security Group
     impact: 80
