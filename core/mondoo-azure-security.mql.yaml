@@ -1612,7 +1612,7 @@ queries:
       azure.subscription.monitor.diagnosticSettings != empty
     docs:
       desc: |
-        Diagnostic settings are an important piece in the security puzzle, Microsoft highly recommendeds using them in Azure Security Center. To understand what the diagnostic settings are, you must understand the data source of the Monitor component in Azure.
+        Diagnostic settings are an important piece in the security puzzle, Microsoft highly recommends using them in Azure Security Center. To understand what the diagnostic settings are, you must understand the data source of the Monitor component in Azure.
 
         Azure Monitor is based on different logs and metrics collected from multiple resources. This can be analyzed using a set of tools provided in Azure Monitor.
         Azure Resources generate a significant amount of monitoring data which categorized into two types:
