@@ -777,11 +777,12 @@ queries:
   - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0
     title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)
     impact: 80
-    mql: |
-      azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-      azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-      azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-      azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+    variants:
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-azuresql
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mariadb
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-api
     docs:
       desc: |
         This check ensures that no SQL databases allow ingress connections from "0.0.0.0".
@@ -869,6 +870,39 @@ queries:
           end_ip_address      = "255.255.255.255"
         }
         ```
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-azuresql
+    filters: |
+      asset.platform == "azure-sql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.sql.server.firewallRules.all(startIpAddress != "0.0.0.0")
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql
+    filters: |
+      asset.platform == "azure-postgresql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.postgreSql.server.firewallRules.all(startIpAddress != "0.0.0.0")
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql
+    filters: |
+      asset.platform == "azure-mysql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.mySql.server.firewallRules.all(startIpAddress != "0.0.0.0")
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mariadb
+    filters: |
+      asset.platform == "azure-mariadb-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.mariaDb.server.firewallRules.all(startIpAddress != "0.0.0.0")
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
   - uid: mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service
     title: Ensure that app services can authenticate with Microsoft Entra ID
     impact: 80
