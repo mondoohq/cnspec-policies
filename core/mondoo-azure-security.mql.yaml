@@ -1064,23 +1064,15 @@ queries:
       - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-api
     docs:
       desc: |
-        Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a key vault can cause serious problems in any organization.
-
-        Soft delete is a feature of Azure Key Vault that retains key vaults and key vault items after initial deletion. By default, new key vaults created through the portal are configured with soft delete for 90 days.
-
-        Once enabled, soft delete can not be disabled. When soft delete is enabled, it is possible to purge soft deleted vaults and vault items.
-
-        Purge protection is another feature of key vaults that is used to protect deleted key vaults for a certain period, called the "retention period." Once enabled, purge protection prevents deleted key vaults from being purged until the retention period is reached. This selection cannot be changed once the key vault is created.
-
-        If a key vault is created with purge protection, you can still delete it, but you will not be able to purge it once it is deleted. In this case, the deleted key vaults must wait 90 days to be permanently purged.
+        The expiration date attribute identifies when you can no longer use the key/secret for a cryptographic operation. By default, keys/secrets never expire. Therefore, it is highly recommended that you rotate keys/secrets in the key vault and set an explicit expiration date.
       audit: |
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1098,8 +1090,10 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
-          azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
+          azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
+          azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
+          azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
+          azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1108,10 +1102,10 @@ queries:
 
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Go to **Key vaults**.
-        3. for each key vault:
-           a. Select **Properties** and ensure **Soft-delete** is enabled.
-           b. Select **Enable Purge Protection**.
-           c. Select **Save**.
+        3. For each key vault:
+           a. Select the key vault.
+           b. Select **Keys** or **Secrets**.
+           c. Make sure that the key/secret in the key vault has an expiration date.
   - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single
     filters: |
       asset.platform == "azure-keyvault-vault"
