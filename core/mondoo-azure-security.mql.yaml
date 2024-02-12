@@ -996,61 +996,9 @@ queries:
   - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv
     title: Ensure that the expiration date is set for all keys and secrets in key vaults
     impact: 80
-    mql: |
-      azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
-      azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
-      azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
-      azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
-    docs:
-      desc: |
-        The expiration date attribute identifies when you can no longer use the key/secret for a cryptographic operation. By default, keys/secrets never expire. Therefore, it is highly recommended that you rotate keys/secrets in the key vault and set an explicit expiration date.
-      audit: |
-        __cnspec run__
-
-        To audit Microsoft Azure with `cnspec run`, run this query:
-
-          ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
-          azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
-          azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
-          azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
-          ```
-      remediation: |
-        ### Microsoft Azure Portal
-
-        To update using Microsoft Azure Portal:
-
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Key vaults**.
-        3. For each key vault:
-           a. Select the key vault.
-           b. Select **Keys** or **Secrets**.
-           c. Make sure that the key/secret in the key vault has an expiration date.
-  - uid: mondoo-azure-security-ensure-the-kv-is-recoverable
-    title: Ensure it is possible to recover key vaults
-    impact: 80
-    mql: |
-      azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
-      azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
+    variants:
+      - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single
+      - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-api
     docs:
       desc: |
         Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a key vault can cause serious problems in any organization.
@@ -1101,6 +1049,24 @@ queries:
            a. Select **Properties** and ensure **Soft-delete** is enabled.
            b. Select **Enable Purge Protection**.
            c. Select **Save**.
+  - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single
+    filters: |
+      asset.platform == "azure-keyvault-vault"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.keyVault.vault.keys.all(enabled == true)
+      azure.subscription.keyVault.vault.keys.all(expires != empty)
+      azure.subscription.keyVault.vault.secrets.all(enabled == true)
+      azure.subscription.keyVault.vault.secrets.all(expires != empty)
+  - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
+      azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
+      azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
+      azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
   - uid: mondoo-azure-security-ensure-logging-enabled-kv
     title: Ensure all operations in Azure Key Vault are logged
     impact: 80
