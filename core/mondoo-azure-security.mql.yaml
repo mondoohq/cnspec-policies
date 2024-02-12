@@ -948,15 +948,12 @@ queries:
            a. Select the app.
            b. Under **Settings**, select **Identity**.
            c. On the **System assigned** tab, set **Status** to **On**.
-
-
-
   - uid: mondoo-azure-security-ensure-the-kv-is-recoverable
     title: Ensure it is possible to recover key vaults
     impact: 80
-    mql: |
-      azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
-      azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
+    variants:
+      - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-single
+      - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-api
     docs:
       desc: |
         Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a key vault can cause serious problems in any organization.
@@ -1007,10 +1004,20 @@ queries:
            a. Select **Properties** and ensure **Soft-delete** is enabled.
            b. Select **Enable Purge Protection**.
            c. Select **Save**.
-
-
-
-
+  - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-single
+    filters: |
+      asset.platform == "azure-keyvault-vault"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.keyVault.vault.properties.enablePurgeProtection == true
+      azure.subscription.keyVault.vault.properties.enableSoftDelete == true
+  - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
+      azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
   - uid: mondoo-azure-security-ensure-web-app-is-using-the-latest-tls
     title: Ensure that Web Apps use the latest available version of TLS encryption
     impact: 80
