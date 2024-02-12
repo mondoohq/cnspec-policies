@@ -1731,21 +1731,9 @@ queries:
   - uid: mondoo-azure-security-disable-udp-virtualmachines
     title: Ensure direct UDP access to Azure virtual machines from the internet is restricted
     impact: 80
-    mql: |
-      allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /UDP/
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-      )
-      allNsgUDP.all(properties.destinationPortRange != "*")
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))
+    variants:
+      - uid: mondoo-azure-security-disable-udp-virtualmachines-single
+      - uid: mondoo-azure-security-disable-udp-virtualmachines-api
     docs:
       desc: |
         The main security issue with exposing UDP services over the internet is the broad attack surface that allows attackers to use reflection amplification attack against virtual machines.
@@ -1826,3 +1814,40 @@ queries:
         * Point-to-site VPN
         * Site-to-site VPN
         * ExpressRoute
+  - uid: mondoo-azure-security-disable-udp-virtualmachines-single
+    filters: |
+      asset.platform == "azure-network-security-group"
+      asset.kind == "azure-object"
+    mql: |
+      allNsgUDP = azure.subscription.network.securityGroup.securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      allNsgUDP.all(properties.destinationPortRange != "*")
+      allNsgUDP.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53))
+      allNsgUDP.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123))
+      allNsgUDP.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161))
+      allNsgUDP.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389))
+      allNsgUDP.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900))
+  - uid: mondoo-azure-security-disable-udp-virtualmachines-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgUDP.all(properties.destinationPortRange != "*")
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
+      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))
