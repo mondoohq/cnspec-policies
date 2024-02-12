@@ -1543,8 +1543,9 @@ queries:
   - uid: mondoo-azure-security-sql-server-tde-on
     title: Ensure that transparent data encryption is enabled for SQL Server databases
     impact: 60
-    mql: |
-      azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))
+    variants:
+      - uid: mondoo-azure-security-sql-server-tde-on-single
+      - uid: mondoo-azure-security-sql-server-tde-on-api
     docs:
       desc: |
         Transparent data encryption (TDE) encrypts SQL Server, Azure SQL Database, and Azure Synapse Analytics data files. This encryption is known as encrypting data at rest.
@@ -1591,6 +1592,19 @@ queries:
            a. Select the database.
            b. Under **Security**, select **Data encryption**.
            c. On the **Transparent data encryption** tab, make sure **Data encryption** is set to **On**.
+  - uid: mondoo-azure-security-sql-server-audit-on-single
+    filters: |
+      asset.platform == "azure-sql-server"
+      asset.kind == "azure-object"
+      azure.subscription.sql.server.databases.any(name != "master")
+    mql: |
+      azure.subscription.sql.server.databases.where(name != "master").all(transparentDataEncryption.state == "Enabled")
+  - uid: mondoo-azure-security-sql-server-audit-on-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))
   - uid: mondoo-azure-security-diagnostic-settings-exist
     title: Ensure that diagnostic settings exist for the subscription
     impact: 80
