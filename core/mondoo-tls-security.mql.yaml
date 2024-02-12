@@ -72,11 +72,19 @@ queries:
   - uid: mondoo-tls-security-cert-domain-name-match
     title: The certificate's domain name must match
     mql: |
+      checkA1 = tls.certificates.first.subject.commonName == asset.fqdn
+
       if(tls.certificates.first.subject.commonName.contains(/^\*/)) {
-        asset.fqdn.contains(tls.certificates.first.subject.commonName.split("*.")[1])
-      } else {
-        tls.certificates.first.subject.commonName == asset.fqdn
+        checkA1 = asset.fqdn.contains(tls.certificates.first.subject.commonName.split("*.")[1])
       }
+
+      checkA2 = tls.certificates.first.extensions.where(id=="2.5.29.17").first.value.split(" | ").contains(asset.fqdn)
+
+      wildC = "\*." + domainName.effectiveTLDPlusOne
+      checkA3 = wildC.in(tls.certificates.first.extensions.where(id=="2.5.29.17").first.value.split(" | "))
+
+      checkA1 || checkA2 || checkA3
+
   - uid: mondoo-tls-security-cert-is-valid
     title: The certificate is valid
     mql: |
