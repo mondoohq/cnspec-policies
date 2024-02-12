@@ -1484,8 +1484,9 @@ queries:
   - uid: mondoo-azure-security-sql-server-audit-on
     title: Ensure that all activities on SQL server are audited
     impact: 60
-    mql: |
-      azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
+    variants:
+      - uid: mondoo-azure-security-sql-server-audit-on-single
+      - uid: mondoo-azure-security-sql-server-audit-on-api
     docs:
       desc: |
         Auditing is a very important feature and should be configured for every database or server in your Azure deployment. When you enable server-level auditing, you enable it for all existing databases and for new databases you create in the future.
@@ -1527,6 +1528,18 @@ queries:
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Go to **SQL servers**.
         3. For each SQL server select **Auditing** and make sure the **Enable Azure SQL Auditing** toggle is on.
+  - uid: mondoo-azure-security-sql-server-audit-on-single
+    filters: |
+      asset.platform == "azure-sql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.sql.server.auditingPolicy.state == "Enabled"
+  - uid: mondoo-azure-security-sql-server-audit-on-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
   - uid: mondoo-azure-security-sql-server-tde-on
     title: Ensure that transparent data encryption is enabled for SQL Server databases
     impact: 60
