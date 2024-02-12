@@ -1236,8 +1236,9 @@ queries:
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql
     title: Ensure SSL connection enabled for PostgreSQL database servers
     impact: 80
-    mql: |
-      azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")
+    variants:
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-api
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
     docs:
       desc: |
         All communication between clients and PostgreSQL database servers should be through SSL/TLS. This added layer of encryption prevents man-in-the-middle attacks.
@@ -1275,6 +1276,19 @@ queries:
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Go to **Azure Database for PostgreSQL**.
         3. For each database, select **Connection security** and enable SSL.
+
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
+    filters: |
+      asset.platform == "azure-postgresql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.postgreSql.server.properties.sslEnforcement == "Enabled"
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
     title: Ensure SSL connection enabled for MySQL Database Server with the latest version
     impact: 80
