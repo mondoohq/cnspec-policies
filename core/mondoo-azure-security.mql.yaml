@@ -1115,7 +1115,7 @@ queries:
            c. Select **Audit** and **All logs**.
            d. Select **Archive to a storage account** and choose a storage account.
            e. Select **Save**.
-  - uid: mondoo-azure-security-ensure-logging-enabled-kvsingle
+  - uid: mondoo-azure-security-ensure-logging-enabled-kv-single
     filters: |
       asset.platform == "azure-keyvault-vault"
       asset.kind == "azure-object"
@@ -1416,9 +1416,9 @@ queries:
   - uid: mondoo-azure-security-keyvault-public-access-disabled
     title: Ensure default public network access for Azure Key Vault is disabled or Limited to Use Selected Networks Instead of All Networks
     impact: 80
-    mql: |
-      azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") ||
-        azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)
+    variants:
+      - uid: mondoo-azure-security-keyvault-public-access-disabled-single
+      - uid: mondoo-azure-security-keyvault-public-access-disabled-api
     docs:
       desc: |
         To enhance the security of Azure Key Vault, a critical component in the Azure environment, it's advisable to restrict public network access. By default, a new key vault has its firewall disabled, permitting unrestricted access from applications and Azure services, though operations are still restricted by Microsoft Entra authentication and access policies.
@@ -1466,6 +1466,21 @@ queries:
         3. For each key vault:
            a. Under **Settings**, select **Networking**.
            b. For **Firewalls and virtual networks**, select **Disable public access**.
+  - uid: mondoo-azure-security-keyvault-public-access-disabled-single
+    filters: |
+      asset.platform == "azure-keyvault-vault"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.keyVault.vault.properties.all(publicNetworkAccess == "Disabled")
+        || azure.subscription.keyVault.vault.properties.networkAcls.ipRules != empty
+        || azure.subscription.keyVault.vault.properties.networkAcls.virtualNetworkRules != empty
+  - uid: mondoo-azure-security-keyvault-public-access-disabled-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") ||
+        azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)
   - uid: mondoo-azure-security-sql-server-audit-on
     title: Ensure that all activities on SQL server are audited
     impact: 60
