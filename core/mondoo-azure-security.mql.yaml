@@ -1292,9 +1292,9 @@ queries:
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
     title: Ensure SSL connection enabled for MySQL Database Server with the latest version
     impact: 80
-    mql: |
-      azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled")
-      azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2")
+    variants:
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-api
     docs:
       desc: |
         All communication between clients and MySQL servers should be through SSL/TLS. This adds a layer of encryption to prevent man-in-the-middle attacks.
@@ -1336,6 +1336,20 @@ queries:
            a. Select **Connection security**.
            b. Enable **SSL**.
            c. Ensure that the latest version of TLS is selected as the minimum.
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single
+    filters: |
+      asset.platform == "azure-mysql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.mySql.server.properties.sslEnforcement == "Enabled"
+      azure.subscription.mySql.server.properties.minimalTlsVersion == "TLS1_2"
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled")
+      azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2")
   - uid: mondoo-azure-security-ensure-disabled-public-access-sql
     title: Ensure public network access for SQL server is blocked or Limited to Use Selected Networks Instead of All Networks
     impact: 80
