@@ -1353,9 +1353,9 @@ queries:
   - uid: mondoo-azure-security-ensure-disabled-public-access-sql
     title: Ensure public network access for SQL server is blocked or Limited to Use Selected Networks Instead of All Networks
     impact: 80
-    mql: |
-      azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") ||
-       azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)
+    variants:
+      - uid: mondoo-azure-security-ensure-disabled-public-access-sql-single
+      - uid: mondoo-azure-security-ensure-disabled-public-access-sql-api
     docs:
       desc: |
         Customers can choose to connect to a database by either:
@@ -1399,6 +1399,20 @@ queries:
         3. For each server:
            a. Under **Security**, select **Networking**.
            b. For **Public network access**, select **Disable** or **Selected networks**.
+  - uid: mondoo-azure-security-ensure-disabled-public-access-sql-single
+    filters: |
+      asset.platform == "azure-sql-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.sql.server.properties.publicNetworkAccess == "Disabled"
+        || azure.subscription.sql.server.virtualNetworkRules != empty || azure.subscription.sql.server.firewallRules != empty
+  - uid: mondoo-azure-security-ensure-disabled-public-access-sql-api
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
+    mql: |
+      azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") ||
+       azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)
   - uid: mondoo-azure-security-keyvault-public-access-disabled
     title: Ensure default public network access for Azure Key Vault is disabled or Limited to Use Selected Networks Instead of All Networks
     impact: 80
