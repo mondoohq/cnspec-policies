@@ -78,10 +78,10 @@ queries:
         checkA1 = asset.fqdn.contains(tls.certificates.first.subject.commonName.split("*.")[1])
       }
 
-      checkA2 = tls.certificates.first.extensions.where(id=="2.5.29.17").first.value.split(" | ").contains(asset.fqdn)
+      checkA2 = tls.certificates.first.sanExtension.dnsNames.contains(asset.fqdn)
 
       wildC = "\*." + domainName.effectiveTLDPlusOne
-      checkA3 = wildC.in(tls.certificates.first.extensions.where(id=="2.5.29.17").first.value.split(" | "))
+      checkA3 = wildC.in(tls.certificates.first.sanExtension.dnsNames)
 
       checkA1 || checkA2 || checkA3
 
