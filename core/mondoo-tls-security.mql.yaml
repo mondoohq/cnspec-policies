@@ -80,8 +80,8 @@ queries:
 
       checkA2 = tls.certificates.first.sanExtension.dnsNames.contains(asset.fqdn)
 
-      wildC = "\*." + domainName.effectiveTLDPlusOne
-      checkA3 = wildC.in(tls.certificates.first.sanExtension.dnsNames)
+
+      checkA3 = tls.certificates.first.sanExtension.dnsNames.where(_ == /\*/).where(_.split(".")[-2] + "." + _.split(".")[-1]).any(asset.name.contains(_.split("*.")[1]))
 
       checkA1 || checkA2 || checkA3
 
