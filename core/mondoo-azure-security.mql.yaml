@@ -1924,17 +1924,17 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
+      allNsgUDP= azure.subscription.network.securityGroup.securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      allNsgUDP.all(properties.destinationPortRange != "*")
       props.disallowedPortsUDP {
         disallowedPortUDP = _
         disallowedPortUDP
-        allNsgUDP= azure.subscription.network.securityGroup.securityRules
-          .where(
-            properties.access == 'Allow'
-              && direction == 'Inbound'
-              && properties.protocol == /UDP|\*/
-              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-          )
-        allNsgUDP.all(properties.destinationPortRange != "*")
         allNsgUDP.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP))
       }
   - uid: mondoo-azure-security-disable-udp-virtualmachines-api
@@ -1942,112 +1942,16 @@ queries:
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
+      allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /UDP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgUDP.all(properties.destinationPortRange != "*")
       props.disallowedPortsUDP {
         disallowedPortUDP = _
         disallowedPortUDP
-        allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
-          .where(
-            properties.access == 'Allow'
-              && direction == 'Inbound'
-              && properties.protocol == /UDP|\*/
-              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-          )
-        )
-        allNsgUDP.all(properties.destinationPortRange != "*")
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
       }
-
-
-
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#  - uid: mondoo-azure-security-disable-udp-virtualmachines-single
-#    filters: |
-#      asset.platform == "azure-network-security-group"
-#      asset.kind == "azure-object"
-#    mql: |
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#      props.disallowedPortsUDP {
-#        disallowedPortUDP = _
-#        disallowedPortUDP
-#        allNsgUDP = azure.subscription.network.securityGroup.securityRules
-#          .where(
-#            properties.access == 'Allow'
-#              && direction == 'Inbound'
-#              && properties.protocol == /UDP|\*/
-#              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-#          )
-#        allNsgUDP.all(properties.destinationPortRange != "*")
-#        allNsgUDP.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP))
-#      }
-#  - uid: mondoo-azure-security-disable-udp-virtualmachines-api
-#    filters: |
-#      asset.platform == "azure"
-#      asset.kind == "api"
-#    mql: |
-#      allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
-#        .where(
-#          properties.access == 'Allow'
-#            && direction == 'Inbound'
-#            && properties.protocol == /UDP/
-#            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-#        )
-#      )
-#      allNsgUDP.all(properties.destinationPortRange != "*")
-#      props.disallowedPortsUDP {
-#        disallowedPortUDP = _
-#        disallowedPortUDP
-#        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
-#      }
-#
-#
-#
-#
-#
-#      allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
-#        .where(
-#          properties.access == 'Allow'
-#            && direction == 'Inbound'
-#            && properties.protocol == /UDP/
-#            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-#        )
-#      )
-#      allNsgUDP.all(properties.destinationPortRange != "*")
-#      [53,123,161,389,1900] {
-#        disallowedPortUDP = _
-#        disallowedPortUDP
-#        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
-#      }
