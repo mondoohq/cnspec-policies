@@ -213,8 +213,8 @@ queries:
     title: Ensure that SSH access is restricted from the internet
     impact: 80
     props:
-      - uid: blacklistedPortsSSH
-        title: a list of blacklisted TCP ports, by default SSH listens only on TCP port 22, add more ports as needed
+      - uid: disallowedPortsSSH
+        title: a list of disallowed TCP ports, by default SSH listens only on TCP port 22, add more ports as needed
         mql: |
           return [
             22,
@@ -300,9 +300,9 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      props.blacklistedPortsSSH {
-        blacklistedPortSSH = _
-        blacklistedPortSSH
+      props.disallowedPortsSSH {
+        disallowedPortSSH = _
+        disallowedPortSSH
         allNsgTCP= azure.subscription.network.securityGroup.securityRules
           .where(
             properties.access == 'Allow'
@@ -311,16 +311,16 @@ queries:
               && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
           )
         allNsgTCP.all(properties.destinationPortRange != "*")
-        allNsgTCP.none(destinationPortRange.any(fromPort <= blacklistedPortSSH && toPort >= blacklistedPortSSH))
+        allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortSSH && toPort >= disallowedPortSSH))
       }
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      props.blacklistedPortsSSH {
-        blacklistedPortSSH = _
-        blacklistedPortSSH
+      props.disallowedPortsSSH {
+        disallowedPortSSH = _
+        disallowedPortSSH
         allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
           .where(
             properties.access == 'Allow'
@@ -330,14 +330,14 @@ queries:
           )
         )
         allNsgTCP.all(properties.destinationPortRange != "*")
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= blacklistedPortSSH && toPort >= blacklistedPortSSH)))
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortSSH && toPort >= disallowedPortSSH)))
       }
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet
     title: Ensure that RDP access is restricted from the internet
     impact: 80
     props:
-      - uid: blacklistedPortsRDP
-        title: a list of blacklisted TCP ports, by default RDP listens only on TCP port 3389, add more ports as needed
+      - uid: disallowedPortsRDP
+        title: a list of disallowed TCP ports, by default RDP listens only on TCP port 3389, add more ports as needed
         mql: |
           return [
             3389,
@@ -423,9 +423,9 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      props.blacklistedPortsRDP {
-        blacklistedPortRDP = _
-        blacklistedPortRDP
+      props.disallowedPortsRDP {
+        disallowedPortRDP = _
+        disallowedPortRDP
         allNsgTCP= azure.subscription.network.securityGroup.securityRules
           .where(
             properties.access == 'Allow'
@@ -434,16 +434,16 @@ queries:
               && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
           )
         allNsgTCP.all(properties.destinationPortRange != "*")
-        allNsgTCP.none(destinationPortRange.any(fromPort <= blacklistedPortRDP && toPort >= blacklistedPortRDP))
+        allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP))
       }
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      props.blacklistedPortsRDP {
-        blacklistedPortRDP = _
-        blacklistedPortRDP
+      props.disallowedPortsRDP {
+        disallowedPortRDP = _
+        disallowedPortRDP
         allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
           .where(
             properties.access == 'Allow'
@@ -453,7 +453,7 @@ queries:
           )
         )
         allNsgTCP.all(properties.destinationPortRange != "*")
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= blacklistedPortRDP && toPort >= blacklistedPortRDP)))
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP)))
       }
   - uid: mondoo-azure-security-secure-transfer-required-enabled
     title: Ensure that all data must be encrypted in transit
@@ -1825,6 +1825,17 @@ queries:
   - uid: mondoo-azure-security-disable-udp-virtualmachines
     title: Ensure direct UDP access to Azure virtual machines from the internet is restricted
     impact: 80
+    props:
+      - uid: disallowedPortsUDP
+        title: a list of disallowed UDP ports, by default covering common UDP services, add more as needed
+        mql: |
+          return [
+            53,
+            123,
+            161,
+            389,
+            1900
+          ]
     variants:
       - uid: mondoo-azure-security-disable-udp-virtualmachines-single
       - uid: mondoo-azure-security-disable-udp-virtualmachines-api
@@ -1913,35 +1924,130 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      allNsgUDP = azure.subscription.network.securityGroup.securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /UDP|\*/
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-      allNsgUDP.all(properties.destinationPortRange != "*")
-      allNsgUDP.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53))
-      allNsgUDP.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123))
-      allNsgUDP.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161))
-      allNsgUDP.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389))
-      allNsgUDP.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900))
+      props.disallowedPortsUDP {
+        disallowedPortRDP = _
+        disallowedPortRDP
+        allNsgTCP= azure.subscription.network.securityGroup.securityRules
+          .where(
+            properties.access == 'Allow'
+              && direction == 'Inbound'
+              && properties.protocol == /TCP|\*/
+              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+          )
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP))
+      }
   - uid: mondoo-azure-security-disable-udp-virtualmachines-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /UDP/
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+      props.disallowedPortsUDP {
+        disallowedPortRDP = _
+        disallowedPortRDP
+        allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+          .where(
+            properties.access == 'Allow'
+              && direction == 'Inbound'
+              && properties.protocol == /TCP|\*/
+              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+          )
         )
-      )
-      allNsgUDP.all(properties.destinationPortRange != "*")
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
-      allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP)))
+      }
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#  - uid: mondoo-azure-security-disable-udp-virtualmachines-single
+#    filters: |
+#      asset.platform == "azure-network-security-group"
+#      asset.kind == "azure-object"
+#    mql: |
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#      props.disallowedPortsUDP {
+#        disallowedPortUDP = _
+#        disallowedPortUDP
+#        allNsgUDP = azure.subscription.network.securityGroup.securityRules
+#          .where(
+#            properties.access == 'Allow'
+#              && direction == 'Inbound'
+#              && properties.protocol == /UDP|\*/
+#              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+#          )
+#        allNsgUDP.all(properties.destinationPortRange != "*")
+#        allNsgUDP.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP))
+#      }
+#  - uid: mondoo-azure-security-disable-udp-virtualmachines-api
+#    filters: |
+#      asset.platform == "azure"
+#      asset.kind == "api"
+#    mql: |
+#      allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+#        .where(
+#          properties.access == 'Allow'
+#            && direction == 'Inbound'
+#            && properties.protocol == /UDP/
+#            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+#        )
+#      )
+#      allNsgUDP.all(properties.destinationPortRange != "*")
+#      props.disallowedPortsUDP {
+#        disallowedPortUDP = _
+#        disallowedPortUDP
+#        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
+#      }
+#
+#
+#
+#
+#
+#      allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
+#        .where(
+#          properties.access == 'Allow'
+#            && direction == 'Inbound'
+#            && properties.protocol == /UDP/
+#            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+#        )
+#      )
+#      allNsgUDP.all(properties.destinationPortRange != "*")
+#      [53,123,161,389,1900] {
+#        disallowedPortUDP = _
+#        disallowedPortUDP
+#        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
+#      }
