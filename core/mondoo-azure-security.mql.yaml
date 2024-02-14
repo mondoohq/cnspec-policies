@@ -300,17 +300,17 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
+      allNsgTCP= azure.subscription.network.securityGroup.securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      allNsgTCP.all(properties.destinationPortRange != "*")
       props.disallowedPortsSSH {
         disallowedPortSSH = _
         disallowedPortSSH
-        allNsgTCP= azure.subscription.network.securityGroup.securityRules
-          .where(
-            properties.access == 'Allow'
-              && direction == 'Inbound'
-              && properties.protocol == /TCP|\*/
-              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-          )
-        allNsgTCP.all(properties.destinationPortRange != "*")
         allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortSSH && toPort >= disallowedPortSSH))
       }
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
@@ -318,18 +318,18 @@ queries:
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
+      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgTCP.all(properties.destinationPortRange != "*")
       props.disallowedPortsSSH {
         disallowedPortSSH = _
         disallowedPortSSH
-        allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
-          .where(
-            properties.access == 'Allow'
-              && direction == 'Inbound'
-              && properties.protocol == /TCP|\*/
-              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-          )
-        )
-        allNsgTCP.all(properties.destinationPortRange != "*")
         allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortSSH && toPort >= disallowedPortSSH)))
       }
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet
@@ -423,17 +423,17 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
+      allNsgTCP= azure.subscription.network.securityGroup.securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      allNsgTCP.all(properties.destinationPortRange != "*")
       props.disallowedPortsRDP {
         disallowedPortRDP = _
         disallowedPortRDP
-        allNsgTCP= azure.subscription.network.securityGroup.securityRules
-          .where(
-            properties.access == 'Allow'
-              && direction == 'Inbound'
-              && properties.protocol == /TCP|\*/
-              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-          )
-        allNsgTCP.all(properties.destinationPortRange != "*")
         allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP))
       }
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
@@ -441,18 +441,18 @@ queries:
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
+      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      )
+      allNsgTCP.all(properties.destinationPortRange != "*")
       props.disallowedPortsRDP {
         disallowedPortRDP = _
         disallowedPortRDP
-        allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
-          .where(
-            properties.access == 'Allow'
-              && direction == 'Inbound'
-              && properties.protocol == /TCP|\*/
-              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-          )
-        )
-        allNsgTCP.all(properties.destinationPortRange != "*")
         allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP)))
       }
   - uid: mondoo-azure-security-secure-transfer-required-enabled
