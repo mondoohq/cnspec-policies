@@ -234,7 +234,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+          cnspec run azure -c "allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -260,7 +260,7 @@ queries:
         3. Run this query:
 
           ```mql
-          allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+          allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -300,7 +300,7 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      allNsgTCP= azure.subscription.network.securityGroup.securityRules
+      allNsgTCP = azure.subscription.network.securityGroup.securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -318,7 +318,7 @@ queries:
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+      allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -357,7 +357,7 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+          cnspec run azure -c "allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -383,7 +383,7 @@ queries:
         3. Run this query:
 
           ```mql
-          allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+          allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -423,7 +423,7 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      allNsgTCP= azure.subscription.network.securityGroup.securityRules
+      allNsgTCP = azure.subscription.network.securityGroup.securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -441,7 +441,7 @@ queries:
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+      allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -1869,7 +1869,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+          cnspec run azure -c "allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -1899,7 +1899,7 @@ queries:
         2. Run this query:
 
           ```mql
-        allNsgUDP= azure.subscription.network.securityGroups.where(securityRules
+        allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
@@ -1924,7 +1924,7 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      allNsgUDP= azure.subscription.network.securityGroup.securityRules
+      allNsgUDP = azure.subscription.network.securityGroup.securityRules
         .where(
           properties.access == 'Allow'
             && direction == 'Inbound'
