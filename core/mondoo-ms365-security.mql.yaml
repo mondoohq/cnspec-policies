@@ -483,11 +483,11 @@ queries:
     title: Ensure that minimum password length has been set in order to prevent any brute force attack
     impact: 80
     mql: |
-      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration").all(properties['passwordMinimumLength'] == 8)
-      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration").all(properties['passwordMinimumLength'] == 8)
-      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration").all(properties['passcodeMinimumLength'] == 8)
-      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration").all(properties['passwordMinimumLength'] == 8)
-      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration").all(properties['passwordMinimumLength'] == 8)
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.windows10GeneralConfiguration").all(properties['passwordMinimumLength'] >= 8)
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.macOSGeneralDeviceConfiguration").all(properties['passwordMinimumLength'] >= 8)
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.iosGeneralDeviceConfiguration").all(properties['passcodeMinimumLength'] >= 8)
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidGeneralDeviceConfiguration").all(properties['passwordMinimumLength'] >= 8)
+      microsoft.devicemanagement.deviceConfigurations.where( properties["@odata.type"] == "#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration").all(properties['passwordMinimumLength'] >= 8)
     docs:
       desc: |
         This check ensures that there is minimum password length - at least eight characters - for mobile devices
