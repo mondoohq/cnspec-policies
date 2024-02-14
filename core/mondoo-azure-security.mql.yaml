@@ -214,7 +214,7 @@ queries:
     impact: 80
     props:
       - uid: blacklistedPortsSSH
-        title: a list of blacklisted Ports, by default only Port 22, add more ports as needed
+        title: a list of blacklisted TCP ports, by default SSH listens only on TCP port 22, add more ports as needed
         mql: |
           return [
             22,
@@ -335,6 +335,13 @@ queries:
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet
     title: Ensure that RDP access is restricted from the internet
     impact: 80
+    props:
+      - uid: blacklistedPortsRDP
+        title: a list of blacklisted TCP ports, by default RDP listens only on TCP port 3389, add more ports as needed
+        mql: |
+          return [
+            3389,
+          ]
     variants:
       - uid: mondoo-azure-security-rdp-access-restricted-from-internet-single
       - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
@@ -416,30 +423,38 @@ queries:
       asset.platform == "azure-network-security-group"
       asset.kind == "azure-object"
     mql: |
-      allNsgTCP= azure.subscription.network.securityGroup.securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /TCP|\*/
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-      allNsgTCP.all(properties.destinationPortRange != "*")
-      allNsgTCP.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389))
+      props.blacklistedPortsRDP {
+        blacklistedPortRDP = _
+        blacklistedPortRDP
+        allNsgTCP= azure.subscription.network.securityGroup.securityRules
+          .where(
+            properties.access == 'Allow'
+              && direction == 'Inbound'
+              && properties.protocol == /TCP|\*/
+              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+          )
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.none(destinationPortRange.any(fromPort <= blacklistedPortRDP && toPort >= blacklistedPortRDP))
+      }
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /TCP|\*/
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+      props.blacklistedPortsRDP {
+        blacklistedPortRDP = _
+        blacklistedPortRDP
+        allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+          .where(
+            properties.access == 'Allow'
+              && direction == 'Inbound'
+              && properties.protocol == /TCP|\*/
+              && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+          )
         )
-      )
-      allNsgTCP.all(properties.destinationPortRange != "*")
-      allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389)))
+        allNsgTCP.all(properties.destinationPortRange != "*")
+        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= blacklistedPortRDP && toPort >= blacklistedPortRDP)))
+      }
   - uid: mondoo-azure-security-secure-transfer-required-enabled
     title: Ensure that all data must be encrypted in transit
     impact: 80
