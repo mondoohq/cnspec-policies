@@ -1925,17 +1925,17 @@ queries:
       asset.kind == "azure-object"
     mql: |
       props.disallowedPortsUDP {
-        disallowedPortRDP = _
-        disallowedPortRDP
-        allNsgTCP= azure.subscription.network.securityGroup.securityRules
+        disallowedPortUDP = _
+        disallowedPortUDP
+        allNsgUDP= azure.subscription.network.securityGroup.securityRules
           .where(
             properties.access == 'Allow'
               && direction == 'Inbound'
-              && properties.protocol == /TCP|\*/
+              && properties.protocol == /UDP|\*/
               && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
           )
-        allNsgTCP.all(properties.destinationPortRange != "*")
-        allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP))
+        allNsgUDP.all(properties.destinationPortRange != "*")
+        allNsgUDP.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP))
       }
   - uid: mondoo-azure-security-disable-udp-virtualmachines-api
     filters: |
@@ -1943,18 +1943,18 @@ queries:
       asset.kind == "api"
     mql: |
       props.disallowedPortsUDP {
-        disallowedPortRDP = _
-        disallowedPortRDP
-        allNsgTCP= azure.subscription.network.securityGroups.where(securityRules
+        disallowedPortUDP = _
+        disallowedPortUDP
+        allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
           .where(
             properties.access == 'Allow'
               && direction == 'Inbound'
-              && properties.protocol == /TCP|\*/
+              && properties.protocol == /UDP|\*/
               && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
           )
         )
-        allNsgTCP.all(properties.destinationPortRange != "*")
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP)))
+        allNsgUDP.all(properties.destinationPortRange != "*")
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
       }
 
 
