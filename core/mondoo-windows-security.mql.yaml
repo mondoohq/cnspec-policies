@@ -3365,7 +3365,12 @@ queries:
     title: 'Ensure ''Network access: Named Pipes that can be accessed anonymously'' is set to ''None'''
     impact: 100
     mql: |
-      registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters', name: 'NullSessionPipes' ).value == ""
+      if( windows.computerInfo['OsProductType'] == 2 ) {
+        registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters', name: 'NullSessionPipes' ).value.downcase == /lsarpc|netlogon|samr/
+      }
+      else {
+        registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters', name: 'NullSessionPipes' ).value == ""
+      }
     docs:
       desc: |-
         This policy setting determines which communication sessions, or pipes, will have attributes and permissions that allow anonymous access.
