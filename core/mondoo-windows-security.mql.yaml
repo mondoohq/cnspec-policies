@@ -4948,7 +4948,7 @@ queries:
       windows.computerInfo.OsProductType == 2
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters', name: 'NullSessionPipes' ).value.downcase == /lsarpc|netlogon|samr/
-  - uid: windows-ensure-network-access-named-pipes-that-can-be-accessed-ms
+  - uid: mondoo-windows-security-network-access-named-pipes-that-can-be-accessed-anonymously-is-set-to-none-ms
     filters: |
       windows.computerInfo.OsProductType != 2
     mql: |
