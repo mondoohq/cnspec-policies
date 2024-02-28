@@ -3365,8 +3365,8 @@ queries:
     title: 'Ensure ''Network access: Named Pipes that can be accessed anonymously'' is set to ''None'''
     impact: 100
     variants:
-      - uid: windows-ensure-network-access-named-pipes-that-can-be-accessed-dc
-      - uid: windows-ensure-network-access-named-pipes-that-can-be-accessed-ms
+      - uid: mondoo-windows-security-network-access-named-pipes-that-can-be-accessed-anonymously-is-set-to-none-dc
+      - uid: mondoo-windows-security-network-access-named-pipes-that-can-be-accessed-anonymously-is-set-to-none-ms
     docs:
       desc: |-
         This policy setting determines which communication sessions, or pipes, will have attributes and permissions that allow anonymous access.
