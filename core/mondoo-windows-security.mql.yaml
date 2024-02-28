@@ -4943,7 +4943,7 @@ queries:
             # Now set the value
             New-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -PropertyType DWORD -Force
             ```
-  - uid: windows-ensure-network-access-named-pipes-that-can-be-accessed-dc
+  - uid: mondoo-windows-security-network-access-named-pipes-that-can-be-accessed-anonymously-is-set-to-none-dc
     filters: |
       windows.computerInfo.OsProductType == 2
     mql: |
