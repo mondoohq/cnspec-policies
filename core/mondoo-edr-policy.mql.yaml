@@ -1,8 +1,10 @@
-# Read more about the policy structure at https://mondoo.com/docs
+# Copyright (c) Mondoo, Inc.
+# SPDX-License-Identifier: BUSL-1.1
 policies:
   - uid: mondoo-edr-policy
     name: Endpoint Detection and Response (EDR) Policy
-    version: 0.1.0
+    version: 1.0.0
+    license: BUSL-1.1
     tags:
       mondoo.com/category: security
       mondoo.com/platform: windows,linux,macos
@@ -54,7 +56,8 @@ policies:
         If you have any suggestions for how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
     groups:
       - title: Endpoint Detection and Response (EDR)
-        filters: asset.family.contains("unix") || asset.family.contains("windows")
+        filters: |
+          asset.family.contains("unix") || asset.family.contains('windows')
         checks:
           - uid: mondoo-edr-policy-ensure-edr-agent-is-installed
           - uid: mondoo-edr-policy-ensure-edr-agent-is-running
@@ -69,23 +72,23 @@ queries:
       audit: Please ensure that the EDR agent is installed on the system.
       remediation:
         - desc: |-
-            Please install the EDR agent on the system, e.g. SentinelOne, CrowdStrike.
-      variants:
+            Please install an EDR agent on the system, e.g. SentinelOne, CrowdStrike.
+    variants:
         - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-macos
         - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-linux
         - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-windows
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-macos
-    filters: asset.platform == "macos"
+    filters: asset.platform == 'macos'
     mql: |
-      package("Falcon").installed || package('SentinelOne Extensions').installed
+      package('Falcon').installed || package('SentinelOne Extensions').installed
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-linux
-    filters: asset.family.contains("linux")
+    filters: asset.family.contains('linux')
     mql: |
-      package("falcon-sensor").installed || package('SentinelAgent').installed || package('sentinelagent').installed
+      package('falcon-sensor').installed || package('SentinelAgent').installed || package('sentinelagent').installed
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-windows
     filters: asset.family.contains('windows')
     mql: |
-      package("CrowdStrike Sensor Platform").installed || package('Sentinel Agent').installed
+      package('CrowdStrike Sensor Platform').installed || package('Sentinel Agent').installed
 
   - uid: mondoo-edr-policy-ensure-edr-agent-is-running
     title: Ensure EDR Agent is running
@@ -97,26 +100,64 @@ queries:
       remediation:
         - desc: |-
             Please install the EDR agent on the system, e.g. SentinelOne, CrowdStrike.
-      variants:
-        - uid: mondoo-edr-policy-ensure-edr-agent-is-running-macos
-        - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-linux
-        - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-linux
-        - uid: mondoo-edr-policy-ensure-edr-agent-is-running-windows
-  - uid: mondoo-edr-policy-ensure-edr-agent-is-running-macos
-    filters: asset.platform == "macos"
+    variants:
+      - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-macos
+      - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-linux
+      - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-windows
+      - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-macos
+      - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-linux
+      - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-windows
+  - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-macos
+    filters: |
+      asset.platform == 'macos'
+      package('Falcon').installed
     mql: |
-      package("Falcon").installed || package('SentinelOne Extensions').installed
-  - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-linux
-    filters: package('SentinelAgent').installed || package('sentinelagent').installed
-    mql: |
-      service('sentinelone').enabled
-      service('sentinelone').running
+      services.where(name == /crowdstrike\.falcon\.Agent/).any(running == true)
+      services.where(name == /crowdstrike\.falcon\.Agent/).any(enabled == true)
   - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-linux
-    filters: package('SentinelAgent').installed || package('sentinelagent').installed
+    filters: |
+      asset.family.contains('linux')
+      package('falcon-sensor').installed
     mql: |
-      service('sentinelone').enabled
+      service('falcon-sensor').running
+      service('falcon-sensor').enabled
+  - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-windows
+    filters: |
+      asset.family.contains('windows')
+      package('CrowdStrike Sensor Platform').installed
+    mql: |
+      service('CSFalconService').running
+      service('CSFalconService').enabled
+  - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-macos
+    filters: |
+      asset.platform == 'macos'
+      package('SentinelOne Extensions').installed
+    mql: |
+      service('com.sentinelone.sentineld-helper').running
+      service('com.sentinelone.sentineld-helper').enabled
+      service('com.sentinelone.sentineld-shell').running
+      service('com.sentinelone.sentineld-shell').enabled
+      service('com.sentinelone.sentinel-extensions').running
+      service('com.sentinelone.sentinel-extensions').enabled
+      service('com.sentinelone.sentineld-updater').running
+      service('com.sentinelone.sentineld-updater').enabled
+      service('com.sentinelone.sentineld').running
+      service('com.sentinelone.sentineld').enabled
+      service('com.sentinelone.sentineld-guard').running
+      service('com.sentinelone.sentineld-guard').enabled
+  - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-linux
+    filters: |
+      asset.family.contains('linux')
+      package('SentinelAgent').installed || package('sentinelagent').installed
+    mql: |
       service('sentinelone').running
-  - uid: mondoo-edr-policy-ensure-edr-agent-is-running-windows
-    filters: asset.family.contains('windows')
+      service('sentinelone').enabled
+  - uid: mondoo-edr-policy-ensure-sentinelone-agent-is-running-windows
+    filters: |
+      asset.family.contains('windows')
+      package('Sentinel Agent').installed
     mql: |
-      package("CrowdStrike Sensor Platform").installed || package('Sentinel Agent').installed
+      services.where( name == /SentinelAgent/ ).any(running == true)
+      services.where( name == /SentinelAgent/ ).any(enabled == true)
+      services.where( name == /SentinelStaticEngine/ ).any(running == true)
+      services.where( name == /SentinelStaticEngine/ ).any(enabled == true)
