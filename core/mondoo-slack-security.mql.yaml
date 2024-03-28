@@ -70,7 +70,7 @@ policies:
             title: Enter your naming pattern for externally shared Slack channels
             mql: |
               return /ext|extern|ex_/
-          - uid: allowedDomains
+          - uid: allowListedDomains
             title: Enter allowed domains here
             mql: |
               return /mondoo.com|example.com/
@@ -348,11 +348,11 @@ queries:
       remediation: |
         Create at least one channel which is for internal workspace use only. Make sure that no user who does not belong to your organization is in the channel(s).
   - uid: mondoo-slack-domain-allowlisting-enforced-on-internal-channels
-    title: Ensure domain whitelisting is enforced on internal channels
+    title: Ensure domain is enforced on internal channels
     impact: 75
     props:
       - uid: allowListedDomains
-        title: Enter your whitelisted domains in the mql below
+        title: Enter your domains in the mql below
         mql: |
           return /mondoo.com|example.com/
     mql: slack.conversations.where(isExtShared == false ).all( members.all( profile['email'] == props.allowListedDomains ) )
@@ -360,7 +360,7 @@ queries:
       desc: |
         Ensure there are no users from unwanted domains in your internal channels
       audit: |
-        Run this command to verify that all users non-externally shared channels adhere to your whitelisted domains:
+        Run this command to verify that all users non-externally shared channels adhere to your allow-listed domains:
 
         __cnspec run__
 
