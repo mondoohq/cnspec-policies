@@ -70,7 +70,7 @@ policies:
             title: Enter your naming pattern for externally shared Slack channels
             mql: |
               return /ext|extern|ex_/
-          - uid: allowedDomains
+          - uid: allowListedDomains
             title: Enter allowed domains here
             mql: |
               return /mondoo.com|example.com/
