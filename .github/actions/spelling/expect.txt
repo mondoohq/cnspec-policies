@@ -72,6 +72,7 @@ Ghpcy
 globalstate
 grouplist
 groupname
+HDD
 healthinsights
 Helpdesk
 hmac
@@ -95,6 +96,7 @@ Lsa
 Lsass
 lsetxattr
 marcellus
+MLE
 moonbase
 mpim
 MRx
@@ -108,6 +110,7 @@ nginx
 noout
 nsg
 ntalk
+NTE
 odata
 oidc
 OMHVGHACB
@@ -154,6 +157,7 @@ Signin
 sntrup
 socketfilterfw
 softwareupdate
+Souczek
 srv
 ssldir
 sudolog
