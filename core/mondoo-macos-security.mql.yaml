@@ -161,11 +161,13 @@ queries:
     mql: |
       users.where(name != /^_/ && shell != "/usr/bin/false" && name != "root") {
         name
-        filePath1 =  home + "/Library/Preferences/ByHost/com.apple.Bluetooth." + os.machineid.upcase + ".plist"
-        file(filePath1).exists == true
-          parse.plist(filePath1) {
-            params['PrefKeyServicesEnabled'] == null || params['PrefKeyServicesEnabled'] == false
+        filePath1 = home + "/Library/Preferences/ByHost/com.apple.Bluetooth." + os.machineid.upcase + ".plist"
+        filePathsLocations = [filePath1]
+        filePathsLocations.where(file(_).exists) {
+          parse.plist(_) {
+            params['PrefKeyServicesEnabled'] == false || params['PrefKeyServicesEnabled'] == empty
           }
+        }
       }
     docs:
       desc: Bluetooth Sharing allows files to be exchanged with Bluetooth-enabled devices.
