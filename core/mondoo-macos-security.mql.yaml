@@ -156,7 +156,7 @@ queries:
         filePathsLocations = [filePath1]
         filePathsLocations.where(file(_).exists) {
           parse.plist(_) {
-            params['PrefKeyServicesEnabled'] == false || params['PrefKeyServicesEnabled'] == empty
+            params['PrefKeyServicesEnabled'] == false || params['PrefKeyServicesEnabled'] == null
           }
         }
       }
