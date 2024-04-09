@@ -927,8 +927,11 @@ queries:
     title: Ensure security auditing retention
     impact: 40
     mql: |
-      file("/etc/security/audit_control").content.lines.where( _ == /^expire-after/) {
-        _.split(":")[1] == /[6-9]\dd|\d{3,}d/ || _.split(":")[1] == /\d+0G|[1-9G]/
+      file("/etc/security/audit_control").exists;
+      ["/etc/security/audit_control"].where(file(_).exists) {
+        file(_).content.lines.where( _ == /^expire-after/) {
+          _.split(":")[1] == /[6-9]\dd|\d{3,}d/ || _.split(":")[1] == /\d+0G|[1-9G]/
+        }
       }
     docs:
       desc: |-
