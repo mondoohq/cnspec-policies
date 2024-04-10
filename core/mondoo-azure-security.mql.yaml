@@ -522,8 +522,29 @@ queries:
       - uid: mondoo-azure-security-public-access-level-private-blob-containers-api
     docs:
       desc: |
-        This check ensures that anonymous access to blob containers is disabled. It also checks that public access on storage accounts is disabled.
+        This check ensures that anonymous access to blob containers is disabled and public access on storage accounts is disabled. The configuration should prevent any form of anonymous blob access and ensure that all access to storage accounts and their blob containers are authenticated and authorized.
       audit: |
+        From Azure Portal:
+
+        1.Go to Storage Accounts.
+        2.For each storage account, go to the Networking setting under Security + networking.
+        3.Ensure the 'Public Network Access' setting is set to 'Disabled'.
+        4.In the storage account menu pane, under the 'Settings' section, click 'Configuration'.
+        5.Under 'Allow Blob Anonymous Access', ensure that the setting is 'Disabled'.
+
+        From Azure CLI:
+
+        1.Authenticate using az login and ensure you are in the correct subscription.
+        2.Use the following command to check the 'Public Network Access' setting:
+
+        ```
+        az storage account show --name <storage-account> --resource-group <resource-group> --query "{publicNetworkAccess:publicNetworkAccess}"
+        ```
+
+        ```
+        az storage account show --name <yourStorageAccountName> --query allowBlobPublicAccess
+        ``` 
+
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`:
@@ -532,8 +553,9 @@ queries:
         2. Run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" ) ||
-            azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))"
+          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" )
+            azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
+            azure.subscription.storage.accounts.all(properties.PublicNetworkAccess == "Disabled")"
           ```
 
         __cnspec shell__
@@ -550,8 +572,9 @@ queries:
         3. Run this query:
 
           ```mql
-          azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" ) ||
-            azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
+          azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" )
+          azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
+          azure.subscription.storage.accounts.all(properties.PublicNetworkAccess == "Disabled")
 
           ```
       remediation: |
@@ -566,39 +589,40 @@ queries:
 
         ### Microsoft Azure Portal
 
-        1. Log into the Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Storage accounts**.
-        3. For each storage account:
-           a. Select the storage account.
-           b. For each container:
-             i. Select the container.
-             ii. Select **Change access level**.
-             iii. Select **Private (no anonymous access)**.
-             iv. Select the **OK** button.
+        1. Go to Storage Accounts.
+        2. For each storage account, go to Networking in Security + networking.
+        3. Set 'Public Network Access' to 'Disabled'.
+        4. Click on a Storage Account and in the settings pane, click 'Configuration'.
+        5. Under 'Allow Blob Anonymous Access', select 'Disabled'.
+        6. For each container, change the access level to 'Private (no anonymous access)'.
 
         ### Azure CLI
 
-        ```bash
-        az storage container set-permission
-        --name <container_name>
-        --public-access off
-        --account-name <account_name>
-        --account-key <account_key>
-        ```
+        - Disable public network access:
+          ```
+          az storage account update --name <storage-account> --resource-group <resource-group> --public-network-access Disabled
+          ```
+        
+        - Set blob containers to private access:
+          ```
+          az storage container set-permission --name <container_name> --public-access off --account-name <account_name> --account-key <account_key>
+          ```
   - uid: mondoo-azure-security-public-access-level-private-blob-containers-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" ) ||
-       azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
+      azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" )
+      azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
+      azure.subscription.storage.accounts.all(properties.PublicNetworkAccess == "Disabled")
   - uid: mondoo-azure-security-public-access-level-private-blob-containers-single
     filters: |
       asset.platform == "azure-storage-account"
       asset.kind == "azure-object"
     mql: |
-      azure.subscription.storage.account.properties.AllowBlobPublicAccess == "false" ||
-       azure.subscription.storage.account.containers.all(properties.publicAccess == "None")
+      azure.subscription.storage.account.properties.AllowBlobPublicAccess == "false"
+      azure.subscription.storage.account.containers.all(properties.publicAccess == "None")
+      azure.subscription.storage.account.properties.AllowBlobPublicAccess == "false"
   - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny
     title: Ensure the default network access rule for Storage Accounts is set to deny
     impact: 80
@@ -676,7 +700,7 @@ queries:
     mql: |
       azure.subscription.storage.account.properties.NetworkRuleSet.defaultAction == "Deny"
   - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access
-    title: Ensure "Trusted Microsoft Services" is enabled for storage account access
+    title: Ensure "Allow Trusted Microsoft Services" is enabled for storage account access
     impact: 80
     variants:
       - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-single
@@ -685,6 +709,21 @@ queries:
       desc: |
         This check ensures that "Trusted Microsoft Services" is enabled for storage account access. When using Azure storage accounts, certain Azure services might need to bypass network rules due to their operational networks. The "Allow trusted Azure services" exception allows these services to access the storage account securely, using strong authentication. This exception is crucial for services that interact directly with storage accounts but are not able to conform to network rules. Services such as Azure Backup, Azure Site Recovery, Azure DevTest Labs, Azure Event Grid, Azure Event Hubs, Azure Networking, Azure Monitor, and Azure SQL Data Warehouse are examples of services that can be granted access through this exception when they are registered in the subscription. This setup is important for maintaining both functionality and security in Azure environments.
       audit: |
+        From Azure Portal:
+
+        1.Go to Storage Accounts.
+        2.Click on a specific storage account.
+        3.Navigate to the Networking blade.
+        4.Under Firewalls and virtual networks, check if Allow Azure services on the trusted services list to access this storage account is enabled.
+
+        From Azure CLI:
+
+        List the network rules for all storage accounts and verify that AzureServices is included in the bypass list:
+
+        ```
+        az storage account list --query "[*].networkRuleSet"
+        ```
+
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`:
@@ -713,6 +752,21 @@ queries:
           azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
           ```
       remediation: |
+        From Azure Portal:
+            1. Go to `Storage Accounts` and select the relevant account.
+            2. Click on the `Networking` blade.
+            3. Under `Firewalls and virtual networks`, select `Enabled from selected virtual networks and IP addresses`.
+            4. Check the box for `Allow Azure services on the trusted services list to access this storage account` to enable it.
+            5. Save the changes.
+
+        **From Azure CLI:**
+
+        Enable the trusted Microsoft services for a storage account:
+
+        ```
+        az storage account update --name <StorageAccountName> --resource-group <resourceGroupName> --bypass AzureServices
+        ```
+
         ### Terraform
 
         ```hcl
@@ -937,8 +991,8 @@ queries:
     title: Ensure that app services can authenticate with Microsoft Entra ID
     impact: 80
     mql: |
-      azure.subscription.web.apps.all(identity.type == "SystemAssigned") ||
-       azure.subscription.web.apps.all(identity.principalId != empty)
+      azure.subscription.web.apps.all(identity.type == "SystemAssigned")
+      azure.subscription.web.apps.all(identity.principalId != empty)
     docs:
       desc: |
         This check ensures that all app services can authenticate through Microsoft Entra ID (formerly Azure AD). This approach removes secrets from the app itself. Instead, the app connects to other Azure services securely without the need for user names and passwords.
@@ -948,7 +1002,7 @@ queries:
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.web.apps.all(identity.type == "SystemAssigned") || azure.subscription.web.apps.all(identity.principalId != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.web.apps.all(identity.type == "SystemAssigned") && azure.subscription.web.apps.all(identity.principalId != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for the app connection instead of a certificate.
@@ -966,7 +1020,7 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.web.apps.all(identity.type == "SystemAssigned") || azure.subscription.web.apps.all(identity.principalId != empty)
+          azure.subscription.web.apps.all(identity.type == "SystemAssigned") azure.subscription.web.apps.all(identity.principalId != empty)
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1040,14 +1094,12 @@ queries:
       asset.kind == "azure-object"
     mql: |
       azure.subscription.keyVault.vault.properties.enablePurgeProtection == true
-      azure.subscription.keyVault.vault.properties.enableSoftDelete == true
   - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
       azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
-      azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
   - uid: mondoo-azure-security-ensure-web-app-is-using-the-latest-tls
     title: Ensure that Web Apps use the latest available version of TLS encryption
     impact: 80
@@ -1148,19 +1200,15 @@ queries:
       asset.platform == "azure-keyvault-vault"
       asset.kind == "azure-object"
     mql: |
-      azure.subscription.keyVault.vault.keys.all(enabled == true)
-      azure.subscription.keyVault.vault.keys.all(expires != empty)
-      azure.subscription.keyVault.vault.secrets.all(enabled == true)
-      azure.subscription.keyVault.vault.secrets.all(expires != empty)
+      azure.subscription.keyVault.vault.keys.where(enabled == true).all(expires != empty)
+      azure.subscription.keyVault.vault.secrets.where(enabled == true).all(expires != empty)
   - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
-      azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
-      azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
-      azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
+      azure.subscription.keyVault.vaults.all(keys.where(enabled == true).all(expires != empty))
+      azure.subscription.keyVault.vaults.all(secrets.where(enabled == true).all(expires != empty))
   - uid: mondoo-azure-security-ensure-logging-enabled-kv
     title: Ensure all operations in Azure Key Vault are logged
     impact: 80
@@ -1173,12 +1221,19 @@ queries:
 
         Enabling logging for Azure Key Vault saves information in an Azure storage account that you provide. This creates a new container called insights-logs-auditevent for the specified storage account.
       audit: |
+        From Azure Portal
+
+        1.Navigate to Key vaults.
+        2.Select each Key vault.
+        3.Access Diagnostic settings.
+        4.Review and ensure that AuditEvent and All logs categories are enabled and properly configured.
+
         __cnspec run__
 
         To audit Microsoft Azure with `cnspec run`, run this query:
 
           ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          cnspec run azure -c "azure.subscription.keyVault.vault.diagnosticSettings != empty" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
           ```
 
         Note: It is also possible to use a client secret for app connection instead of a certificate.
@@ -1196,31 +1251,60 @@ queries:
         2. Run this query:
 
           ```mql
-          azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))
+          azure.subscription.keyVault.vault.diagnosticSettings != empty
           ```
       remediation: |
         ### Microsoft Azure Portal
 
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Key vaults**.
-        3. For each key vault:
-           a. Select the key vault.
-           b. Under **Monitoring**, select **Diagnostic settings** and then select **+ Add diagnostic setting**.
-           c. Select **Audit** and **All logs**.
-           d. Select **Archive to a storage account** and choose a storage account.
-           e. Select **Save**.
+        2. Visit `Key vaults` and select a vault.
+        3. Go to `Diagnostic settings`.
+        4. Edit an existing setting or add a new one, ensuring `AuditEvent` and `All logs` are selected.
+        5. Set the appropriate destination for logs, such as an Azure storage account or Log Analytics workspace.
+        6. Save the configuration.
   - uid: mondoo-azure-security-ensure-logging-enabled-kv-single
     filters: |
       asset.platform == "azure-keyvault-vault"
       asset.kind == "azure-object"
     mql: |
-      azure.subscription.keyVault.vault.diagnosticSettings.all(properties.logs.where(category == "AuditEvent").all(retentionPolicy {days >= 180}))
+      // Step 1: Verify that diagnostic settings are configured for the Key Vault vaults.
+      azure.subscription.keyVault.vault.diagnosticSettings != empty
+      // Step 2: Confirm the presence and enablement of specific log categories within the diagnostic settings.
+      // The checks ensure that both 'audit' and 'allLogs' category groups are actively enabled for comprehensive logging.
+      azure.subscription.keyVault.vault.diagnosticSettings.all(properties.logs.any(categoryGroup == "AuditEvent"))
+      azure.subscription.keyVault.vault.diagnosticSettings.all(properties.logs.any(categoryGroup == "allLogs"))
+      azure.subscription.keyVault.vault.diagnosticSettings.any(properties.logs.where(categoryGroup == "AuditEvent").all(enabled == true))
+      azure.subscription.keyVault.vault.diagnosticSettings.any(properties.logs.where(categoryGroup == "allLogs").all(enabled == true))
+      // Step 3: Ensure that there is an appropriate destination for the logs.
+      // Diagnostic settings should forward logs to one or more of the following destinations:
+      // an Azure Storage account, an Azure Monitor Log Analytics workspace, an event hub, or a partner solution.
+      // The existence of any of these destination settings confirms that the logs are not only enabled but also appropriately stored.
+      azure.subscription.keyVault.vault.diagnosticSettings.all(properties.eventHubAuthorizationRuleId != empty) ||
+        azure.subscription.keyVault.vault.diagnosticSettings.all(properties.workspaceId != empty) ||
+          azure.subscription.keyVault.vault.diagnosticSettings.all(properties.storageAccountId != empty) ||
+            azure.subscription.keyVault.vault.diagnosticSettings.all(properties.marketplacePartnerId != empty)
   - uid: mondoo-azure-security-ensure-logging-enabled-kv-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(category == "AuditEvent").all(retentionPolicy.days >= 180)))
+      mql: |
+      // Step 1: Verify that diagnostic settings are configured for the Key Vault vaults.
+      azure.subscription.keyVault.vaults.all(diagnosticSettings != empty)
+      // Step 2: Confirm the presence and enablement of specific log categories within the diagnostic settings.
+      // The checks ensure that both 'audit' and 'allLogs' category groups are actively enabled for comprehensive logging.
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.all(properties.logs.any(categoryGroup == "AuditEvent")))
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.all(properties.logs.any(categoryGroup == "allLogs")))
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(categoryGroup == "AuditEvent").all(enabled == true)))
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.any(properties.logs.where(categoryGroup == "allLogs").all(enabled == true)))
+      // Step 3: Ensure that there is an appropriate destination for the logs.
+      // Diagnostic settings should forward logs to one or more of the following destinations:
+      // an Azure Storage account, an Azure Monitor Log Analytics workspace, an event hub, or a partner solution.
+      // The existence of any of these destination settings confirms that the logs are not only enabled but also appropriately stored.
+      azure.subscription.keyVault.vaults.all(diagnosticSettings.all(properties.eventHubAuthorizationRuleId != empty)) ||
+        azure.subscription.keyVault.vaults.all(diagnosticSettings.all(properties.workspaceId != empty)) ||
+          azure.subscription.keyVault.vaults.all(diagnosticSettings.all(properties.storageAccountId != empty)) ||
+            azure.subscription.keyVault.vaults.all(diagnosticSettings.all(properties.marketplacePartnerId != empty))
   - uid: mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group
     title: Ensure that activity log alerts exist for the commands Create, Update, and Delete Network Security Group
     impact: 80
