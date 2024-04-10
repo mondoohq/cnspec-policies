@@ -599,7 +599,7 @@ queries:
         4. Select Turn on FileVault
 
         To pass make sure this encryption cannot be turned off by the system, you need to [make sure that the Device Management Profile property `dontAllowFDEDisable` is set to 'true'.](https://developer.apple.com/documentation/devicemanagement/fdefilevaultoptions).
-        To do so you can use an OS X configuration profile [similar to this one.](https://github.com/gregneagle/profiles/blob/master/cant_disable_filevault.mobileconfig)
+        To do so you can use an macOS configuration profile [similar to this one.](https://github.com/gregneagle/profiles/blob/master/cant_disable_filevault.mobileconfig)
 
         **Impact:**
 
