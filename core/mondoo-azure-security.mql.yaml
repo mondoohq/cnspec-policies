@@ -1727,39 +1727,44 @@ queries:
 
         If you enable both server- and database-level auditing for a database, you can choose predicate expressions to filter the events and ensure you don't duplicate data.
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Go to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **SQL servers** and select each server to inspect its auditing settings.
+        3. Click on **Auditing** for each server.
+        4. Verify that `Enable Azure SQL Auditing` is switched to `On`. Check that an appropriate storage account, Log Analytics workspace, or Event Hub is selected as the audit log destination.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **Automated Audit via Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        To verify the auditing settings for all SQL Servers in a subscription: (replace <resourceGroupName> with your resource group name)
 
-        __cnspec shell__
+        ```bash
+        az sql server list --query "[].{Name:name, ResourceGroupName:<resourceGroupName>}" -o tsv | while read -r name rg; do
+          echo "Server: $name"
+          az sql server audit-policy show --name $name --resource-group $rg
+        done
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.sql.servers.all(auditingPolicy.state == "Enabled")
-          ```
+        This script iterates over all SQL servers, displaying their audit policy status, ensuring that auditing is enabled and correctly configured.
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        1. In the Azure Portal, go to **SQL servers** and select the server you want to configure.
+        2. Under **Security**, click on **Auditing**.
+        3. Set `Enable Azure SQL Auditing` to `On`.
+        4. Select a destination for the audit logs: Storage Account, Log Analytics workspace, or Event Hub.
+        5. Configure the retention period, ensuring it aligns with your organization's compliance requirements.
+        6. Click `Save` to apply the settings.
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **SQL servers**.
-        3. For each SQL server select **Auditing** and make sure the **Enable Azure SQL Auditing** toggle is on.
+        ### Automating Auditing Configuration via Azure CLI:
+
+        For each SQL server, enable auditing and specify the log retention settings and destination. Here's how you can enable auditing to a Storage Account with a retention period:
+
+        ```bash
+        az sql server audit-policy update --name <ServerName> --resource-group <ResourceGroupName> --state Enabled --blob-storage-target-state Enabled --storage-endpoint <StorageAccountBlobEndpoint> --storage-key <StorageAccountKey> --retention-days 90
+        ```
+
+        Replace placeholders with your specific details. Similar commands can be executed to set up auditing with Log Analytics or Event Hub as the destination. Ensuring that auditing is enabled and properly configured across all SQL servers in your Azure environment is a key step in maintaining a strong security and compliance posture.
   - uid: mondoo-azure-security-sql-server-audit-on-single
     filters: |
       asset.platform == "azure-sql-server"
