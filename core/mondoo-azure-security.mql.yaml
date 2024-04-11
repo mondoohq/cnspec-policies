@@ -2008,34 +2008,31 @@ queries:
         Replace placeholder values with your actual subscription ID, setting name, and destination details. Regular review and adjustment of these settings are crucial to adapt to evolving security and operational requirements.
 
   - uid: mondoo-azure-security-disable-udp-virtualmachines
-    title: Ensure direct UDP access to Azure virtual machines from the internet is restricted
+    title: Ensure direct UDP access to Resources from the internet is restricted
     impact: 80
     props:
       - uid: disallowedPortsUDP
         title: a list of disallowed UDP ports, by default covering common UDP services, add more as needed
         mql: |
           return [
-            53,
-            123,
-            161,
-            389,
-            1900
+            53,    // DNS
+            123,   // NTP
+            161,   // SNMP
+            389,   // CLDAP
+            1900   // SSDP
           ]
     variants:
       - uid: mondoo-azure-security-disable-udp-virtualmachines-single
       - uid: mondoo-azure-security-disable-udp-virtualmachines-api
     docs:
       desc: |
-        The main security issue with exposing UDP services over the internet is the broad attack surface that allows attackers to use reflection amplification attack against virtual machines.
+        Exposing UDP services to the internet increases the attack surface significantly and can make Azure resources susceptible to reflection amplification attacks. These attacks exploit the connectionless nature of the UDP protocol, allowing attackers to spoof a target's IP address and send information requests using UDP. The victimized server, deceived by the spoofed IP, sends responses to the target instead of the attacker, leading to a reflection attack that can amplify the traffic directed at the victim, often resulting in a denial-of-service (DoS).
 
-        A reflection attack involves an attacker spoofing a target's IP address and sending a request for information, mainly using UDP. The server then responds by sending an answer. This is called "reflection" (using the same protocol in both directions) attack.
+        The inherent risk lies in UDP's lack of connection verification, which doesn't authenticate source IP addresses, making it trivial for attackers to manipulate IP datagrams to stage such attacks. Servers with open UDP ports, especially those using well-known protocols like DNS, NTP, CLDAP, CharGEN, SSDP, BitTorrent, SNMPv2, RPC, NetBIOS, or TFTP, can be exploited as amplifiers in such attacks.
 
-        The main issue is related to the way UDP protocol is designed. UDP is a connection-less protocol that does not validate source IP addresses. Unless the application layer protocol uses countermeasures, an attacker can easily forge the IP packet datagram to include an arbitrary source IP address.
+        To mitigate these risks across Azure resources, not just virtual machines but including any service that might expose UDP ports to the internet, it's crucial to ensure that access to known UDP services is strictly controlled. By limiting unnecessary UDP traffic from the internet and employing best practices for network security, you can reduce the likelihood of these attacks significantly.
 
-        When many UDP packets have their source IP address forged to the victim IP address, the destination server (or amplifier) responds to the victim (instead of the attacker), creating a reflected denial-of-service (DoS) attack.
-
-        Any server with open UDP ports can be targeted as a reflector. One way of protecting against this attack is to make sure well known UDP port services are not disclosed to the internet.
-
+        Employing Network Security Groups (NSGs) to deny or control inbound UDP traffic, especially on ports known to be vulnerable or unnecessary for internet exposure, is a key defensive measure. Additionally, monitoring and logging traffic can help identify potential abuse or misconfiguration. For services that require UDP access, ensure they are secured, monitored, and only exposed when absolutely necessary, using the principle of least privilege to minimize potential attack vectors.
         Some application-layer protocols that rely on the UDP are:
 
           * Domain Name System (DNS)
@@ -2049,61 +2046,43 @@ queries:
           * Network Basic Input/Output System (NetBIOS)
           * Trivial File Transfer Protocol (TFTP)
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Access the Azure Portal and review the networking settings for each resource, focusing on those with public internet exposure.
+        2. Inspect inbound port rules for associated Network Security Groups (NSGs) and any other relevant firewall settings.
+        3. Confirm that none of the critical UDP ports are allowed from the internet, particularly for resources that do not require such access.
 
-          ```bash
-          cnspec run azure -c "allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /UDP/i
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-        )
-        allNsgUDP.all(securityRules.all(properties.destinationPortRange != "*"))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>```
+        **Automated Audit with Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        Use the Azure CLI to review NSG rules across your Azure environment:
 
-        __cnspec shell__
+        ```bash
+        az network nsg rule list --query "[].{NSG:networkSecurityGroup, Protocol:protocol, Access:access, Direction:direction, SourceAddressPrefix:sourceAddressPrefix, DestinationPortRange:destinationPortRange}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-        allNsgUDP = azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /UDP/i
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-        )
-        allNsgUDP.all(securityRules.all(properties.destinationPortRange != "*"))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 53 && toPort >= 53)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 123 && toPort >= 123)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 161 && toPort >= 161)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 389 && toPort >= 389)))
-        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= 1900 && toPort >= 1900)))
-          ```
+        Ensure no rule improperly exposes the specified UDP ports to the internet.
       remediation: |
-        Disable direct UDP access to your Azure virtual machines from the internet. There are other options you can use to access UDP-based services running on these virtual machines:
-        * Point-to-site VPN
-        * Site-to-site VPN
-        * ExpressRoute
+        **To Restrict UDP Traffic in Azure Portal:**
+
+        1. Navigate to the networking settings for each Azure resource, accessed via its specific blade in the Azure Portal.
+        2. Modify or remove any inbound security rules that allow traffic on the disallowed UDP ports from the internet.
+        3. Where necessary, employ alternative secure access methods like VPNs or private connections (e.g., Azure ExpressRoute).
+
+        **To Update NSG Rules via Azure CLI:**
+
+        For each identified rule that allows risky UDP traffic, either delete the rule:
+
+        ```bash
+        az network nsg rule delete --resource-group <ResourceGroupName> --nsg-name <NSGName> --name <RuleName>
+        ```
+
+        Or update it to restrict or deny such traffic:
+
+        ```bash
+        az network nsg rule update --resource-group <ResourceGroupName> --nsg-name <NSGName> --name <RuleName> --access Deny
+        ```
+
+        Regularly reviewing and adjusting these settings helps maintain robust defense mechanisms against potential UDP-based network exploits across all your Azure resources.
   - uid: mondoo-azure-security-disable-udp-virtualmachines-single
     filters: |
       asset.platform == "azure-network-security-group"
@@ -2139,4 +2118,5 @@ queries:
       props.disallowedPortsUDP {
         disallowedPortUDP = _
         disallowedPortUDP
+        allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
       }
