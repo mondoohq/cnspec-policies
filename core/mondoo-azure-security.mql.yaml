@@ -1793,42 +1793,56 @@ queries:
 
         Note: TDE is not available for system databases.
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with cnspec, run this query:
+        1. In the Azure Portal, navigate to **SQL databases** under your SQL Server instances.
+        2. Select each database to inspect its settings.
+        3. Click on **Transparent data encryption** under the **Security** settings.
+        4. Verify that `Data encryption` is set to `On` for each database (except the master database, which cannot be encrypted with TDE).
 
-          ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **Automated Audit with Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        To check the TDE status for all databases in a specific SQL server:
 
-        __cnspec shell__
+        ```bash
+        az sql db list --resource-group <ResourceGroupName> --server <ServerName> --query "[].{Name:name, TDE:transparentDataEncryption}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
+        Use the following command to check the TDE status of a specific database:
 
-        1. Launch `cnspec shell`:
+        ```bash
+        az sql db tde show --name <DatabaseName> --resource-group <ResourceGroupName> --server <ServerName>
+        ```
 
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.sql.servers.all(databases.where(name != "master").all(transparentDataEncryption.state == "Enabled"))
-          ```
+        Ensure the TDE status is `Enabled` for each database.
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        1. Access **SQL databases** in the Azure Portal.
+        2. Select a database under your SQL Server instance.
+        3. Go to **Transparent data encryption** under the **Security** section.
+        4. Switch `Data encryption` to `On`.
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **SQL databases**.
-        3. For each database instance:
-           a. Select the database.
-           b. Under **Security**, select **Data encryption**.
-           c. On the **Transparent data encryption** tab, make sure **Data encryption** is set to **On**.
+        ### Using Azure CLI:
+
+        To enable TDE on a specific database:
+
+        ```bash
+        az sql db tde set --database <DatabaseName> --resource-group <ResourceGroupName> --server <ServerName> --status Enabled
+        ```
+
+        ### Using PowerShell:
+
+        For each database, enable TDE with the following command:
+
+        ```powershell
+        Set-AzSqlDatabaseTransparentDataEncryption -DatabaseName <DatabaseName> -ServerName <ServerName> -ResourceGroupName <ResourceGroupName> -State 'Enabled'
+        ```
+
+        **Note:**
+
+        - Ensure you repeat the process for each database in your SQL Server instances, excluding the master database.
+        - Regularly review the TDE status of your databases to maintain compliance and data protection.
   - uid: mondoo-azure-security-sql-server-tde-on-single
     filters: |
       asset.platform == "azure-sql-server"
