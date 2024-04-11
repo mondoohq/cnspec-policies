@@ -1883,40 +1883,59 @@ queries:
 
         A diagnostic setting controls how logs are exported. By default, logs are retained only for 90 days. By using diagnostic settings, we can export logs and store them for longer periods in order to analyze the activities and find any security-related issues.
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Go to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **Monitor** and then **Activity log**.
+        3. Click on **Diagnostic settings** and review the settings for your subscription.
+        4. Ensure that there are diagnostic settings configured and that they cover the essential log categories: Administrative, Security, Alert, and Policy.
+
+        **Automated Audit via Azure CLI:**
+
+        To check the diagnostic settings for the subscription:
+
+        ```bash
+        az monitor diagnostic-settings list --resource /subscriptions/{subscriptionId}
+        ```
+
+        Verify that the output includes diagnostic settings with the necessary categories enabled.
+        remediation: |
+          ### Microsoft Azure Portal
+
+          ### Configuring Diagnostic Settings in Azure Portal:
+
+          1. In the Azure Portal, navigate to **Monitor** > **Activity log**.
+          2. Select **Diagnostic settings** and then **Add diagnostic setting**.
+          3. Provide a name for the diagnostic setting.
+          4. Select the necessary log categories: Administrative, Security, Alert, and Policy.
+          5. Choose the destination for the logs, such as an Azure Storage account, a Log Analytics workspace, or an Event Hub, based on your organizational needs.
+          6. Save the configuration to ensure continuous monitoring.
+
+          ### Using Azure CLI:
+
+          Create a new diagnostic setting using the Azure CLI:
 
           ```bash
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings != empty" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          az monitor diagnostic-settings create --name <NameOfSetting> --resource /subscriptions/{subscriptionId} --logs '[{"category": "Administrative", "enabled": true}, {"category": "Security", "enabled": true}, {"category": "Alert", "enabled": true}, {"category": "Policy", "enabled": true}]' --storage-account <StorageAccountId> --workspace <LogAnalyticsWorkspaceId> --event-hub <EventHubName>
           ```
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+          Replace the placeholders with your specific resource IDs and desired diagnostic setting name.
 
-        __cnspec shell__
+          ### Using PowerShell:
 
-        To audit Microsoft Azure with `cnspec shell`:
+          Configure diagnostic settings with PowerShell:
 
-        1. Launch `cnspec shell`:
+          ```powershell
+          $subsId = "<SubscriptionId>"
+          $settingName = "<DiagnosticSettingName>"
+          $storageAccountId = "<StorageAccountId>"
+          $workspaceId = "<LogAnalyticsWorkspaceId>"
+          $eventHubAuthRuleId = "<EventHubAuthorizationRuleId>"
 
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          Set-AzDiagnosticSetting -ResourceId "/subscriptions/$subsId" -StorageAccountId $storageAccountId -WorkspaceId $workspaceId -Enabled $true -Name $settingName -Category @("Administrative", "Security", "Alert", "Policy")
           ```
 
-        2. Run this query:
-
-          ```mql
-          azure.subscription.monitor.diagnosticSettings != empty
-          ```
-      remediation: |
-        ### Microsoft Azure Portal
-
-        To update using Microsoft Azure Portal:
-
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Monitor**.
-        3. Under **Settings**, select **Diagnostic settings**.
-        4. Select a subscription and make sure there are diagnostic settings for that subscription.
+          Modify the script to match your specific resource IDs and configuration preferences. It's crucial to routinely review and update these settings to adapt to any changes in your Azure environment or organizational requirements.
   - uid: mondoo-azure-security-diagnostic-settings-essential-categories
     title: Ensure that diagnostic settings collect essential security categories
     impact: 80
