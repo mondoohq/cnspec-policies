@@ -1663,42 +1663,41 @@ queries:
 
         Implementing these measures ensures that only authorized networks and applications can access your key vault, significantly bolstering its security.
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **Key vaults** to list all key vaults in your subscriptions.
+        3. Select each key vault to review its networking settings.
+        4. In the key vault's **Settings**, click on **Networking**.
+        5. Check the **Firewalls and virtual networks** settings to ensure public access is either disabled or limited:
+          - Verify that **Public network access** is set to **Disabled**.
+          - If public access is enabled, ensure that access is restricted to selected networks by configuring IP rules or linking to specific virtual networks.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") || azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **Automated Audit via Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        You can check the public network access settings for all key vaults in a given subscription using the Azure CLI:
 
-        __cnspec shell__
+        ```bash
+        az keyvault list --query "[].{Name:name, PublicNetworkAccess:properties.publicNetworkAccess}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.keyVault.vaults.all(properties.publicNetworkAccess == "Disabled") ||
-        azure.subscription.keyVault.vaults.where(properties.publicNetworkAccess == "Enabled").all(properties.networkAcls.virtualNetworkRules != empty || properties.networkAcls.ipRules != empty)
-          ```
+        This command outputs the public network access settings for each key vault, allowing you to quickly identify configurations that do not align with best practices.
       remediation: |
         ### Microsoft Azure Portal
 
         To update using Microsoft Azure Portal:
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Key vaults**.
-        3. For each key vault:
-           a. Under **Settings**, select **Networking**.
-           b. For **Firewalls and virtual networks**, select **Disable public access**.
+        1. Access the Azure Portal at https://portal.azure.com and go to **Key vaults**.
+        2. Select the key vault you wish to configure.
+        3. In the key vault's **Settings**, choose **Networking**.
+        4. Navigate to **Firewalls and virtual networks**.
+        5. To block all public network access, set **Public network access** to **Disabled**.
+        6. If you need to allow access from specific networks:
+          - Set **Public network access** to **Enabled**.
+          - Configure **Firewall rules** to define allowed IP address ranges.
+          - Link to specific **Virtual networks** to restrict access to designated networks only.
+
+        By tightly controlling network access to your Azure Key Vault, you enhance its security posture, ensuring that only approved entities can access its contents.
   - uid: mondoo-azure-security-keyvault-public-access-disabled-single
     filters: |
       asset.platform == "azure-keyvault-vault"
