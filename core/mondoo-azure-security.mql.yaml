@@ -1586,47 +1586,52 @@ queries:
       - uid: mondoo-azure-security-ensure-disabled-public-access-sql-api
     docs:
       desc: |
+        Limiting public network access to Azure SQL servers enhances security by reducing exposure to attacks. Configuring SQL servers to allow connections only from private endpoints or specific public IP addresses through firewall rules significantly mitigates potential risks.
+
         Customers can choose to connect to a database by either:
           * Public endpoints (with IP-based server-level firewall rules or with virtual-network firewall rules)
           * Private endpoints (using Azure Private Link)
 
         When public network access is disabled, only connections from private endpoints are allowed. All connections from public endpoints are denied.
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **SQL servers** under Azure SQL services.
+        3. Select each SQL server to review its networking settings.
+        4. Under the **Security** section, click on **Networking**.
+        5. Verify that for **Public network access**, the setting is either **Disabled** or configured to allow **Selected networks** only, ensuring no open access to all networks.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **Automated Audit through Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        You can also verify the public network access settings using Azure CLI:
 
-        __cnspec shell__
+        ```bash
+        az sql server list --query "[].{Name:name, PublicNetworkAccess:publicNetworkAccess}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.sql.servers.all(properties.publicNetworkAccess == "Disabled") || azure.subscription.sql.servers.where(properties.publicNetworkAccess == "Enabled").all(virtualNetworkRules != empty || firewallRules != empty)
-          ```
+        This command lists all SQL servers along with their public network access settings. Ensure that none of the servers are listed as having unrestricted public network access unless specific rules are applied.
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        To Restrict Public Network Access in Azure Portal:
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **SQL servers**.
-        3. For each server:
-           a. Under **Security**, select **Networking**.
-           b. For **Public network access**, select **Disable** or **Selected networks**.
+        1. Log into the Azure Portal at https://portal.azure.com.
+        2. Navigate to **SQL servers** and select the server you wish to configure.
+        3. In the server's settings, click on **Networking** under the **Security** section.
+        4. Locate the **Public network access** setting.
+        5. Change the setting to **Disabled** to completely block public access or to **Selected networks** to restrict access to specific IP addresses or ranges.
+        6. If selecting **Selected networks**, ensure you configure the necessary firewall rules or virtual network settings to specify which networks can access the server.
+
+        ### Automating Remediation with Azure CLI:
+
+        To disable public network access for all SQL servers in a subscription, you can use the following Azure CLI command for each server:
+
+        ```bash
+        az sql server update --name <ServerName> --resource-group <ResourceGroupName> --set publicNetworkAccess='Disabled'
+        ```
+
+        Replace `<ServerName>` and `<ResourceGroupName>` with your actual server names and resource group names. For granular control, manually configure network settings in the Azure Portal to specify allowed networks if opting for the "Selected networks" setting.
   - uid: mondoo-azure-security-ensure-disabled-public-access-sql-single
     filters: |
       asset.platform == "azure-sql-server"
