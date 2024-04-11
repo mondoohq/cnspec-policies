@@ -1313,35 +1313,39 @@ queries:
       azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName"))
     docs:
       desc: |
-        Monitoring network security group events can give clear insight into network access changes and is useful for detecting suspicious activity.
+        Monitoring events related to the creation, update, and deletion of network security groups provides insights into network access changes and helps in detecting suspicious activities.
       audit: |
-        __cnspec run__
+       **From Azure Portal**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Navigate to the `Monitor` blade.
+        2. Click on `Alerts`.
+        3. In the Alerts window, click on `Alert rules`.
+        4. Verify that alert rules exist for the following conditions:
+          - Operation name equals `Microsoft.Network/networkSecurityGroups/write` for Create/Update events.
+          - Operation name equals `Microsoft.Network/networkSecurityGroups/delete` for Delete events.
+        5. Click on the alert rule name to review its configuration.
+          - Ensure the `Condition` panel specifies the correct operation names and does not filter on irrelevant criteria like `Level`, `Status`, or `Caller`.
+          - Confirm that the `Actions` panel is set up to notify the appropriate personnel within your organization.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/write" && fieldName == "operationName" ))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName" ))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+       **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        Run the following commands to list the current alert rules and verify their conditions:
 
-        __cnspec shell__
+        ```bash
+        az monitor activity-log alert list --subscription <subscription ID> --query "[].{Name:name, Enabled:enabled, Condition:condition.allOf, Actions:actions}"
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
+        Check for the presence of conditions targeting the `Microsoft.Network/networkSecurityGroups/write` and `Microsoft.Network/networkSecurityGroups/delete` operation names in the output.
 
-        1. Launch `cnspec shell`:
+        **From PowerShell:**
 
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        Utilize the following PowerShell commands to inspect the alert rules:
 
-        2. Run this query:
+        ```powershell
+        Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/write"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
 
-          ```mql
-          azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/write" && fieldName == "operationName" ))
-          azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName" ))
-          ```
+        Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/delete"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
+        ```
       remediation: |
         ### Microsoft Azure Portal
 
@@ -1350,7 +1354,7 @@ queries:
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Go to **Monitor**.
         3. Select **Alerts**.
-        4. In the **+ Create** drop-down, select **Alert rule**.
+        4. Click **+ Create**.
         5. Under **Resource types**, select **Network security group**.
         6. Select the subscription name, resource group, or network security group" to apply the rule to.
         7. Verify that the selection preview shows:
