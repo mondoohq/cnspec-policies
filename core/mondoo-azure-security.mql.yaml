@@ -4,7 +4,7 @@
 policies:
   - uid: mondoo-azure-security
     name: Microsoft Azure Security
-    version: 1.4.0
+    version: 1.5.0
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
@@ -1439,41 +1439,69 @@ queries:
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
     docs:
       desc: |
-        All communication between clients and PostgreSQL database servers should be through SSL/TLS. This added layer of encryption prevents man-in-the-middle attacks.
+        Ensuring that SSL/TLS is enforced for all connections to PostgreSQL database servers is crucial for safeguarding data in transit. This security measure helps prevent eavesdropping and man-in-the-middle attacks, maintaining the confidentiality and integrity of data.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Log in to Azure Portal at https://portal.azure.com.
+        2. Navigate to `Azure Database for PostgreSQL server`.
+        3. Select each database server to review its settings.
+        4. Under `Connection security`, confirm that `Enforce SSL connection` is set to `ENABLED`. This setting should be consistent across all PostgreSQL database servers to ensure uniform security posture.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        To verify the SSL enforcement setting across all PostgreSQL servers in a resource group, you can use the Azure CLI. The expected output for compliant servers is `Enabled`:
 
-        __cnspec shell__
+        ```bash
+        az postgres server list --resource-group <resourceGroupName> --query "[].{Name:name, SSL:sslEnforcement}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
+        This command provides a clear, tabulated output indicating which servers have SSL enforced and which do not, enabling quick identification of non-compliant resources.
 
-        1. Launch `cnspec shell`:
+        **From PowerShell:**
 
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        PowerShell can also be used for a detailed audit. The command should return `Enabled` for each server checked:
 
-        2. Run this query:
+        ```powershell
+        Get-AzPostgreSqlServer -ResourceGroupName <ResourceGroupName> | Select-Object Name, SslEnforcement
+        ```
 
-          ```mql
-          azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")
-          ```
+        This command lists all PostgreSQL servers in the specified resource group along with their SSL enforcement status, providing a comprehensive overview.
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        To enforce SSL connections:
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Azure Database for PostgreSQL**.
-        3. For each database, select **Connection security** and enable SSL.
+        1. Access the Azure Portal at https://portal.azure.com.
+        2. Navigate to `Azure Database for PostgreSQL server`.
+        3. For each server, access `Connection security`.
+        4. Locate the `SSL settings` and set `Enforce SSL connection` to `ENABLED`.
+        5. Apply the changes to ensure that the setting is enforced across all servers.
+
+        Consistency in enforcement is key. Verify that all PostgreSQL servers within your Azure environment have this setting enabled to maintain a high security standard.
+
+        **From Azure CLI:**
+
+        For a batch update or to automate the enforcement across multiple servers, use the Azure CLI:
+
+        ```bash
+        az postgres server update --resource-group <resourceGroupName> --name <serverName> --ssl-enforcement Enabled
+        ```
+
+        Automate this process using scripts to iterate over all PostgreSQL servers in a subscription or resource group, ensuring no server is left without SSL enforcement.
+
+        **From PowerShell:**
+
+        PowerShell provides a similar capability for batch processing:
+
+        ```powershell
+        $servers = Get-AzPostgreSqlServer -ResourceGroupName <ResourceGroupName>
+        foreach ($server in $servers) {
+            Update-AzPostgreSqlServer -ResourceGroupName <ResourceGroupName> -ServerName $server.Name -SslEnforcement Enabled
+        }
+        ```
+
+        This script iterates over all PostgreSQL servers in the specified resource group, enforcing SSL on each one. Regularly running such scripts can help maintain compliance over time, especially in dynamic environments where new servers are frequently deployed.
 
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
     filters: |
@@ -1495,45 +1523,47 @@ queries:
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-api
     docs:
       desc: |
-        All communication between clients and MySQL servers should be through SSL/TLS. This adds a layer of encryption to prevent man-in-the-middle attacks.
+        Ensuring that SSL connections are enforced for MySQL database servers is essential to protect data in transit from eavesdropping and man-in-the-middle attacks. Additionally, it is critical to ensure the use of the latest supported TLS version to mitigate vulnerabilities associated with older versions.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to `Azure Database for MySQL servers`.
+        3. Select each server to inspect its settings.
+        4. Under `Connection security`, verify that `Enforce SSL connection` is set to `ENABLED`.
+        5. Additionally, ensure that the server is configured to use the latest supported TLS version (e.g., TLS 1.2 or higher).
 
-          ```bash
-          cnspec run azure -c "azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        Run the following command to inspect the SSL enforcement and the minimum TLS version for each MySQL server:
 
-        __cnspec shell__
+        ```bash
+        az mysql server list --resource-group <resourceGroupName> --query "[].{Name:name, SSL:sslEnforcement, TLS:minimalTlsVersion}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
+        This command provides a tabulated view showing the SSL enforcement and TLS version for each server, facilitating quick identification of non-compliant or outdated configurations.
 
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled")
-          azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2")
-          ```
       remediation: |
-        ### Microsoft Azure Portal
+        To enforce SSL connections and ensure the use of the latest TLS version:
 
-        To update using Microsoft Azure Portal:
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Azure Database for mySQL server**.
-        3. For each database:
-           a. Select **Connection security**.
-           b. Enable **SSL**.
-           c. Ensure that the latest version of TLS is selected as the minimum.
+        1. Access the Azure Portal at https://portal.azure.com.
+        2. Go to `Azure Database for MySQL servers`.
+        3. For each server, navigate to `Connection security`.
+        4. Set `Enforce SSL connection` to `ENABLED`.
+        5. Select the latest supported TLS version from the dropdown menu to ensure maximum security.
+        6. Apply these settings to ensure compliance across all MySQL servers.
+
+        Regular reviews and updates of these settings are recommended to adapt to new TLS versions as they become available, ensuring that the security configurations remain up-to-date.
+
+        **From Azure CLI:**
+
+        To batch update MySQL servers for SSL enforcement and TLS version settings, use the following Azure CLI command:
+
+        ```bash
+        az mysql server update --resource-group <resourceGroupName> --name <serverName> --ssl-enforcement Enabled --minimal-tls-version TLS1_2
+        ```
+
+        For enhancing data security during transmission, it's pivotal to use the latest TLS version. Currently, the most advanced standard available is TLS 1.3, known for its enhanced security and performance benefits. However, it's important to note that, as of the latest information, Azure's MySQL service supports up to TLS 1.2. While TLS 1.2 provides robust security, the adoption of TLS 1.3 across various platforms, including Azure, is anticipated.
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single
     filters: |
       asset.platform == "azure-mysql-server"
