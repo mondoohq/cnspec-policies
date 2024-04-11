@@ -1380,41 +1380,57 @@ queries:
       desc: |
         Enabling security alert email ensures that Microsoft makes administrators aware of any potential security issues so they can react quickly.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+          1. From Azure Home, select the Portal Menu.
+          2. Select `Microsoft Defender for Cloud`.
+          3. Click on `Environment Settings`.
+          4. Click on the appropriate Management Group, Subscription, or Workspace.
+          5. Click on `Email notifications`.
+          6. Verify that the `Notify about alerts with the following severity (or higher):` setting is checked and set to `High`.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.cloudDefender.securityContacts.all(alertNotifications.minimalSeverity == "High" && alertNotifications.state == "On" )" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
+          Run the following command to check the notification settings for high severity alerts. Make sure the output is set to `true`, indicating that notifications for high severity alerts are enabled.
 
           ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          az account get-access-token --query "{subscription:subscription,accessToken:accessToken}" --out tsv | xargs -L1 bash -c 'curl -X GET -H "Authorization: Bearer $1" -H "Content-Type: application/json" https://management.azure.com/subscriptions/$0/providers/Microsoft.Security/securityContacts?api-version=2020-01-01-preview' | jq '.|.[] | select(.name=="default")'|jq '.properties.alertNotifications'
           ```
 
-        2. Run this query:
-
-          ```mql
-          azure.subscription.cloudDefender.securityContacts.all(alertNotifications.minimalSeverity == "High")
-          azure.subscription.cloudDefender.securityContacts.all(alertNotifications.state == "On")
-          ```
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        To configure alert notifications in Microsoft Azure Portal:
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Microsoft Defender for Cloud**.
-        3. Select **Environment Settings** and select the management group, subscription, or workspace.
-        4. Select **Email notifications** and ensure that the **Notify about alerts with the following severity (or higher)** setting is checked and set to **High**.
+          1. Log into the Microsoft Azure Portal at https://portal.azure.com.
+          2. Select `Microsoft Defender for Cloud` from the Portal Menu.
+          3. Go to `Environment Settings` and select the appropriate management group, subscription, or workspace.
+          4. Navigate to `Email notifications`.
+          5. Ensure the `Notify about alerts with the following severity (or higher):` option is enabled and set to `High`.
+          6. Click `Save` to apply the changes.
+
+        **From Azure CLI:**
+
+        Use the following command to update the security contact settings to enable high severity alert notifications. Replace `<Your_Subscription_Id>` and `<validEmailAddress>` with the appropriate values.
+
+          ```bash
+          az account get-access-token --query "{subscription:subscription,accessToken:accessToken}" --out tsv | xargs -L1 bash -c 'curl -X PUT -H "Authorization: Bearer $1" -H "Content-Type: application/json" https://management.azure.com/subscriptions/<$0>/providers/Microsoft.Security/securityContacts/default1?api-version=2017-08-01-preview -d "@input.json"'
+          ```
+
+          Ensure the `input.json` file contains the following data, with `<validEmailAddress>` replaced with your contact email:
+
+          ```json
+          {
+            "id": "/subscriptions/<Your_Subscription_Id>/providers/Microsoft.Security/securityContacts/default1",
+            "name": "default1",
+            "type": "Microsoft.Security/securityContacts",
+            "properties": {
+              "email": "<validEmailAddress>",
+              "alertNotifications": "On",
+              "alertsToAdmins": "On"
+            }
+          }
+          ```
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql
     title: Ensure SSL connection enabled for PostgreSQL database servers
     impact: 80
