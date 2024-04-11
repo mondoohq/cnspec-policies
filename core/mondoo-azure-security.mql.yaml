@@ -1958,46 +1958,55 @@ queries:
           * Administrative
           * Policy
       audit: |
-        __cnspec run__
+        **Manual Audit Steps:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Access **Azure Monitor** within the Azure Portal.
+        2. Navigate to **Activity log** and proceed to **Diagnostic settings**.
+        3. Review the settings for each subscription ensuring the collection of Administrative, Security, Alert, and Policy logs.
+        4. Confirm that these categories are enabled and correctly configured to export to an appropriate destination.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Administrative").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Security").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Alert").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Policy").all(enabled == true))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **Automated Audit via Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        Use the Azure CLI to list and verify the diagnostic settings across subscriptions:
 
-        __cnspec shell__
+        ```bash
+        az monitor diagnostic-settings list --resource /subscriptions/{subscriptionId}
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Administrative").all(enabled == true))
-          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Security").all(enabled == true))
-          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Alert").all(enabled == true))
-          azure.subscription.monitor.diagnosticSettings.all(properties.logs.where(category == "Policy").all(enabled == true))
-          ```
+        Review the settings to confirm that the essential categories are enabled.
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        1. Visit **Azure Monitor** > **Activity log** in the Azure Portal.
+        2. Go to **Diagnostic settings** and either add a new setting or edit an existing one.
+        3. Name your diagnostic setting and ensure the inclusion of Administrative, Security, Alert, and Policy logs.
+        4. Select the destination for these logs, such as an Azure Storage account, Log Analytics workspace, or Event Hub.
+        5. Apply and save these settings to maintain a robust monitoring framework.
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Monitor** and select **Activity Log**.
-        3. Select **Export Activity logs**.
-        4. Select a subscription and select make sure there are diagnostic settings for **Administrative**, **Security**, and **Alert** data.
+        ### Enabling Diagnostic Settings via Azure CLI:
+
+        To create or update diagnostic settings for capturing essential log categories, use:
+
+        ```bash
+        az monitor diagnostic-settings create --name <NameOfSetting> --resource /subscriptions/{subscriptionId} --logs '[{"category": "Administrative", "enabled": true}, {"category": "Security", "enabled": true}, {"category": "Alert", "enabled": true}, {"category": "Policy", "enabled": true}]' --storage-account <StorageAccountId> --workspace <LogAnalyticsWorkspaceId> --event-hub <EventHubName>
+        ```
+
+        ### PowerShell Command for Diagnostic Settings:
+
+        Apply the following command to set up diagnostic logging for the necessary categories:
+
+        ```powershell
+        $categories = @("Administrative", "Security", "Alert", "Policy")
+        $settings = @()
+        foreach ($category in $categories) {
+            $settings += New-AzDiagnosticSettingSubscriptionLogSettingsObject -Category $category -Enabled $true
+        }
+
+        New-AzSubscriptionDiagnosticSetting -SubscriptionId <SubscriptionId> -Name <SettingName> -Log $settings
+        ```
+
+        Replace placeholder values with your actual subscription ID, setting name, and destination details. Regular review and adjustment of these settings are crucial to adapt to evolving security and operational requirements.
+
   - uid: mondoo-azure-security-disable-udp-virtualmachines
     title: Ensure direct UDP access to Azure virtual machines from the internet is restricted
     impact: 80
