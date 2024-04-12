@@ -84,43 +84,53 @@ policies:
     scoring_system: 2
 queries:
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
-    title: Ensure that OS disks are encrypted
+    title: Ensure OS Disks in azure virtual machines are encrypted with Customer Managed Keys (CMK)
     impact: 80
     variants:
       - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-single
       - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-api
     docs:
       desc: |
-        This check ensures that both OS disks (boot volumes) are encrypted. Customer managed keys can be either Azure Disk Encryption (ADE) or server-side encryption (SSE).
+        Encryption of OS disks for Azure virtual machines is critical for securing boot volumes from unauthorized access and data breaches. The use of Customer Managed Keys (CMK) offers enhanced control over the encryption and decryption processes, allowing organizations to manage their own keys via Azure Key Vault. This approach not only meets compliance requirements but also provides a higher level of security by enabling key rotation and revocation capabilities. Encrypting OS disks ensures that the data is unreadable to unauthorized users, protecting it from both external attacks and insider threats.. Customer managed keys can be either Azure Disk Encryption (ADE) or server-side encryption (SSE).
       audit: |
-        __cnspec run__
+        **Manual Audit via Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`:
+        1. Navigate to **Virtual machines** in the Azure Portal.
+        2. Select a virtual machine and access **Disks** under the Settings menu.
+        3. Verify the encryption settings for the OS disk to ensure it uses CMK.
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        **Automated Audit with Azure CLI:**
 
-          ```bash
-          cnspec run azure -c "azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)"
-          ```
+        List and check the encryption settings for all disks in a specific resource group:
 
-        __cnspec shell__
+        ```bash
+        az disk list --resource-group "yourResourceGroupName" --query "[].{Name:name, ResourceGroupName:resourceGroup, EncryptionSettings:encryptionSettingsCollection}" -o table
+        ``` 
 
-        To audit Microsoft Azure with `cnspec shell`:
+        **Automated Audit with PowerShell:**
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)
-          ```
+        ```powershell
+        Get-AzDisk -ResourceGroupName "yourResourceGroupName" | Select-Object Name, ResourceGroupName, EncryptionSettingsCollection
+        ```
+        
+        Ensure the EncryptionType is set to EncryptionAtRestWithCustomerKey for OS disks.
       remediation: |
+        ### Microsoft Azure Portal
+
+        To update using Microsoft Azure Portal:
+
+        1. Log into the Azure Portal and navigate to **Disks**.
+        2. Select the OS disk you wish to encrypt.
+        3. In the **Encryption** section, set **Encryption type** to **Customer-managed keys**.
+        4. Specify the Azure Key Vault and select the appropriate key.
+        5. Save the changes.
+
+        ### Azure CLI
+
+        ```bash
+        az vm encryption enable --resource-group <ResourceGroupName> --name <VMName> --disk-encryption-keyvault <KeyVaultName> --key-encryption-key <KeyName> --volume-type OS
+        ```
+
         ### Terraform
 
         __Encrypt disks Linux VM__
@@ -172,28 +182,6 @@ queries:
           ...
         }
         ```
-
-        ### Microsoft Azure Portal
-
-        To update using Microsoft Azure Portal:
-
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Virtual machines**.
-        3. For each virtual machine:
-           a. Select the virtual machine.
-           b. Select **Disks**.
-           c. Select the **X** to detach the disk from the VM.
-           d. Search for **Disks** and locate any unattached disk.
-           e. Select the disk and select **Encryption**.
-           f. Change the encryption type, then select the encryption set.
-           g. Select **Save**.
-           h. Go back to the VM and re-attach the disk.
-
-        ### Azure CLI
-
-        ```bash
-        az vm encryption enable -g <resource_group> --name <vm_name> --disk-encryption-keyvault <keyvault_name> --key-encryption-key <key_name> --volume-type [ALL|OS|DATA]
-        ```
     refs:
       - url: https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption-overview
         title: Overview of managed disk encryption options
@@ -202,13 +190,13 @@ queries:
       asset.platform == "azure-compute-vm-api"
       asset.kind == "azure-object"
     mql: |
-      azure.subscription.compute.vm.osDisk.properties.encryption != empty
+      azure.subscription.compute.vm.osDisk.properties.encryption.type == "EncryptionAtRestWithCustomerKey"
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
-      azure.subscription.compute.vms.all(osDisk.properties.encryption != empty)
+      azure.subscription.compute.vms.all(osDisk.properties.encryption.type == "EncryptionAtRestWithCustomerKey")
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet
     title: Ensure that SSH access is restricted from the internet
     impact: 80
