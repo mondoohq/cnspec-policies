@@ -817,9 +817,11 @@ queries:
       remediation: |
         **Azure CLI Commands for Restricting Ingress at the Firewall Level:**
 
+        Ensure that the start and end IP addresses in the firewall rules are set to secure IPs within your controlled network range, effectively blocking public access.
+
         ```bash
         # Replace <server-name>, <resource-group>, and <rule-name> with your specific details
-        
+
         # Azure SQL
         az sql server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
 
