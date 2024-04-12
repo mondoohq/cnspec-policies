@@ -570,43 +570,51 @@ queries:
       azure.subscription.storage.account.containers.all(properties.publicAccess == "None")
       azure.subscription.storage.account.properties.AllowBlobPublicAccess == "false"
   - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny
-    title: Ensure the default network access rule for Storage Accounts is set to deny
+    title: Enforce Deny as Default Network Access for Azure Storage Accounts
     impact: 80
     variants:
       - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-single
       - uid: mondoo-azure-security-default-network-access-rule-storage-accounts-deny-api
     docs:
       desc: |
-        This check ensures that access to the default network for storage accounts is set to deny.
+        This check ensures that Azure storage accounts have their default network access rule set to "Deny". This setting is pivotal in enhancing security by ensuring that only explicitly allowed networks can access the storage accounts. When the default action is set to "Deny", access is blocked for any request that does not match a specified allowed rule. This configuration minimizes the risk of unauthorized access, ensuring that only traffic from approved sources, such as specific Azure Virtual Networks or designated public IP addresses, can access the storage data. It is a foundational element in securing storage accounts from potential external threats and unauthorized access attempts.
       audit: |
-        __cnspec run__
+        **Manual Audit via Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`:
+        1. Navigate to **Storage Accounts** in the Azure Portal.
+        2. Select a storage account and click on the **Networking** blade.
+        3. Under the **Firewalls and virtual networks** section, review the **Default action**.
+        4. Ensure the Default action is set to **Deny**. This setting should block all access unless explicitly allowed by other network rules.
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        **Automated Audit with Azure CLI:**
 
-          ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")"
-          ```
+        Use the Azure CLI to verify the default network access rule for all storage accounts:
 
-        __cnspec shell__
+        ```bash
+        az storage account list --query "[].{AccountName: name, DefaultAction: networkRuleSet.defaultAction}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.storage.accounts.all(properties.NetworkRuleSet.defaultAction == "Deny")
-          ```
+        This command lists each storage account along with the default action. Verify that all entries show "Deny" as the default action.
       remediation: |
+        ### Configuring Default Action via Azure Portal:
+
+        1. Access the Azure Portal and go to **Storage Accounts**.
+        2. Select the storage account you wish to configure.
+        3. Click on the **Networking** blade.
+        4. Navigate to the **Firewalls and virtual networks** section.
+        5. Set the **Default action** to **Deny**.
+        6. Save your changes to enforce that all unrecognized network traffic is blocked by default.
+
+        ### Using Azure CLI:
+
+        To set the default network access rule to "Deny" for an existing storage account, use the following Azure CLI command:
+
+        ```bash
+        az storage account update --name <StorageAccountName> --resource-group <ResourceGroupName> --default-action Deny
+        ```
+
+        This command updates the storage account to deny all traffic by default, significantly enhancing the security posture by limiting access to only configured exceptions.
+
         ### Terraform
 
         ```hcl
