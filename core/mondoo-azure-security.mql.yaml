@@ -719,43 +719,47 @@ queries:
     mql: |
       azure.subscription.storage.account.properties.NetworkRuleSet.bypass.contains("AzureServices")
   - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days
-    title: Ensure that audit logs are retained for at least 30 days
+    title: Ensure minimum 30-Day retention for SQL server Audit Logs
     impact: 80
     variants:
       - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days-single
       - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days-api
     docs:
       desc: |
-        This check ensures that auditing retention is set to greater than or equal to 30 days.
+        Maintaining audit logs for an extended period is crucial for compliance and security analysis. This check verifies that Azure SQL servers have an audit log retention policy set to at least 30 days. Setting a retention policy of 30 days or more allows organizations to analyze historical data for security incidents and comply with regulatory requirements. It is particularly important for identifying patterns that could indicate security threats or breaches over time.
       audit: |
-        __cnspec run__
+        **Manual Audit via Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`:
+        1. Navigate to **SQL servers** in the Azure Portal.
+        2. Select a server and click on **Auditing** under the **Security** settings.
+        3. Check if the **Retention (days)** is set to 30 or more.
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        **Automated Audit with Azure CLI:**
 
-          ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) || azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)"
-          ```
+        Retrieve the audit retention settings for all SQL servers:
 
-        __cnspec shell__
+        ```bash
+        az sql server list --query "[].{ServerName:name, RetentionDays:auditingSettings.retentionDays}" -o table
+        ```
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.sql.servers.all(auditingPolicy.retentionDays >= 30) || azure.subscription.sql.servers.all(auditingPolicy.retentionDays == 0)
-          ```
+        Ensure that each server listed has a retention period of 30 days or more.
       remediation: |
+        **Configuring Audit Retention via Azure Portal:**
+
+        1. Access the Azure Portal and navigate to **SQL servers**.
+        2. Select the relevant SQL server.
+        3. Go to **Auditing** under the **Security** section.
+        4. Set the **Retention (days)** to at least 30 days, or use '0' for unlimited retention.
+        5. Click **Save** to apply the changes.
+
+        **Using Azure CLI:**
+
+        Update the audit retention policy for a specific SQL server:
+
+        ```bash
+        az sql server audit-policy update --name <ServerName> --resource-group <ResourceGroupName> --retention-days 30
+        ```
+
         ### Terraform
 
         ```hcl
@@ -796,42 +800,39 @@ queries:
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-api
     docs:
       desc: |
-        This check ensures that no SQL databases allow ingress connections from "0.0.0.0".
+        This configuration ensures that SQL databases across various platforms (Azure SQL, PostgreSQL, MySQL, MariaDB) do not permit unrestricted network access by blocking ingress from the IP address range "0.0.0.0/0". Limiting access is crucial to protect databases from unauthorized access and potential breaches. This setting is fundamental for enforcing the principle of least privilege, where only specific, approved IP addresses or ranges are permitted to access database resources, enhancing the security posture of Azure environments.
       audit: |
-        __cnspec run__
+        **Automated Auditing with Azure CLI**
 
-        To audit Microsoft Azure with `cnspec run`:
+        **Azure CLI:**
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        List the firewall rules for all SQL servers and verify that none allow ingress from "0.0.0.0/0":
 
-          ```bash
-          cnspec run azure -c "azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
-          cnspec run azure -c "azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
-          cnspec run azure -c "azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
-          cnspec run azure -c "azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))"
-          ```
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-          azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-          azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-          azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
-          ```
+        ```bash
+        az sql server firewall-rule list --server <server-name> --resource-group <resource-group> --query "[?startIpAddress=='0.0.0.0'].{Name:name, StartIP:startIpAddress}"
+        az postgres server firewall-rule list --server <server-name> --resource-group <resource-group> --query "[?startIpAddress=='0.0.0.0'].{Name:name, StartIP:startIpAddress}"
+        az mysql server firewall-rule list --server <server-name> --resource-group <resource-group> --query "[?startIpAddress=='0.0.0.0'].{Name:name, StartIP:startIpAddress}"
+        az mariadb server firewall-rule list --server <server-name> --resource-group <resource-group> --query "[?startIpAddress=='0.0.0.0'].{Name:name, StartIP:startIpAddress}"
+        ```
       remediation: |
+        **Azure CLI Commands for Restricting Ingress at the Firewall Level:**
+
+        ```bash
+        # Replace <server-name>, <resource-group>, and <rule-name> with your specific details
+        
+        # Azure SQL
+        az sql server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
+
+        # PostgreSQL
+        az postgres server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
+
+        # MySQL
+        az mysql server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
+
+        # MariaDB
+        az mariadb server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
+        ```
+
         ### Terraform
 
         __mySQL__
