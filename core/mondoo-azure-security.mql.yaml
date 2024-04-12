@@ -212,54 +212,40 @@ queries:
       - uid: mondoo-azure-security-ssh-access-restricted-from-internet-api
     docs:
       desc: |
-        This check ensures that SSH on port 22 is not configured to allow access from anywhere with the CIDR block "0.0.0.0".
+        Restricting SSH access from the internet minimizes the risk of brute force and other unauthorized access attempts on Azure resources such as virtual machines. Public internet exposure of SSH, especially on the default port 22, significantly increases the attack surface. It's crucial to evaluate and restrict SSH access by configuring network security groups (NSGs) to allow only necessary connections, preferably from known, secure sources. Implementing stringent access controls for SSH enhances security by preventing attackers from using compromised VMs as a pivot point for broader network intrusions.
       audit: |
-        __cnspec run__
+       **Manual Audit via Azure Portal:**     
 
-        To audit Microsoft Azure with `cnspec run`:
+        **Checking via Network Security Groups (NSGs) for All Resources:**
+        1. From the main Azure Portal menu, navigate to **Network security groups**.
+        2. Select an NSG associated with the resources you want to check.
+        3. Go to the **Inbound security rules** section.
+        4. Review all the rules to ensure none allow SSH access (port 22, TCP) from broadly defined sources such as 'Any', '0.0.0.0', or 'Internet'.
+        5. Confirm that rules configured to permit SSH access are scoped to specific, known IP addresses or ranges to minimize exposure.
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        **Automated Audit with Azure CLI:**
 
-          ```bash
-          cnspec run azure -c "allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /TCP|\*/i
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-        )
-        allNsgTCP.all(securityRules.all(properties.destinationPortRange != "*"))
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 22 && toPort >= 22)))"
-          ```
+        List NSGs and check for SSH access rules:
 
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /TCP|\*/i
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-        )
-        allNsgTCP.all(securityRules.all(properties.destinationPortRange != "*"))
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 22 && toPort >= 22)))
-          ```
+        ```bash
+        az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='22' || destinationPortRanges.contains('22')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
+        ```
       remediation: |
+        ### Configuring Network Security via Azure Portal:
+
+        1. In the Azure Portal, navigate to **Network Security Groups (NSG)** associated with your VMs.
+        2. Review or modify the inbound security rules:
+          - Set `source_address_prefix` to a specific IP range or a VPN gateway rather than 'Any' or 'Internet'.
+          - Ensure that the `destination_port_range` does not include TCP port 22 unless absolutely necessary and from a secure source.
+
+        ### Using Azure CLI:
+
+        Update or create a new NSG rule to restrict SSH access:
+
+        ```bash
+        az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictSSH --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 22
+        ```
+
         ### Terraform
 
         ```hcl
