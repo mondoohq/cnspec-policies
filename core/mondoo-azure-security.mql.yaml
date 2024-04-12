@@ -523,38 +523,6 @@ queries:
         az storage account show --name <yourStorageAccountName> --query allowBlobPublicAccess
         ``` 
 
-        __cnspec run__
-
-        To audit Microsoft Azure with `cnspec run`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
-
-          ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" )
-            azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
-            azure.subscription.storage.accounts.all(properties.PublicNetworkAccess == "Disabled")"
-          ```
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.storage.accounts.all(properties.AllowBlobPublicAccess == "false" )
-          azure.subscription.storage.accounts.all(containers.all(properties.publicAccess == "None" ))
-          azure.subscription.storage.accounts.all(properties.PublicNetworkAccess == "Disabled")
-
-          ```
       remediation: |
         ### Terraform
 
