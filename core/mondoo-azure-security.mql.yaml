@@ -654,7 +654,7 @@ queries:
     mql: |
       azure.subscription.storage.account.properties.NetworkRuleSet.defaultAction == "Deny"
   - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access
-    title: Ensure "Allow Trusted Microsoft Services" is enabled for storage account access
+    title: Ensure "Trusted Microsoft Services" have access to azure storage accounts
     impact: 80
     variants:
       - uid: mondoo-azure-security-trusted-microsoft-services-enabled-for-storage-account-access-single
@@ -675,36 +675,9 @@ queries:
         List the network rules for all storage accounts and verify that AzureServices is included in the bypass list:
 
         ```
-        az storage account list --query "[*].networkRuleSet"
+        az storage account list --query "[*].{AccountName:name, BypassRules:networkRuleSet.bypass}" -o table
         ```
 
-        __cnspec run__
-
-        To audit Microsoft Azure with `cnspec run`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
-
-          ```bash
-          cnspec run azure -c "azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))"
-          ```
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          azure.subscription.storage.accounts.all(properties.NetworkRuleSet.bypass.contains("AzureServices"))
-          ```
       remediation: |
         From Azure Portal:
             1. Go to `Storage Accounts` and select the relevant account.
