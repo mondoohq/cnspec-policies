@@ -432,7 +432,7 @@ queries:
         allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP)))
       }
   - uid: mondoo-azure-security-secure-transfer-required-enabled
-    title: Ensure that all data must be encrypted in transit
+    title: Mandate HTTPS for Secure Data Transfer to azure storage accounts
     impact: 80
     variants:
       - uid: mondoo-azure-security-secure-transfer-required-enabled-api
@@ -442,34 +442,36 @@ queries:
         This check ensures that "Secure transfer required" is enabled.  This setting enforces the use of HTTPS for data operations, ensuring that data transmitted to and from Azure storage accounts is secured. It's an important security measure to protect data from interception or tampering during transmission, aligning with best practices for data security in the cloud.
         When the 'secure transfer required' setting is enabled in Azure, it mandates the use of HTTPS for accessing storage accounts through REST APIs. Any HTTP requests are automatically rejected. This also impacts the Azure files service; unencrypted connections, including certain SMB protocols and some Linux SMB clients, will fail. However, it's important to note that Azure storage doesn't support HTTPS for custom domain names, so this security feature doesn't apply when using a custom domain. This setting is crucial for ensuring that data in transit is encrypted and secure.
       audit: |
-        __cnspec run__
+        **Manual Audit via Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`:
+        1. Navigate to **Storage Accounts** from the Azure portal.
+        2. For each storage account, click on **Configuration** under the settings panel.
+        3. Verify that the **Secure transfer required** option is set to **Enabled**.
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        **Automated Audit with Azure CLI:**
 
-          ```bash
-          cnspec run azure -c " azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)"
-          ```
+        Use the Azure CLI to check the status of the 'Secure transfer required' setting across all storage accounts:
 
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-           azure.subscription.storage.accounts.all(properties.EnableHttpsTrafficOnly == true)
-          ```
+        ```bash
+        az storage account list --query "[].{AccountName:name, SecureTransferEnabled: enableHttpsTrafficOnly}" -o table
+        ```
       remediation: |
+        ### Enforcing Secure Transfer via Azure Portal:
+
+        1. Access the Azure Portal and go to **Storage Accounts**.
+        2. Select each storage account individually.
+        3. Navigate to **Configuration** under the settings menu.
+        4. Set the **Secure transfer required** option to **Enabled**.
+        5. Save the changes to enforce HTTPS for all incoming and outgoing data transactions.
+
+        ### Using Azure CLI:
+
+        Enable 'Secure transfer required' for an individual storage account using the following command:
+
+        ```bash
+        az storage account update --name <StorageAccountName> --resource-group <ResourceGroupName> --https-only true
+        ```
+
         ### Terraform
 
         ```hcl
