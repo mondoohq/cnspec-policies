@@ -223,6 +223,15 @@ queries:
         4. Review all the rules to ensure none allow SSH access (port 22, TCP) from broadly defined sources such as 'Any', '0.0.0.0', or 'Internet'.
         5. Confirm that rules configured to permit SSH access are scoped to specific, known IP addresses or ranges to minimize exposure.
 
+        **Checking Specific Virtual Machines:**
+        1. Log into the Azure Portal.
+        2. Navigate to **Virtual machines**.
+        3. Select a specific virtual machine to review.
+        4. Within the virtual machine's blade, click on **Networking** under the settings menu.
+        5. Access the **Networking** blade of the selected VM, then review the **Inbound port rules**.
+        6. Ensure there are no rules allowing SSH access (port 22, TCP) from 'Any' or 'Internet' source address prefixes. Only secure, specified IP ranges should be allowed, if necessary.
+
+
         **Automated Audit with Azure CLI:**
 
         List NSGs and check for SSH access rules:
@@ -321,54 +330,47 @@ queries:
       - uid: mondoo-azure-security-rdp-access-restricted-from-internet-api
     docs:
       desc: |
-        This check ensures that RDP on port 3389 is not configured to allow access from anywhere with the CIDR block "0.0.0.0".
+        Restricting RDP access from the internet is crucial for protecting Azure resources against unauthorized access and potential security breaches. RDP, typically listening on TCP port 3389, is a common target for many Cyber attacks. By limiting RDP access to only trusted internal networks or through secure tunnels, the risk of these attacks is significantly reduced. This security measure is essential for maintaining the integrity and security of Azure environments, preventing attackers from using compromised VMs as launch points for further attacks within and beyond the Azure network.
       audit: |
-        __cnspec run__
+        **Manual Audit via Azure Portal:**     
 
-        To audit Microsoft Azure with `cnspec run`:
+        1. Log into the Azure Portal.
+        2. Navigate to **Network security groups** under the Networking or directly through the search bar.
+        3. For each NSG, access the **Inbound security rules**.
+        4. Carefully review each rule to identify any that allow inbound RDP traffic (TCP port 3389):
+          - Check for rules where the protocol is set to `TCP`.
+          - The destination port or port range includes `3389`.
+          - The source address prefix is too broad, such as 'Any', '0.0.0.0', '<nw>/0', '/0', 'internet', or 'any'.
+        5. Note down any NSG rules that do not comply with your organization’s security policy regarding restricted access to RDP. These rules should ideally allow access only from trusted, secure networks, and not from the open internet.
 
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Run this query:
+        1. Navigate to **Virtual Machines** in the Azure Portal.
+        2. For each VM, select the **Networking** blade to review network configurations.
+        3. Check the **Inbound port rules** under the associated Network Security Group (NSG).
+        4. Verify that there are no rules allowing RDP access (TCP port 3389) from 'Any' or 'Internet'. Only secure, specified IP ranges should be allowed if necessary.
 
-          ```bash
-          cnspec run azure -c "allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /TCP|\*/i
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-        )
-        allNsgTCP.all(securityRules.all(properties.destinationPortRange != "*"))
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389)))"
-          ```
+        **Automated Audit with Azure CLI:**
 
-        __cnspec shell__
+        List NSGs and verify RDP access rules:
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Run `az login` to authenticate with the correct Azure subscription and tenant.
-        2. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure
-          ```
-
-        3. Run this query:
-
-          ```mql
-          allNsgTCP = azure.subscription.network.securityGroups.where(securityRules
-        .where(
-          properties.access == 'Allow'
-            && direction == 'Inbound'
-            && properties.protocol == /TCP|\*/i
-            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
-        )
-        )
-        allNsgTCP.all(securityRules.all(properties.destinationPortRange != "*"))
-        allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= 3389 && toPort >= 3389)))
-          ```
+        ```bash
+        az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='3389' || destinationPortRanges.contains('3389')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
+        ```
       remediation: |
+        ### Azure Portal Method:
+
+        1. Log into the Azure Portal and navigate to **Network Security Groups**.
+        2. Select the NSG associated with your VM.
+        3. Review the **Inbound security rules** and modify or delete any rules that allow internet access to port 3389.
+        4. Preferably, change the `source_address_prefix` to more restrictive settings, such as a specific IP range or a secure VPN gateway.
+
+        ### Using Azure CLI:
+
+        Update or create NSG rules to securely restrict RDP access:
+
+        ```bash
+        az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictRDP --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 3389
+        ```
+
         ### Terraform
 
         ```hcl
