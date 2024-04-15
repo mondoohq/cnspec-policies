@@ -918,7 +918,7 @@ queries:
       azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
       azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
   - uid: mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service
-    title: Enable Managed Identities for App Services to Authenticate via Microsoft Entra ID
+    title: Enable Managed Identities for App services to Authenticate via Microsoft Entra ID
     impact: 80
     mql: |
       azure.subscription.web.apps.all(identity.type == "SystemAssigned")
@@ -973,7 +973,7 @@ queries:
           }
         }
   - uid: mondoo-azure-security-ensure-the-kv-is-recoverable
-    title: Ensure it is possible to recover key vaults
+    title: Ensure Key Vaults are configured with Recovery features
     impact: 80
     variants:
       - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-single
@@ -982,52 +982,41 @@ queries:
       desc: |
         Azure Key Vault can store keys, secrets, and certificates. Accidental unavailability of a key vault can cause serious problems in any organization.
 
-        Soft delete is a feature of Azure Key Vault that retains key vaults and key vault items after initial deletion. By default, new key vaults created through the portal are configured with soft delete for 90 days.
-
-        Once enabled, soft delete can not be disabled. When soft delete is enabled, it is possible to purge soft deleted vaults and vault items.
-
-        Purge protection is another feature of key vaults that is used to protect deleted key vaults for a certain period, called the "retention period." Once enabled, purge protection prevents deleted key vaults from being purged until the retention period is reached. This selection cannot be changed once the key vault is created.
+        Purge protection is a feature of key vaults that is used to protect deleted key vaults for a certain period, called the "retention period." Once enabled, purge protection prevents deleted key vaults from being purged until the retention period is reached. This selection cannot be changed once the key vault is created.
 
         If a key vault is created with purge protection, you can still delete it, but you will not be able to purge it once it is deleted. In this case, the deleted key vaults must wait 90 days to be permanently purged.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **Key Vaults**.
+        3. Select a key vault and click on **Properties**.
+        4. Verify that **Purge Protection** is enabled, which ensures that deleted vaults and vault objects are recoverable during the retention period.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        Verify Purge Protection is enabled for each Key Vault:
 
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.keyVault.vaults.all(properties.enablePurgeProtection == "true")
-          azure.subscription.keyVault.vaults.all(properties.enableSoftDelete == "true")
-          ```
+        ```bash
+        az keyvault list --query "[].{Name: name, PurgeProtection: properties.enablePurgeProtection}"
+        ```
+        Check the output for each Key Vault, ensuring that PurgeProtection is set to true.
       remediation: |
         ### Microsoft Azure Portal
 
-        To update using Microsoft Azure Portal:
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **Key Vaults**.
+        3. Select a key vault and click on **Properties**.
+        4. Scroll to the **Security** section.
+        5. If **Purge Protection** is not enabled, enable it. Note that once enabled, this setting cannot be disabled.
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Key vaults**.
-        3. for each key vault:
-           a. Select **Properties** and ensure **Soft-delete** is enabled.
-           b. Select **Enable Purge Protection**.
-           c. Select **Save**.
+        **From Azure CLI:**
+
+        Enable Purge Protection for a specific Key Vault:
+
+        ```bash
+        az keyvault update --name <VaultName> --resource-group <ResourceGroupName> --set properties.enablePurgeProtection=true
+        ```
   - uid: mondoo-azure-security-ensure-the-kv-is-recoverable-single
     filters: |
       asset.platform == "azure-keyvault-vault"
