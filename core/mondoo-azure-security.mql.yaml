@@ -1106,34 +1106,38 @@ queries:
       desc: |
         The expiration date attribute identifies when you can no longer use the key/secret for a cryptographic operation. By default, keys/secrets never expire. Therefore, it is highly recommended that you rotate keys/secrets in the key vault and set an explicit expiration date.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Navigate to **Key Vaults** via the Azure Portal at https://portal.azure.com.
+        2. Select a key vault and then click on **Keys** or **Secrets**.
+        3. Check each key and secret to verify that an expiration date is set and is appropriate.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(keys.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          cnspec run azure -c "azure.subscription.keyVault.vaults.all(secrets.all(enabled && expires != empty))" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
-
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
+        - For keys:
 
           ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
+          az keyvault key list --vault-name <KeyVaultName> --query "[?attributes.expires && attributes.enabled == \`true\`].{name: name, expires: attributes.expires}" -o table
           ```
 
-        2. Run this query:
+        - For secrets:
 
-          ```mql
-          azure.subscription.keyVault.vaults.all(keys.all(enabled == true))
-          azure.subscription.keyVault.vaults.all(keys.all(expires != empty))
-          azure.subscription.keyVault.vaults.all(secrets.all(enabled == true))
-          azure.subscription.keyVault.vaults.all(secrets.all(expires != empty))
+          ```bash
+          az keyvault secret list --vault-name <KeyVaultName> --query "[?attributes.expires && attributes.enabled == \`true\`].{name: name, expires: attributes.expires}" -o table
+          ```
+
+        **From PowerShell:**
+
+        - For keys:
+
+          ```powershell
+          Get-AzKeyVaultKey -VaultName <VaultName> | Where-Object {$_.Enabled -eq $true -and $_.Expires -ne $null}
+          ```
+
+        - For secrets:
+
+          ```powershell
+          Get-AzKeyVaultSecret -VaultName <VaultName> | Where-Object {$_.Enabled -eq $true -and $_.Expires -ne $null}
           ```
       remediation: |
         ### Microsoft Azure Portal
@@ -1146,6 +1150,65 @@ queries:
            a. Select the key vault.
            b. Select **Keys** or **Secrets**.
            c. Make sure that the key/secret in the key vault has an expiration date.
+        
+        **From Azure CLI:**
+
+        - For keys:
+
+          ```bash
+          az keyvault key set-attributes --vault-name <VaultName> --name <KeyName> --expires <DateTime-in-ISO8601>
+          ```
+
+        - For secrets:
+
+          ```bash
+          az keyvault secret set-attributes --vault-name <VaultName> --name <SecretName> --expires <DateTime-in-ISO8601>
+          ```
+
+        **From PowerShell:**
+
+        - For keys:
+
+          ```powershell
+          $key = Get-AzKeyVaultKey -VaultName <VaultName> -Name <KeyName>
+          $key.Expires = (Get-Date).AddYears(1)
+          Update-AzKeyVaultKey -VaultName <VaultName> -Key $key
+          ```
+
+        - For secrets:
+
+          ```powershell
+          $secret = Get-AzKeyVaultSecret -VaultName <VaultName> -Name <SecretName>
+          $secret.Expires = (Get-Date).AddYears(1)
+          Update-AzKeyVaultSecret -VaultName <VaultName> -Secret $secret
+          ```
+
+        ### Terraform Example:
+
+        ```hcl
+        resource "azurerm_key_vault_key" "example" {
+          name         = "example-key"
+          key_vault_id = azurerm_key_vault.example.id
+          key_type     = "RSA"
+          key_size     = 2048
+          expiration_date = "2025-05-01T01:02:03Z"
+
+          key_opts = [
+            "decrypt",
+            "encrypt",
+            "sign",
+            "unwrapKey",
+            "verify",
+            "wrapKey",
+          ]
+        }
+
+        resource "azurerm_key_vault_secret" "example" {
+          name         = "example-secret"
+          value        = "exampleValue"
+          key_vault_id = azurerm_key_vault.example.id
+          expiration_date = "2025-05-01T01:02:03Z"
+        }
   - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single
     filters: |
       asset.platform == "azure-keyvault-vault"
