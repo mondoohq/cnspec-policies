@@ -918,40 +918,30 @@ queries:
       azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
       azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
   - uid: mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service
-    title: Ensure that app services can authenticate with Microsoft Entra ID
+    title: Enable Managed Identities for App Services to Authenticate via Microsoft Entra ID
     impact: 80
     mql: |
       azure.subscription.web.apps.all(identity.type == "SystemAssigned")
       azure.subscription.web.apps.all(identity.principalId != empty)
     docs:
       desc: |
-        This check ensures that all app services can authenticate through Microsoft Entra ID (formerly Azure AD). This approach removes secrets from the app itself. Instead, the app connects to other Azure services securely without the need for user names and passwords.
+        Enabling Managed Identities for Azure App Services allows for secure and streamlined authentication with Microsoft Entra ID. This configuration eliminates the need for storing sensitive credentials within the app, as it can directly authenticate to other Azure services. Managed identities use a system-assigned identity that is tied to the application and managed by Azure. Services like Azure SQL Database, Azure Storage, and Azure Key Vault can authenticate an app service without any stored credentials, which enhances security by reducing the attack surface related to credential theft.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **App Services**.
+        3. Select an app service and click on **Identity** under **Settings**.
+        4. Verify that the **Status** for **System assigned managed identity** is set to **On**.
 
-          ```bash
-          cnspec run azure -c "azure.subscription.web.apps.all(identity.type == "SystemAssigned") && azure.subscription.web.apps.all(identity.principalId != empty)" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        **From Azure CLI:**
 
-        Note: It is also possible to use a client secret for the app connection instead of a certificate.
+        Verify that the system assigned identity is enabled for each App Service:
 
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.web.apps.all(identity.type == "SystemAssigned") azure.subscription.web.apps.all(identity.principalId != empty)
-          ```
+        ```bash
+        az webapp identity show --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME> --query principalId
+        ```
+        The command should return a non-null principal ID, indicating that the managed identity is properly configured.
       remediation: |
         ### Microsoft Azure Portal
 
@@ -962,6 +952,26 @@ queries:
            a. Select the app.
            b. Under **Settings**, select **Identity**.
            c. On the **System assigned** tab, set **Status** to **On**.
+
+        **Using Azure CLI:**
+
+        Enable a system-assigned managed identity for an App Service:
+
+        ```bash
+        az webapp identity assign --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME>
+        ```
+
+        ### Terraform
+        resource "azurerm_app_service" "example" {
+          name                = "example-app-service"
+          location            = azurerm_resource_group.example.location
+          resource_group_name = azurerm_resource_group.example.name
+          app_service_plan_id = azurerm_app_service_plan.example.id
+
+          identity {
+            type = "SystemAssigned"
+          }
+        }
   - uid: mondoo-azure-security-ensure-the-kv-is-recoverable
     title: Ensure it is possible to recover key vaults
     impact: 80
