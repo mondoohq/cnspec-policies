@@ -1038,31 +1038,26 @@ queries:
       desc: |
         It is highly recommended to use the latest TLS version available with Azure App Services for all secure Web App connections. Currently Azure App Services supports TLS 1.2.
       audit: |
-        __cnspec run__
+        **From Azure Portal:**
+  
+        1. Log in to the Azure Portal at https://portal.azure.com.
+        2. Navigate to **App Services**.
+        3. Select an app service and click on **TLS/SSL settings** under **Settings**.
+        4. Verify that the **Minimum TLS Version** is set to **1.2**.
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        **From Azure CLI:**
 
-          ```bash
-          cnspec run azure -c "azure.subscription.web.apps.all(configuration.properties.minTlsVersion == "1.2")" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        Verify that the minimum TLS version is set to 1.2 for each App Service:
+        
+        ```bash
+        az webapp config show --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME> --query minTlsVersion
+        ```
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        **From PowerShell**
 
-        __cnspec shell__
-
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.web.apps.all(configuration.properties.minTlsVersion == "1.2")
-          ```
+        Get-AzWebApp | foreach {
+          Get-AzWebApp -ResourceGroupName $_.ResourceGroup -Name $_.Name | Select-Object Name, ResourceGroup, @{Name="TLS Version"; Expression={$_.SiteConfig.MinTlsVersion}}
+        }
       remediation: |
         ### Microsoft Azure Portal
 
@@ -1074,6 +1069,33 @@ queries:
            b. Select **Configuration** and select the **General settings** tab.
            c. Under **Minimum Inbound TLS Version**, select **1.2**.
            d. Select **Save**.
+        
+        **From Azure CLI:**
+
+        Set the minimum TLS version to 1.2 for an existing app service:
+
+        ```bash
+        az webapp config set --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME> --min-tls-version 1.2
+        ```
+
+        **From PowerShell**
+
+        Get-AzWebApp | foreach {
+          Set-AzWebApp -ResourceGroupName $_.ResourceGroup -Name $_.Name -MinTlsVersion "1.2"
+        }
+
+        ### Terraform
+
+        resource "azurerm_app_service" "example" {
+          name                = "example-app-service"
+          location            = azurerm_resource_group.example.location
+          resource_group_name = azurerm_resource_group.example.name
+          app_service_plan_id = azurerm_app_service_plan.example.id
+
+          site_config {
+            min_tls_version = "1.2"
+          }
+        }
   - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv
     title: Ensure that the expiration date is set for all keys and secrets in key vaults
     impact: 80
