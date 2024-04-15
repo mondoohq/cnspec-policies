@@ -1231,42 +1231,33 @@ queries:
       - uid: mondoo-azure-security-ensure-logging-enabled-kv-api
     docs:
       desc: |
-        Monitoring how, by whom, and when key vaults are accessed creates an audit trail of interactions with confidential information, keys, secrets, and certificates.
-
-        Enabling logging for Azure Key Vault saves information in an Azure storage account that you provide. This creates a new container called insights-logs-auditevent for the specified storage account.
+        Monitoring interactions with Azure Key Vault is critical for maintaining security and compliance. Logging operations allow organizations to audit access and use of keys, secrets, and certificates, thereby ensuring that any unauthorized access or anomalies are detected and addressed. Enabling logging involves storing log data in Azure Storage Accounts, which provides a durable audit trail that is essential for security audits and compliance reporting.
       audit: |
-        From Azure Portal
+        **From Azure Portal:**
 
-        1.Navigate to Key vaults.
-        2.Select each Key vault.
-        3.Access Diagnostic settings.
-        4.Review and ensure that AuditEvent and All logs categories are enabled and properly configured.
+        1. Navigate to the Azure Portal at https://portal.azure.com.
+        2. Go to **Key Vaults** and select a Key Vault.
+        3. Under **Monitoring**, select **Diagnostic settings**.
+        4. Verify that logging for both **AuditEvent** and **AllLogs** categories are enabled and that they are configured to send logs to an Azure Storage Account, Log Analytics workspace, or Event Hub.
 
-        __cnspec run__
+        **From Azure CLI:**
 
-        To audit Microsoft Azure with `cnspec run`, run this query:
+        Retrieve the diagnostic settings for each Key Vault to ensure that logging is enabled:
 
-          ```bash
-          cnspec run azure -c "azure.subscription.keyVault.vault.diagnosticSettings != empty" --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
+        ```bash
+        az monitor diagnostic-settings list --resource <Key Vault Resource ID> --output table
+        ```
 
-        Note: It is also possible to use a client secret for app connection instead of a certificate.
+        Ensure that the output shows that logs for AuditEvent and AllLogs categories are enabled and properly configured to a storage account or other supported destinations.
 
-        __cnspec shell__
+        **From PowerShell:**
 
-        To audit Microsoft Azure with `cnspec shell`:
-
-        1. Launch `cnspec shell`:
-
-          ```bash
-          cnspec shell azure --certificate-path <*.pem> --tenant-id <tenant_id> --client-id <client_id>
-          ```
-
-        2. Run this query:
-
-          ```mql
-          azure.subscription.keyVault.vault.diagnosticSettings != empty
-          ```
+        ```powershell
+        Get-AzKeyVault | ForEach-Object {
+            Get-AzDiagnosticSetting -ResourceId $_.ResourceId
+        }
+        ```
+        Verify that each Key Vault has AuditEvent and AllLogs enabled and is logging to the designated destinations.
       remediation: |
         ### Microsoft Azure Portal
 
@@ -1276,6 +1267,64 @@ queries:
         4. Edit an existing setting or add a new one, ensuring `AuditEvent` and `All logs` are selected.
         5. Set the appropriate destination for logs, such as an Azure storage account or Log Analytics workspace.
         6. Save the configuration.
+
+        **From Azure CLI:**
+
+        To create or update diagnostic settings for a Key Vault:
+
+        ```bash
+        az monitor diagnostic-settings create --name "defaultLogs" --resource <Key Vault Resource ID> --logs '[{"category": "AuditEvent", "enabled": true}, {"category": "AllLogs", "enabled": true}]' --storage-account <Storage Account ID> | --workspace <Log Analytics Workspace ID> | --event-hub <Event Hub Name>
+        ```
+
+        **From PowerShell:**
+
+        ```powershell
+        $logs = @(
+            New-AzDiagnosticSettingLogConfig -Category "AuditEvent" -Enabled $true
+            New-AzDiagnosticSettingLogConfig -Category "AllLogs" -Enabled $true
+        )
+        Set-AzDiagnosticSetting -ResourceId <Key Vault Resource ID> -Log $logs -StorageAccountId <Storage Account ID> | -WorkspaceId <Log Analytics Workspace ID> | -EventHubAuthorizationRuleId <Event Hub Authorization Rule ID> | -EventHubName <Event Hub Name>
+        ```
+
+        ### Terraform Example:
+
+        ```hcl
+        resource "azurerm_monitor_diagnostic_setting" "example" {
+          name               = "kv-logging"
+          target_resource_id = azurerm_key_vault.example.id
+          log_analytics_workspace_id = azurerm_log_analytics_workspace.example.id
+
+          log {
+            category = "AuditEvent"
+            enabled  = true
+
+            retention_policy {
+              enabled = true
+              days    = 0
+            }
+          }
+
+          log {
+            category = "AllLogs"
+            enabled  = true
+
+            retention_policy {
+              enabled = true
+              days    = 0
+            }
+          }
+
+          metric {
+            category = "AllMetrics"
+            enabled  = false
+
+            retention_policy {
+              enabled = false
+              days    = 0
+            }
+          }
+        }
+        ```
   - uid: mondoo-azure-security-ensure-logging-enabled-kv-single
     filters: |
       asset.platform == "azure-keyvault-vault"
