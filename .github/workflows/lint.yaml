@@ -21,7 +21,7 @@ jobs:
           chmod +x ./cnspec
       - name: Lint OS policies with cnspec 10
         run: |
-          cd policies
+          cd core
           ../cnspec policy lint .
 
   license-check:
