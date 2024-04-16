@@ -56,7 +56,7 @@ policies:
 
         **b. Azure AD App Registration**
 
-        Set up an Azure AD application registration for cnspec with the appropriate permissions as per the instructions on Mondoo Docs.
+        Set up an Azure AD application registration for cnspec with the appropriate permissions as per the instructions on Mondoo Docs. Follow the instructions on https://mondoo.com/docs/platform/infra/cloud/azure/azure-integration-scan-subscription/ to set up this app.
         Use the following command to initiate a scan with the Azure AD application:
 
         ```
@@ -244,7 +244,7 @@ queries:
         1. Log into the Azure Portal.
         2. Navigate to **Virtual machines**.
         3. Select a specific virtual machine to review.
-        4. Within the virtual machine's blade, click on **Networking** under the settings menu.
+        4. Within the virtual machine's blade, select **Networking** under the settings menu.
         5. Access the **Networking** blade of the selected VM, then review the **Inbound port rules**.
         6. Ensure there are no rules allowing SSH access (port 22, TCP) from 'Any' or 'Internet' source address prefixes. Only secure, specified IP ranges should be allowed, if necessary.
 
@@ -462,7 +462,7 @@ queries:
         **Manual Audit via Azure Portal:**
 
         1. Navigate to **Storage Accounts** from the Azure portal.
-        2. For each storage account, click on **Configuration** under the settings panel.
+        2. For each storage account, select **Configuration** under the settings panel.
         3. Verify that the **Secure transfer required** option is set to **Enabled**.
 
         **Automated Audit with Azure CLI:**
@@ -524,7 +524,7 @@ queries:
         1.Go to Storage Accounts.
         2.For each storage account, go to the Networking setting under Security + networking.
         3.Ensure the 'Public Network Access' setting is set to 'Disabled'.
-        4.In the storage account menu pane, under the 'Settings' section, click 'Configuration'.
+        4.In the storage account menu pane, under the 'Settings' section, select 'Configuration'.
         5.Under 'Allow Blob Anonymous Access', ensure that the setting is 'Disabled'.
 
         From Azure CLI:
@@ -555,7 +555,7 @@ queries:
         1. Go to Storage Accounts.
         2. For each storage account, go to Networking in Security + networking.
         3. Set 'Public Network Access' to 'Disabled'.
-        4. Click on a Storage Account and in the settings pane, click 'Configuration'.
+        4. Select a Storage Account and in the settings pane, select 'Configuration'.
         5. Under 'Allow Blob Anonymous Access', select 'Disabled'.
         6. For each container, change the access level to 'Private (no anonymous access)'.
 
@@ -599,7 +599,7 @@ queries:
         **Manual Audit via Azure Portal:**
 
         1. Navigate to **Storage Accounts** in the Azure Portal.
-        2. Select a storage account and click on the **Networking** blade.
+        2. Select a storage account and select the **Networking** blade.
         3. Under the **Firewalls and virtual networks** section, review the **Default action**.
         4. Ensure the Default action is set to **Deny**. This setting should block all access unless explicitly allowed by other network rules.
 
@@ -617,7 +617,7 @@ queries:
 
         1. Access the Azure Portal and go to **Storage Accounts**.
         2. Select the storage account you wish to configure.
-        3. Click on the **Networking** blade.
+        3. select the **Networking** blade.
         4. Navigate to the **Firewalls and virtual networks** section.
         5. Set the **Default action** to **Deny**.
         6. Save your changes to enforce that all unrecognized network traffic is blocked by default.
@@ -683,7 +683,7 @@ queries:
         From Azure Portal:
 
         1.Go to Storage Accounts.
-        2.Click on a specific storage account.
+        2.Select a specific storage account.
         3.Navigate to the Networking blade.
         4.Under Firewalls and virtual networks, check if Allow Azure services on the trusted services list to access this storage account is enabled.
 
@@ -698,7 +698,7 @@ queries:
       remediation: |
         From Azure Portal:
             1. Go to `Storage Accounts` and select the relevant account.
-            2. Click on the `Networking` blade.
+            2. Select the `Networking` blade.
             3. Under `Firewalls and virtual networks`, select `Enabled from selected virtual networks and IP addresses`.
             4. Check the box for `Allow Azure services on the trusted services list to access this storage account` to enable it.
             5. Save the changes.
@@ -748,7 +748,7 @@ queries:
         **Manual Audit via Azure Portal:**
 
         1. Navigate to **SQL servers** in the Azure Portal.
-        2. Select a server and click on **Auditing** under the **Security** settings.
+        2. Select a server and select **Auditing** under the **Security** settings.
         3. Check if the **Retention (days)** is set to 30 or more.
 
         **Automated Audit with Azure CLI:**
@@ -767,7 +767,7 @@ queries:
         2. Select the relevant SQL server.
         3. Go to **Auditing** under the **Security** section.
         4. Set the **Retention (days)** to at least 30 days, or use '0' for unlimited retention.
-        5. Click **Save** to apply the changes.
+        5. Select **Save** to apply the changes.
 
         **Using Azure CLI:**
 
@@ -948,7 +948,7 @@ queries:
 
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **App Services**.
-        3. Select an app service and click on **Identity** under **Settings**.
+        3. Select an app service and select **Identity** under **Settings**.
         4. Verify that the **Status** for **System assigned managed identity** is set to **On**.
 
         **From Azure CLI:**
@@ -1007,7 +1007,7 @@ queries:
 
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **Key Vaults**.
-        3. Select a key vault and click on **Properties**.
+        3. Select a key vault and select **Properties**.
         4. Verify that **Purge Protection** is enabled, which ensures that deleted vaults and vault objects are recoverable during the retention period.
 
         **From Azure CLI:**
@@ -1023,7 +1023,7 @@ queries:
 
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **Key Vaults**.
-        3. Select a key vault and click on **Properties**.
+        3. Select a key vault and select **Properties**.
         4. Scroll to the **Security** section.
         5. If **Purge Protection** is not enabled, enable it. Note that once enabled, this setting cannot be disabled.
 
@@ -1059,7 +1059,7 @@ queries:
   
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **App Services**.
-        3. Select an app service and click on **TLS/SSL settings** under **Settings**.
+        3. Select an app service and select **TLS/SSL settings** under **Settings**.
         4. Verify that the **Minimum TLS Version** is set to **1.2**.
 
         **From Azure CLI:**
@@ -1126,7 +1126,7 @@ queries:
         **From Azure Portal:**
 
         1. Navigate to **Key Vaults** via the Azure Portal at https://portal.azure.com.
-        2. Select a key vault and then click on **Keys** or **Secrets**.
+        2. Select a key vault and then select **Keys** or **Secrets**.
         3. Check each key and secret to verify that an expiration date is set and is appropriate.
 
         **From Azure CLI:**
@@ -1398,12 +1398,12 @@ queries:
        **From Azure Portal**
 
         1. Navigate to the `Monitor` blade.
-        2. Click on `Alerts`.
-        3. In the Alerts window, click on `Alert rules`.
+        2. Select `Alerts`.
+        3. In the Alerts window, select `Alert rules`.
         4. Verify that alert rules exist for the following conditions:
           - Operation name equals `Microsoft.Network/networkSecurityGroups/write` for Create/Update events.
           - Operation name equals `Microsoft.Network/networkSecurityGroups/delete` for Delete events.
-        5. Click on the alert rule name to review its configuration.
+        5. Select the alert rule name to review its configuration.
           - Ensure the `Condition` panel specifies the correct operation names and does not filter on irrelevant criteria like `Level`, `Status`, or `Caller`.
           - Confirm that the `Actions` panel is set up to notify the appropriate personnel within your organization.
 
@@ -1434,7 +1434,7 @@ queries:
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Go to **Monitor**.
         3. Select **Alerts**.
-        4. Click **+ Create**.
+        4. Select **+ Create**.
         5. Under **Resource types**, select **Network security group**.
         6. Select the subscription name, resource group, or network security group" to apply the rule to.
         7. Verify that the selection preview shows:
@@ -1464,9 +1464,9 @@ queries:
 
           1. From Azure Home, select the Portal Menu.
           2. Select `Microsoft Defender for Cloud`.
-          3. Click on `Environment Settings`.
-          4. Click on the appropriate Management Group, Subscription, or Workspace.
-          5. Click on `Email notifications`.
+          3. Select `Environment Settings`.
+          4. Select the appropriate Management Group, Subscription, or Workspace.
+          5. Select `Email notifications`.
           6. Verify that the `Notify about alerts with the following severity (or higher):` setting is checked and set to `High`.
 
         **From Azure CLI:**
@@ -1487,7 +1487,7 @@ queries:
           3. Go to `Environment Settings` and select the appropriate management group, subscription, or workspace.
           4. Navigate to `Email notifications`.
           5. Ensure the `Notify about alerts with the following severity (or higher):` option is enabled and set to `High`.
-          6. Click `Save` to apply the changes.
+          6. Select `Save` to apply the changes.
 
         **From Azure CLI:**
 
@@ -1679,7 +1679,7 @@ queries:
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **SQL servers** under Azure SQL services.
         3. Select each SQL server to review its networking settings.
-        4. Under the **Security** section, click on **Networking**.
+        4. Under the **Security** section, select **Networking**.
         5. Verify that for **Public network access**, the setting is either **Disabled** or configured to allow **Selected networks** only, ensuring no open access to all networks.
 
         **Automated Audit through Azure CLI:**
@@ -1698,7 +1698,7 @@ queries:
 
         1. Log into the Azure Portal at https://portal.azure.com.
         2. Navigate to **SQL servers** and select the server you wish to configure.
-        3. In the server's settings, click on **Networking** under the **Security** section.
+        3. In the server's settings, select **Networking** under the **Security** section.
         4. Locate the **Public network access** setting.
         5. Change the setting to **Disabled** to completely block public access or to **Selected networks** to restrict access to specific IP addresses or ranges.
         6. If selecting **Selected networks**, ensure you configure the necessary firewall rules or virtual network settings to specify which networks can access the server.
@@ -1748,7 +1748,7 @@ queries:
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **Key vaults** to list all key vaults in your subscriptions.
         3. Select each key vault to review its networking settings.
-        4. In the key vault's **Settings**, click on **Networking**.
+        4. In the key vault's **Settings**, select **Networking**.
         5. Check the **Firewalls and virtual networks** settings to ensure public access is either disabled or limited:
           - Verify that **Public network access** is set to **Disabled**.
           - If public access is enabled, ensure that access is restricted to selected networks by configuring IP rules or linking to specific virtual networks.
@@ -1811,7 +1811,7 @@ queries:
 
         1. Go to the Azure Portal at https://portal.azure.com.
         2. Navigate to **SQL servers** and select each server to inspect its auditing settings.
-        3. Click on **Auditing** for each server.
+        3. Select **Auditing** for each server.
         4. Verify that `Enable Azure SQL Auditing` is switched to `On`. Check that an appropriate storage account, Log Analytics workspace, or Event Hub is selected as the audit log destination.
 
         **Automated Audit via Azure CLI:**
@@ -1830,11 +1830,11 @@ queries:
         ### Microsoft Azure Portal
 
         1. In the Azure Portal, go to **SQL servers** and select the server you want to configure.
-        2. Under **Security**, click on **Auditing**.
+        2. Under **Security**, select **Auditing**.
         3. Set `Enable Azure SQL Auditing` to `On`.
         4. Select a destination for the audit logs: Storage Account, Log Analytics workspace, or Event Hub.
         5. Configure the retention period, ensuring it aligns with your organization's compliance requirements.
-        6. Click `Save` to apply the settings.
+        6. Select `Save` to apply the settings.
 
         ### Automating Auditing Configuration via Azure CLI:
 
@@ -1877,7 +1877,7 @@ queries:
 
         1. In the Azure Portal, navigate to **SQL databases** under your SQL Server instances.
         2. Select each database to inspect its settings.
-        3. Click on **Transparent data encryption** under the **Security** settings.
+        3. Select **Transparent data encryption** under the **Security** settings.
         4. Verify that `Data encryption` is set to `On` for each database (except the master database, which cannot be encrypted with TDE).
 
         **Automated Audit with Azure CLI:**
@@ -1967,7 +1967,7 @@ queries:
 
         1. Go to the Azure Portal at https://portal.azure.com.
         2. Navigate to **Monitor** and then **Activity log**.
-        3. Click on **Diagnostic settings** and review the settings for your subscription.
+        3. Select **Diagnostic settings** and review the settings for your subscription.
         4. Ensure that there are diagnostic settings configured and that they cover the essential log categories: Administrative, Security, Alert, and Policy.
 
         **Automated Audit via Azure CLI:**
