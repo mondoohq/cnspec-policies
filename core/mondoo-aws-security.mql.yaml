@@ -148,7 +148,9 @@ queries:
     title: Ensure no root user account access key exists
     impact: 85
     filters: asset.platform == "aws"
-    mql: aws.iam.credentialReport.where(properties["user"] == "<root_account>").all(accessKey1Active == false && accessKey2Active == false)
+    mql: |
+      aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey1Active == false)
+      aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey2Active == false)
     docs:
       desc: |
         AWS strongly recommends that you not use the root user for your everyday tasks, even administrative ones. Instead, adhere to the best practice of using the root user only to create your first IAM user. Then securely lock away the root user credentials and use them to perform only a few account and service management tasks. Anyone with root user credentials for your AWS account has unrestricted access to all the resources in your account, including billing information.
