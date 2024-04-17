@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: List current directory structure
+        run: ls
+      - name: List directory structure
+        run: ls -R ./core
       - name: Lint cnspec policies and output SARIF
         uses: mondoohq/actions/cnspec-lint@main
         with:
