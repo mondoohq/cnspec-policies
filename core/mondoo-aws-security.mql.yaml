@@ -286,13 +286,22 @@ queries:
         title: Denotes whether uppercase characters are required for passwords
         mql: "true"
     mql: |
-      aws.iam.accountPasswordPolicy['RequireUppercaseCharacters'] == props.iamPasswordPolicyRequireUppercaseCharacters
-      aws.iam.accountPasswordPolicy['RequireLowercaseCharacters'] == props.iamPasswordPolicyRequireLowercaseCharacters
-      aws.iam.accountPasswordPolicy['RequireSymbols'] == props.iamPasswordPolicyRequireSymbols
-      aws.iam.accountPasswordPolicy['RequireNumbers'] == props.iamPasswordPolicyRequireNumbers
-      aws.iam.accountPasswordPolicy['MinimumPasswordLength'] >= props.iamPasswordPolicyMinimumPasswordLength
-      aws.iam.accountPasswordPolicy['PasswordReusePrevention'] >= props.iamPasswordPolicyPasswordReusePrevention
-      aws.iam.accountPasswordPolicy['MaxPasswordAge'] <= props.iamPasswordPolicyMaxPasswordAge
+      // Ensure properties do exist.
+      aws.iam.accountPasswordPolicy.RequireUppercaseCharacters != empty
+      aws.iam.accountPasswordPolicy.RequireLowercaseCharacters != empty
+      aws.iam.accountPasswordPolicy.RequireSymbols != empty
+      aws.iam.accountPasswordPolicy.RequireNumbers != empty
+      aws.iam.accountPasswordPolicy.MinimumPasswordLength != empty
+      aws.iam.accountPasswordPolicy.PasswordReusePrevention != empty
+      aws.iam.accountPasswordPolicy.MaxPasswordAge != empty
+      // Validate each policy setting against props
+      aws.iam.accountPasswordPolicy.where(RequireUppercaseCharacters != empty).all(RequireUppercaseCharacters == props.iamPasswordPolicyRequireUppercaseCharacters)
+      aws.iam.accountPasswordPolicy.where(RequireLowercaseCharacters != empty).all(RequireLowercaseCharacters == props.iamPasswordPolicyRequireLowercaseCharacters)
+      aws.iam.accountPasswordPolicy.where(RequireSymbols != empty).all(RequireSymbols == props.iamPasswordPolicyRequireSymbols)
+      aws.iam.accountPasswordPolicy.where(RequireNumbers != empty).all(RequireNumbers == props.iamPasswordPolicyRequireNumbers)
+      aws.iam.accountPasswordPolicy.where(MinimumPasswordLength != empty).all(MinimumPasswordLength >= props.iamPasswordPolicyMinimumPasswordLength)
+      aws.iam.accountPasswordPolicy.where(PasswordReusePrevention != empty).all(PasswordReusePrevention >= props.iamPasswordPolicyPasswordReusePrevention)
+      aws.iam.accountPasswordPolicy.where(MaxPasswordAge != empty).all(MaxPasswordAge <= props.iamPasswordPolicyMaxPasswordAge)
     docs:
       desc: |
         AWS allows custom password policies on your AWS account to specify complexity requirements and mandatory rotation periods for your IAM users' passwords. IAM user passwords must meet the default AWS password policy if you don't set a custom password policy. AWS security best practices recommend these password complexity requirements:
