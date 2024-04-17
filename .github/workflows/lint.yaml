@@ -21,7 +21,7 @@ jobs:
       - name: Lint cnspec policies and output SARIF
         uses: mondoohq/actions/cnspec-lint@main
         with:
-          path: ./test-azure
+          path: ./core/test-azure
           output-file: "results.sarif"
       - name: Display SARIF file content
         run: cat results.sarif
