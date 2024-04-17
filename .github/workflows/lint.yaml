@@ -21,6 +21,12 @@ jobs:
           output-file: "results.sarif"
       - name: Install jq
         run: sudo apt-get install jq
+      - name: Display SARIF file content
+        run: cat results.sarif
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
       - name: Check SARIF file content
         id: check_sarif
         run: |
@@ -32,12 +38,6 @@ jobs:
             echo "SARIF file contains results, indicating issues were found. Please review the SARIF file content below for more details, or check the 'Security' tab for alerts once the file has been uploaded."
             exit 1
           fi
-      - name: Display SARIF file content
-        run: cat results.sarif
-      - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
 
   license-check:
     runs-on: ubuntu-latest
