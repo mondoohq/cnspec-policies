@@ -394,15 +394,15 @@ queries:
         title: Setting an account password policy for IAM users
   - uid: mondoo-aws-security-access-keys-rotated
     title: Ensure active access keys are rotated
-    impact: 30
+    impact: 70
     filters: asset.platform == "aws"
     props:
       - uid: maxAccessKeyAge
         title: Define the maximum number of days an IAM key is allowed to exist before rotation
         mql: "90"
     mql: |
-      aws.iam.credentialReport.where(accessKey1Active == true).all(time.now - accessKey1LastRotated < props.maxAccessKeyAge * time.day)
-      aws.iam.credentialReport.where(accessKey2Active == true).all(time.now - accessKey2LastRotated < props.maxAccessKeyAge * time.day)
+      aws.iam.credentialReport.where(accessKey1Active == true && time.now - userCreationTime > props.maxAccessKeyAge * time.day).all(time.now - accessKey1LastRotated < props.maxAccessKeyAge * time.day)
+      aws.iam.credentialReport.where(accessKey2Active == true && time.now - userCreationTime > props.maxAccessKeyAge * time.day).all(time.now - accessKey2LastRotated < props.maxAccessKeyAge * time.day)
     docs:
       desc: |
         It is highly recommended that you regularly rotate (change) IAM user access keys to reduce the risk of unwanted access to your account. Change the value enforced in this check by modifying the maxAccessKeyAge property.
@@ -457,10 +457,11 @@ queries:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
         title: AWS Documentation - Managing access keys for IAM users
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
-    title: Ensure AWS IAM users have multi-factor authentication (MFA) enabled
-    impact: 75
+    title: Ensure Multi-Factor Authentication is Enabled for All IAM users with console access
+    impact: 90
     filters: asset.platform == "aws"
-    mql: aws.iam.credentialReport.all(mfaActive == true)
+    mql: |
+      aws.iam.credentialReport.where(passwordEnabled == true).all(mfaActive == true)
     docs:
       desc: |
         Multi-factor authentication (MFA) is a best practice that adds an extra layer of protection on top of user names and passwords. With MFA, when a user signs in to the AWS Management Console, they are required to provide a time-sensitive authentication code provided by a registered virtual or physical device.
@@ -765,9 +766,10 @@ queries:
     mql: aws.iam.group.usernames.length > 0
   - uid: mondoo-aws-security-iam-users-only-one-access-key
     title: Ensure there is only one active access key available for any single IAM user
-    impact: 30
+    impact: 70
     filters: asset.platform == "aws"
-    mql: aws.iam.credentialReport.none(accessKey1Active == true && accessKey2Active == true)
+    mql: |
+      aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
     docs:
       desc: |
         This check ensures for the existence of more than one access key for each user within an AWS account. Each AWS key within an account must be protected and rotated regularly. Because AWS access keys are long-term credentials, one of the best ways to protect your account is to not allow users to have multiple access keys, which reduces the overall number of keys and the risk of exposure.
@@ -818,7 +820,7 @@ queries:
         Repeat steps 1 - 3 for each IAM user in your AWS account.
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check
     title: Ensure IAM users receive permissions only through groups
-    impact: 30
+    impact: 70
     docs:
       desc: |
         AWS recommends that IAM users must inherit permissions from IAM groups or roles. This policy checks that none of your IAM users have policies attached directly to the user. The rule is NONCOMPLIANT if there is at least one IAM user with policies attached.
@@ -873,13 +875,16 @@ queries:
       - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
     filters: asset.platform == "aws"
-    mql: aws.iam.users.all(attachedPolicies.length == 0)
+    mql: |
+      aws.iam.users.all(policies == empty && attachedPolicies == empty)
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
     filters: asset.platform == "aws-iam-user"
-    mql: aws.iam.user.attachedPolicies.length == 0
+    mql: |
+      aws.iam.user.policies == empty
+      aws.iam.user.attachedPolicies == empty
   - uid: mondoo-aws-security-vpc-default-security-group-closed
     title: Ensure the default security group of every VPC restricts all traffic
-    impact: 60
+    impact: 80
     docs:
       desc: |
         The rules for a default security group allow all ingress and egress traffic. To keep users from using the default security group (which cannot be deleted) of a VPC, delete all ingress and egress rules to block all traffic.
@@ -1034,14 +1039,20 @@ queries:
       - uid: mondoo-aws-security-vpc-default-security-group-closed-secgroup
   - uid: mondoo-aws-security-vpc-default-security-group-closed-account
     title: Ensure the default security group of every VPC restricts all traffic
-    impact: 60
     filters: asset.platform == "aws"
-    mql: aws.ec2.securityGroups.where(name == "default").all(ipPermissions.length == 0 && ipPermissionsEgress.length == 0)
+    mql: |
+      aws.ec2.securityGroups.where(name == "default").all(
+        ipPermissions == empty
+      )
+      aws.ec2.securityGroups.where(name == "default").all(
+        ipPermissionsEgress == empty
+      )
   - uid: mondoo-aws-security-vpc-default-security-group-closed-secgroup
     title: Ensure the default security group of every VPC restricts all traffic
-    impact: 60
-    filters: asset.platform == "aws-security-group"
-    mql: aws.ec2.securitygroup.ipPermissions.length == 0 && aws.ec2.securitygroup.ipPermissionsEgress.length == 0
+    filters: asset.platform == "aws-security-group" && aws.ec2.securitygroup.name == "default"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions == empty
+      aws.ec2.securitygroup.ipPermissionsEgress == empty
   - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
     title: Ensure EBS volume encryption is enabled by default
     impact: 70
