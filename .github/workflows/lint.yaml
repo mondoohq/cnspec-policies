@@ -17,7 +17,7 @@ jobs:
       - name: Lint cnspec policies and output SARIF
         uses: mondoohq/actions/cnspec-lint@main
         with:
-          path: .
+          path: ./core
           output-file: "results.sarif"
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v3
