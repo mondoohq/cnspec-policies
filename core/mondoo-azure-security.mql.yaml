@@ -1347,7 +1347,6 @@ queries:
       asset.platform == "azure-keyvault-vault"
       asset.kind == "azure-object"
     mql: |
-      mql: |
       // Step 1: Verify that diagnostic settings are configured for the Key Vault vaults.
       azure.subscription.keyVault.vault.diagnosticSettings != empty
       // Step 2: Confirm the presence and enablement of specific log categories within the diagnostic settings.
