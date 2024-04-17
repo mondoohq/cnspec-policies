@@ -14,15 +14,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install cnspec v10
-        run: |
-          curl -A "mondoohq/cnspec-policies" -sL -o cnspec9.tgz https://install.mondoo.com/package/cnspec/linux/amd64/tar.gz/latest/download
-          tar xfvz cnspec9.tgz
-          chmod +x ./cnspec
-      - name: Lint OS policies with cnspec 10
-        run: |
-          cd core
-          ../cnspec policy lint .
+      - name: Lint cnspec policies and output SARIF
+        uses: mondoohq/actions/cnspec-lint@main
+        with:
+          path: .
+          output-file: "results.sarif"
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
 
   license-check:
     runs-on: ubuntu-latest
