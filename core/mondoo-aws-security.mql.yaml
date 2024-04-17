@@ -184,7 +184,7 @@ queries:
     title: Ensure MFA is enabled for the "root user" account
     impact: 95
     filters: asset.platform == "aws"
-    mql: aws.iam.credentialReport.where(properties["user"] == "<root_account>").all( mfaActive == true)
+    mql: aws.iam.credentialReport.where(properties.user == "<root_account>").all(mfaActive == true)
     docs:
       desc: |
         AWS highly recommends that you follow the security best practice to enable multi-factor authentication (MFA) for your root account. Because your root user can perform sensitive operations in your account, adding an additional layer of authentication helps you to better secure your account. Multiple types of MFA are available.
