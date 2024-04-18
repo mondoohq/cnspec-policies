@@ -2315,13 +2315,12 @@ queries:
     mql: |
       aws.cloudwatch.logGroups.all(kmsKey != empty)
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
-    title: Ensure ELBs have deletion protection enabled
-    impact: 50
-    filters: asset.platform == "aws-elb-loadbalancer"
+    title: Ensure Application Load Balancers are Configured with deletion protection enabled
+    impact: 70
+    filters: asset.platform == "aws"
     mql: |
-      aws.elb.loadBalancers
-        .where(name == asset.name)
-        .all(attributes.all(_['Key'] == "delete_protection.enabled" && _['Value'] == true))
+      aws.elb.loadBalancers.all(attributes.any(Key == "deletion_protection.enabled"))
+      aws.elb.loadBalancers.all(attributes.where(Key == "deletion_protection.enabled").all(Value == true))
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
     title: Ensure ES domains have encryption at rest enabled
     impact: 50
