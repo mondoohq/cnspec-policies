@@ -70,6 +70,7 @@ policies:
         If you have any suggestions for how to improve this policy or need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions.
     groups:
       - title: AWS IAM
+        filters: asset.platform == "aws"
         checks:
           - uid: mondoo-aws-security-access-keys-rotated
           - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
@@ -81,9 +82,11 @@ policies:
           - uid: mondoo-aws-security-iam-user-no-inline-policies-check
           - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
       - title: AWS Lambda Function
+        filters: asset.platform == "aws"
         checks:
           - uid: mondoo-aws-security-lambda-concurrency-check
       - title: AWS S3 Bucket
+        filters: asset.platform == "aws"
         checks:
           - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
           - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
@@ -92,10 +95,12 @@ policies:
         checks:
           - uid: mondoo-aws-security-secgroup-restricted-ssh
       - title: AWS VPC
+        filters: asset.platform == "aws"
         checks:
           - uid: mondoo-aws-security-vpc-default-security-group-closed
           - uid: mondoo-aws-security-vpc-flow-logs-enabled
       - title: AWS DynamoDB Table
+        filters: asset.platform == "aws"
         checks:
           - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
       - title: AWS RDS DBInstance
@@ -721,7 +726,7 @@ queries:
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
   - uid: mondoo-aws-security-iam-group-has-users-check
-    title: Ensure IAM groups have at least one IAM user
+    title: Ensure IAM Groups are utilized by Assigning at Least One user
     impact: 30
     docs:
       desc: |
@@ -760,10 +765,10 @@ queries:
       - uid: mondoo-aws-security-iam-group-has-users-check-single-group
   - uid: mondoo-aws-security-iam-group-has-users-check-account
     filters: asset.platform == "aws"
-    mql: aws.iam.groups.all(usernames.length > 0)
+    mql: aws.iam.groups.all(usernames != empty)
   - uid: mondoo-aws-security-iam-group-has-users-check-single-group
     filters: asset.platform == "aws-iam-group"
-    mql: aws.iam.group.usernames.length > 0
+    mql: aws.iam.group.usernames != empty
   - uid: mondoo-aws-security-iam-users-only-one-access-key
     title: Ensure there is only one active access key available for any single IAM user
     impact: 70
