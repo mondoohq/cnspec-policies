@@ -1055,7 +1055,7 @@ queries:
       aws.ec2.securitygroup.ipPermissionsEgress == empty
   - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
     title: Ensure EBS volume encryption is enabled by default
-    impact: 70
+    impact: 90
     filters: asset.platform == "aws"
     mql: aws.ec2.ebsEncryptionByDefault.values.all(_ == true)
     docs:
@@ -1133,7 +1133,9 @@ queries:
     title: Ensure public access to S3 buckets is blocked at the account level
     impact: 30
     filters: asset.platform == "aws"
-    mql: aws.s3control.accountPublicAccessBlock.values.all(_ == true)
+    mql: |
+      aws.s3control.accountPublicAccessBlock != empty
+      aws.s3control.accountPublicAccessBlock.values.all(_ == true)
     docs:
       desc: |
         Amazon S3 Block Public Access provides settings for access points, buckets, and accounts to help you manage public access to Amazon S3 resources. By default, new buckets, access points, and objects do not allow public access.
