@@ -1192,7 +1192,7 @@ queries:
       - url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/configuring-block-public-access-account.html
         title: Configuring block public access settings for your account
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
-    title: Checks if Amazon Simple Storage Service (S3) has bucket-level public access restrictions at the bucket level
+    title: Verify Bucket-Level Public Access restrictions for Amazon S3 Buckets
     impact: 100
     docs:
       desc: |
@@ -1266,10 +1266,20 @@ queries:
       - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-account
     filters: asset.platform == "aws"
-    mql: aws.s3.buckets.all(publicAccessBlock != null && publicAccessBlock.values.all(_ == true))
+    mql: |
+      aws.s3.buckets.all(publicAccessBlock != empty)
+      aws.s3.buckets.all(publicAccessBlock.BlockPublicAcls == true)
+      aws.s3.buckets.all(publicAccessBlock.BlockPublicPolicy == true)
+      aws.s3.buckets.all(publicAccessBlock.IgnorePublicAcls == true)
+      aws.s3.buckets.all(publicAccessBlock.RestrictPublicBuckets == true)
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
     filters: asset.platform == "aws-s3-bucket"
-    mql: aws.s3.bucket.publicAccessBlock != null && aws.s3.bucket.publicAccessBlock.values.all(_ == true)
+    mql: |
+      aws.s3.bucket.publicAccessBlock != empty
+      aws.s3.bucket.publicAccessBlock.BlockPublicAcls == true
+      aws.s3.bucket.publicAccessBlock.BlockPublicPolicy == true
+      aws.s3.bucket.publicAccessBlock.IgnorePublicAcls == true
+      aws.s3.bucket.publicAccessBlock.RestrictPublicBuckets == true
   - uid: mondoo-aws-security-ec2-instance-no-public-ip
     title: Ensures no instances have a public IP
     impact: 80
