@@ -881,7 +881,8 @@ queries:
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-account
     filters: asset.platform == "aws"
     mql: |
-      aws.iam.users.all(policies == empty && attachedPolicies == empty)
+      aws.iam.users.all(policies == empty)
+      aws.iam.users.all(attachedPolicies == empty)
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check-single-user
     filters: asset.platform == "aws-iam-user"
     mql: |
