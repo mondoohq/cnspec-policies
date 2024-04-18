@@ -2308,12 +2308,12 @@ queries:
       - url: https://docs.aws.amazon.com/efs/latest/ug/creating-using-create-fs.html#creating-using-fs-part1-cli
         title: AWS Documentation - Creating a file system using the AWS CLI
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
-    title: Ensure Amazon CloudWatch log groups are encrypted with KMS
-    impact: 40
+    title: Ensure CloudWatch logs are encrypted at rest using KMS CMKs
+    impact: 70
     filters: |
-      asset.platform == "aws-cloudwatch-loggroup"
+      asset.platform == "aws"
     mql: |
-      aws.cloudwatch.loggroup.kmsKey != empty
+      aws.cloudwatch.logGroups.all(kmsKey != empty)
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
     title: Ensure ELBs have deletion protection enabled
     impact: 50
