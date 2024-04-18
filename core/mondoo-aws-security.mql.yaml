@@ -1459,7 +1459,7 @@ queries:
         ```
   - uid: mondoo-aws-security-vpc-flow-logs-enabled
     title: Ensure VPC flow logging is enabled in all VPCs
-    impact: 50
+    impact: 70
     docs:
       desc: |
         This check ensures Amazon VPC Flow Logs are found and enabled for all VPCs. Default VPCs should always fail this check because they do not come with flow logs activated.
@@ -1790,10 +1790,28 @@ queries:
       - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-account
     filters: asset.platform == "aws"
-    mql: aws.vpcs.all(flowLogs.any(status == "ACTIVE"))
+    mql: |
+      aws.vpcs.all(
+        flowLogs.any(
+          status == "ACTIVE" &&
+          destination != empty &&
+          destinationType == "cloud-watch-logs" &&
+          deliverLogsStatus == "SUCCESS" &&
+          trafficType == "REJECT" ||
+          trafficType == "ALL"
+          )
+      )
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-single-vpc
     filters: asset.platform == "aws-vpc"
-    mql: aws.vpc.flowLogs.any(status == "ACTIVE")
+    mql: |
+      aws.vpc.flowLogs.any(
+        status == "ACTIVE" &&
+        destination != empty &&
+        destinationType == "cloud-watch-logs" &&
+        deliverLogsStatus == "SUCCESS" &&
+        trafficType == "REJECT" ||
+        trafficType == "ALL"
+        )
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
     title: Ensure DynamoDB tables are encrypted with AWS Key Management Service (KMS)
     impact: 30
