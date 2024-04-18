@@ -2071,7 +2071,8 @@ queries:
     title: Ensure Redshift clusters are not publicly accessible
     impact: 95
     filters: asset.platform == "aws-redshift-cluster"
-    mql: aws.redshift.cluster.publiclyAccessible == false
+    mql: |
+      aws.redshift.clusters.all(publiclyAccessible == false)
     docs:
       desc: |
         The PubliclyAccessible attribute of the Amazon Redshift cluster configuration indicates whether the cluster is publicly accessible. When the cluster is configured with PubliclyAccessible set to true, it is an Internet-facing instance that has a publicly resolvable DNS name, which resolves to a public IP address.
@@ -2142,11 +2143,14 @@ queries:
         title: Terraform Documentation - AWS Provider
   - uid: mondoo-aws-security-ec2-volume-inuse-check
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
-    impact: 30
-    filters: |
-      asset.platform == "aws-ec2-volume"
-      aws.ec2.volume.attachments.length > 0
-    mql: aws.ec2.volume.attachments.all(DeleteOnTermination == true)
+    impact: 60
+    props:
+      - uid: ebsVolumeDeleteOnTermination
+        title: Defines whether instances should be configured to delete volumes on termination
+        mql: "true"
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.volumes.where(attachments != empty).all(attachments.any(DeleteOnTermination == props.ebsVolumeDeleteOnTermination))
     docs:
       desc: |
         Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account can lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential or sensitive data leaving your premises. This check ensures there are no EBS volumes that are not attached to an instance. Additionally, it checks whether archived EC2 instances are configured to delete volumes on termination.
