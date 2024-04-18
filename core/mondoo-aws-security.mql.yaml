@@ -2340,18 +2340,16 @@ queries:
     title: Ensure SageMaker notebook instances are configured to use KMS
     impact: 50
     filters: |
-      asset.platform == "aws-sagemaker-notebookinstance"
+      asset.platform == "aws"
     mql: |
-      aws.sagemaker.notebookInstances
-        .where(asset.name == name)
-        .all(details.kmsKey != empty)
+      aws.sagemaker.notebookInstances.all(details.kmsKey != empty)
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
-    impact: 50
+    impact: 70
     filters: |
-      asset.platform == "aws-cloudtrail-trail"
+      asset.platform == "aws"
     mql: |
-      aws.cloudtrail.trail.kmsKey != empty
+      aws.cloudtrail.trails.all(kmsKey != empty)
     docs:
       desc: |
         This check ensures CloudTrail is configured to use the server-side encryption (SSE) AWS KMS key encryption. The check passes if the KmsKeyId is defined.
