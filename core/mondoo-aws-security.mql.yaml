@@ -2322,13 +2322,11 @@ queries:
       aws.elb.loadBalancers.all(attributes.any(Key == "deletion_protection.enabled"))
       aws.elb.loadBalancers.all(attributes.where(Key == "deletion_protection.enabled").all(Value == true))
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
-    title: Ensure ES domains have encryption at rest enabled
-    impact: 50
-    filters: asset.platform == "aws-es-domain"
+    title: Ensure Amazon OpenSearch Service Domains are Configured with Encryption-at-Rest
+    impact: 70
+    filters: asset.platform == "aws"
     mql: |
-      aws.es.domains
-        .where(name == asset.name)
-        .all(encryptionAtRestEnabled == true)
+      aws.es.domains.all(encryptionAtRestEnabled == true)
   - uid: mondoo-aws-security-rotation-customer-created-cmks-enabled
     title: Ensure rotation for customer created CMKs is enabled
     impact: 60
