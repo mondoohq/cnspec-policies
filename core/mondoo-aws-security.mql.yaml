@@ -2398,10 +2398,10 @@ queries:
         7. Select **Save**.
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Ensure security groups restrict incoming SSH traffic
-    impact: 80
-    filters: |
-      asset.platform == "aws-security-group"
-      aws.ec2.securitygroup.ipPermissions.any( ipRanges.contains('0.0.0.0/0'))
-        || aws.ec2.securitygroup.ipPermissions.any( ipv6Ranges.contains('::/0'))
+    impact: 90
+    filters: asset.platform == "aws"
     mql: |
-      aws.ec2.securitygroup.ipPermissions.none( fromPort == 22 || toPort == 22 )
+      aws.ec2.securityGroups.where(ipPermissions.any(
+        ipRanges.contains('0.0.0.0/0'))).all(
+          ipPermissions.none(fromPort <= 22 && toPort >= 22 && toPort != 0)
+       )
