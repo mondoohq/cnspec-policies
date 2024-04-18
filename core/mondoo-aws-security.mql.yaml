@@ -1137,7 +1137,7 @@ queries:
         title: AWS Documentation - Encryption by default
   - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
     title: Ensure public access to S3 buckets is blocked at the account level
-    impact: 30
+    impact: 95
     filters: asset.platform == "aws"
     mql: |
       aws.s3control.accountPublicAccessBlock != empty
