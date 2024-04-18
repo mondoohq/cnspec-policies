@@ -1947,11 +1947,24 @@ queries:
       asset.platform == "aws"
     mql: |
       aws.rds.dbInstances.all(publiclyAccessible == false)
+      aws.rds.dbInstances
+        .where(publiclyAccessible != false)
+        .none(securityGroups.where(
+          vpc.routeTables.where(
+            routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
+          )
+        )
+      )
   - uid: mondoo-aws-security-rds-instance-public-access-check-single
     filters: |
       asset.platform == "aws-rds-dbinstance"
     mql: |
       aws.rds.dbinstance.publiclyAccessible == false
+      aws.rds.dbinstance.securityGroups.none(
+        vpc.routeTables.where(
+          routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
+        )
+      )
     docs:
       desc: |
         Ensure the Amazon Relational Database Service instances are not publicly accessible. The rule is NON_COMPLIANT if the publiclyAccessible field is true in the instance configuration item.
