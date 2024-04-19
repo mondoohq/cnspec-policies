@@ -1378,14 +1378,14 @@ queries:
       asset.platform == "aws-ec2-instance"
       aws.ec2.instance.state != /terminated|shutting-down/
       aws.ec2.instance.httpEndpoint == "enabled"
+    mql: |
+      aws.ec2.instance.httpTokens == "required"
   - uid: mondoo-aws-security-ec2-imdsv2-check
     title: Ensure EC2 instances use IMDSv2
     impact: 90
     variants:
       - uid: mondoo-aws-security-ec2-imdsv2-check-all
       - uid: mondoo-aws-security-ec2-imdsv2-check-single
-    mql: |
-      aws.ec2.instance.httpTokens == "required"
     docs:
       desc: |
         EC2 instances should be configured to use IMDSv2 to prevent unauthorized access to instance metadata from application vulnerabilities such as Server Side Request Forgery (SSRF). IMDSv1 has been involved in security exploits.
