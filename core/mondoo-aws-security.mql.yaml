@@ -2078,9 +2078,9 @@ queries:
   - uid: mondoo-aws-security-redshift-cluster-public-access-check
     title: Ensure Redshift clusters are not publicly accessible
     impact: 95
-    filters: asset.platform == "aws-redshift-cluster"
-    mql: |
-      aws.redshift.clusters.all(publiclyAccessible == false)
+    variants:
+      - uid: mondoo-aws-security-redshift-cluster-public-access-check-all
+      - uid: mondoo-aws-security-redshift-cluster-public-access-check-single
     docs:
       desc: |
         The PubliclyAccessible attribute of the Amazon Redshift cluster configuration indicates whether the cluster is publicly accessible. When the cluster is configured with PubliclyAccessible set to true, it is an Internet-facing instance that has a publicly resolvable DNS name, which resolves to a public IP address.
@@ -2149,6 +2149,16 @@ queries:
         title: AWS Documentation - AWS CLI Command Reference - Redshift
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+  - uid: mondoo-aws-security-redshift-cluster-public-access-check-all
+    filters: |
+      asset.platform == "aws"
+    mql: |
+      aws.redshift.clusters.all(publiclyAccessible == false)
+  - uid: mondoo-aws-security-redshift-cluster-public-access-check-single
+    filters: |
+      asset.platform == "aws-redshift-cluster"
+    mql: |
+      aws.redshift.cluster.publiclyAccessible == false
   - uid: mondoo-aws-security-ec2-volume-inuse-check
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
     impact: 60
