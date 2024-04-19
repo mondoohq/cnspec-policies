@@ -2166,9 +2166,9 @@ queries:
       - uid: ebsVolumeDeleteOnTermination
         title: Defines whether instances should be configured to delete volumes on termination
         mql: "true"
-    filters: asset.platform == "aws"
-    mql: |
-      aws.ec2.volumes.where(attachments != empty).all(attachments.any(DeleteOnTermination == props.ebsVolumeDeleteOnTermination))
+    variants:
+      - uid: mondoo-aws-security-ec2-volume-inuse-check-all
+      - uid: mondoo-aws-security-ec2-volume-inuse-check-single
     docs:
       desc: |
         Identifying and removing unattached (unused) Elastic Block Store (EBS) volumes in your AWS account can lower the cost of your monthly AWS bill. Deleting unused EBS volumes also reduces the risk of confidential or sensitive data leaving your premises. This check ensures there are no EBS volumes that are not attached to an instance. Additionally, it checks whether archived EC2 instances are configured to delete volumes on termination.
@@ -2238,6 +2238,14 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-deleting-volume.html
         title: AWS Documentation - Delete an Amazon EBS volume
+  - uid: mondoo-aws-security-ec2-volume-inuse-check-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.volumes.where(attachments != empty).all(attachments.any(DeleteOnTermination == props.ebsVolumeDeleteOnTermination))
+  - uid: mondoo-aws-security-ec2-volume-inuse-check-single
+    filters: asset.platform == "aws-ec2-volume" && aws.ec2.volume.attachments != empty
+    mql: |
+      aws.ec2.volume.attachments.any(DeleteOnTermination == true)
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
     title: Ensure EBS snapshots are not publicly restorable
     impact: 80
