@@ -1936,11 +1936,13 @@ queries:
     filters: |
       asset.platform == "aws-lambda-function"
     mql: |
+      aws.lambda.function.concurrency > 0
       aws.lambda.function.concurrency <= 100
   - uid: mondoo-aws-security-lambda-concurrency-check-all
     filters: |
       asset.platform == "aws"
     mql: |
+      aws.lambda.functions.all(concurrency > 0)
       aws.lambda.functions.all(concurrency <= 100)
   - uid: mondoo-aws-security-rds-instance-public-access-check-all
     filters: |
