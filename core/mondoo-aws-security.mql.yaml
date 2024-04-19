@@ -2249,9 +2249,17 @@ queries:
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
     title: Ensure EBS snapshots are not publicly restorable
     impact: 80
+    variants:
+      - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-all
+      - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-single
+  - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-all
     filters: asset.platform == "aws"
     mql: |
       aws.ec2.snapshots.all(createVolumePermission.none(Group == "all"))
+  - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-single
+    filters: asset.platform == "aws-ec2-snapshot" || asset.platform == "aws-ebs-snapshot"
+    mql: |
+      aws.ec2.snapshot.createVolumePermission.none(Group == "all")
   - uid: mondoo-aws-security-efs-encrypted-check
     title: Ensure EFS is configured to encrypt file data using KMS
     impact: 75
