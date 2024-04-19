@@ -1818,12 +1818,6 @@ queries:
         trafficType == "REJECT" ||
         trafficType == "ALL"
         )
-  - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
-    title: Ensure DynamoDB tables are encrypted with AWS Key Management Service (KMS)
-    impact: 30
-    variants:
-      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-all
-      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-single
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-all
     filters: asset.platform == "aws"
     mql: |
@@ -1835,6 +1829,12 @@ queries:
     mql: |
       aws.dynamodb.table.sseDescription.SSEType == "KMS"
       aws.dynamodb.table.sseDescription.Status == "ENABLED"
+  - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
+    title: Ensure DynamoDB tables are encrypted with AWS Key Management Service (KMS)
+    impact: 30
+    variants:
+      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-all
+      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-single
     docs:
       desc: |
         Checks whether all DynamoDB tables are encrypted with a customer managed KMS key (non-default).
