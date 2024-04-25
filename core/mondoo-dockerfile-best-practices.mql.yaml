@@ -1,0 +1,51 @@
+policies:
+  - uid: mondoo-dockerfile-best-practices
+    name: Dockerfile Best Practices
+    version: 1.0.0
+    license: BUSL-1.1
+    tags:
+      mondoo.com/category: best-practices
+      mondoo.com/platform: dockerfile
+    authors:
+      - name: Mondoo, Inc
+        email: hello@mondoo.com
+    docs:
+      desc: |
+        # Overview
+
+        The Mondoo Dockerfile Best Practices policy bundle provides best practices recommendations for Dockerfiles.
+
+        ## Scan a Dockerfile
+
+        ```bash
+        cnspec scan docker file Dockerfile  -f mondoo-dockerfile-best-practices.mql.yaml
+        ```
+
+        ## Join the community!
+
+        Our goal is to build policies that are simple to deploy, accurate, and actionable.
+
+        If you have any suggestions for how to improve this policy, or if you need support, [join the community](https://github.com/orgs/mondoohq/discussions) in GitHub Discussions."
+    groups:
+      - title: Dockerfile best practices
+        filters: |
+          asset.platform == "dockerfile"
+        checks:
+          - uid: mondoo-dockerfile-best-practices-dont-build-from-latest
+          - uid: mondoo-dockerfile-best-practices-use-apt-get-not-apt
+    scoring_system: 2
+queries:
+  - uid: mondoo-dockerfile-best-practices-dont-build-from-latest
+    title: Don't build containers from latest tags
+    impact: 75
+    mql: |
+      docker.file.stages.last.from.tag != "latest"
+    docs:
+      desc: |
+        The latest tag can introduce breaking changes without notice and should not be used as the basis of containers. Choose a known working major version tag instead to control when breaking changes are introduced to your builds.
+  - uid: mondoo-dockerfile-best-practices-use-apt-get-not-apt
+    title: Use the apt-get CLI instead of apt
+    impact: 50
+    docs:
+      desc: |
+        The apt CLI is built for interactive use and is not considered stable or appropriate for scripted command line usage. Use apt-get when working with packages on Debian-based systems.
