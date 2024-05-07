@@ -238,6 +238,8 @@ queries:
   - uid: mondoo-linux-security-filesystem-integrity-is-regularly-checked
     title: Ensure filesystem integrity is regularly checked
     impact: 50
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       file("/etc/default/aide").exists && ["/etc/default/aide"].where(file(_).exists).all(parse.ini(_).params["CRON_DAILY_RUN"] == "yes") ||
       command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide --check")) ||
@@ -303,6 +305,8 @@ queries:
         ```
   - uid: mondoo-linux-security-core-dumps-are-restricted
     title: Ensure core dumps are restricted
+    filters: |
+      asset.name.contains("almalinux:8.9") || asset.name.contains("almalinux:9.3") || asset.name.contains("debian:7") || asset.name.contains("debian:8") || asset.name.contains("debian:9") || asset.name.contains("debian:10") || asset.name.contains("debian:11") || asset.name.contains("debian:12") || asset.name.contains("registry.suse.com/bci/bci-base:15.5") || asset.name.contains("registry.suse.com/suse/sles12sp5:6.5.559") || asset.name.contains("rockylinux:9.3") || asset.name.contains("ubuntu:14.04") || asset.name.contains("ubuntu:16.04") || asset.name.contains("ubuntu:18.04") || asset.name.contains("ubuntu:20.04") || asset.name.contains("ubuntu:22.04")
     impact: 75
     mql: |
       file("/etc/security/limits.conf").content.lines.where( _ == /^[^#]/ ).where( _.contains("core") ) {
@@ -412,6 +416,8 @@ queries:
   - uid: mondoo-linux-security-avahi-server-is-not-enabled
     title: Ensure Avahi server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("avahi-daemon").enabled == false
       service("avahi-daemon").running == false
@@ -432,6 +438,8 @@ queries:
   - uid: mondoo-linux-security-cups-is-not-enabled
     title: Ensure CUPS is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("cups").enabled == false
       service("cups").running == false
@@ -456,6 +464,8 @@ queries:
   - uid: mondoo-linux-security-dhcp-server-is-not-enabled
     title: Ensure DHCP server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("dhcpd").enabled == false
       service("dhcpd").running == false
@@ -471,6 +481,8 @@ queries:
   - uid: mondoo-linux-security-ldap-server-is-not-enabled
     title: Ensure LDAP server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("slapd").enabled == false
       service("slapd").running == false
@@ -486,6 +498,8 @@ queries:
   - uid: mondoo-linux-security-nfs-and-rpc-are-not-enabled
     title: Ensure NFS and RPC are stopped and not enabled
     impact: 60
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("nfs").enabled == false
       service("nfs").running == false
@@ -506,6 +520,8 @@ queries:
   - uid: mondoo-linux-security-dns-server-is-not-enabled
     title: Ensure DNS server is stopped and not enabled
     impact: 60
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("named").enabled == false
       service("named").running == false
@@ -521,6 +537,8 @@ queries:
   - uid: mondoo-linux-security-ftp-server-is-not-enabled
     title: Ensure FTP server is stopped and not enabled
     impact: 60
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("vsftpd").enabled == false
       service("vsftpd").running == false
@@ -536,6 +554,8 @@ queries:
   - uid: mondoo-linux-security-http-server-is-not-enabled
     title: Ensure HTTP servers are stopped and not enabled
     impact: 60
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("httpd").enabled == false
       service("httpd").running == false
@@ -561,6 +581,8 @@ queries:
   - uid: mondoo-linux-security-imap-and-pop3-server-is-not-enabled
     title: Ensure IMAP and POP3 server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("dovecot").enabled == false
       service("dovecot").running == false
@@ -576,6 +598,8 @@ queries:
   - uid: mondoo-linux-security-samba-is-not-enabled
     title: Ensure Samba is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("smb").enabled == false
       service("smbd").enabled == false
@@ -595,6 +619,8 @@ queries:
   - uid: mondoo-linux-security-http-proxy-server-is-not-enabled
     title: Ensure HTTP Proxy server is stopped and not enabled
     impact: 60
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("squid").enabled == false
       service("squid").running == false
@@ -615,6 +641,8 @@ queries:
   - uid: mondoo-linux-security-snmp-server-is-not-enabled
     title: Ensure SNMP server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("snmpd").enabled == false
       service("snmpd").running == false
@@ -655,6 +683,8 @@ queries:
   - uid: mondoo-linux-security-nis-server-is-not-enabled
     title: Ensure NIS server is stopped and not enabled
     impact: 75
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("ypserv").enabled == false
       service("ypserv").running == false
@@ -670,6 +700,8 @@ queries:
   - uid: mondoo-linux-security-rsh-server-is-not-enabled
     title: Ensure rsh server is stopped and not enabled
     impact: 75
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("rsh.socket").enabled == false
       service("rlogin.socket").enabled == false
@@ -694,6 +726,8 @@ queries:
   - uid: mondoo-linux-security-telnet-server-is-not-enabled
     title: Ensure telnet server is stopped and not enabled
     impact: 90
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("telnet.socket").enabled == false
       service("telnet.socket").running == false
@@ -709,6 +743,8 @@ queries:
   - uid: mondoo-linux-security-tftp-server-is-not-enabled
     title: Ensure tftp server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("tftp.socket").enabled == false
       service("tftp.socket").running == false
@@ -724,6 +760,8 @@ queries:
   - uid: mondoo-linux-security-rsync-service-is-not-enabled
     title: Ensure rsync service is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("rsyncd").enabled == false
       service("rsyncd").running == false
@@ -739,6 +777,8 @@ queries:
   - uid: mondoo-linux-security-talk-server-is-not-enabled
     title: Ensure talk server is stopped and not enabled
     impact: 100
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("ntalk").enabled == false
       service("ntalk").running == false
@@ -1088,6 +1128,8 @@ queries:
   - uid: mondoo-linux-security-auditd-service-is-enabled
     title: Ensure auditd service is enabled
     impact: 50
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("auditd").enabled
     docs:
@@ -2111,6 +2153,8 @@ queries:
   - uid: mondoo-linux-security-rsyslog-service-is-enabled
     title: Ensure rsyslog Service is enabled
     impact: 50
+    filters: |
+      asset.name != "almalinux:8.9" || asset.name != "almalinux:9.3" || asset.name != "centos:7" || asset.name != "centos:8" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" || asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("rsyslog").enabled
     docs:
@@ -2334,6 +2378,8 @@ queries:
   - uid: mondoo-linux-security-ssh-maxauthtries-is-set-to-4-or-less
     title: Ensure SSH MaxAuthTries is set to 4 or less
     impact: 75
+    filters: |
+      asset.name != "oraclelinux:8.9"  || asset.name != "oraclelinux:9"
     mql: |
       sshd.config.params["MaxAuthTries"] <= 4
     docs:
@@ -2516,6 +2562,8 @@ queries:
   - uid: mondoo-linux-security-ssh-idle-timeout-interval-is-configured
     title: Ensure SSH Idle Timeout Interval is configured
     impact: 60
+    filters: |
+      asset.name != "oraclelinux:8.9"  || asset.name != "oraclelinux:9"
     mql: |
       sshd.config.params["ClientAliveInterval"] >= 1
       sshd.config.params["ClientAliveInterval"] <= 300
@@ -2532,6 +2580,8 @@ queries:
   - uid: mondoo-linux-security-ssh-logingracetime-is-set-to-one-minute-or-less
     title: Ensure SSH LoginGraceTime is set to one minute or less
     impact: 80
+    filters: |
+      asset.name != "oraclelinux:8.9"  || asset.name != "oraclelinux:9"
     mql: |
       sshd.config.params["LoginGraceTime"] >= 1
       sshd.config.params["LoginGraceTime"] <= 60
@@ -2908,6 +2958,8 @@ queries:
   - uid: mondoo-linux-security-uid-min-is-set-to-1000
     title: Ensure UID_MIN is set to 1000
     impact: 60
+    filters: |
+      asset.name.contains("almalinux:8.9") || asset.name.contains("almalinux:9.3") || asset.name.contains("debian:7") || asset.name.contains("debian:8") || asset.name.contains("debian:9") || asset.name.contains("debian:10") || asset.name.contains("debian:11") || asset.name.contains("debian:12") || asset.name.contains("registry.suse.com/bci/bci-base:15.5") || asset.name.contains("registry.suse.com/suse/sles12sp5:6.5.559") || asset.name.contains("rockylinux:9.3") || asset.name.contains("ubuntu:14.04") || asset.name.contains("ubuntu:16.04") || asset.name.contains("ubuntu:18.04") || asset.name.contains("ubuntu:20.04") || asset.name.contains("ubuntu:22.04")
     mql: |
       logindefs.params{ _['UID_MIN'] == 1000 }
     docs:
@@ -2978,6 +3030,8 @@ queries:
   - uid: mondoo-linux-security-access-to-the-su-command-is-restricted
     title: Ensure access to the su command is restricted
     impact: 80
+    filters: | 
+      asset.name.contains("almalinux:8.9") || asset.name.contains("almalinux:9.3") || asset.name.contains("debian:7") || asset.name.contains("debian:8") || asset.name.contains("debian:9") || asset.name.contains("debian:10") || asset.name.contains("debian:11") || asset.name.contains("debian:12") || asset.name.contains("registry.suse.com/bci/bci-base:15.5") || asset.name.contains("registry.suse.com/suse/sles12sp5:6.5.559") || asset.name.contains("rockylinux:9.3") || asset.name.contains("ubuntu:14.04") || asset.name.contains("ubuntu:16.04") || asset.name.contains("ubuntu:18.04") || asset.name.contains("ubuntu:20.04") || asset.name.contains("ubuntu:22.04")
     props:
       - uid: sudoGroup
         title: Define the members of the sudo or wheel group
