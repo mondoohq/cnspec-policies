@@ -148,7 +148,8 @@ policies:
           - uid: mondoo-linux-security-ssh-x11-forwarding-is-disabled
       - title: Logging
         filters: |
-          asset.family.contains('linux') && asset.kind != "container-image"
+          asset.family.contains('linux')
+          asset.kind != "container-image"
         checks:
           - uid: mondoo-linux-security-audit-log-storage-size-is-configured
           - uid: mondoo-linux-security-audit-logs-are-not-automatically-deleted
@@ -199,6 +200,8 @@ queries:
   - uid: mondoo-linux-security-aide-is-installed
     title: Ensure Advanced Intrusion Detection Environment (AIDE) is installed
     impact: 60
+    filters: |
+      asset.kind != "container-image"
     mql: |
       package("aide").installed
     docs:
@@ -417,7 +420,7 @@ queries:
     title: Ensure Avahi server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("avahi-daemon").enabled == false
       service("avahi-daemon").running == false
@@ -465,7 +468,7 @@ queries:
     title: Ensure DHCP server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("dhcpd").enabled == false
       service("dhcpd").running == false
@@ -482,7 +485,7 @@ queries:
     title: Ensure LDAP server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("slapd").enabled == false
       service("slapd").running == false
@@ -499,7 +502,7 @@ queries:
     title: Ensure NFS and RPC are stopped and not enabled
     impact: 60
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("nfs").enabled == false
       service("nfs").running == false
@@ -521,7 +524,7 @@ queries:
     title: Ensure DNS server is stopped and not enabled
     impact: 60
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("named").enabled == false
       service("named").running == false
@@ -538,7 +541,7 @@ queries:
     title: Ensure FTP server is stopped and not enabled
     impact: 60
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("vsftpd").enabled == false
       service("vsftpd").running == false
@@ -555,7 +558,7 @@ queries:
     title: Ensure HTTP servers are stopped and not enabled
     impact: 60
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("httpd").enabled == false
       service("httpd").running == false
@@ -582,7 +585,7 @@ queries:
     title: Ensure IMAP and POP3 server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("dovecot").enabled == false
       service("dovecot").running == false
@@ -599,7 +602,7 @@ queries:
     title: Ensure Samba is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("smb").enabled == false
       service("smbd").enabled == false
@@ -620,7 +623,7 @@ queries:
     title: Ensure HTTP Proxy server is stopped and not enabled
     impact: 60
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("squid").enabled == false
       service("squid").running == false
@@ -642,7 +645,7 @@ queries:
     title: Ensure SNMP server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("snmpd").enabled == false
       service("snmpd").running == false
@@ -658,6 +661,8 @@ queries:
   - uid: mondoo-linux-security-mail-transfer-agent-is-configured-for-local-only-mode
     title: Ensure mail transfer agent is configured for local-only mode
     impact: 85
+    filters: |
+      asset.kind != "container-image"
     mql: |
       if( package("postfix").installed && service('postfix').running ) {
         parse.ini("/etc/postfix/main.cf").params["inet_interfaces"] == "localhost" || parse.ini("/etc/postfix/main.cf").params["inet_interfaces"] == "loopback-only"
@@ -684,7 +689,7 @@ queries:
     title: Ensure NIS server is stopped and not enabled
     impact: 75
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("ypserv").enabled == false
       service("ypserv").running == false
@@ -701,7 +706,7 @@ queries:
     title: Ensure rsh server is stopped and not enabled
     impact: 75
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("rsh.socket").enabled == false
       service("rlogin.socket").enabled == false
@@ -727,7 +732,7 @@ queries:
     title: Ensure telnet server is stopped and not enabled
     impact: 90
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("telnet.socket").enabled == false
       service("telnet.socket").running == false
@@ -744,7 +749,7 @@ queries:
     title: Ensure tftp server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("tftp.socket").enabled == false
       service("tftp.socket").running == false
@@ -761,7 +766,7 @@ queries:
     title: Ensure rsync service is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("rsyncd").enabled == false
       service("rsyncd").running == false
@@ -778,7 +783,7 @@ queries:
     title: Ensure talk server is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("ntalk").enabled == false
       service("ntalk").running == false
@@ -2376,8 +2381,6 @@ queries:
   - uid: mondoo-linux-security-ssh-maxauthtries-is-set-to-4-or-less
     title: Ensure SSH MaxAuthTries is set to 4 or less
     impact: 75
-    filters: |
-      asset.name != "oraclelinux:8.9"  && asset.name != "oraclelinux:9"
     mql: |
       sshd.config.params["MaxAuthTries"] <= 4
     docs:
@@ -2560,8 +2563,6 @@ queries:
   - uid: mondoo-linux-security-ssh-idle-timeout-interval-is-configured
     title: Ensure SSH Idle Timeout Interval is configured
     impact: 60
-    filters: |
-      asset.name != "oraclelinux:8.9" && asset.name != "oraclelinux:9"
     mql: |
       sshd.config.params["ClientAliveInterval"] >= 1
       sshd.config.params["ClientAliveInterval"] <= 300
@@ -2578,8 +2579,6 @@ queries:
   - uid: mondoo-linux-security-ssh-logingracetime-is-set-to-one-minute-or-less
     title: Ensure SSH LoginGraceTime is set to one minute or less
     impact: 80
-    filters: |
-      asset.name != "oraclelinux:8.9" && asset.name != "oraclelinux:9"
     mql: |
       sshd.config.params["LoginGraceTime"] >= 1
       sshd.config.params["LoginGraceTime"] <= 60
@@ -2957,16 +2956,7 @@ queries:
     title: Ensure UID_MIN is set to 1000
     impact: 60
     filters: |
-      asset.name != "alpine:3.16" && asset.name != "alpine:3.17" && asset.name != "alpine:3.18" && asset.name != "alpine:3.19" &&
-      asset.name != "amazonlinux:2" && asset.name != "amazonlinux:2023" &&
-      asset.name != "centos:7" && asset.name != "centos:8" &&
-      asset.name != "fedora:37" && asset.name != "fedora:38" && asset.name != "fedora:39" && asset.name != "fedora:40" &&
-      asset.name != "opensuse/leap:15.5" && asset.name != "opensuse/leap:42.3" && asset.name != "opensuse/tumbleweed" &&
-      asset.name != "oraclelinux:8.9" && asset.name != "oraclelinux:9" &&
-      asset.name != "photon:3.0" && asset.name != "photon:4.0" && asset.name != "photon:5.0" &&
-      asset.name != "registry.access.redhat.com/ubi7/ubi-minimal:7.9-1313" &&
-      asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" &&
-      asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       logindefs.params{ _['UID_MIN'] == 1000 }
     docs:
