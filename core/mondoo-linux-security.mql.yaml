@@ -239,7 +239,7 @@ queries:
     title: Ensure filesystem integrity is regularly checked
     impact: 50
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       file("/etc/default/aide").exists && ["/etc/default/aide"].where(file(_).exists).all(parse.ini(_).params["CRON_DAILY_RUN"] == "yes") ||
       command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide --check")) ||
@@ -306,16 +306,7 @@ queries:
   - uid: mondoo-linux-security-core-dumps-are-restricted
     title: Ensure core dumps are restricted
     filters: |
-      asset.name != "alpine:3.16" && asset.name != "alpine:3.17" && asset.name != "alpine:3.18" && asset.name != "alpine:3.19" &&
-      asset.name != "amazonlinux:2" && asset.name != "amazonlinux:2023" &&
-      asset.name != "centos:7" && asset.name != "centos:8" &&
-      asset.name != "fedora:37" && asset.name != "fedora:38" && asset.name != "fedora:39" && asset.name != "fedora:40" &&
-      asset.name != "opensuse/leap:15.5" && asset.name != "opensuse/leap:42.3" && asset.name != "opensuse/tumbleweed" &&
-      asset.name != "oraclelinux:8.9" && asset.name != "oraclelinux:9" &&
-      asset.name != "photon:3.0" && asset.name != "photon:4.0" && asset.name != "photon:5.0" &&
-      asset.name != "registry.access.redhat.com/ubi7/ubi-minimal:7.9-1313" &&
-      asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" &&
-      asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     impact: 75
     mql: |
       file("/etc/security/limits.conf").content.lines.where( _ == /^[^#]/ ).where( _.contains("core") ) {
@@ -407,7 +398,7 @@ queries:
     title: Ensure X Window System is not installed
     impact: 100
     mql: |
-      packages.none(name == /^xserver-xorg.*/)
+      packages.none(name == /^xserver-xorg.*/ || name == /^xorg-x11/ || name == /^xserver/)
     docs:
       desc: The X Window System provides a Graphical User Interface (GUI) where users can have multiple windows to run programs and various add-ons. The X Windows system is typically used on workstations where users login, but not on servers where users typically do not login.
       remediation: |-
