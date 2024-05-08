@@ -148,7 +148,7 @@ policies:
           - uid: mondoo-linux-security-ssh-x11-forwarding-is-disabled
       - title: Logging
         filters: |
-          asset.family.contains('linux')
+          asset.family.contains('linux') && asset.kind != "container-image"
         checks:
           - uid: mondoo-linux-security-audit-log-storage-size-is-configured
           - uid: mondoo-linux-security-audit-logs-are-not-automatically-deleted
@@ -439,7 +439,7 @@ queries:
     title: Ensure CUPS is stopped and not enabled
     impact: 100
     filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     mql: |
       service("cups").enabled == false
       service("cups").running == false
@@ -1128,8 +1128,6 @@ queries:
   - uid: mondoo-linux-security-auditd-service-is-enabled
     title: Ensure auditd service is enabled
     impact: 50
-    filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107"
     mql: |
       service("auditd").enabled
     docs:
@@ -1231,6 +1229,8 @@ queries:
   - uid: mondoo-linux-security-system-is-disabled-when-audit-logs-are-full
     title: Ensure system is disabled when audit logs are full
     impact: 40
+    filters: |
+      asset.kind != "container-image"
     mql: |
       file("/etc/audit/auditd.conf").exists;
       ["/etc/audit/auditd.conf"].where(file(_).exists) {
@@ -2153,8 +2153,6 @@ queries:
   - uid: mondoo-linux-security-rsyslog-service-is-enabled
     title: Ensure rsyslog Service is enabled
     impact: 50
-    filters: |
-      asset.name != "almalinux:8.9" && asset.name != "almalinux:9.3" && asset.name != "centos:7" && asset.name != "centos:8" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" && asset.name != "rockylinux:8.9"
     mql: |
       service("rsyslog").enabled
     docs:
@@ -2933,7 +2931,7 @@ queries:
     title: Ensure each user is a member of a group
     impact: 70
     mql: |
-      users.list.all(gid != null)
+      users.list.all(gid != empty)
     docs:
       desc: |
         Each user MUST be a member of at least one group.
@@ -2949,7 +2947,7 @@ queries:
     title: Ensure all GIDs in /etc/passwd exist in /etc/group
     impact: 80
     mql: |
-      users.list.all(group != null)
+      users.list.all(group != empty)
     docs:
       desc: |
         Every GID mentioned in the /etc/passwd file must be defined in the /etc/group file.
@@ -3040,16 +3038,7 @@ queries:
     title: Ensure access to the su command is restricted
     impact: 80
     filters: | 
-      asset.name != "alpine:3.16" && asset.name != "alpine:3.17" && asset.name != "alpine:3.18" && asset.name != "alpine:3.19" &&
-      asset.name != "amazonlinux:2" && asset.name != "amazonlinux:2023" &&
-      asset.name != "centos:7" && asset.name != "centos:8" &&
-      asset.name != "fedora:37" && asset.name != "fedora:38" && asset.name != "fedora:39" && asset.name != "fedora:40" &&
-      asset.name != "opensuse/leap:15.5" && asset.name != "opensuse/leap:42.3" && asset.name != "opensuse/tumbleweed" &&
-      asset.name != "oraclelinux:8.9" && asset.name != "oraclelinux:9" &&
-      asset.name != "photon:3.0" && asset.name != "photon:4.0" && asset.name != "photon:5.0" &&
-      asset.name != "registry.access.redhat.com/ubi7/ubi-minimal:7.9-1313" &&
-      asset.name != "registry.access.redhat.com/ubi8/ubi:8.0-122" && asset.name != "registry.access.redhat.com/ubi8/ubi:8.9-1107" &&
-      asset.name != "rockylinux:8.9"
+      asset.kind != "container-image"
     props:
       - uid: sudoGroup
         title: Define the members of the sudo or wheel group
