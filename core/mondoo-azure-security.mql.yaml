@@ -35,7 +35,7 @@ policies:
 
         Step 2: Authentication to Azure
         There are two primary methods to authenticate cnspec to your Azure environments:
-        
+
         **a. Azure CLI Login**
 
         ```
@@ -122,14 +122,14 @@ queries:
 
         ```bash
         az disk list --resource-group "yourResourceGroupName" --query "[].{Name:name, ResourceGroupName:resourceGroup, EncryptionSettings:encryptionSettingsCollection}" -o table
-        ``` 
+        ```
 
         **Automated Audit with PowerShell:**
 
         ```powershell
         Get-AzDisk -ResourceGroupName "yourResourceGroupName" | Select-Object Name, ResourceGroupName, EncryptionSettingsCollection
         ```
-        
+
         Ensure the EncryptionType is set to EncryptionAtRestWithCustomerKey for OS disks.
       remediation: |
         ### Microsoft Azure Portal
@@ -229,31 +229,31 @@ queries:
       desc: |
         Restricting SSH access from the internet minimizes the risk of brute force and other unauthorized access attempts on Azure resources such as virtual machines. Public internet exposure of SSH, especially on the default port 22, significantly increases the attack surface. It's crucial to evaluate and restrict SSH access by configuring network security groups (NSGs) to allow only necessary connections, preferably from known, secure sources. Implementing stringent access controls for SSH enhances security by preventing attackers from using compromised VMs as a pivot point for broader network intrusions.
       audit: |
-       **Manual Audit via Azure Portal:**     
+        **Manual Audit via Azure Portal:**
 
-        **Checking via Network Security Groups (NSGs) for All Resources:**
-        1. From the main Azure Portal menu, navigate to **Network security groups**.
-        2. Select an NSG associated with the resources you want to check.
-        3. Go to the **Inbound security rules** section.
-        4. Review all the rules to ensure none allow SSH access (port 22, TCP) from broadly defined sources such as 'Any', '0.0.0.0', or 'Internet'.
-        5. Confirm that rules configured to permit SSH access are scoped to specific, known IP addresses or ranges to minimize exposure.
+         **Checking via Network Security Groups (NSGs) for All Resources:**
+         1. From the main Azure Portal menu, navigate to **Network security groups**.
+         2. Select an NSG associated with the resources you want to check.
+         3. Go to the **Inbound security rules** section.
+         4. Review all the rules to ensure none allow SSH access (port 22, TCP) from broadly defined sources such as 'Any', '0.0.0.0', or 'Internet'.
+         5. Confirm that rules configured to permit SSH access are scoped to specific, known IP addresses or ranges to minimize exposure.
 
-        **Checking Specific Virtual Machines:**
-        1. Log into the Azure Portal.
-        2. Navigate to **Virtual machines**.
-        3. Select a specific virtual machine to review.
-        4. Within the virtual machine's blade, select **Networking** under the settings menu.
-        5. Access the **Networking** blade of the selected VM, then review the **Inbound port rules**.
-        6. Ensure there are no rules allowing SSH access (port 22, TCP) from 'Any' or 'Internet' source address prefixes. Only secure, specified IP ranges should be allowed, if necessary.
+         **Checking Specific Virtual Machines:**
+         1. Log into the Azure Portal.
+         2. Navigate to **Virtual machines**.
+         3. Select a specific virtual machine to review.
+         4. Within the virtual machine's blade, select **Networking** under the settings menu.
+         5. Access the **Networking** blade of the selected VM, then review the **Inbound port rules**.
+         6. Ensure there are no rules allowing SSH access (port 22, TCP) from 'Any' or 'Internet' source address prefixes. Only secure, specified IP ranges should be allowed, if necessary.
 
 
-        **Automated Audit with Azure CLI:**
+         **Automated Audit with Azure CLI:**
 
-        List NSGs and check for SSH access rules:
+         List NSGs and check for SSH access rules:
 
-        ```bash
-        az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='22' || destinationPortRanges.contains('22')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
-        ```
+         ```bash
+         az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='22' || destinationPortRanges.contains('22')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
+         ```
       remediation: |
         ### Configuring Network Security via Azure Portal:
 
@@ -345,7 +345,7 @@ queries:
       desc: |
         Restricting RDP access from the internet is crucial for protecting Azure resources against unauthorized access and potential security breaches. RDP, typically listening on TCP port 3389, is a common target for many Cyber attacks. By limiting RDP access to only trusted internal networks or through secure tunnels, the risk of these attacks is significantly reduced. This security measure is essential for maintaining the integrity and security of Azure environments, preventing attackers from using compromised VMs as launch points for further attacks within and beyond the Azure network.
       audit: |
-        **Manual Audit via Azure Portal:**     
+        **Manual Audit via Azure Portal:**
 
         1. Log into the Azure Portal.
         2. Navigate to **Network security groups** under the Networking or directly through the search bar.
@@ -530,8 +530,7 @@ queries:
 
         ```
         az storage account show --name <yourStorageAccountName> --query allowBlobPublicAccess
-        ``` 
-
+        ```
       remediation: |
         ### Terraform
 
@@ -557,7 +556,7 @@ queries:
           ```
           az storage account update --name <storage-account> --resource-group <resource-group> --public-network-access Disabled
           ```
-        
+
         - Set blob containers to private access:
           ```
           az storage container set-permission --name <container_name> --public-access off --account-name <account_name> --account-key <account_key>
@@ -680,7 +679,6 @@ queries:
         ```
         az storage account list --query "[*].{AccountName:name, BypassRules:networkRuleSet.bypass}" -o table
         ```
-
       remediation: |
         From Azure Portal:
             1. Go to `Storage Accounts` and select the relevant account.
@@ -1046,7 +1044,7 @@ queries:
         It is highly recommended to use the latest TLS version available with Azure App Services for all secure Web App connections. Currently Azure App Services supports TLS 1.2.
       audit: |
         **From Azure Portal:**
-  
+
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **App Services**.
         3. Select an app service and select **TLS/SSL settings** under **Settings**.
@@ -1055,7 +1053,7 @@ queries:
         **From Azure CLI:**
 
         Verify that the minimum TLS version is set to 1.2 for each App Service:
-        
+
         ```bash
         az webapp config show --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME> --query minTlsVersion
         ```
@@ -1076,7 +1074,7 @@ queries:
            b. Select **Configuration** and select the **General settings** tab.
            c. Under **Minimum Inbound TLS Version**, select **1.2**.
            d. Select **Save**.
-        
+
         **From Azure CLI:**
 
         Set the minimum TLS version to 1.2 for an existing app service:
@@ -1157,7 +1155,7 @@ queries:
            a. Select the key vault.
            b. Select **Keys** or **Secrets**.
            c. Make sure that the key/secret in the key vault has an expiration date.
-        
+
         **From Azure CLI:**
 
         - For keys:
@@ -1373,6 +1371,9 @@ queries:
   - uid: mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group
     title: Ensure that activity log alerts exist for the commands Create, Update, and Delete Network Security Group
     impact: 80
+    filters: |
+      asset.platform == "azure"
+      asset.kind == "api"
     mql: |
       azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Authorization/policyAssignments/write" && fieldName == "operationName"))
       azure.subscription.monitor.activityLog.alerts.where(actions != empty).any(conditions.any(equals == "Microsoft.Network/networkSecurityGroups/delete" && fieldName == "operationName"))
@@ -1380,37 +1381,37 @@ queries:
       desc: |
         Monitoring events related to the creation, update, and deletion of network security groups provides insights into network access changes and helps in detecting suspicious activities.
       audit: |
-       **From Azure Portal**
+        **From Azure Portal**
 
-        1. Navigate to the `Monitor` blade.
-        2. Select `Alerts`.
-        3. In the Alerts window, select `Alert rules`.
-        4. Verify that alert rules exist for the following conditions:
-          - Operation name equals `Microsoft.Network/networkSecurityGroups/write` for Create/Update events.
-          - Operation name equals `Microsoft.Network/networkSecurityGroups/delete` for Delete events.
-        5. Select the alert rule name to review its configuration.
-          - Ensure the `Condition` panel specifies the correct operation names and does not filter on irrelevant criteria like `Level`, `Status`, or `Caller`.
-          - Confirm that the `Actions` panel is set up to notify the appropriate personnel within your organization.
+         1. Navigate to the `Monitor` blade.
+         2. Select `Alerts`.
+         3. In the Alerts window, select `Alert rules`.
+         4. Verify that alert rules exist for the following conditions:
+           - Operation name equals `Microsoft.Network/networkSecurityGroups/write` for Create/Update events.
+           - Operation name equals `Microsoft.Network/networkSecurityGroups/delete` for Delete events.
+         5. Select the alert rule name to review its configuration.
+           - Ensure the `Condition` panel specifies the correct operation names and does not filter on irrelevant criteria like `Level`, `Status`, or `Caller`.
+           - Confirm that the `Actions` panel is set up to notify the appropriate personnel within your organization.
 
-       **From Azure CLI:**
+        **From Azure CLI:**
 
-        Run the following commands to list the current alert rules and verify their conditions:
+         Run the following commands to list the current alert rules and verify their conditions:
 
-        ```bash
-        az monitor activity-log alert list --subscription <subscription ID> --query "[].{Name:name, Enabled:enabled, Condition:condition.allOf, Actions:actions}"
-        ```
+         ```bash
+         az monitor activity-log alert list --subscription <subscription ID> --query "[].{Name:name, Enabled:enabled, Condition:condition.allOf, Actions:actions}"
+         ```
 
-        Check for the presence of conditions targeting the `Microsoft.Network/networkSecurityGroups/write` and `Microsoft.Network/networkSecurityGroups/delete` operation names in the output.
+         Check for the presence of conditions targeting the `Microsoft.Network/networkSecurityGroups/write` and `Microsoft.Network/networkSecurityGroups/delete` operation names in the output.
 
-        **From PowerShell:**
+         **From PowerShell:**
 
-        Utilize the following PowerShell commands to inspect the alert rules:
+         Utilize the following PowerShell commands to inspect the alert rules:
 
-        ```powershell
-        Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/write"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
+         ```powershell
+         Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/write"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
 
-        Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/delete"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
-        ```
+         Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/delete"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
+         ```
       remediation: |
         ### Microsoft Azure Portal
 
@@ -1461,7 +1462,6 @@ queries:
           ```bash
           az account get-access-token --query "{subscription:subscription,accessToken:accessToken}" --out tsv | xargs -L1 bash -c 'curl -X GET -H "Authorization: Bearer $1" -H "Content-Type: application/json" https://management.azure.com/subscriptions/$0/providers/Microsoft.Security/securityContacts?api-version=2020-01-01-preview' | jq '.|.[] | select(.name=="default")'|jq '.properties.alertNotifications'
           ```
-
       remediation: |
         ### Microsoft Azure Portal
 
@@ -1568,7 +1568,6 @@ queries:
         ```
 
         This script iterates over all PostgreSQL servers in the specified resource group, enforcing SSL on each one. Regularly running such scripts can help maintain compliance over time, especially in dynamic environments where new servers are frequently deployed.
-
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
     filters: |
       asset.platform == "azure-postgresql-server"
@@ -1614,7 +1613,6 @@ queries:
         ```
 
         This command provides a tabulated view showing the SSL enforcement and TLS version for each server, facilitating quick identification of non-compliant or outdated configurations.
-
       remediation: |
         To enforce SSL connections and ensure the use of the latest TLS version:
 
@@ -2086,7 +2084,6 @@ queries:
         ```
 
         Replace placeholder values with your actual subscription ID, setting name, and destination details. Regular review and adjustment of these settings are crucial to adapt to evolving security and operational requirements.
-
   - uid: mondoo-azure-security-disable-udp-virtualmachines
     title: Ensure direct UDP access to Resources from the internet is restricted
     impact: 80
