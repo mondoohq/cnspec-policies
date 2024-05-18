@@ -947,6 +947,8 @@ queries:
       azure.subscription.sql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
       azure.subscription.postgreSql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
       azure.subscription.mySql.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.postgreSql.flexibleServers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
+      azure.subscription.mySql.flexibleServers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
       azure.subscription.mariaDb.servers.all(firewallRules.all(startIpAddress != "0.0.0.0"))
   - uid: mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service
     title: Enable Managed Identities for App services to Authenticate via Microsoft Entra ID
