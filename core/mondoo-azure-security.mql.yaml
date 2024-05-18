@@ -811,8 +811,8 @@ queries:
     impact: 80
     variants:
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-azuresql
-      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-legacy
-      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-legacy
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-flexible
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-flexible
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mariadb
@@ -909,13 +909,13 @@ queries:
       asset.kind == "azure-object"
     mql: |
       azure.subscription.sql.server.firewallRules.all(startIpAddress != "0.0.0.0")
-  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-legacy
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql
     filters: |
       asset.platform == "azure-postgresql-server"
       asset.kind == "azure-object"
     mql: |
       azure.subscription.postgreSql.server.firewallRules.all(startIpAddress != "0.0.0.0")
-  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-legacy
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql
     filters: |
       asset.platform == "azure-mysql-server"
       asset.kind == "azure-object"
@@ -1531,7 +1531,7 @@ queries:
     impact: 80
     variants:
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-api
-      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-legacy
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-flexible
     docs:
       desc: |
@@ -1599,7 +1599,7 @@ queries:
 
         This script iterates over all PostgreSQL servers in the specified resource group, enforcing SSL on each one. Regularly running such scripts can help maintain compliance over time, especially in dynamic environments where new servers are frequently deployed.
 
-  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-legacy
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
     filters: |
       asset.platform == "azure-postgresql-server"
       asset.kind == "azure-object"
@@ -1622,7 +1622,7 @@ queries:
     title: Ensure SSL connection enabled for MySQL Database Server with the latest version
     impact: 80
     variants:
-      - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single-legacy
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single-flexible
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-api
     docs:
@@ -1674,7 +1674,7 @@ queries:
     mql: |
       azure.subscription.mySql.flexibleServer.configuration.where(name == "require_secure_transport").all(value.downcase == "on")
       azure.subscription.mySql.flexibleServer.configuration.where(name == "tls_version").all(value.downcase == "tlsv1.2")
-  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single-legacy
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single
     filters: |
       asset.platform == "azure-mysql-server"
       asset.kind == "azure-object"
