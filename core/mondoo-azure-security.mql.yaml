@@ -1531,7 +1531,8 @@ queries:
     impact: 80
     variants:
       - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-api
-      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-legacy
+      - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-flexible
     docs:
       desc: |
         Ensuring that SSL/TLS is enforced for all connections to PostgreSQL database servers is crucial for safeguarding data in transit. This security measure helps prevent eavesdropping and man-in-the-middle attacks, maintaining the confidentiality and integrity of data.
@@ -1598,18 +1599,25 @@ queries:
 
         This script iterates over all PostgreSQL servers in the specified resource group, enforcing SSL on each one. Regularly running such scripts can help maintain compliance over time, especially in dynamic environments where new servers are frequently deployed.
 
-  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-legacy
     filters: |
       asset.platform == "azure-postgresql-server"
       asset.kind == "azure-object"
     mql: |
       azure.subscription.postgreSql.server.properties.sslEnforcement == "Enabled"
+  - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-single-flexible
+    filters: |
+      asset.platform == "azure-postgresql-flexible-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.postgreSql.flexibleServer.configuration.where(name == 'ssl').all(value.downcase == "on")
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-api
     filters: |
       asset.platform == "azure"
       asset.kind == "api"
     mql: |
       azure.subscription.postgreSql.servers.all(properties.sslEnforcement == "Enabled")
+      azure.subscription.postgreSql.flexibleServers.all(configuration.where(name == 'ssl').all(value.downcase == "on"))
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql
     title: Ensure SSL connection enabled for MySQL Database Server with the latest version
     impact: 80
