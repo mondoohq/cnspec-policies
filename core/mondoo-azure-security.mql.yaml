@@ -811,8 +811,10 @@ queries:
     impact: 80
     variants:
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-azuresql
-      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql
-      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-legacy
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-legacy
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-flexible
+      - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-flexible
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mariadb
       - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-api
     docs:
@@ -907,18 +909,30 @@ queries:
       asset.kind == "azure-object"
     mql: |
       azure.subscription.sql.server.firewallRules.all(startIpAddress != "0.0.0.0")
-  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-legacy
     filters: |
       asset.platform == "azure-postgresql-server"
       asset.kind == "azure-object"
     mql: |
       azure.subscription.postgreSql.server.firewallRules.all(startIpAddress != "0.0.0.0")
-  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-legacy
     filters: |
       asset.platform == "azure-mysql-server"
       asset.kind == "azure-object"
     mql: |
       azure.subscription.mySql.server.firewallRules.all(startIpAddress != "0.0.0.0")
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-postgresql-flexible
+    filters: |
+      asset.platform == "azure-postgresql-flexible-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.postgreSql.flexibleServer.firewallRules.all(startIpAddress != "0.0.0.0")
+  - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mysql-flexible
+    filters: |
+      asset.platform == "azure-mysql-flexible-server"
+      asset.kind == "azure-object"
+    mql: |
+      azure.subscription.mySql.flexibleServer.firewallRules.all(startIpAddress != "0.0.0.0")
   - uid: mondoo-azure-security-no-sql-databases-allow-ingress-0-0-0-0-0-single-mariadb
     filters: |
       asset.platform == "azure-mariadb-server"
