@@ -1681,8 +1681,6 @@ queries:
     mql: |
       azure.subscription.mySql.server.properties.sslEnforcement == "Enabled"
       azure.subscription.mySql.server.properties.minimalTlsVersion == "TLS1_2"
-      azure.subscription.mySql.flexibleServers.all(configuration.where(name == "require_secure_transport").all(value.downcase == "on"))
-      azure.subscription.mySql.flexibleServers.all(configuration.where(name == "tls_version").all(value.downcase == "tlsv1.2"))
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-api
     filters: |
       asset.platform == "azure"
@@ -1690,6 +1688,8 @@ queries:
     mql: |
       azure.subscription.mySql.servers.all(properties.sslEnforcement == "Enabled")
       azure.subscription.mySql.servers.all(properties.minimalTlsVersion == "TLS1_2")
+      azure.subscription.mySql.flexibleServers.all(configuration.where(name == "require_secure_transport").all(value.downcase == "on"))
+      azure.subscription.mySql.flexibleServers.all(configuration.where(name == "tls_version").all(value.downcase == "tlsv1.2"))
   - uid: mondoo-azure-security-ensure-disabled-public-access-sql
     title: Ensure public network access for SQL server is blocked or Limited to Use Selected Networks Instead of All Networks
     impact: 80
