@@ -1673,7 +1673,7 @@ queries:
       asset.platform == "azure-mysql-flexible-server"
     mql: |
       azure.subscription.mySql.flexibleServer.configuration.where(name == "require_secure_transport").all(value.downcase == "on")
-
+      azure.subscription.mySql.flexibleServer.configuration.where(name == "tls_version").all(value.downcase == "tlsv1.2")
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-single-legacy
     filters: |
       asset.platform == "azure-mysql-server"
@@ -1681,6 +1681,8 @@ queries:
     mql: |
       azure.subscription.mySql.server.properties.sslEnforcement == "Enabled"
       azure.subscription.mySql.server.properties.minimalTlsVersion == "TLS1_2"
+      azure.subscription.mySql.flexibleServers.all(configuration.where(name == "require_secure_transport").all(value.downcase == "on"))
+      azure.subscription.mySql.flexibleServers.all(configuration.where(name == "tls_version").all(value.downcase == "tlsv1.2"))
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-latest-version-mysql-api
     filters: |
       asset.platform == "azure"
