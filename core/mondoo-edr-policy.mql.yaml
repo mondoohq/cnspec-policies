@@ -19,6 +19,11 @@ policies:
 
         By implementing this policy, we take a proactive approach to instill confidence in our security posture and reinforce our commitment to safeguarding sensitive data, critical assets, and the integrity of our digital infrastructure.
 
+        Additionally, it is highly recommended that antivirus signatures are updated daily to ensure protection against the latest threats. For instance, Windows Defender signatures can be updated using the following PowerShell command:
+  
+        ```powershell
+        Update-MpSignature
+
         ## Local scan
 
         Local scan refer to scans of files and operating systems where cnspec is installed.
@@ -110,7 +115,7 @@ queries:
       - uid: mondoo-edr-policy-ensure-eset-agent-is-running-macos
       - uid: mondoo-edr-policy-ensure-eset-agent-is-running-linux
       - uid: mondoo-edr-policy-ensure-eset-agent-is-running-windows
-      - uid: mondoo-edr-policy-ensure-defender-agent-is-running-windows
+      - uid: mondoo-edr-policy-ensure-defender-agent-is-running-and-updated-windows
   - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-macos
     filters: |
       asset.platform == 'macos'
@@ -185,10 +190,11 @@ queries:
     mql: |
       service('EraAgentSvc').running
       service('EraAgentSvc').enabled
-  - uid: mondoo-edr-policy-ensure-defender-agent-is-running-windows
+  - uid: mondoo-edr-policy-ensure-defender-agent-is-running-and-updated-windows
     filters: |
       asset.family.contains('windows')
       service('WinDefend').installed
     mql: |
       service('WinDefend').running
       service('WinDefend').enabled
+      powershell("Get-MpComputerStatus | Select-Object -Property AntivirusSignatureAge").stdout.trim == /0/
