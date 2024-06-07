@@ -23,6 +23,7 @@ policies:
   
         ```powershell
         Update-MpSignature
+        ```
 
         ## Local scan
 
@@ -197,4 +198,4 @@ queries:
     mql: |
       service('WinDefend').running
       service('WinDefend').enabled
-      powershell("Get-MpComputerStatus | Select-Object -Property AntivirusSignatureAge").stdout.trim == /0/
+      parse.json(content: powershell("Get-MpComputerStatus | Select-Object -Property AntivirusSignatureAge | ConvertTo-JSON").stdout).params.AntivirusSignatureAge == 0
