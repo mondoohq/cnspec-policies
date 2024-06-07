@@ -3,7 +3,7 @@
 policies:
   - uid: mondoo-edr-policy
     name: Endpoint Detection and Response (EDR) Policy
-    version: 1.2.1
+    version: 1.3.0
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
@@ -88,7 +88,7 @@ queries:
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-windows
     filters: asset.family.contains('windows')
     mql: |
-      package('CrowdStrike Sensor Platform').installed || package('Sentinel Agent').installed || package('ESET Endpoint Security').installed || package('ESET Server Security').installed
+      package('CrowdStrike Sensor Platform').installed || package('Sentinel Agent').installed || package('ESET Endpoint Security').installed || package('ESET Server Security').installed || service('WinDefend').installed
 
   - uid: mondoo-edr-policy-ensure-edr-agent-is-running
     title: Ensure EDR Agent is running
@@ -110,6 +110,7 @@ queries:
       - uid: mondoo-edr-policy-ensure-eset-agent-is-running-macos
       - uid: mondoo-edr-policy-ensure-eset-agent-is-running-linux
       - uid: mondoo-edr-policy-ensure-eset-agent-is-running-windows
+      - uid: mondoo-edr-policy-ensure-defender-agent-is-running-windows
   - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-macos
     filters: |
       asset.platform == 'macos'
@@ -184,3 +185,9 @@ queries:
     mql: |
       service('EraAgentSvc').running
       service('EraAgentSvc').enabled
+  - uid: mondoo-edr-policy-ensure-defender-agent-is-running-windows
+    filters: |
+      asset.family.contains('windows')
+    mql: |
+      service('WinDefend').running
+      service('WinDefend').enabled
