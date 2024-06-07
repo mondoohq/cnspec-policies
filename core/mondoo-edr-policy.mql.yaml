@@ -188,6 +188,7 @@ queries:
   - uid: mondoo-edr-policy-ensure-defender-agent-is-running-windows
     filters: |
       asset.family.contains('windows')
+      service('WinDefend').installed
     mql: |
       service('WinDefend').running
       service('WinDefend').enabled
