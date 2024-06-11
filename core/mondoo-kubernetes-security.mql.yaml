@@ -4250,10 +4250,24 @@ queries:
   - uid: mondoo-kubernetes-security-pod-imagepull
     title: Container image pull should be consistent
     impact: 60
+    props:
+      - uid: excludedByFixedImages
+        title: Exclude containers from the check when using fixed images using hash values.
+        mql: |
+          return [
+            # Add container images <image-name>@<digest>
+            # image@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+          ]
     mql: |
-      k8s.pod.ephemeralContainers.all( imagePullPolicy == 'Always' && image != /:latest/ && image.contains(':') == true )
-      k8s.pod.initContainers.all( imagePullPolicy == 'Always' && image != /:latest/ && image.contains(':') == true )
-      k8s.pod.containers.all( imagePullPolicy == 'Always' && image != /:latest/ && image.contains(':') == true )
+      k8s.pod.ephemeralContainers
+        .where(image.in(props.excludedByFixedImages) != true)
+        .all( imagePullPolicy == 'Always' && image != /:latest/ && image.contains(':') == true )
+      k8s.pod.initContainers
+        .where(image.in(props.excludedByFixedImages) != true)
+        .all( imagePullPolicy == 'Always' && image != /:latest/ && image.contains(':') == true )
+      k8s.pod.containers
+        .where(image.in(props.excludedByFixedImages) != true)
+        .all( imagePullPolicy == 'Always' && image != /:latest/ && image.contains(':') == true )
     docs:
       desc: |
         It's important that each time a pod is started the same container is pulled, so that services across pods behave the same. To ensure the same container is always used, manifests should set `imagePullPolicy: Always` and the `image` configuration should pull either a tag or a digest (SHA).
