@@ -7,6 +7,9 @@
 
 \b[Ll]orem [Ii]psum\b
 
+# Mondoo PR links
+\bhttps:\/\/github.com\/mondoohq\/.*\/pull\/\d*
+
 #
 # Terms to avoid
 #
@@ -65,6 +68,7 @@
 
 # s.b. Docker Hub
 \bDocker[Hh]ub\b
+\bdocker hub\b
 
 # s.b. REST API
 \b[Rr]est API\b
@@ -85,6 +89,9 @@
 #
 # Product Names
 #
+
+# s.b. Memcached
+\bMemCached\b
 
 # s.b. Jira
 \bJIRA\b
@@ -289,6 +296,13 @@
 \bLinked In\b
 \bLinkedin\b
 
+# s.b. Microsoft IIS
+\bIIS Server\b
+
+# s.b. Microsoft SQL Server
+\bSQL server\b
+\bMSSQL\b
+
 #
 # VMware Products
 #
@@ -458,7 +472,7 @@
 \bWorkmail\b
 
 #
-# GCP Products
+# Google Cloud Products
 #
 
 # s.b. AlloyDB
@@ -469,9 +483,11 @@
 
 # s.b. BigLake
 \bBig Lake\b
+\bBiglake\b
 
 # s.b. BigQuery
 \bBig Query\b
+\bBigquery\b
 
 # s.b. Cloud Build
 \bCloudBuild\b
@@ -529,6 +545,16 @@
 # s.b. VMware Engine
 \bVMware engine\b
 \bVMWare Engine\b
+
+# s.b. Bigtable
+\bBigTable\b
+\bBig Table\b
+
+# s.b. Datastore
+\bDataStore\b
+
+# s.b. Memorystore
+\bMemoryStore\b
 
 #
 # Azure Products
