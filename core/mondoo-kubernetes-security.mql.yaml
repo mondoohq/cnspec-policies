@@ -2638,27 +2638,17 @@ queries:
   - uid: mondoo-kubernetes-security-pod-runasnonroot
     title: Container should not run as root
     impact: 100
+    filters: k8s.pod.annotations['policies.k8s.mondoo.com/mondoo-kubernetes-security-pod-runasnonroot'] != 'ignore'
     mql: |
-      if (k8s.pod.annotations['policies.k8s.mondoo.com/mondoo-kubernetes-security-pod-runasnonroot'] != 'ignore') {
-        k8s.pod {
-          podSecurityContext=podSpec['securityContext']
-          ephemeralContainers {
-            a = podSecurityContext['runAsNonRoot'] == true && securityContext['runAsNonRoot'] == null
-            res = securityContext['runAsNonRoot'] == true || a
-            res == true
-          }
-          initContainers {
-            a = podSecurityContext['runAsNonRoot'] == true && securityContext['runAsNonRoot'] == null
-            res = securityContext['runAsNonRoot'] == true || a
-            res == true
-          }
-          containers {
-            a = podSecurityContext['runAsNonRoot'] == true && securityContext['runAsNonRoot'] == null
-            res = securityContext['runAsNonRoot'] == true || a
-            res == true
-          }
-        }
-      }
+      k8s.pod.containers.all(securityContext['runAsNonRoot'] == true)
+        || k8s.pod.containers.all(securityContext['runAsNonRoot'] == empty)
+        && k8s.pod.podSpec.securityContext.runAsNonRoot == true
+      k8s.pod.initContainers.all(securityContext['runAsNonRoot'] == true)
+        || k8s.pod.initContainers.all(securityContext['runAsNonRoot'] == empty)
+        && k8s.pod.podSpec.securityContext.runAsNonRoot == true
+      k8s.pod.ephemeralContainers.all(securityContext['runAsNonRoot'] == true)
+        || k8s.pod.ephemeralContainers.all(securityContext['runAsNonRoot'] == empty)
+        && k8s.pod.podSpec.securityContext.runAsNonRoot == true
     docs:
       desc: |
         Set the `runAsNonRoot: true` `securityContext` to ensure containers do not run as the root user.
