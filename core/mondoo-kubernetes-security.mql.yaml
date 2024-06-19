@@ -2888,8 +2888,12 @@ queries:
     title: Container should not run as root
     impact: 100
     mql: |
-      k8s.deployment.containers.all( securityContext['runAsNonRoot'] == true )
-      k8s.deployment.initContainers.all( securityContext['runAsNonRoot'] == true )
+      k8s.deployment.containers.all(securityContext['runAsNonRoot'] == true)
+        || k8s.deployment.containers.all(securityContext['runAsNonRoot'] == empty)
+        && k8s.deployment.podSpec.securityContext.runAsNonRoot == true
+      k8s.deployment.initContainers.all(securityContext['runAsNonRoot'] == true)
+        || k8s.deployment.initContainers.all(securityContext['runAsNonRoot'] == empty)
+        && k8s.deployment.podSpec.securityContext.runAsNonRoot == true
     docs:
       desc: |
         Set the `runAsNonRoot: true` `securityContext` to ensure containers do not run as the root user.
