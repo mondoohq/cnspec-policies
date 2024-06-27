@@ -2192,7 +2192,7 @@ queries:
     mql: |
       ["/etc/systemd/journald.conf"].where(file(_).exists) {
         file(_) {
-          parse.ini("/etc/systemd/journald.conf").sections["Journal"]["ForwardToSyslog"].downcase == "yes"
+          parse.ini("/etc/systemd/journald.conf").sections["Journal"]["ForwardToSyslog"].upcase.downcase == "yes"
         }
       }
     docs:
