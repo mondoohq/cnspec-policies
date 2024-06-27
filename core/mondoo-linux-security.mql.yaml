@@ -735,8 +735,8 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      service("telnet.socket").enabled == false
       service("telnet.socket").running == false
+      service("telnet.socket").enabled == false
     docs:
       desc: The `telnet-server` package contains the `telnet` daemon, which accepts connections from users from other systems via the `telnet` protocol.
       remediation: |-
