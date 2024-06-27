@@ -1090,10 +1090,10 @@ queries:
     title: Ensure IPv6 router advertisements are not accepted
     impact: 75
     mql: |
-      kernel.parameters['net.ipv6.conf.all.accept_ra'] == 0
-        || kernel.parameters['net.ipv6.conf.all.accept_ra'] == null
       kernel.parameters['net.ipv6.conf.default.accept_ra'] == 0
         || kernel.parameters['net.ipv6.conf.default.accept_ra'] == null
+      kernel.parameters['net.ipv6.conf.all.accept_ra'] == 0
+        || kernel.parameters['net.ipv6.conf.all.accept_ra'] == null
     docs:
       desc: This setting disables the system's ability to accept IPv6 router advertisements.
       remediation: |-
