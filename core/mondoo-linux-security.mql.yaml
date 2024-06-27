@@ -1244,9 +1244,9 @@ queries:
       file("/etc/audit/auditd.conf").exists;
       ["/etc/audit/auditd.conf"].where(file(_).exists) {
         parse.ini(_) {
-          params["space_left_action"].downcase == /email|exec|single|halt/
-          params["action_mail_acct"].downcase == "root"
-          params["admin_space_left_action"].downcase == /halt|single/
+          params["space_left_action"].upcase.downcase == /email|exec|single|halt/
+          params["action_mail_acct"].upcase.downcase == "root"
+          params["admin_space_left_action"].upcase.downcase == /halt|single/
         }
       }
     docs:
