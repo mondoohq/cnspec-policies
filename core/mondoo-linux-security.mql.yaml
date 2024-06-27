@@ -752,8 +752,8 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      service("tftp.socket").enabled == false
       service("tftp.socket").running == false
+      service("tftp.socket").enabled == false
     docs:
       desc: Trivial File Transfer Protocol (TFTP) is a simple file transfer protocol, typically used to automatically transfer configuration or boot machines from a boot server. The package `tftp-server` is used to define and support a TFTP server.
       remediation: |-
