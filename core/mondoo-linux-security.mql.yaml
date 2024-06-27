@@ -786,8 +786,8 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      service("ntalk").enabled == false
       service("ntalk").running == false
+      service("ntalk").enabled == false
     docs:
       desc: The talk software allows users to send and receive messages across systems through a terminal session. The talk client (allows initiate of talk sessions) is installed by default.
       remediation: |-
