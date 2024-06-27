@@ -2958,7 +2958,7 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      logindefs.params{ _['UID_MIN'] == 1000 }
+      logindefs.params.UID_MIN == 1000
     docs:
       desc: |
         User ID or UID is used to identify a Linux user with an ID or number. The start number for newly created users can be set with this configuration.
