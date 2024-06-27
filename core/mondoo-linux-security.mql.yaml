@@ -769,8 +769,8 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      service("rsyncd").enabled == false
       service("rsyncd").running == false
+      service("rsyncd").enabled == false
     docs:
       desc: The `rsyncd` service can be used to synchronize files between systems over network links.
       remediation: |-
