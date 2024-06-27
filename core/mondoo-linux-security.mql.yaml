@@ -2493,8 +2493,7 @@ queries:
           return ["umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
                   "umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512"]
     mql: |
-      sshd.config.macs != null
-      sshd.config.macs != []
+      sshd.config.macs != empty
       sshd.config.macs.containsOnly(props.macAlgosMondoo)
     docs:
       desc: This variable limits the types of MAC algorithms that SSH can use during communication.
