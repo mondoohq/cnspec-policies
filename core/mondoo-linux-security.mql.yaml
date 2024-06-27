@@ -359,7 +359,7 @@ queries:
     title: Ensure address space layout randomization (ASLR) is enabled
     impact: 90
     mql: |
-      kernel.parameters["kernel.randomize_va_space"] == 2
+      kernel.parameters["kernel.randomize_va_space"].downcase == 2
     docs:
       desc: Address space layout randomization (ASLR) is an exploit mitigation technique which randomly arranges the address space of key data areas of a process.
       remediation: |-
