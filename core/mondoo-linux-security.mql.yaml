@@ -2489,7 +2489,7 @@ queries:
     title: Ensure only strong MAC algorithms are used
     impact: 80
     props:
-      - uid: macAlgos
+      - uid: macAlgosMondoo
         title: Define the accepted MAC algorithms
         mql: |
           return ["umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
@@ -2497,7 +2497,7 @@ queries:
     mql: |
       sshd.config.macs != null
       sshd.config.macs != []
-      sshd.config.macs.containsOnly(props.macAlgos)
+      sshd.config.macs.containsOnly(props.macAlgosMondoo)
     docs:
       desc: This variable limits the types of MAC algorithms that SSH can use during communication.
       remediation: |-
