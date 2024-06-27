@@ -1118,8 +1118,8 @@ queries:
     title: Ensure auditd is installed
     impact: 50
     mql: |
-      package("auditd").installed && package("audispd-plugins").installed
-      || package("audit").installed || package("audit-libs").installed
+      package("auditd").installed == true && package("audispd-plugins").installed == true
+      || package("audit").installed == true || package("audit-libs").installed == true
     docs:
       desc: auditd is the user space component to the Linux Auditing System. It's responsible for writing audit records to the disk
       remediation: |-
