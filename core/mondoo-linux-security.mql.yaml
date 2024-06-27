@@ -2868,7 +2868,7 @@ queries:
     title: Ensure no duplicate user names exist
     impact: 80
     mql: |
-      users.list.duplicates(name).none()
+      users.list.duplicates(name) == empty
     docs:
       desc: |
         Each login name, each user ID (UID), and each group ID (GID) MUST ONLY be used once. Every user MUST be a member of at least one group. Every GID mentioned in the /etc/passwd file MUST be defined in the /etc/group file. Every group SHOULD only contain the users that are absolutely necessary. In networked systems, care MUST also be taken to ensure that user and group names (UIDs and GIDs) are assigned consistently in the system network if there is a possibility that the same UIDs or GIDs could be assigned to different user or group names on the systems during cross-system access.
