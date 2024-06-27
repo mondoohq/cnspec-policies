@@ -248,11 +248,6 @@ queries:
        || command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide --check"))
          || command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide.conf --check"))
            || service('aidecheck').enabled
-
-      file("/etc/default/aide").exists && ["/etc/default/aide"].where(file(_).exists).all(parse.ini(_).params["CRON_DAILY_RUN"] == "yes") ||
-      command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide --check")) ||
-      command("crontab -u root -l | grep aide").stdout.lines.where(/^[^#]/).any(_.contains("aide.conf --check")) ||
-      service('aidecheck').enabled
     docs:
       desc: Periodic checking of the filesystem integrity is needed to detect changes to the filesystem.
       remediation: |-
@@ -317,10 +312,10 @@ queries:
       asset.kind != "container-image"
     impact: 75
     mql: |
+      kernel.parameters['fs.suid_dumpable'] == 0
       file("/etc/security/limits.conf").content.lines.where( _ == /^[^#]/ ).where( _.contains("core") ) {
         _ == /\*\s+hard\s+core\s+0/
       }
-      kernel.parameters['fs.suid_dumpable'] == 0
       if(service("coredump").enabled || service("coredump").running) {
         parse.ini("/etc/systemd/coredump.conf").sections['Coredump']['ProcessSizeMax'] == 0
         parse.ini("/etc/systemd/coredump.conf").sections['Coredump']['Storage'] == 'none'
