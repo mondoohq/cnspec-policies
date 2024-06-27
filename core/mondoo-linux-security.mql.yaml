@@ -1138,7 +1138,7 @@ queries:
     title: Ensure auditd service is enabled
     impact: 50
     mql: |
-      service("auditd").enabled
+      service("auditd").enabled == true
     docs:
       desc: |-
         Turn on the `auditd`
