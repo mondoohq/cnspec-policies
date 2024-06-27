@@ -1205,7 +1205,7 @@ queries:
     mql: |
       file("/etc/audit/auditd.conf").exists;
       ["/etc/audit/auditd.conf"].where(file(_).exists) {
-        parse.ini(_).params["max_log_file"] > 0
+        parse.ini(_).params["max_log_file"].downcase > 0
       }
     docs:
       desc: Configure the maximum size of the audit log file. Once the log reaches the maximum size, it will be rotated and a new log file will be started.
