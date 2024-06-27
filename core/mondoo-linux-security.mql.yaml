@@ -378,7 +378,8 @@ queries:
     title: Ensure prelink is disabled
     impact: 70
     mql: |
-      package("prelink").installed == false
+      # package("prelink").installed == false
+      package("prelink").installed != true
     docs:
       desc: The `prelink` command changes binaries in an attempt to decrease their startup time. Prelinking can interfere with the operation of AIDE, because it changes binaries. Prelinking can also increase the vulnerability of the system if a malicious user is able to compromise a common library such as libc.
       remediation: |-
