@@ -203,7 +203,7 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      package("aide").installed
+      package("aide").installed == true
     docs:
       desc: Advanced Intrusion Detection Environment (AIDE) takes a snapshot of the filesystem state, including modification times, permissions, and file hashes. Administrators can then use this to compare against the current state of the filesystem to detect modifications to the system.
       remediation: |-
@@ -2146,7 +2146,7 @@ queries:
     title: Ensure rsyslog is installed
     impact: 50
     mql: |
-      package("rsyslog").installed
+      package("rsyslog").installed == true
     docs:
       desc: |-
         The `rsyslog`
@@ -2163,7 +2163,7 @@ queries:
     title: Ensure rsyslog Service is enabled
     impact: 50
     mql: |
-      service("rsyslog").enabled
+      service("rsyslog").enabled == true
     docs:
       desc: Once the `rsyslog` package is installed it needs to be enabled.
       remediation: |-
