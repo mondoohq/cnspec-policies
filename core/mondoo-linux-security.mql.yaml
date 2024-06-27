@@ -692,8 +692,8 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      service("ypserv").enabled == false
       service("ypserv").running == false
+      service("ypserv").enabled == false
     docs:
       desc: The Network Information Service (NIS) (formally known as Yellow Pages) is a client-server directory service protocol for distributing system configuration files. The NIS server is a collection of programs that allow for the distribution of configuration files.
       remediation: |-
