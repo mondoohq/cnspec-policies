@@ -859,14 +859,14 @@ queries:
     title: Ensure source routed packets are not accepted
     impact: 75
     mql: |
-      kernel.parameters['net.ipv4.conf.all.accept_source_route'] == 0
-        || kernel.parameters['net.ipv4.conf.all.accept_source_route'] == null
-      kernel.parameters['net.ipv4.conf.default.accept_source_route'] == 0
-        || kernel.parameters['net.ipv4.conf.default.accept_source_route'] == null
       kernel.parameters['net.ipv6.conf.all.accept_source_route'] == 0
         || kernel.parameters['net.ipv6.conf.all.accept_source_route'] == null
       kernel.parameters['net.ipv6.conf.default.accept_source_route'] == 0
         || kernel.parameters['net.ipv6.conf.default.accept_source_route'] == null
+      kernel.parameters['net.ipv4.conf.all.accept_source_route'] == 0
+        || kernel.parameters['net.ipv4.conf.all.accept_source_route'] == null
+      kernel.parameters['net.ipv4.conf.default.accept_source_route'] == 0
+        || kernel.parameters['net.ipv4.conf.default.accept_source_route'] == null
     docs:
       desc: In networking, source routing allows a sender to partially or fully specify the route packets take through a network. In contrast, non-source routed packets travel a path determined by routers in the network. In some cases, systems may not be routable or reachable from some locations (e.g. private addresses vs. Internet routable), and so source routed packets would need to be used.
       remediation: |-
