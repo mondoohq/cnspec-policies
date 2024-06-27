@@ -831,10 +831,10 @@ queries:
     title: Ensure packet redirect sending is disabled
     impact: 75
     mql: |
-      kernel.parameters['net.ipv4.conf.all.send_redirects'] == 0
-        || kernel.parameters['net.ipv4.conf.all.send_redirects'] == null
       kernel.parameters['net.ipv4.conf.default.send_redirects'] == 0
         || kernel.parameters['net.ipv4.conf.default.send_redirects'] == null
+      kernel.parameters['net.ipv4.conf.all.send_redirects'] == 0
+        || kernel.parameters['net.ipv4.conf.all.send_redirects'] == null
     docs:
       desc: ICMP Redirects are used to send routing information to other hosts. As a host itself does not act as a router (in a host-only configuration), there is no need to send redirects.
       remediation: |-
