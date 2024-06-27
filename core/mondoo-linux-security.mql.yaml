@@ -709,12 +709,12 @@ queries:
     filters: |
       asset.kind != "container-image"
     mql: |
-      service("rsh.socket").enabled == false
-      service("rlogin.socket").enabled == false
-      service("rexec.socket").enabled == false
       service("rsh.socket").running == false
       service("rlogin.socket").running == false
       service("rexec.socket").running == false
+      service("rsh.socket").enabled == false
+      service("rlogin.socket").enabled == false
+      service("rexec.socket").enabled == false
     docs:
       desc: The Berkeley `rsh-server` ( `rsh`, `rlogin`, `rexec` ) package contains legacy services that exchange credentials in clear-text.
       remediation: |-
