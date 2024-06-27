@@ -998,7 +998,8 @@ queries:
     title: Ensure broadcast ICMP requests are ignored
     impact: 60
     mql: |
-      kernel.parameters['net.ipv4.icmp_echo_ignore_broadcasts'] == 1
+      # kernel.parameters['net.ipv4.icmp_echo_ignore_broadcasts'] == 1
+      kernel.parameters['net.ipv4.icmp_echo_ignore_broadcasts'].downcase == 1
     docs:
       desc: Setting `net.ipv4.icmp_echo_ignore_broadcasts` to 1 will cause the system to ignore all ICMP echo and timestamp requests to broadcast and multicast addresses.
       remediation: |-
