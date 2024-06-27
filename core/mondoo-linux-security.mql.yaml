@@ -1222,7 +1222,7 @@ queries:
     mql: |
       file("/etc/audit/auditd.conf").exists;
       ["/etc/audit/auditd.conf"].where(file(_).exists) {
-        parse.ini(_).params["max_log_file_action"].downcase == "keep_logs"
+        parse.ini(_).params["max_log_file_action"].upcase.downcase == "keep_logs"
       }
     docs:
       desc: |-
