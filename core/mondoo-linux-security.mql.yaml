@@ -1020,7 +1020,8 @@ queries:
     title: Ensure bogus ICMP responses are ignored
     impact: 75
     mql: |
-      kernel.parameters['net.ipv4.icmp_ignore_bogus_error_responses'] == 1
+      # kernel.parameters['net.ipv4.icmp_ignore_bogus_error_responses'] == 1
+      kernel.parameters['net.ipv4.icmp_ignore_bogus_error_responses'].downcase == 1
     docs:
       desc: Setting `icmp_ignore_bogus_error_responses` to 1 prevents the kernel from logging bogus responses (RFC-1122 non-compliant) from broadcast reframes, keeping file systems from filling up with useless log messages.
       remediation: |-
