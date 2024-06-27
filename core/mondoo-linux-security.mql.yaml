@@ -2916,7 +2916,7 @@ queries:
     title: Ensure default group for the root account is GID 0
     impact: 80
     mql: |
-      users.where(name == "root").list.all(gid == 0)
+      users.where(name == "root").list.none(gid != 0)
     docs:
       desc: |
         The usermod command can be used to specify which group the root user belongs to. This affects permissions of files that are created by the root user.
