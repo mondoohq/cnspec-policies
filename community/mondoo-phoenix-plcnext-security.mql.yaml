@@ -118,7 +118,7 @@ queries:
         mql: |
           return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group-exchange-sha256"]
     mql: |
-      sshd.config.kexs != null
+      sshd.config.kexs != empty
       sshd.config.kexs.containsOnly(props.PLCKexAlgos)
     docs:
       desc: Key exchange is any method in cryptography by which cryptographic keys are exchanged between two parties, allowing use of a cryptographic algorithm. If the sender and receiver wish to exchange encrypted messages, each must be equipped to encrypt messages to be sent and decrypt messages received
