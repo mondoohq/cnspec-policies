@@ -1042,8 +1042,8 @@ queries:
     title: Ensure Reverse Path Filtering is enabled
     impact: 75
     mql: |
-      kernel.parameters['net.ipv4.conf.all.rp_filter'] == 1
       kernel.parameters['net.ipv4.conf.default.rp_filter'] == 1
+      kernel.parameters['net.ipv4.conf.all.rp_filter'] == 1
     docs:
       desc: Setting `net.ipv4.conf.all.rp_filter`and `net.ipv4.conf.default.rp_filter` to 1 forces the Linux kernel to utilize reverse path filtering on a received packet to determine if the packet was valid. Essentially, with reverse path filtering, if the return packet does not go out the same interface that the corresponding source packet came from, the packet is dropped (and logged if `log_martians` is set).
       remediation: |-
