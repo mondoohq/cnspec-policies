@@ -1155,11 +1155,11 @@ queries:
     impact: 50
     mql: |
       switch {
-        case file("/boot/grub2/grubenv").exists:
-          file("/boot/grub2/grubenv").content.lines.where( _ == /^[^#]/ )
-            .any(_ == /audit(\s+)?\=(\s+)?1/);
         case file("/boot/grub2/grub.cfg").exists:
           file("/boot/grub2/grub.cfg").content.lines.where( _ == /^[^#]/ )
+            .any(_ == /audit(\s+)?\=(\s+)?1/);
+        case file("/boot/grub2/grubenv").exists:
+          file("/boot/grub2/grubenv").content.lines.where( _ == /^[^#]/ )
             .any(_ == /audit(\s+)?\=(\s+)?1/);
         case file("/boot/grub/grub.cfg").exists:
           file("/boot/grub/grub.cfg").content.lines.where( _ == /^[^#]/ )
