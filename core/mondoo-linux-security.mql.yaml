@@ -2506,7 +2506,7 @@ queries:
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
     props:
-      - uid: kexAlgos
+      - uid: kexAlgosMondoo
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
           if( package('openssh-server').version == /6./) {
@@ -2521,7 +2521,7 @@ queries:
           return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
     mql: |
       sshd.config.kexs != empty
-      sshd.config.kexs.containsOnly(props.kexAlgos)
+      sshd.config.kexs.containsOnly(props.kexAlgosMondoo)
     docs:
       desc: Key exchange is any method in cryptography by which cryptographic keys are exchanged between two parties, allowing use of a cryptographic algorithm. If the sender and receiver wish to exchange encrypted messages, each must be equipped to encrypt messages to be sent and decrypt messages received
       remediation: |-
