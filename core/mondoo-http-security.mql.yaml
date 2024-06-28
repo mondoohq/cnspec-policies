@@ -48,7 +48,7 @@ policies:
       - title: Headers for HTTPS communication
         filters: |
           asset.platform == 'host'
-          tls.certificates != null
+          tls.certificates != empty
         checks:
           - uid: mondoo-http-security-strict-transport-security
     scoring_system: highest impact

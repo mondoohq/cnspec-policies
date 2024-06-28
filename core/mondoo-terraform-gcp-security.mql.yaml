@@ -610,7 +610,7 @@ queries:
     mql: |
       terraform.resources.where( nameLabel  == "google_compute_instance" && blocks.one( type == "service_account") ) {
         blocks.where( type == "service_account" ) {
-          attributes['email'] != null
+          attributes['email'] != empty
         }
       }
       terraform.resources.where( nameLabel  == "google_compute_instance" && blocks.one( type == "service_account") ) {

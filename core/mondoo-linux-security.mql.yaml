@@ -2468,8 +2468,7 @@ queries:
           }
           return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
     mql: |
-      sshd.config.ciphers != null
-      sshd.config.ciphers != []
+      sshd.config.ciphers != empty
       sshd.config.ciphers.containsOnly(props.MondooSshdCiphers)
     docs:
       desc: This variable limits the ciphers that SSH can use during communication.
@@ -2491,8 +2490,7 @@ queries:
           return ["umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
                   "umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512"]
     mql: |
-      sshd.config.macs != null
-      sshd.config.macs != []
+      sshd.config.macs != empty
       sshd.config.macs.containsOnly(props.macAlgos)
     docs:
       desc: This variable limits the types of MAC algorithms that SSH can use during communication.
@@ -2522,8 +2520,7 @@ queries:
           }
           return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
     mql: |
-      sshd.config.kexs != null
-      sshd.config.kexs != []
+      sshd.config.kexs != empty
       sshd.config.kexs.containsOnly(props.kexAlgos)
     docs:
       desc: Key exchange is any method in cryptography by which cryptographic keys are exchanged between two parties, allowing use of a cryptographic algorithm. If the sender and receiver wish to exchange encrypted messages, each must be equipped to encrypt messages to be sent and decrypt messages received
@@ -2594,12 +2591,12 @@ queries:
     title: Ensure SSH access is limited
     impact: 60
     mql: |
-      sshd.config.params["AllowUsers"] != null || sshd.config.params["AllowGroups"] != null || sshd.config.params["DenyUsers"] != null || sshd.config.params["DenyGroups"] != null
+      sshd.config.params["AllowUsers"] != empty || sshd.config.params["AllowGroups"] != empty || sshd.config.params["DenyUsers"] != empty || sshd.config.params["DenyGroups"] != empty
 
-      if (sshd.config.params["AllowUsers"] != null) { sshd.config.params["AllowUsers"] != "" }
-      if (sshd.config.params["AllowGroups"] != null) { sshd.config.params["AllowGroups"] != "" }
-      if (sshd.config.params["DenyUsers"] != null) { sshd.config.params["DenyUsers"] != "" }
-      if (sshd.config.params["DenyGroups"] != null) { sshd.config.params["DenyGroups"] != "" }
+      if (sshd.config.params["AllowUsers"] != empty) { sshd.config.params["AllowUsers"] != "" }
+      if (sshd.config.params["AllowGroups"] != empty) { sshd.config.params["AllowGroups"] != "" }
+      if (sshd.config.params["DenyUsers"] != empty) { sshd.config.params["DenyUsers"] != "" }
+      if (sshd.config.params["DenyGroups"] != empty) { sshd.config.params["DenyGroups"] != "" }
     docs:
       desc: |-
         There are several options available to limit which users and groups can access the system via SSH. It is recommended that at least one of the following options be leveraged: `AllowUsers`

@@ -1211,7 +1211,7 @@ queries:
 
         ```mql
           aws.s3.buckets.all(
-            publicAccessBlock != null && publicAccessBlock.values.all(_ == true)
+            publicAccessBlock != empty && publicAccessBlock.values.all(_ == true)
           )
         ```
 
@@ -2393,7 +2393,7 @@ queries:
 
         ```mql
         aws.cloudtrail.trails.all(
-          kmsKey != null
+          kmsKey != empty
         )
         ```
 
