@@ -236,7 +236,7 @@ policies:
           - uid: mondoo-kubernetes-security-pod-tiller
     scoring_system: highest impact
 props:
-  - uid: allowedCiphers
+  - uid: allowedCiphersMondoo
     title: Define the hardened SSL/ TLS ciphers
     mql: |
       return ["TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256",
@@ -349,7 +349,7 @@ queries:
     title: Configure kubelet to use only strong cryptography
     impact: 100
     props:
-      - uid: allowedCiphers
+      - uid: allowedCiphersMondoo
         title: Define the hardened SSL/ TLS ciphers
         mql: |
           return ["TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256",
@@ -364,7 +364,7 @@ queries:
     mql: |
       kubelet.configuration['tlsCipherSuites'] != empty
       if (kubelet.configuration['tlsCipherSuites'] != empty) {
-        kubelet.configuration['tlsCipherSuites'].map( _.trim ).containsOnly(props.allowedCiphers)
+        kubelet.configuration['tlsCipherSuites'].map( _.trim ).containsOnly(props.allowedCiphersMondoo)
       }
     docs:
       desc: |
