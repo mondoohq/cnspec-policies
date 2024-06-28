@@ -2081,7 +2081,7 @@ queries:
     title: Ensure direct UDP access to Resources from the internet is restricted
     impact: 80
     props:
-      - uid: disallowedPortsUDP
+      - uid: disallowedPortsUDPMondoo
         title: a list of disallowed UDP ports, by default covering common UDP services, add more as needed
         mql: |
           return [
@@ -2165,7 +2165,7 @@ queries:
             && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
         )
       allNsgUDP.all(properties.destinationPortRange != "*")
-      props.disallowedPortsUDP {
+      props.disallowedPortsUDPMondoo {
         disallowedPortUDP = _
         disallowedPortUDP
         allNsgUDP.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP))
@@ -2183,7 +2183,7 @@ queries:
         )
       )
       allNsgUDP.all(securityRules.all(properties.destinationPortRange != "*"))
-      props.disallowedPortsUDP {
+      props.disallowedPortsUDPMondoo {
         disallowedPortUDP = _
         disallowedPortUDP
         allNsgUDP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortUDP && toPort >= disallowedPortUDP)))
