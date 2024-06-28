@@ -397,15 +397,15 @@ queries:
     title: Ensure active access keys are rotated
     impact: 70
     props:
-      - uid: maxAccessKeyAge
+      - uid: maxAccessKeyAgeMondoo
         title: Define the maximum number of days an IAM key is allowed to exist before rotation
         mql: "90"
     mql: |
-      aws.iam.credentialReport.where(accessKey1Active == true && time.now - userCreationTime > props.maxAccessKeyAge * time.day).all(time.now - accessKey1LastRotated < props.maxAccessKeyAge * time.day)
-      aws.iam.credentialReport.where(accessKey2Active == true && time.now - userCreationTime > props.maxAccessKeyAge * time.day).all(time.now - accessKey2LastRotated < props.maxAccessKeyAge * time.day)
+      aws.iam.credentialReport.where(accessKey1Active == true && time.now - userCreationTime > props.maxAccessKeyAgeMondoo * time.day).all(time.now - accessKey1LastRotated < props.maxAccessKeyAgeMondoo * time.day)
+      aws.iam.credentialReport.where(accessKey2Active == true && time.now - userCreationTime > props.maxAccessKeyAgeMondoo * time.day).all(time.now - accessKey2LastRotated < props.maxAccessKeyAgeMondoo * time.day)
     docs:
       desc: |
-        It is highly recommended that you regularly rotate (change) IAM user access keys to reduce the risk of unwanted access to your account. Change the value enforced in this check by modifying the maxAccessKeyAge property.
+        It is highly recommended that you regularly rotate (change) IAM user access keys to reduce the risk of unwanted access to your account. Change the value enforced in this check by modifying the maxAccessKeyAgeMondoo property.
       audit: |
         __cnspec shell__
 
