@@ -332,7 +332,7 @@ queries:
     title: Ensure that RDP access is restricted from the internet
     impact: 80
     props:
-      - uid: disallowedPortsRDP
+      - uid: disallowedPortsRDPMondoo
         title: a list of disallowed TCP ports, by default RDP listens only on TCP port 3389, add more ports as needed
         mql: |
           return [
@@ -419,7 +419,7 @@ queries:
             && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
         )
       allNsgTCP.all(properties.destinationPortRange != "*")
-      props.disallowedPortsRDP {
+      props.disallowedPortsRDPMondoo {
         disallowedPortRDP = _
         disallowedPortRDP
         allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP))
@@ -437,7 +437,7 @@ queries:
         )
       )
       allNsgTCP.all(securityRules.all(properties.destinationPortRange != "*"))
-      props.disallowedPortsRDP {
+      props.disallowedPortsRDPMondoo {
         disallowedPortRDP = _
         disallowedPortRDP
         allNsgTCP.all(securityRules.none(destinationPortRange.any(fromPort <= disallowedPortRDP && toPort >= disallowedPortRDP)))
