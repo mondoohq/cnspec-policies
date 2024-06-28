@@ -3027,7 +3027,7 @@ queries:
     filters: | 
       asset.kind != "container-image"
     props:
-      - uid: sudoGroup
+      - uid: sudoGroupMondoo
         title: Define the members of the sudo or wheel group
         mql: |
           return /root|ec2-user|centos|ubuntu|admin|mondoo/
@@ -3037,7 +3037,7 @@ queries:
       groups.where(name == "wheel" || name == "sudo") {
         members {
           name
-          name == props.sudoGroup
+          name == props.sudoGroupMondoo
         }
       }
     docs:
@@ -3069,7 +3069,7 @@ queries:
         ```
         wheel:x:10:root,<user list>
         ```
-        NOTE: The users allowed in the wheel group are defined in the properties `props.SudoGroup` field of this policy. By default the users "root", "ec2-user", "centos" and "ubuntu" are included. To include custom users you need to manually modify this policy. Otherwise the check will fail.
+        NOTE: The users allowed in the wheel group are defined in the properties `props.sudoGroupMondoo` field of this policy. By default the users "root", "ec2-user", "centos" and "ubuntu" are included. To include custom users you need to manually modify this policy. Otherwise the check will fail.
 
         If you want to lock down the use of the command `su` entirely instead, you need to create an empty group, for example `sugroup`:
 
