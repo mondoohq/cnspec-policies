@@ -2154,7 +2154,7 @@ queries:
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
     impact: 60
     props:
-      - uid: ebsVolumeDeleteOnTermination
+      - uid: ebsVolumeDeleteOnTerminationMondoo
         title: Defines whether instances should be configured to delete volumes on termination
         mql: "true"
     variants:
@@ -2232,7 +2232,7 @@ queries:
   - uid: mondoo-aws-security-ec2-volume-inuse-check-all
     filters: asset.platform == "aws"
     mql: |
-      aws.ec2.volumes.where(attachments != empty).all(attachments.any(DeleteOnTermination == props.ebsVolumeDeleteOnTermination))
+      aws.ec2.volumes.where(attachments != empty).all(attachments.any(DeleteOnTermination == props.ebsVolumeDeleteOnTerminationMondoo))
   - uid: mondoo-aws-security-ec2-volume-inuse-check-single
     filters: asset.platform == "aws-ec2-volume" && aws.ec2.volume.attachments != empty
     mql: |
