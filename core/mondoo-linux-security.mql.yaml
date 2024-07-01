@@ -2096,13 +2096,13 @@ queries:
     title: Ensure sudo logging is enabled
     impact: 80
     props:
-    - uid: MondooSudoersFiles
+    - uid: mondooLinuxSecuritySudoersFiles
       title: Return the files from /etc/sudoers.d
       mql: |
         sudoersFiles = files.find(from: "/etc/sudoers.d/", type: 'file').list.map(path) + ["/etc/sudoers"]
         return sudoersFiles.map(file(_).content.lines.where(_ == /^[^#]/)).flat
     mql: |
-      props.MondooSudoersFiles
+      props.mondooLinuxSecuritySudoersFiles
         .where(_ == /Defaults/)
         .any(_ == /logfile=\"\/var\/log\/sudo\.log\"/)
     docs:
@@ -2460,7 +2460,7 @@ queries:
     title: Ensure only strong ciphers are used
     impact: 100
     props:
-      - uid: MondooSshdCiphers
+      - uid: mondooLinuxSecuritySshdCiphers
         title: Define the hardened ciphers for all SSH configurations
         mql: |
           if( package('openssh-server').version == /6./ ) {
@@ -2469,7 +2469,7 @@ queries:
           return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
     mql: |
       sshd.config.ciphers != empty
-      sshd.config.ciphers.containsOnly(props.MondooSshdCiphers)
+      sshd.config.ciphers.containsOnly(props.mondooLinuxSecuritySshdCiphers)
     docs:
       desc: This variable limits the ciphers that SSH can use during communication.
       remediation: |-
@@ -2484,14 +2484,14 @@ queries:
     title: Ensure only strong MAC algorithms are used
     impact: 80
     props:
-      - uid: macAlgosMondoo
+      - uid: mondooLinuxSecurityMacAlgos
         title: Define the accepted MAC algorithms
         mql: |
           return ["umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com",
                   "umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512"]
     mql: |
       sshd.config.macs != empty
-      sshd.config.macs.containsOnly(props.macAlgosMondoo)
+      sshd.config.macs.containsOnly(props.mondooLinuxSecurityMacAlgos)
     docs:
       desc: This variable limits the types of MAC algorithms that SSH can use during communication.
       remediation: |-
@@ -2506,7 +2506,7 @@ queries:
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
     props:
-      - uid: kexAlgosMondoo
+      - uid: mondooLinuxSecurityKexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
           if( package('openssh-server').version == /6./) {
@@ -2521,7 +2521,7 @@ queries:
           return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
     mql: |
       sshd.config.kexs != empty
-      sshd.config.kexs.containsOnly(props.kexAlgosMondoo)
+      sshd.config.kexs.containsOnly(props.mondooLinuxSecurityKexAlgos)
     docs:
       desc: Key exchange is any method in cryptography by which cryptographic keys are exchanged between two parties, allowing use of a cryptographic algorithm. If the sender and receiver wish to exchange encrypted messages, each must be equipped to encrypt messages to be sent and decrypt messages received
       remediation: |-
@@ -3027,7 +3027,7 @@ queries:
     filters: | 
       asset.kind != "container-image"
     props:
-      - uid: sudoGroupMondoo
+      - uid: mondooLinuxSecuritySudoGroup
         title: Define the members of the sudo or wheel group
         mql: |
           return /root|ec2-user|centos|ubuntu|admin|mondoo/
@@ -3037,7 +3037,7 @@ queries:
       groups.where(name == "wheel" || name == "sudo") {
         members {
           name
-          name == props.sudoGroupMondoo
+          name == props.mondooLinuxSecuritySudoGroup
         }
       }
     docs:
@@ -3069,7 +3069,7 @@ queries:
         ```
         wheel:x:10:root,<user list>
         ```
-        NOTE: The users allowed in the wheel group are defined in the properties `props.sudoGroupMondoo` field of this policy. By default the users "root", "ec2-user", "centos" and "ubuntu" are included. To include custom users you need to manually modify this policy. Otherwise the check will fail.
+        NOTE: The users allowed in the wheel group are defined in the properties `props.mondooLinuxSecuritySudoGroup` field of this policy. By default the users "root", "ec2-user", "centos" and "ubuntu" are included. To include custom users you need to manually modify this policy. Otherwise the check will fail.
 
         If you want to lock down the use of the command `su` entirely instead, you need to create an empty group, for example `sugroup`:
 
