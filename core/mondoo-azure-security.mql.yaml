@@ -5,7 +5,6 @@ policies:
   - uid: mondoo-azure-security
     name: Microsoft Azure Security
     version: 2.0.1
-    version: 2.0.1
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
