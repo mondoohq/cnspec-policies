@@ -2096,11 +2096,11 @@ queries:
     title: Ensure sudo logging is enabled
     impact: 80
     props:
-    - uid: mondooLinuxSecuritySudoersFiles
-      title: Return the files from /etc/sudoers.d
-      mql: |
-        sudoersFiles = files.find(from: "/etc/sudoers.d/", type: 'file').list.map(path) + ["/etc/sudoers"]
-        return sudoersFiles.map(file(_).content.lines.where(_ == /^[^#]/)).flat
+      - uid: mondooLinuxSecuritySudoersFiles
+        title: Return the files from /etc/sudoers.d
+        mql: |
+          sudoersFiles = files.find(from: "/etc/sudoers.d/", type: 'file').list.map(path) + ["/etc/sudoers"]
+          return sudoersFiles.map(file(_).content.lines.where(_ == /^[^#]/)).flat
     mql: |
       props.mondooLinuxSecuritySudoersFiles
         .where(_ == /Defaults/)
