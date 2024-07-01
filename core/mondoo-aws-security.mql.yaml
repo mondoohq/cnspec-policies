@@ -5,7 +5,6 @@ policies:
   - uid: mondoo-aws-security
     name: AWS Security
     version: 3.0.1
-    version: 3.0.1
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
