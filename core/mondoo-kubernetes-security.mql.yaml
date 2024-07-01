@@ -5,7 +5,6 @@ policies:
   - uid: mondoo-kubernetes-security
     name: Kubernetes Cluster and Workload Security
     version: 1.2.1
-    version: 1.2.1
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
