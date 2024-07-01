@@ -3022,12 +3022,12 @@ queries:
     impact: 100
     filters: asset.family.contains('windows')
     props:
-      - uid: minimumPasswordLength
+      - uid: mondooWindowsSecurityMinimumPasswordLength
         title: Define the minimum password length
         mql: |
           14
     mql: |
-      secpol.systemaccess['MinimumPasswordLength'] >= props.minimumPasswordLength
+      secpol.systemaccess['MinimumPasswordLength'] >= props.mondooWindowsSecurityMinimumPasswordLength
     docs:
       desc: |-
         This policy setting determines the least number of characters that make up a password for a user account. There are many different theories about how to determine the best password length for an organization, but perhaps "passphrase" is a better term than "password." In Microsoft Windows 2000 and newer, passphrases can be quite long and can include spaces. Therefore, a phrase such as "I want to drink a $5 milkshake" is a valid passphrase; it is a considerably stronger password than an 8 or 10 character string of random numbers and letters, and yet is easier to remember. Users must be educated about the proper selection and maintenance of passwords, especially with regard to password length. In enterprise environments, the ideal value for the Minimum password length setting is 14 characters, however you should adjust this value to meet your organization's business requirements.
@@ -4484,12 +4484,12 @@ queries:
     impact: 60
     filters: asset.family.contains('windows')
     props:
-      - uid: maxIdleTime
+      - uid: mondooWindowsSecurityMaxIdleTime
         title: Define the maximum idle time of the Remote Desktop Services sessions in milliseconds
         mql: |
           900000
     mql: |
-      registrykey.property(path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime').value <= props.maxIdleTime
+      registrykey.property(path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime').value <= props.mondooWindowsSecurityMaxIdleTime
       registrykey.property(path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime').value != 0
     docs:
       desc: |-
