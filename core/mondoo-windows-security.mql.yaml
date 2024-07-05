@@ -3,7 +3,7 @@
 policies:
   - uid: mondoo-windows-security
     name: Windows Security
-    version: 2.3.1
+    version: 2.3.2
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
