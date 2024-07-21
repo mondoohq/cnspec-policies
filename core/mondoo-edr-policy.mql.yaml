@@ -20,7 +20,7 @@ policies:
         By implementing this policy, we take a proactive approach to instill confidence in our security posture and reinforce our commitment to safeguarding sensitive data, critical assets, and the integrity of our digital infrastructure.
 
         Additionally, it is highly recommended that antivirus signatures are updated daily to ensure protection against the latest threats. For instance, Windows Defender signatures can be updated using the following PowerShell command:
-  
+
         ```powershell
         Update-MpSignature
         ```
@@ -80,15 +80,15 @@ queries:
         - desc: |-
             Please install an EDR agent on the system, e.g. SentinelOne, CrowdStrike, ESET Endpoint Security, Wazuh
     variants:
-        - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-macos
-        - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-linux
-        - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-windows
+      - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-macos
+      - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-linux
+      - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-windows
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-macos
     filters: asset.platform == 'macos'
     mql: |
-      package('Falcon').installed || 
-      package('SentinelOne Extensions').installed || 
-      package('ESET Endpoint Security').installed || 
+      package('Falcon').installed ||
+      package('SentinelOne Extensions').installed ||
+      package('ESET Endpoint Security').installed ||
       file('/Library/Ossec').exists
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-linux
     filters: asset.family.contains('linux')
@@ -97,11 +97,11 @@ queries:
   - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-windows
     filters: asset.family.contains('windows')
     mql: |
-      package('CrowdStrike Sensor Platform').installed || 
-      package('Sentinel Agent').installed || 
-      package('ESET Endpoint Security').installed || 
-      package('ESET Server Security').installed || 
-      service('WinDefend').installed || 
+      package('CrowdStrike Sensor Platform').installed ||
+      package('Sentinel Agent').installed ||
+      package('ESET Endpoint Security').installed ||
+      package('ESET Server Security').installed ||
+      service('WinDefend').installed ||
       package('Wazuh Agent').installed
 
   - uid: mondoo-edr-policy-ensure-edr-agent-is-running
@@ -134,8 +134,8 @@ queries:
       asset.platform == 'macos'
       package('Falcon').installed
     mql: |
-      services.where(name == /crowdstrike\.falcon\.Agent/).any(running == true)
-      services.where(name == /crowdstrike\.falcon\.Agent/).any(enabled == true)
+      service("com.crowdstrike.falcon.UserAgent").running
+      service("com.crowdstrike.falcon.UserAgent").enabled
   - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-linux
     title: Ensure CrowdStrike Agent is running
     filters: |
