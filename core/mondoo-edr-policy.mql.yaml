@@ -128,7 +128,7 @@ queries:
       - uid: mondoo-edr-policy-ensure-defender-agent-is-running-and-updated-windows
       - uid: mondoo-edr-policy-ensure-wazuh-agent-is-running-macos
       - uid: mondoo-edr-policy-ensure-wazuh-agent-is-running-windows
-      - uid: mondoo-edr-policy-ensure-sophos-endpoint-defense-agent-is-running-windows
+      - uid: mondoo-edr-policy-ensure-sophos-endpoint-defense-is-running-windows
 
   - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-macos
     title: Ensure CrowdStrike Agent is running
@@ -237,7 +237,7 @@ queries:
     mql: |
       service('WazuhSvc').running
       service('WazuhSvc').enabled
-  - uid: mondoo-edr-policy-ensure-sophos-endpoint-defense-agent-is-running-windows
+  - uid: mondoo-edr-policy-ensure-sophos-endpoint-defense-is-running-windows
     title: Ensure Sophos Endpoint Defense Agent is running
     filters: |
       asset.family.contains('windows')
