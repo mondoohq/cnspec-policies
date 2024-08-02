@@ -310,7 +310,7 @@ queries:
     title: Ensure core dumps are restricted
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     impact: 75
     mql: |
       file("/etc/security/limits.conf").content.lines.where( _ == /^[^#]/ ).where( _.contains("core") ) {
@@ -361,7 +361,7 @@ queries:
     impact: 90
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters["kernel.randomize_va_space"] == 2
     docs:
@@ -805,7 +805,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.ip_forward'] == 0
         || kernel.parameters['net.ipv4.ip_forward'] == null
@@ -838,7 +838,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.conf.all.send_redirects'] == 0
         || kernel.parameters['net.ipv4.conf.all.send_redirects'] == null
@@ -869,7 +869,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.conf.all.accept_source_route'] == 0
         || kernel.parameters['net.ipv4.conf.all.accept_source_route'] == null
@@ -914,7 +914,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.conf.all.accept_redirects'] == 0
         || kernel.parameters['net.ipv4.conf.all.accept_redirects'] == null
@@ -959,7 +959,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.conf.all.secure_redirects'] == 0
         || kernel.parameters['net.ipv4.conf.all.secure_redirects'] == null
@@ -990,7 +990,7 @@ queries:
     impact: 60
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.conf.all.log_martians'] == 1
       kernel.parameters['net.ipv4.conf.default.log_martians'] == 1
@@ -1020,7 +1020,7 @@ queries:
     impact: 60
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.icmp_echo_ignore_broadcasts'] == 1
     docs:
@@ -1044,7 +1044,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.icmp_ignore_bogus_error_responses'] == 1
     docs:
@@ -1068,7 +1068,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.conf.all.rp_filter'] == 1
       kernel.parameters['net.ipv4.conf.default.rp_filter'] == 1
@@ -1097,7 +1097,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv4.tcp_syncookies'] == 1
     docs:
@@ -1121,7 +1121,7 @@ queries:
     impact: 75
     filters: |
       asset.kind != "container-image"
-      command("cat /proc/1/sched | head -n 1").stdout.contains(/systemd/) == true
+      asset.runtime != "docker-container"
     mql: |
       kernel.parameters['net.ipv6.conf.all.accept_ra'] == 0
         || kernel.parameters['net.ipv6.conf.all.accept_ra'] == null
