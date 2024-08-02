@@ -241,7 +241,7 @@ queries:
     title: Ensure Sophos Endpoint Defense Agent is running
     filters: |
       asset.family.contains('windows')
-      package('Sophos Endpoint Defense').installed
+      ['Sophos Endpoint Defense', 'Sophos Endpoint Agent'].all(package(_).installed)
     mql: |
       service('Sophos Endpoint Defense Service').running
       service('Sophos Endpoint Defense Service').enabled
