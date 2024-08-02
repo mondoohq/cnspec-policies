@@ -103,7 +103,6 @@ queries:
       package('ESET Server Security').installed || 
       service('WinDefend').installed || 
       package('Wazuh Agent').installed ||
-      package('Sophos Endpoint Defense').installed
 
   - uid: mondoo-edr-policy-ensure-edr-agent-is-running
     title: Ensure EDR Agent is running
@@ -245,3 +244,7 @@ queries:
     mql: |
       service('Sophos Endpoint Defense Service').running
       service('Sophos Endpoint Defense Service').enabled
+      service('Sophos MCS Agent').running
+      service('Sophos MCS Agent').enabled
+      
+      
