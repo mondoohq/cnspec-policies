@@ -247,5 +247,3 @@ queries:
       service('Sophos Endpoint Defense Service').enabled
       service('Sophos MCS Agent').running
       service('Sophos MCS Agent').enabled
-      
-      
