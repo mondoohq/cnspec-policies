@@ -180,11 +180,6 @@ props:
   - uid: mondooGithubSecurityRequiredPullRequestReviews
     title: Define the required number of reviewers on pull requests
     mql: "1"
-    props:
-  - uid: mondooGithubReleaseBranches
-    title: Pattern for release branch
-    mql: |
-      return  /^release/
 queries:
   - uid: mondoo-github-organization-security-two-factor-auth
     title: Enable Two-factor authentication for all users in the organization
@@ -305,6 +300,11 @@ queries:
   - uid: mondoo-github-repository-security-ensure-release-branch-protection
     title: Ensure GitHub repository release branches are protected
     impact: 90
+    props:
+      - uid: mondooGithubReleaseBranches
+        title: Pattern for release branch
+        mql: |
+          return  /^release/
     mql: |
       github.repository.branches
         .where( name == props.mondooGithubReleaseBranches )
@@ -352,6 +352,11 @@ queries:
   - uid: mondoo-github-repository-security-prevent-force-pushes-release-branch
     title: Ensure repository does not allow force pushes to any release branches
     impact: 80
+    props:
+      - uid: mondooGithubReleaseBranches
+        title: Pattern for release branch
+        mql: |
+          return  /^release/
     mql: |
       github.repository.branches
         .where( name == props.mondooGithubReleaseBranches )
