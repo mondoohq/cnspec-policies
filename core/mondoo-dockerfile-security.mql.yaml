@@ -131,12 +131,15 @@ queries:
     title: Don’t run commands using sudo
     impact: 100
     mql: |
-      docker.ps.containers.list.where( cmd =~ /sudo\s+.*/ ).list == []
+      docker.file.stages.all(run.all(script.contains("sudo") == false))
     docs:
       desc: |
-          Ensure that sudo is not used to run commands within Docker containers.
+        Ensure that Dockerfiles do not use `sudo` to run commands. The use of `sudo` within a Dockerfile can lead to privilege escalation risks,
+        as it grants elevated permissions that can be exploited if not handled properly.
+        By avoiding `sudo`, you ensure that all commands run with the default user privileges, which enhances the security of the container.
       remediation: |
-          Remove or replace sudo commands in your Docker container configurations.
+        Review the Dockerfile and remove any instances of `sudo`. Ensure that all commands are executed with the least privileges required.
+        Configure containers to operate with non-root users where possible, and avoid privilege escalation techniques.
   - uid: mondoo-docker-security-no-gpg-skip-yum
     title: Don’t skip GPG validation in YUM/DNF
     impact: 100
@@ -161,18 +164,26 @@ queries:
     remediation: |
         Update your Dockerfile to use the `USER` directive in all stages after the initial build stage. Specify a non-root user to run container processes, which enhances the security posture of your containers.
         For example, you can add the following directive in Dockerfile stages where it is appropriate:
-        
+
         ```dockerfile
         USER appuser
         ```
         Make sure that `appuser` is created and has the necessary permissions for the processes in that stage.
   - uid: mondoo-docker-security-use-copy-instead-of-add
-    title: Use the COPY instruction not ADD
+    title: Use COPY Instead of ADD in Dockerfiles
     impact: 100
     mql: |
-      docker.images.list.where( history.contains(/ADD\s+/) ).list == []
+      docker.file.stages.all(add == empty)
     docs:
       desc: |
-          Ensure that COPY is used instead of ADD in Dockerfiles.
+        Ensure that Dockerfiles use the `COPY` instruction instead of `ADD`, unless `ADD`'s specific features are needed.
+        The `COPY` instruction is simpler and more predictable, as it only copies files from the source to the destination.
+        `ADD` has additional functionalities such as remote URL fetching and automatic extraction of tar archives, which can introduce security risks if misused.
+        Using `COPY` minimizes these risks by limiting the operations to straightforward file copying.
       remediation: |
-          Replace ADD instructions with COPY in your Dockerfiles to avoid security risks associated with ADD.
+        Review the Dockerfile and replace `ADD` instructions with `COPY` where possible. Use `ADD` only when its additional functionalities (e.g., fetching files from a remote URL or extracting tar files) are specifically needed and cannot be achieved using `COPY`.
+        Consider the following actions:
+        - Replace `ADD` with `COPY` for file copying tasks.
+        - Use `ADD` only for remote file fetching or unpacking archives if absolutely necessary.
+        - Verify the necessity of each `ADD` instruction and ensure it is used correctly.
+        - Perform a security review to ensure that any use of `ADD` does not introduce vulnerabilities or expose sensitive information.
