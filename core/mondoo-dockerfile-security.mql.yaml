@@ -131,7 +131,7 @@ queries:
     title: Don’t run commands using sudo
     impact: 100
     mql: |
-      docker.file.stages.all(run.all(script.contains("sudo") == false))
+      docker.file.stages.all(run.none(script.contains("sudo")))
     docs:
       desc: |
         Ensure that Dockerfiles do not use `sudo` to run commands. The use of `sudo` within a Dockerfile can lead to privilege escalation risks,
