@@ -1,0 +1,169 @@
+# Copyright (c) Mondoo, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
+policies:
+
+    uid: mondoo-docker-security
+    name: Docker Container Security
+    version: 1.0.0
+    license: BUSL-1.1
+    tags:
+        mondoo.com/category: security
+        mondoo.com/platform: linux,docker
+    authors:
+        name: Mondoo, Inc
+        email: hello@mondoo.com
+    docs:
+        desc: |-
+          ## Overview
+
+            The Docker Container Security policy by Mondoo provides guidance for establishing secure Docker container configurations and deployments.
+
+            If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.
+
+          ## Remote scan
+
+          Remote scans use cnspec providers to retrieve on-demand scan results without having to install any agents.
+
+          For a complete list of providers run:
+
+          ```bash
+          cnspec scan --help
+          ```
+
+          ## Prerequisites
+
+          Remote scans of Docker containers require Docker CLI access to the host where the containers are running.
+
+          Scan a Docker environment
+
+          Open a terminal and configure Docker CLI access to your Docker environment:
+
+          ```bash
+          docker login
+          ```
+
+          Run a scan of the Docker environment:
+
+          ```bash
+          cnspec scan docker
+          ```
+
+          ## Join the community!
+
+          Our goal is to build policies that are simple to deploy, accurate, and actionable.
+
+          If you have any suggestions for how to improve this policy, or if you need support, join the community in GitHub Discussions.
+
+    groups:
+        - title: Docker Container Security
+          filters: |
+              asset.platform == "docker"
+          checks:
+              - uid: mondoo-docker-security-no-management-ports
+              - uid: mondoo-docker-security-no-insecure-certificate-validation-yum
+              - uid: mondoo-docker-security-no-insecure-certificate-validation-apt
+              - uid: mondoo-docker-security-no-insecure-certificate-validation-curl
+              - uid: mondoo-docker-security-no-insecure-certificate-validation-wget
+              - uid: mondoo-docker-security-no-sudo-commands
+              - uid: mondoo-docker-security-no-gpg-skip-yum
+              - uid: mondoo-docker-security-non-root-user
+              - uid: mondoo-docker-security-use-copy-instead-of-add
+
+queries:
+  - uid: mondoo-docker-security-no-management-ports
+    title: Don’t expose management ports
+    impact: 100
+    mql: |
+      docker.file.stages.all(expose.all(port != 22))
+      docker.file.stages.all(expose.all(port != 2375))
+      docker.file.stages.all(expose.all(port != 8500))
+      docker.file.stages.all(expose.all(port != 6443))
+    docs:
+      desc: |
+        Management ports such as SSH (port 22), Docker Remote API (port 2375), Consul (port 8500), and Kubernetes API (port 6443) are commonly targeted by attackers. Exposing these ports in Docker containers increases the risk of unauthorized access and security vulnerabilities. This test ensures that these management ports are not exposed in Docker container configurations.
+      remediation: |
+        Review and update your Dockerfile to ensure that management ports (22 for SSH, 2375 for Docker Remote API, 8500 for Consul HTTP API, 6443 for Kubernetes API) are not exposed. 
+        - Remove or restrict the exposure of these ports using the `EXPOSE` instruction in your Dockerfile.
+        - Use Docker's port mapping options (`-p` or `--publish`) cautiously to avoid exposing these ports.
+        - Ensure that any required management access is secured and appropriately managed.
+  - uid: mondoo-docker-security-no-insecure-certificate-validation-yum
+    title: Don’t disable certificate validation in YUM/DNF
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( cmd =~ /yum\s+.*--disablerepo=.*/ || cmd =~ /dnf\s+.*--disablerepo=.*/ ).list == []
+    docs:
+      desc: |
+          Ensure that certificate validation is not disabled in YUM or DNF package managers within Docker containers.
+      remediation: |
+          Avoid using the `--disablerepo` option with YUM or DNF in your Docker container configurations.
+  - uid: mondoo-docker-security-no-insecure-certificate-validation-apt
+    title: Don’t disable certificate validation in apt
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( cmd =~ /apt\s+.*--allow-insecure-repositories.*/ ).list == []
+    docs:
+      desc: |
+          Ensure that certificate validation is not disabled in APT package manager within Docker containers.
+      remediation: |
+          Avoid using the `--allow-insecure-repositories` option with APT in your Docker container configurations.
+  - uid: mondoo-docker-security-no-insecure-certificate-validation-curl
+    title: Don’t disable certificate validation in curl
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( cmd =~ /curl\s+.*(--insecure|-k).*/ ).list == []
+    docs:
+      desc: |
+          Ensure that certificate validation is not disabled with curl within Docker containers.
+      remediation: |
+          Avoid using the `--insecure` or `-k` options with curl in your Docker container configurations.
+  - uid: mondoo-docker-security-no-insecure-certificate-validation-wget
+    title: Don’t disable certificate validation in wget
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( cmd =~ /wget\s+.*--no-check-certificate.*/ ).list == []
+    docs:
+      desc: |
+          Ensure that certificate validation is not disabled with wget within Docker containers.
+      remediation: |
+          Avoid using the `--no-check-certificate` option with wget in your Docker container configurations.
+  - uid: mondoo-docker-security-no-sudo-commands
+    title: Don’t run commands using sudo
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( cmd =~ /sudo\s+.*/ ).list == []
+    docs:
+      desc: |
+          Ensure that sudo is not used to run commands within Docker containers.
+      remediation: |
+          Remove or replace sudo commands in your Docker container configurations.
+  - uid: mondoo-docker-security-no-gpg-skip-yum
+    title: Don’t skip GPG validation in YUM/DNF
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( cmd =~ /(yum|dnf)\s+.*--nogpgcheck.*/ ).list == []
+    docs:
+      desc: |
+          Ensure that packages with untrusted or missing GPG signatures are not used by dnf or yum via the '--nogpgcheck' option within Docker containers.
+      remediation: |
+          Avoid using the `--nogpgcheck` option with YUM or DNF in your Docker container configurations.
+  - uid: mondoo-docker-security-non-root-user
+    title: Don’t run containers as root
+    impact: 100
+    mql: |
+      docker.ps.containers.list.where( uid == 0 ).list == []
+    docs:
+      desc: |
+          Ensure that containers are not run as the root user.
+      remediation: |
+          Use the USER directive in Dockerfiles to specify a non-root user for running container processes.
+  - uid: mondoo-docker-security-use-copy-instead-of-add
+    title: Use the COPY instruction not ADD
+    impact: 100
+    mql: |
+      docker.images.list.where( history.contains(/ADD\s+/) ).list == []
+    docs:
+      desc: |
+          Ensure that COPY is used instead of ADD in Dockerfiles.
+      remediation: |
+          Replace ADD instructions with COPY in your Dockerfiles to avoid security risks associated with ADD.
