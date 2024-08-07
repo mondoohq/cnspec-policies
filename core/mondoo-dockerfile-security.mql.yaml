@@ -105,32 +105,39 @@ queries:
     title: Don’t disable certificate validation in apt
     impact: 100
     mql: |
-      docker.ps.containers.list.where( cmd =~ /apt\s+.*--allow-insecure-repositories.*/ ).list == []
+      docker.file.stages.all(run.none(script.contains("--allow-insecure-repositories")))
     docs:
       desc: |
-          Ensure that certificate validation is not disabled in APT package manager within Docker containers.
+        Ensure that the `--allow-insecure-repositories` option is not used with the APT package manager in Dockerfile `RUN` instructions.
+        Disabling certificate validation can expose the container to security risks by allowing insecure repositories.
       remediation: |
-          Avoid using the `--allow-insecure-repositories` option with APT in your Docker container configurations.
+        Review the Dockerfile `RUN` instructions to ensure that APT commands do not use the `--allow-insecure-repositories` option.
+        Configure APT to use secure repositories and avoid options that bypass certificate validation.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-curl
     title: Don’t disable certificate validation in curl
     impact: 100
     mql: |
-      docker.ps.containers.list.where( cmd =~ /curl\s+.*(--insecure|-k).*/ ).list == []
+      docker.file.stages.all(run.none(script.contains("--insecure")))
+      docker.file.stages.all(run.none(script.contains("-k")))
     docs:
       desc: |
-          Ensure that certificate validation is not disabled with curl within Docker containers.
+        Ensure that the `--insecure` or `-k` options are not used with `curl` in Docker containers.
+        Disabling certificate validation can expose the container to man-in-the-middle attacks and other security risks.
       remediation: |
-          Avoid using the `--insecure` or `-k` options with curl in your Docker container configurations.
+        Review the `CMD` or `ENTRYPOINT` commands in your Dockerfile and any scripts executed within the container.
+        Avoid using `curl` with `--insecure` or `-k` options. Ensure that proper SSL certificate validation is enabled for all `curl` operations.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-wget
     title: Don’t disable certificate validation in wget
     impact: 100
     mql: |
-      docker.ps.containers.list.where( cmd =~ /wget\s+.*--no-check-certificate.*/ ).list == []
+      docker.file.stages.all(run.none(script.contains("--no-check-certificate")))
     docs:
       desc: |
-          Ensure that certificate validation is not disabled with wget within Docker containers.
+        Ensure that the `--no-check-certificate` option is not used with wget in Dockerfile `RUN` instructions.
+        Disabling certificate validation can expose the container to security risks by allowing insecure connections.
       remediation: |
-          Avoid using the `--no-check-certificate` option with wget in your Docker container configurations.
+        Review the Dockerfile `RUN` instructions to ensure that wget commands do not use the `--no-check-certificate` option.
+        Configure wget to use certificate validation to enhance the security of your container configurations.
   - uid: mondoo-docker-security-no-sudo-commands
     title: Don’t run commands using sudo
     impact: 100
@@ -148,12 +155,14 @@ queries:
     title: Don’t skip GPG validation in YUM/DNF
     impact: 100
     mql: |
-      docker.ps.containers.list.where( cmd =~ /(yum|dnf)\s+.*--nogpgcheck.*/ ).list == []
+      docker.file.stages.all(run.none(script.contains("--nogpgcheck")))
     docs:
       desc: |
-          Ensure that packages with untrusted or missing GPG signatures are not used by dnf or yum via the '--nogpgcheck' option within Docker containers.
+        Ensure that the `--nogpgcheck` option is not used with YUM or DNF in Dockerfile `RUN` instructions.
+        Skipping GPG validation can expose the container to risks by allowing packages with untrusted or missing GPG signatures.
       remediation: |
-          Avoid using the `--nogpgcheck` option with YUM or DNF in your Docker container configurations.
+        Review the Dockerfile `RUN` instructions to ensure that YUM or DNF commands do not use the `--nogpgcheck` option.
+        Configure YUM or DNF to perform GPG validation to enhance the security of your container configurations.
   - uid: mondoo-docker-security-non-root-user
     title: Prevent Running Containers as Root User
     impact: 100
@@ -191,3 +200,15 @@ queries:
         - Use `ADD` only for remote file fetching or unpacking archives if absolutely necessary.
         - Verify the necessity of each `ADD` instruction and ensure it is used correctly.
         - Perform a security review to ensure that any use of `ADD` does not introduce vulnerabilities or expose sensitive information.
+  - uid: mondoo-docker-best-practice-no-latest-tag
+    title: Don’t Build Containers from Latest Tags
+    impact: 100
+    mql: |
+      docker.file.stages.all(from.tag != "latest")
+    docs:
+      desc: |
+        Ensure that Dockerfiles do not use the `latest` tag for base images in the `FROM` instructions.
+        Using the `latest` tag can lead to unpredictable builds and potential security issues, as the base image version may change over time.
+      remediation: |
+        Review the Dockerfile to ensure that explicit version tags are used for base images instead of `latest`.
+        For example, use `python:3.9` instead of `python:latest` to ensure consistent and predictable builds.
