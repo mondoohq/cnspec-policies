@@ -148,15 +148,24 @@ queries:
       remediation: |
           Avoid using the `--nogpgcheck` option with YUM or DNF in your Docker container configurations.
   - uid: mondoo-docker-security-non-root-user
-    title: Don’t run containers as root
+    title: Prevent Running Containers as Root User
     impact: 100
     mql: |
-      docker.ps.containers.list.where( uid == 0 ).list == []
+      firstStageIdentifier = docker.file.stages[0].from.image
+      docker.file.stages.where(from.image != firstStageIdentifier).all(user != empty)
+      docker.file.stages.where(from.image != firstStageIdentifier).all(user.user != "root")
     docs:
       desc: |
-          Ensure that containers are not run as the root user.
-      remediation: |
-          Use the USER directive in Dockerfiles to specify a non-root user for running container processes.
+        Containers should not run as the root user for security reasons. This test ensures that all Dockerfile stages, except the first one, specify a non-root user for running container processes.
+        The first stage is typically used for building or installing dependencies and may require root privileges. However, subsequent stages should drop root privileges to minimize security risks.
+    remediation: |
+        Update your Dockerfile to use the `USER` directive in all stages after the initial build stage. Specify a non-root user to run container processes, which enhances the security posture of your containers.
+        For example, you can add the following directive in Dockerfile stages where it is appropriate:
+        
+        ```dockerfile
+        USER appuser
+        ```
+        Make sure that `appuser` is created and has the necessary permissions for the processes in that stage.
   - uid: mondoo-docker-security-use-copy-instead-of-add
     title: Use the COPY instruction not ADD
     impact: 100
