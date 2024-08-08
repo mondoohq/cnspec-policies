@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BUSL-1.1
 policies:
   - uid: mondoo-docker-security
-    name: Docker Container Security
+    name: Dockerfile Security
     version: 1.0.0
     license: BUSL-1.1
     tags:
@@ -15,7 +15,7 @@ policies:
         desc: |-
           ## Overview
 
-          The Docker Container Security policy by Mondoo provides guidance for establishing secure Docker container configurations and deployments.
+          The Dockerfile Security policy by Mondoo provides guidance for establishing secure Docker container configurations and deployments by securing Dockerfiles used to build container images.
 
           If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.
 
@@ -29,22 +29,12 @@ policies:
           cnspec scan --help
           ```
 
-          ## Prerequisites
+          ## Scan a Dockerfile
 
-          Remote scans of Docker containers require Docker CLI access to the host where the containers are running.
-
-          ## Scan a Docker environment
-
-          Open a terminal and configure Docker CLI access to your Docker environment:
+          Run a scan of a Dockerfile:
 
           ```bash
-          docker login
-          ```
-
-          Run a scan of the Docker environment:
-
-          ```bash
-          cnspec scan docker
+          cnspec scan docker file DOCKERFILE_PATH
           ```
 
           ## Join the community!
