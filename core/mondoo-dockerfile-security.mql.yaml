@@ -222,4 +222,4 @@ queries:
       desc: |
         Ensure that Dockerfiles use the `apt-get` CLI instead of `apt`. The `apt-get` CLI provides more predictable behavior in scripting contexts and is generally preferred for use in Dockerfiles for its consistency and reliability.
       remediation: |
-        Review the Dockerfile `RUN` instructions to replace any `apt` commands with `apt-get`. This will ensure that package management operations are performed using the recommended and more stable command-line interface.
+        Review the Dockerfile `RUN` instructions to replace any `apt` commands with `apt-get`. This ensures that package management operations are performed using the recommended and more stable CLI.
