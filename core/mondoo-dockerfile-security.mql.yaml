@@ -17,7 +17,7 @@ policies:
 
           The Dockerfile Security policy by Mondoo provides guidance for establishing secure Docker container configurations and deployments by securing Dockerfiles used to build container images.
 
-          If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.
+          If you have questions, comments, or ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.
 
           ## Remote scan
 
