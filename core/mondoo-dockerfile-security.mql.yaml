@@ -1,9 +1,7 @@
 # Copyright (c) Mondoo, Inc.
 # SPDX-License-Identifier: BUSL-1.1
-
 policies:
-
-    uid: mondoo-docker-security
+  - uid: mondoo-docker-security
     name: Docker Container Security
     version: 1.0.0
     license: BUSL-1.1
