@@ -56,7 +56,7 @@ policies:
     groups:
         - title: Docker Container Security
           filters: |
-              asset.platform == "docker"
+              asset.platform == "dockerfile"
           checks:
               - uid: mondoo-docker-security-no-management-ports
               - uid: mondoo-docker-security-no-insecure-certificate-validation-yum
