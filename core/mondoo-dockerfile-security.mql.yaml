@@ -128,7 +128,7 @@ queries:
         - Avoid using `curl` with `--insecure` or `-k` options. 
         - Ensure that proper SSL certificate validation is enabled for all `curl` operations.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-wget
-    title: Don’t disable certificate validation in wget
+    title: Don’t disable certificate validation in Wget
     impact: 100
     mql: |
       docker.file.stages.all(run.none(script.contains("--no-check-certificate")))
