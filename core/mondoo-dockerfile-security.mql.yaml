@@ -123,7 +123,7 @@ queries:
       docker.file.stages.all(run.none(script.contains("--no-check-certificate")))
     docs:
       desc: |
-        Ensure that the `--no-check-certificate` option is not used with wget in Dockerfile `RUN` instructions.
+        Ensure that the `--no-check-certificate` option is not used with `wget` in Dockerfile `RUN` instructions.
         Disabling certificate validation can expose the container to security risks by allowing insecure connections.
       remediation: |
         - Review the Dockerfile `RUN` instructions to ensure that wget commands do not use the `--no-check-certificate` option.
