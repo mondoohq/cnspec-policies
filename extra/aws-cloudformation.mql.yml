@@ -1,0 +1,39 @@
+policies:
+  - uid: mondoo-aws-cloudformation-security
+    name: AWS Cloudformation Security
+    version: 1.0.0
+    license: BUSL-1.1
+    tags:
+      mondoo.com/category: security
+      mondoo.com/platform: aws,cloud
+    authors:
+      - name: Mondoo, Inc
+        email: hello@mondoo.com
+    groups:
+      - filters: asset.platform == "cloudformation"
+        checks:
+          - uid: mondoo-awscloudformation-alb-http-to-https-redirection-check
+          - uid: mondoo-awscloudformation--cloudfront-viewer-certificate-tls
+
+queries:
+  - uid: mondoo-awscloudformation-alb-http-to-https-redirection-check
+    title: Checks whether HTTP to HTTPS redirection is configured on all application load balancer http listeners
+    mql: |
+      cloudformation.template.resources.
+        where( type == "AWS::ElasticLoadBalancingV2::Listener").
+        where( properties.Protocol != "HTTPS" && properties.Protocol != "TLS" && properties.Protocol != "TCP" && properties.Protocol != "UDP" && properties.Protocol != "TCP_UDP" ).
+        all(properties["DefaultActions"].any( _["Type"] == "redirect" && _["RedirectConfig"].Protocol == "HTTPS"))
+    refs:
+      - title: AWS::ElasticLoadBalancingV2::Listener
+        url: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-listener.html
+  - uid: mondoo-awscloudformation-cloudfront-viewer-certificate-tls
+    title: Checks whether the CloudFront distribution viewer certificate is configured with TLSv1.2
+    mql: |
+      cloudformation.template.resources.
+        where( type == "AWS::CloudFront::Distribution").
+        none( properties["DistributionConfig"]["ViewerCertificate"]["MinimumProtocolVersion"].in(["SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016"]))
+    refs:
+      - title: AWS::CloudFront::Distribution ViewerCertificate
+        url: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-viewercertificate.html
+
+
