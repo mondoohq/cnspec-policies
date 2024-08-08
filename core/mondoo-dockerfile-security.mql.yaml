@@ -69,6 +69,8 @@ policies:
               - uid: mondoo-docker-security-no-gpg-skip-yum
               - uid: mondoo-docker-security-non-root-user
               - uid: mondoo-docker-security-use-copy-instead-of-add
+              - uid: mondoo-docker-best-practice-no-latest-tag
+              - uid: mondoo-docker-best-practice-use-apt-get
 
 queries:
   - uid: mondoo-docker-security-no-management-ports
@@ -212,3 +214,13 @@ queries:
       remediation: |
         Review the Dockerfile to ensure that explicit version tags are used for base images instead of `latest`.
         For example, use `python:3.9` instead of `python:latest` to ensure consistent and predictable builds.
+  - uid: mondoo-docker-best-practice-use-apt-get
+    title: Prefer `apt-get` Over `apt` for Consistent Package Management
+    impact: 100
+    mql: |
+      docker.file.stages.all(run.none(script.contains("apt")))
+    docs:
+      desc: |
+        Ensure that Dockerfiles use the `apt-get` CLI instead of `apt`. The `apt-get` CLI provides more predictable behavior in scripting contexts and is generally preferred for use in Dockerfiles for its consistency and reliability.
+      remediation: |
+        Review the Dockerfile `RUN` instructions to replace any `apt` commands with `apt-get`. This will ensure that package management operations are performed using the recommended and more stable command-line interface.
