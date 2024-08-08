@@ -17,7 +17,7 @@ policies:
 
           The Docker Container Security policy by Mondoo provides guidance for establishing secure Docker container configurations and deployments.
 
-            If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.
+          If you have questions, comments, or have identified ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.
 
           ## Remote scan
 
