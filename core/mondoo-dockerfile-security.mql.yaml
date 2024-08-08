@@ -201,7 +201,7 @@ queries:
         - Verify the necessity of each `ADD` instruction and ensure it is used correctly.
         - Perform a security review to ensure that any use of `ADD` does not introduce vulnerabilities or expose sensitive information.
   - uid: mondoo-docker-best-practice-no-latest-tag
-    title: Don’t Build Containers from Latest Tags
+    title: Don’t build containers from latest tags
     impact: 100
     mql: |
       docker.file.stages.all(from.tag != "latest")
