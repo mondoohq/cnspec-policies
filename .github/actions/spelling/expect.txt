@@ -190,5 +190,3 @@ xts
 XUtn
 yournamespace
 YWQ
-appuser
-nogpgcheck

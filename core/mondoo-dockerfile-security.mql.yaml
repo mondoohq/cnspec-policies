@@ -213,7 +213,7 @@ queries:
         Review the Dockerfile to ensure that explicit version tags are used for base images instead of `latest`.
         For example, use `python:3.9` instead of `python:latest` to ensure consistent and predictable builds.
   - uid: mondoo-docker-best-practice-use-apt-get
-    title: Prefer `apt-get` Over `apt` for Consistent Package Management
+    title: Prefer `apt-get` Over `apt` for consistent package management
     impact: 100
     mql: |
       docker.file.stages.all(run.none(script.contains("apt")))
