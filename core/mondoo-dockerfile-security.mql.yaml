@@ -111,8 +111,8 @@ queries:
         Ensure that the `--allow-insecure-repositories` option is not used with the APT package manager in Dockerfile `RUN` instructions.
         Disabling certificate validation can expose the container to security risks by allowing insecure repositories.
       remediation: |
-        Review the Dockerfile `RUN` instructions to ensure that APT commands do not use the `--allow-insecure-repositories` option.
-        Configure APT to use secure repositories and avoid options that bypass certificate validation.
+        - Review the Dockerfile `RUN` instructions to ensure that APT commands do not use the `--allow-insecure-repositories` option.
+        - Configure APT to use secure repositories and avoid options that bypass certificate validation.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-curl
     title: Don’t disable certificate validation in curl
     impact: 100
