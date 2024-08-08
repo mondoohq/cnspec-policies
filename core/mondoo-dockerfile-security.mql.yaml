@@ -162,8 +162,8 @@ queries:
         Ensure that the `--nogpgcheck` option is not used with YUM or DNF in Dockerfile `RUN` instructions.
         Skipping GPG validation can expose the container to risks by allowing packages with untrusted or missing GPG signatures.
       remediation: |
-        Review the Dockerfile `RUN` instructions to ensure that YUM or DNF commands do not use the `--nogpgcheck` option.
-        Configure YUM or DNF to perform GPG validation to enhance the security of your container configurations.
+        - Review the Dockerfile `RUN` instructions to ensure that YUM or DNF commands do not use the `--nogpgcheck` option.
+        - Configure YUM or DNF to perform GPG validation to enhance the security of your container configurations.
   - uid: mondoo-docker-security-non-root-user
     title: Don't run containers as root user
     impact: 100
