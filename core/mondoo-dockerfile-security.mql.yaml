@@ -150,8 +150,8 @@ queries:
         as it grants elevated permissions that can be exploited if not handled properly.
         By avoiding `sudo`, you ensure that all commands run with the default user privileges, which enhances the security of the container.
       remediation: |
-        Review the Dockerfile and remove any instances of `sudo`. Ensure that all commands are executed with the least privileges required.
-        Configure containers to operate with non-root users where possible, and avoid privilege escalation techniques.
+        - Review the Dockerfile and remove any instances of `sudo`. Ensure that all commands are executed with the least privileges required.
+        - Configure containers to operate with non-root users where possible, and avoid privilege escalation techniques.
   - uid: mondoo-docker-security-no-gpg-skip-yum
     title: Don’t skip GPG validation in YUM/DNF
     impact: 100
