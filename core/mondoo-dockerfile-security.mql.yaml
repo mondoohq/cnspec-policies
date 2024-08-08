@@ -88,7 +88,7 @@ queries:
         - Use Docker's port mapping options (`-p` or `--publish`) cautiously to avoid exposing these ports.
         - Ensure that any required management access is secured and appropriately managed.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-yum
-    title: Ensure Package Manager Certificate Validation Is Enabled
+    title: Ensure package manager certificate validation is enabled
     impact: 100
     mql: |
       docker.file.stages.all(run.none(script.contains("--nogpgcheck")))
