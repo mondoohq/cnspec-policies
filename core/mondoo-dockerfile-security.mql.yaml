@@ -33,7 +33,7 @@ policies:
 
           Remote scans of Docker containers require Docker CLI access to the host where the containers are running.
 
-          Scan a Docker environment
+          ## Scan a Docker environment
 
           Open a terminal and configure Docker CLI access to your Docker environment:
 
