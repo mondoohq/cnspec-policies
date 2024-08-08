@@ -124,8 +124,9 @@ queries:
         Ensure that the `--insecure` or `-k` options are not used with `curl` in Docker containers.
         Disabling certificate validation can expose the container to man-in-the-middle attacks and other security risks.
       remediation: |
-        Review the `CMD` or `ENTRYPOINT` commands in your Dockerfile and any scripts executed within the container.
-        Avoid using `curl` with `--insecure` or `-k` options. Ensure that proper SSL certificate validation is enabled for all `curl` operations.
+        - Review the `CMD` or `ENTRYPOINT` commands in your Dockerfile and any scripts executed within the container.
+        - Avoid using `curl` with `--insecure` or `-k` options. 
+        - Ensure that proper SSL certificate validation is enabled for all `curl` operations.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-wget
     title: Don’t disable certificate validation in wget
     impact: 100
