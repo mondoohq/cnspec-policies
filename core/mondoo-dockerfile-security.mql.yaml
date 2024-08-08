@@ -102,7 +102,7 @@ queries:
         - Review the Dockerfile and ensure that package managers are configured to use SSL certificate validation.
         - Remove any insecure options such as `--nogpgcheck`, `--no-check-certificate`, `--no-gpg-check`, and similar flags. Use secure practices for package installations to maintain system integrity.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-apt
-    title: Don’t disable certificate validation in apt
+    title: Don’t disable certificate validation in APT
     impact: 100
     mql: |
       docker.file.stages.all(run.none(script.contains("--allow-insecure-repositories")))
