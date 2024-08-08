@@ -31,7 +31,6 @@ policies:
 
           ## Scan a Dockerfile
 
-          Run a scan of a Dockerfile:
 
           ```bash
           cnspec scan docker file DOCKERFILE_PATH
