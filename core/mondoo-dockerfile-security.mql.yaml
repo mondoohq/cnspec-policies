@@ -100,7 +100,7 @@ queries:
         Disabling certificate validation can expose the system to man-in-the-middle attacks and other security vulnerabilities.
       remediation: |
         Review the Dockerfile and ensure that package managers are configured to use SSL certificate validation.
-        Remove any insecure options such as `--nogpgcheck`, `--no-check-certificate`, `--no-gpg-check`, and similar flags. Use secure practices for package installations to maintain system integrity.
+        - Remove any insecure options such as `--nogpgcheck`, `--no-check-certificate`, `--no-gpg-check`, and similar flags. Use secure practices for package installations to maintain system integrity.
   - uid: mondoo-docker-security-no-insecure-certificate-validation-apt
     title: Don’t disable certificate validation in apt
     impact: 100
