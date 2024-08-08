@@ -164,7 +164,7 @@ queries:
         Review the Dockerfile `RUN` instructions to ensure that YUM or DNF commands do not use the `--nogpgcheck` option.
         Configure YUM or DNF to perform GPG validation to enhance the security of your container configurations.
   - uid: mondoo-docker-security-non-root-user
-    title: Prevent Running Containers as Root User
+    title: Don't run containers as root user
     impact: 100
     mql: |
       firstStageIdentifier = docker.file.stages[0].from.image
