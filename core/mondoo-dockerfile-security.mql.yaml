@@ -183,7 +183,7 @@ queries:
         ```
         Make sure that `appuser` is created and has the necessary permissions for the processes in that stage.
   - uid: mondoo-docker-security-use-copy-instead-of-add
-    title: Use COPY Instead of ADD in Dockerfiles
+    title: Use COPY instead of ADD in Dockerfiles
     impact: 100
     mql: |
       docker.file.stages.all(add == empty)
