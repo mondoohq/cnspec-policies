@@ -137,8 +137,8 @@ queries:
         Ensure that the `--no-check-certificate` option is not used with wget in Dockerfile `RUN` instructions.
         Disabling certificate validation can expose the container to security risks by allowing insecure connections.
       remediation: |
-        Review the Dockerfile `RUN` instructions to ensure that wget commands do not use the `--no-check-certificate` option.
-        Configure wget to use certificate validation to enhance the security of your container configurations.
+        - Review the Dockerfile `RUN` instructions to ensure that wget commands do not use the `--no-check-certificate` option.
+        - Configure Wget to use certificate validation to enhance the security of your container configurations.
   - uid: mondoo-docker-security-no-sudo-commands
     title: Don’t run commands using sudo
     impact: 100
