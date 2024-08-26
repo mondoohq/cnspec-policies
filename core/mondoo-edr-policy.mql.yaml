@@ -102,7 +102,7 @@ queries:
     mql: |
       package('CrowdStrike Sensor Platform').installed ||
       package('Sentinel Agent').installed ||
-      ['ESET Endpoint Security', 'ESET Server Security'].all(package(_).installed) ||
+      ['ESET Endpoint Security', 'ESET Server Security'].one(package(_).installed) ||
       service('WinDefend').installed ||
       package('Wazuh Agent').installed ||
       ['Sophos Endpoint Defense', 'Sophos Endpoint Agent'].all(package(_).installed) ||
@@ -210,8 +210,8 @@ queries:
   - uid: mondoo-edr-policy-ensure-eset-agent-is-running-windows
     title: Ensure ESET Agent is running
     filters: |
-      asset.family.contains('windows')
-      package('ESET Endpoint Security').installed || package('ESET Server Security').installed
+      asset.family.contains('windows') &&
+      ['ESET Endpoint Security', 'ESET Server Security'].one(package(_).installed)
     mql: |
       service('EraAgentSvc').running
       service('EraAgentSvc').enabled
@@ -254,7 +254,7 @@ queries:
     title: Ensure Cortex XDR Agent is running
     filters: |
       asset.platform == 'macos' &&
-      ['Cortex XDR"', 'Cortex XDR Agent'].all(package(_).installed)
+      ['Cortex XDR', 'Cortex XDR Agent'].all(package(_).installed)
     mql: |
       service('com.paloaltonetworks.cortex.agent').running
       service('com.paloaltonetworks.cortex.agent').enabled
