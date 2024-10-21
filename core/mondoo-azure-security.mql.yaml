@@ -1579,7 +1579,7 @@ queries:
       asset.platform == "azure-postgresql-flexible-server"
     mql: |
       // TLS/SSL is enforced on the server by default.
-      azure.subscription.postgreSql.flexibleServer.configuration.where(name == 'require_secure_transport').all(value.downcase == "on"
+      azure.subscription.postgreSql.flexibleServer.configuration.where(name == 'require_secure_transport').all(value.downcase == "on")
   - uid: mondoo-azure-security-ensure-that-ssl-enabled-postgresql-api
     filters: |
       asset.platform == "azure"
