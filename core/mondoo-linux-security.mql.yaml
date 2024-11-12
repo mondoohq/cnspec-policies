@@ -1590,11 +1590,24 @@ queries:
           mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+sethostname\s+\-S\s+setdomainname\s+\-k\s+system-locale(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+sethostname\s+\-S\s+setdomainname\s+\-k\s+system-locale(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/issue\s+\-p\s+wa\s+\-k\s+system-locale(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/issue.net\s+\-p\s+wa\s+\-k\s+system-locale(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/hosts\s+\-p\s+wa\s+\-k\s+system-locale(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sysconfig\/network\s+\-p\s+wa\s+\-k\s+system-locale(\s+)?$/))
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /sethostname/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /setdomainname/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /sethostname|setdomainname/).all(
+        split("-").containsAll(["a always,exit ",])
+          && split("-").containsAll(["F arch=b64 "])
+            || split("-").containsAll(["F arch=b32 "])
+          && split(" ").containsAll(["-k","system-locale"])
+            || split(" ").containsAll(["-F","key=system-locale"])
+      )
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/issue/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/issue.net/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/hosts/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/sysconfig\/network/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/etc\/issue|\/etc\/issue.net|\/etc\/hosts|\/etc\/sysconfig\/network/).all(
+        split("-").contains(/p wa/)
+          && split(" ").containsAll(["-k","system-locale"])
+            || split(" ").containsAll(["-F","key=system-locale"])
+      )
     docs:
       desc: |-
         Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name)
