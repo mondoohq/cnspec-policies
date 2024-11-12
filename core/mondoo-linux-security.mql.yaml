@@ -1965,8 +1965,21 @@ queries:
           mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+rename\,unlink\,unlinkat\,renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=unset\s+\-F\s+key\=delete(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+unlink\s+\-S\s+unlinkat\s+\-S\s+rename\s+\-S\s+renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+delete(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+rename\,unlink\,unlinkat\,renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=unset\s+\-F\s+key\=delete(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+unlink\s+\-S\s+unlinkat\s+\-S\s+rename\s+\-S\s+renameat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+delete(\s+)?$/))
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /unlink/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /rename/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /unlinkat/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /renameat/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /unlink|rename|unlinkat|renameat/).all(
+        split("=").any(split(" ").any(_ == logindefs.params.UID_MIN))
+          && split("-").containsAll(["a always,exit ",])
+          && split("-").containsAll(["F auid!=","1 "])
+            || split("-").containsAll(["F auid!=unset "])
+            || split("-").containsAll(["F auid!=4294967295 "])
+          && split("-").containsAll(["F arch=b64 "])
+            || split("-").containsAll(["F arch=b32 "])
+          && split("-").containsAll(["F key=delete"])
+            || split("-").containsAll(["k delete"])
+      )
     docs:
       desc: |-
         Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the `unlink`
