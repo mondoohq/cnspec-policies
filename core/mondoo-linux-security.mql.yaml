@@ -1464,8 +1464,8 @@ queries:
           && split(" ").containsAll(["-F", "key=time-change"])
             || split(" ").containsAll(["-k", "time-change"])
       )
-      props.auditFiles.flat.unique.any(/\/etc\/localtime/)
-      props.auditFiles.flat.unique.where(/\/etc\/localtime/).all(
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(/\/etc\/localtime/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(/\/etc\/localtime/).all(
         split("-").containsAll(["w /etc/localtime ","p wa ",])
           && split(" ").containsAll(["-F", "key=time-change"])
             || split(" ").containsAll(["-k", "time-change"])
