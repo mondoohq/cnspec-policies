@@ -1672,12 +1672,30 @@ queries:
           mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+chmod(\s+\-S\s+|,)fchmod(\s+\-S\s+|,)fchmodat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+\-k\s+perm\_mod(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+chown(\s+\-S\s+|,)fchown(\s+\-S\s+|,)lchown(\s+\-S\s+|,)fchownat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+\-k\s+perm\_mod(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+chmod(\s+\-S\s+|,)fchmod(\s+\-S\s+|,)fchmodat\s+\-F+\s+auid\>\=1000\s+\-F\s+auid\!=(4294967295|unset|-1)\s+\-F\s+\-k\s+perm_mod$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+lchown(\s+\-S\s+|,)fchown(\s+\-S\s+|,)chown(\s+\-S\s+|,)fchownat\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+\-k\s+perm\_mod(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+setxattr(\s+\-S\s+|,)lsetxattr(\s+\-S\s+|,)fsetxattr(\s+\-S\s+|,)removexattr(\s+\-S\s+|,)lremovexattr(\s+\-S\s+|,)fremovexattr\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+\-k\s+perm\_mod(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+setxattr(\s+\-S\s+|,)lsetxattr(\s+\-S\s+|,)fsetxattr(\s+\-S\s+|,)removexattr(\s+\-S\s+|,)lremovexattr(\s+\-S\s+|,)fremovexattr\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-F\s+\-k\s+perm\_mod(\s+)?$/))
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /chmod/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /fchmod/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /fchmodat/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /chown/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /fchown/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /fchownat/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /lchown/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /setxattr/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /lsetxattr/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /fsetxattr/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /removexattr/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /lremovexattr/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /fremovexattr/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /chmod|fchmod|fchmodat|chown|fchown|fchownat|lchown|setxattr|lsetxattr|fsetxattr|removexattr|lremovexattr|fremovexattr/).all(
+        split("=").any(split(" ").any(_ == logindefs.params.UID_MIN))
+          && split("-").containsAll(["a always,exit ",])
+          && split("-").containsAll(["F auid!=","1 "])
+            || split("-").containsAll(["F auid!=unset "])
+            || split("-").containsAll(["F auid!=4294967295 "])
+          && split("-").containsAll(["F arch=b64 "])
+            || split("-").containsAll(["F arch=b32 "])
+          && split("-").containsAll(["F key=perm_mod"])
+            || split("-").containsAll(["k perm_mod"])
+      )
     docs:
       desc: |-
         Monitor changes to file permissions, attributes, ownership and group. The parameters in this section track changes for system calls that affect file permissions and attributes.
