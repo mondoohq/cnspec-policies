@@ -1771,8 +1771,26 @@ queries:
           mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EACCES\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EACCES\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EPERM\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+creat\s+\-S\s+open\s+\-S\s+openat\s+\-S\s+truncate\s+\-S\s+ftruncate\s+\-F\s+exit\=\-EPERM\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+access(\s+)?$/))
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == / creat /)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == / open /)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == / openat /)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == / truncate /)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == / ftruncate /)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == / creat | open | openat | truncate | ftruncate /).all(
+        split("=").any(split(" ").any(_ == logindefs.params.UID_MIN))
+          && split("-").containsAll(["a always,exit ",])
+          && split("-").containsAll(["F auid!=","1 "])
+            || split("-").containsAll(["F auid!=unset "])
+            || split("-").containsAll(["F auid!=4294967295 "])
+          && split("-").containsAll(["F arch=b64 "])
+            || split("-").containsAll(["F arch=b32 "])
+          && split("-").containsAll(["F exit=","EPERM "])
+            || split("-").containsAll(["F exit=","EACCES "])
+          && split("-").containsAll(["F key=access"])
+            || split("-").containsAll(["k access"])
+            || split("-").containsAll(["F key=perm_mod"])
+            || split("-").containsAll(["k perm_mod"])
+      )
     docs:
       desc: |-
         Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation ( `creat` ), opening ( `open`, `openat` ) and
