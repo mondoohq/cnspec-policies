@@ -1454,11 +1454,22 @@ queries:
           mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+adjtimex(\s+\-S\s+|,)settimeofday(\s+\-S\s+|,)?(clock_settime)?\s+\-k\s+time-change(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+adjtimex(\s+\-S\s+|,)settimeofday(\s+\-S\s+|,)?(clock_settime)?(stime)?\s+\-k\s+time-change(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+clock\_settime\s+\-k\s+time-change(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+clock\_settime\s+\-k\s+time-change(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/localtime\s+\-p\s+wa\s+\-k\s+time-change(\s+)?$/))
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /settimeofday/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /clock_settime/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /adjtimex/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /settimeofday|clock_settime|adjtimex/).all(
+        split("-").containsAll(["a always,exit ",])
+          && split("-").containsAll(["F arch=b64 "])
+            || split("-").containsAll(["F arch=b32 "])
+          && split(" ").containsAll(["-F", "key=time-change"])
+            || split(" ").containsAll(["-k", "time-change"])
+      )
+      props.auditFiles.flat.unique.any(/\/etc\/localtime/)
+      props.auditFiles.flat.unique.where(/\/etc\/localtime/).all(
+        split("-").containsAll(["w /etc/localtime ","p wa ",])
+          && split(" ").containsAll(["-F", "key=time-change"])
+            || split(" ").containsAll(["-k", "time-change"])
+      )
     docs:
       desc: |-
         Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the `adjtimex`
