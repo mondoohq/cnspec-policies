@@ -539,21 +539,32 @@ queries:
         systemctl disable named
         ```
   - uid: mondoo-linux-security-ftp-server-is-not-enabled
-    title: Ensure FTP server is stopped and not enabled
+    title: Ensure FTP servers are stopped and not enabled
     impact: 60
     filters: |
       asset.kind != "container-image"
     mql: |
       service("vsftpd").enabled == false
       service("vsftpd").running == false
+      service("proftpd").enabled == false
+      service("proftpd").running == false
+      service("pure-ftpd").enabled == false
+      service("pure-ftpd").running == false
     docs:
-      desc: The File Transfer Protocol (FTP) provides networked computers with the ability to transfer files.
+      desc: |-
+        File Transfer Protocol (FTP) servers enables the transfer of files between computers over a network, supporting file upload, download, and management.
       remediation: |-
-        Run this command to stop and disable `vsftpd`:
+        Run this command to stop and disable `vsftpd`, `proftpd`, and `pure-ftpd`:
 
         ```
         systemctl stop vsftpd
         systemctl disable vsftpd
+
+        systemctl stop proftpd
+        systemctl disable proftpd
+
+        systemctl stop pure-ftpd
+        systemctl disable pure-ftpd
         ```
   - uid: mondoo-linux-security-http-server-is-not-enabled
     title: Ensure HTTP servers are stopped and not enabled
