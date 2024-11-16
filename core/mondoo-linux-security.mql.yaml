@@ -203,7 +203,7 @@ queries:
     docs:
       desc: Advanced Intrusion Detection Environment (AIDE) takes a snapshot of the filesystem state, including modification times, permissions, and file hashes. Administrators can then use this to compare against the current state of the filesystem to detect modifications to the system.
       remediation: |-
-        Run this command to install `aide` :
+        Run this command to install `aide`:
 
         # RHEL/Fedora/Amazon Linux and derivatives
         ```
@@ -427,7 +427,7 @@ queries:
     docs:
       desc: Avahi is a free zeroconf implementation, including a system for multicast DNS/DNS-SD service discovery. Avahi allows programs to publish and discover services and hosts running on a local network with no specific configuration. For example, a user can plug a computer into a network and Avahi automatically finds printers to print to, files to look at and people to talk to, as well as network services running on the machine.
       remediation: |-
-        Run this command to stop and disable `avahi-daemon` :
+        Run this command to stop and disable `avahi-daemon`:
 
         ```
         systemctl stop avahi-daemon
@@ -452,7 +452,7 @@ queries:
     docs:
       desc: The Common Unix Print System (CUPS) provides the ability to print to both local and network printers. A system running CUPS can also accept print jobs from remote systems and print them to local printers. It also provides a web based remote administration capability.
       remediation: |-
-        Run this command to stop and disable `cups` :
+        Run this command to stop and disable `cups`:
 
         ```
         systemctl stop cups
@@ -481,7 +481,7 @@ queries:
     docs:
       desc: The Dynamic Host Configuration Protocol (DHCP) is a service that allows machines to be dynamically assigned IP addresses.
       remediation: |-
-        Run this command to stop and disable `dhcpd` :
+        Run this command to stop and disable `dhcpd`:
 
         ```
         systemctl stop dhcpd
@@ -498,7 +498,7 @@ queries:
     docs:
       desc: The Lightweight Directory Access Protocol (LDAP) was introduced as a replacement for NIS/YP. It is a service that provides a method for looking up information from a central database.
       remediation: |-
-        Run this command to stop and disable `slapd` :
+        Run this command to stop and disable `slapd`:
 
         ```
         systemctl stop slapd
@@ -537,7 +537,7 @@ queries:
     docs:
       desc: The Domain Name System (DNS) is a hierarchical naming system that maps names to IP addresses for computers, services and other resources connected to a network.
       remediation: |-
-        Run this command to stop and disable `named` :
+        Run this command to stop and disable `named`:
 
         ```
         systemctl stop named
@@ -554,7 +554,7 @@ queries:
     docs:
       desc: The File Transfer Protocol (FTP) provides networked computers with the ability to transfer files.
       remediation: |-
-        Run this command to stop and disable `vsftpd` :
+        Run this command to stop and disable `vsftpd`:
 
         ```
         systemctl stop vsftpd
@@ -684,7 +684,7 @@ queries:
       }
       ports.listening.where(address != "127.0.0.1" && address != "::1").none(port == 25)
     docs:
-      desc: Mail Transfer Agents (MTA), such as Sendmail and Postfix, listen for incoming mail and transfer the messages to the appropriate user or mail server. If the system is not intended to be a mail server, it is recommended that the MTA be configured to only process local mail.
+      desc: Mail Transfer Agents (MTA), such as Exim and Postfix, listen for incoming mail and transfer the messages to the appropriate user or mail server. If the system is not intended to be a mail server, it is recommended that the MTA be configured to only process local mail.
       remediation: |-
         Edit `/etc/postfix/main.cf` and add the following line to the RECEIVING MAIL section. If the line already exists, change it to look like the line below:
 
@@ -708,7 +708,7 @@ queries:
     docs:
       desc: The Network Information Service (NIS) (formally known as Yellow Pages) is a client-server directory service protocol for distributing system configuration files. The NIS server is a collection of programs that allow for the distribution of configuration files.
       remediation: |-
-        Run this command to stop and disable `ypserv` :
+        Run this command to stop and disable `ypserv`:
 
         ```
         systemctl stop ypserv
@@ -729,7 +729,7 @@ queries:
     docs:
       desc: The Berkeley `rsh-server` ( `rsh`, `rlogin`, `rexec` ) package contains legacy services that exchange credentials in clear-text.
       remediation: |-
-        Run these commands to stop and disable `rsh`, `rlogin`, and `rexec` :
+        Run these commands to stop and disable `rsh`, `rlogin`, and `rexec`:
 
         ```
         systemctl stop rsh.socket
@@ -785,7 +785,7 @@ queries:
     docs:
       desc: The `rsyncd` service can be used to synchronize files between systems over network links.
       remediation: |-
-        Run this command to stop and disable `rsync` :
+        Run this command to stop and disable `rsync`:
 
         ```
         systemctl stop rsyncd
@@ -1131,7 +1131,8 @@ queries:
       package("auditd").installed && package("audispd-plugins").installed
       || package("audit").installed || package("audit-libs").installed
     docs:
-      desc: auditd is the user space component to the Linux Auditing System. It's responsible for writing audit records to the disk
+      desc: |-
+        `auditd` is the user space component to the Linux Auditing System. It's responsible for writing audit records to the disk.
       remediation: |-
         Run this command to install auditd with dnf
 
@@ -2711,7 +2712,7 @@ queries:
     docs:
       desc: The `/etc/group-` file contains a backup list of all the valid groups defined in the system. Only the root user should have read and write permissions on this file so that group names an user membership is not available to non-administrative users on the system.
       remediation: |-
-        Run this command to set permissions on `/etc/group-` :
+        Run this command to set permissions on `/etc/group-`:
 
         ```
         chown root:root /etc/group-
@@ -2740,7 +2741,7 @@ queries:
     docs:
       desc: The `/etc/gshadow-` file is used to store backup information about groups that is critical to the security of those accounts, such as the hashed password and other security information.
       remediation: |-
-        Run these commands to set permissions on `/etc/gshadow-` :
+        Run these commands to set permissions on `/etc/gshadow-`:
 
         ```
         chown root:root /etc/gshadow-
@@ -2827,7 +2828,7 @@ queries:
       desc: |
         The usermod command can be used to specify which group the root user belongs to. This affects permissions of files that are created by the root user.
       remediation: |
-        Run this command to set the `root` user default group to GID `0` :
+        Run this command to set the `root` user default group to GID `0`:
 
         ```
         usermod -g 0 root
