@@ -584,21 +584,26 @@ queries:
         systemctl disable nginx
         ```
   - uid: mondoo-linux-security-imap-and-pop3-server-is-not-enabled
-    title: Ensure IMAP and POP3 server is stopped and not enabled
+    title: Ensure IMAP and POP3 servers are stopped and not enabled
     impact: 100
     filters: |
       asset.kind != "container-image"
     mql: |
       service("dovecot").enabled == false
       service("dovecot").running == false
+      service("cyrus-imapd").enabled == false
+      service("cyrus-imapd").running == false
     docs:
-      desc: '`dovecot` is an open source IMAP and POP3 server for Linux based systems.'
+      desc: '`dovecot` and `cyrus-imapd` are open source IMAP and POP3 servers for Linux.'
       remediation: |-
-        Run this command to stop and disable `dovecot` :
+        Run this command to stop and disable `dovecot` and `cyrus-imapd`:
 
         ```
         systemctl stop dovecot
         systemctl disable dovecot
+
+        systemctl stop cyrus-imapd
+        systemctl disable cyrus-imapd
         ```
   - uid: mondoo-linux-security-samba-is-not-enabled
     title: Ensure Samba is stopped and not enabled
@@ -1276,7 +1281,6 @@ queries:
 
         ```
         -w /etc/sudoers -p wa -k scope
-
         -w /etc/sudoers.d -p wa -k scope
         ```
 
