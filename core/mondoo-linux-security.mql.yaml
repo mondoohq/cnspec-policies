@@ -1379,6 +1379,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1408,8 +1409,7 @@ queries:
         login attempts and can be read by entering the command `/usr/bin/last -f /var/log/btmp`. All audit records will be tagged with
         the identifier "logins."
       remediation: |-
-        Edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-session.rules`
 
@@ -1428,6 +1428,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1460,8 +1461,7 @@ queries:
         (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the `/var/log/audit.log`
         file upon exit, tagging the records with the identifier "time-change"
       remediation: |-
-        For 32-bit systems edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`_
+        For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`_
 
         Example: `vi /etc/audit/rules.d/50-time_change.rules`
 
@@ -1475,8 +1475,7 @@ queries:
         -w /etc/localtime -p wa -k time-change
         ```
 
-        For 64-bit systems edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        For 64-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-time_change.rules`
 
@@ -1499,6 +1498,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1527,8 +1527,7 @@ queries:
         Monitor SELinux/AppArmor mandatory access controls. The parameters below monitor any write access (potential additional,
         deletion or modification of files in the directory) or attribute changes to the /etc/selinux or /etc/apparmor and /etc/apparmor.d directories.
       remediation: |-
-        Edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-MAC_policy.rules`
 
@@ -1553,6 +1552,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1611,8 +1611,7 @@ queries:
         -w /etc/network -p wa -k system-locale
         ```
 
-        For 64-bit systems edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        For 64-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-system_local.rules`
 
@@ -1646,6 +1645,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1687,8 +1687,7 @@ queries:
 
         If your systems' UID_MIN is not `1000`, replace `audit>=1000` with `audit>=<UID_MIN for your system>` in the Audit and Remediation procedures.
       remediation: |-
-        For 32-bit systems edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-perm_mod.rules`
 
@@ -1727,6 +1726,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1763,8 +1763,7 @@ queries:
 
         If your systems' UID_MIN is not `1000`, replace `audit>=1000` with `audit>=<UID_MIN for your system>` in the Audit and Remediation procedures.
       remediation: |-
-        For 32-bit systems edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-access.rules`
 
@@ -1776,8 +1775,7 @@ queries:
         -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
         ```
 
-        For 64-bit systems edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        For 64-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-access.rules`
 
@@ -1798,6 +1796,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1850,6 +1849,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1903,6 +1903,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -1964,6 +1965,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -2032,6 +2034,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -2078,6 +2081,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
