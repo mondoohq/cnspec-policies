@@ -435,6 +435,7 @@ queries:
         ```
 
         Note: Since the `avahi-daemon` service is often interdependent with other services, it might not be enough to disable the service because other services will likely restart the service automatically.
+
         To make the service `avahi-daemon` invisible to other services run this command :
 
         ```
@@ -459,9 +460,12 @@ queries:
         ```
 
         Note: Since the `cups` service is often interdependent with other services, it might not be enough to disable the service because other services such as `cups-browsed` will likely restart the service automatically.
+
         To make the service `cups` invisible to other services run this command :
 
-        `systemctl mask cups`
+        ```
+        systemctl mask cups
+        ```
 
         **Impact:**
 
