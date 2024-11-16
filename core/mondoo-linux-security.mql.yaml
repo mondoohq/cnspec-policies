@@ -50,12 +50,6 @@ policies:
 
         Remote scans use cnspec providers to retrieve on-demand scan results without having to install any agents.
 
-        For a complete list of providers run:
-
-        ```bash
-        cnspec scan --help
-        ```
-
         ### Prerequisites
 
         Remote scans of Linux hosts requires authentication such as SSH keys.
@@ -1142,8 +1136,7 @@ queries:
       service("auditd").enabled
     docs:
       desc: |-
-        Turn on the `auditd`
-        daemon to record system events.
+        Turn on the `auditd` daemon to record system events.
       remediation: |-
         Run this command to enable `auditd`:
 
@@ -1174,9 +1167,7 @@ queries:
       }
     docs:
       desc: |-
-        Configure `grub2`
-        so that processes that are capable of being audited can be audited even if they start up prior to `auditd`
-        startup.
+        Configure `grub2` so that processes that are capable of being audited can be audited even if they start up prior to `auditd` startup.
       remediation: |-
         Edit `/etc/default/grub` and add `audit=1` to `GRUB_CMDLINE_LINUX`:
 
@@ -1223,9 +1214,7 @@ queries:
       }
     docs:
       desc: |-
-        The `max_log_file_action`
-        setting determines how to handle the audit log file reaching the max file size. A value of `keep_logs`
-        will rotate the logs but never delete old logs.
+        The `max_log_file_action` setting determines how to handle the audit log file reaching the max file size. A value of `keep_logs` will rotate the logs but never delete old logs.
       remediation: |-
         Set the following parameter in `/etc/audit/auditd.conf`:
 
@@ -1248,8 +1237,7 @@ queries:
       }
     docs:
       desc: |-
-        The `auditd`
-        daemon can be configured to halt the system when the audit logs are full.
+        The `auditd` daemon can be configured to halt the system when the audit logs are full.
       remediation: |-
         Set the following parameters in `/etc/audit/auditd.conf`:
 
@@ -1372,11 +1360,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/btmp\s+\-p\s+wa\s+\-k\s+(logins|session)(\s+)?$/))
     docs:
       desc: |-
-        Monitor session initiation events. The parameters in this section track changes to the files associated with session events.
-        The file `/var/run/utmp` tracks all currently logged in users. All audit records will be tagged with the identifier "session."
-        The `/var/log/wtmp` file tracks logins, logouts, shutdown, and reboot events. The file `/var/log/btmp` keeps track of failed
-        login attempts and can be read by entering the command `/usr/bin/last -f /var/log/btmp`. All audit records will be tagged with
-        the identifier "logins."
+        Monitor session initiation events. The parameters in this section track changes to the files associated with session events. The file `/var/run/utmp` tracks all currently logged in users. All audit records will be tagged with the identifier "session." The `/var/log/wtmp` file tracks logins, logouts, shutdown, and reboot events. The file `/var/log/btmp` keeps track of failed login attempts and can be read by entering the command `/usr/bin/last -f /var/log/btmp`. All audit records will be tagged with the identifier "logins."
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
@@ -1421,12 +1405,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/localtime\s+\-p\s+wa\s+\-k\s+time-change(\s+)?$/))
     docs:
       desc: |-
-        Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the `adjtimex`
-        (tune kernel clock), `settimeofday`
-        (Set time, using timeval and timezone structures) `stime`
-        (using seconds since 1/1/1970) or `clock_settime`
-        (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the `/var/log/audit.log`
-        file upon exit, tagging the records with the identifier "time-change"
+        Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the `adjtimex` (tune kernel clock), `settimeofday` (Set time, using timeval and timezone structures) `stime` (using seconds since 1/1/1970) or `clock_settime` (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the `/var/log/audit.log` file upon exit, tagging the records with the identifier "time-change"
       remediation: |-
         For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`_
 
@@ -1485,8 +1464,7 @@ queries:
       appArmorSys || seLinuxSys
     docs:
       desc: |-
-        Monitor SELinux/AppArmor mandatory access controls. The parameters below monitor any write access (potential additional,
-        deletion or modification of files in the directory) or attribute changes to the /etc/selinux or /etc/apparmor and /etc/apparmor.d directories.
+        Monitor SELinux/AppArmor mandatory access controls. The parameters below monitor any write access (potential additional, deletion or modification of files in the directory) or attribute changes to the /etc/selinux or /etc/apparmor and /etc/apparmor.d directories.
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
@@ -2003,7 +1981,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/(\s+)?\-e\s+2(\s+)?$/))
     docs:
       desc: |-
-        Set system audit so that audit rules cannot be modified with `auditctl`. Setting the flag "-e 2" forces audit to be put in immutable mode. Audit changes can only be made on system reboot.
+        Set system audit so that audit rules cannot be modified with `auditctl`. Setting the flag `-e 2` forces audit to be put in immutable mode. Audit changes can only be made on system reboot.
       remediation: |-
         Edit or create the file `/etc/audit/audit.rules` and add the following line at the end of the file:
 
