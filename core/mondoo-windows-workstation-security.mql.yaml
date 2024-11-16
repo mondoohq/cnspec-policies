@@ -14,8 +14,6 @@ policies:
         email: hello@mondoo.com
     docs:
       desc: |
-        ## Overview
-
         This policy provides prescriptive guidance for establishing a secure configuration posture for Microsoft Windows client systems running on x86 and x64 platforms.
 
         Commands and scripts are provided which should work on Windows 10 and 11.

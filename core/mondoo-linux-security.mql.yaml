@@ -14,8 +14,6 @@ policies:
         email: hello@mondoo.com
     docs:
       desc: |-
-        ## Overview
-
         The Mondoo Linux Security policy provides guidance for establishing a secure baseline configuration for Linux systems running on x86 and x64 platforms.
 
         This policy includes queries to help harden Linux systems by:
