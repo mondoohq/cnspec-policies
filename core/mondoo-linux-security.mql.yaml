@@ -210,14 +210,9 @@ queries:
         yum install aide
         ```
 
-        # Ubuntu
+        # Debian/Ubuntu
         ```
         apt-get install aide
-        ```
-
-        # Debian
-        ```
-        apt install aide
         ```
 
         # SLES and openSUSE
@@ -391,7 +386,7 @@ queries:
         yum remove prelink
         ```
 
-        ### Ubuntu/Debian
+        ### Debian/Ubuntu and derivatives
         ```
         prelink -ua
 
@@ -857,7 +852,6 @@ queries:
 
         ```
         net.ipv4.conf.all.send_redirects = 0
-
         net.ipv4.conf.default.send_redirects = 0
         ```
 
