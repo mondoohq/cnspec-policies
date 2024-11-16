@@ -1135,16 +1135,23 @@ queries:
       desc: |-
         `auditd` is the user space component to the Linux Auditing System. It's responsible for writing audit records to the disk.
       remediation: |-
-        Run this command to install auditd with dnf
+        Run this command to install `auditd`:
 
+        ### Debian/Ubuntu and derivatives
+
+        ### RHEL/Fedora/Amazon Linux and derivatives
         ```
         dnf install audit audit-libs
         ```
 
-        Run this command to install auditd with apt
-
+        ### Debian/Ubuntu
         ```
         apt install auditd audispd-plugins
+        ```
+
+        ### SLES and openSUSE
+        ```
+        zypper install audit
         ```
   - uid: mondoo-linux-security-auditd-service-is-enabled
     title: Ensure auditd service is enabled
