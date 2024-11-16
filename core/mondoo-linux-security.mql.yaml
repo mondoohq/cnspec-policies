@@ -761,7 +761,7 @@ queries:
       service("tftp.socket").enabled == false
       service("tftp.socket").running == false
     docs:
-      desc: Trivial File Transfer Protocol (TFTP) is a simple file transfer protocol, typically used to automatically transfer configuration or boot machines from a boot server. The package `tftp-server` is used to define and support a TFTP server.
+      desc: Trivial File Transfer Protocol (TFTP) is a simple file transfer protocol, typically used to automatically transfer configuration or boot machines from a boot server.
       remediation: |-
         Run this command to stop and disable tftp:
 
@@ -936,7 +936,6 @@ queries:
 
         sysctl -w net.ipv6.conf.all.accept_redirects=0
         sysctl -w net.ipv6.conf.default.accept_redirects=0
-
         sysctl -w net.ipv6.route.flush=1
         ```
   - uid: mondoo-linux-security-secure-icmp-redirects-are-not-accepted
