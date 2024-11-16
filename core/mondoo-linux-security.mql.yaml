@@ -1310,9 +1310,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers(\/?)\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
     docs:
       desc: |-
-        Monitor scope changes for system administrators. If the system has been properly configured to force system administrators to log in as themselves first and then use the `sudo`
-        command to execute privileged commands, it is possible to monitor changes in scope. The file `/etc/sudoers`
-        will be written to when the file or its attributes have changed. The audit records will be tagged with the identifier "scope."
+        Monitor scope changes for system administrators. If the system has been properly configured to force system administrators to log in as themselves first and then use the `sudo` command to execute privileged commands, it is possible to monitor changes in scope. The file `/etc/sudoers` will be written to when the file or its attributes have changed. The audit records will be tagged with the identifier "scope."
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/`
         directory ending in `.rules`
@@ -1332,6 +1330,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
         Check if a reboot is required, in case the running configuration is set to be immutable:
