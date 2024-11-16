@@ -1177,8 +1177,7 @@ queries:
         Turn on the `auditd`
         daemon to record system events.
       remediation: |-
-        Run this command to enable `auditd`
-        :
+        Run this command to enable `auditd`:
 
         ```
         systemctl --now enable auditd
@@ -1211,15 +1210,13 @@ queries:
         so that processes that are capable of being audited can be audited even if they start up prior to `auditd`
         startup.
       remediation: |-
-        Edit `/etc/default/grub` and add `audit=1`
-        to `GRUB_CMDLINE_LINUX`:
+        Edit `/etc/default/grub` and add `audit=1` to `GRUB_CMDLINE_LINUX`:
 
         ```
         GRUB_CMDLINE_LINUX="audit=1"
         ```
 
-        Run this command to update the `grub2`
-        configuration:
+        Run this command to update the `grub2` configuration:
 
         ### RHEL/Fedora/Amazon Linux and derivatives
         ```
@@ -1243,8 +1240,7 @@ queries:
     docs:
       desc: Configure the maximum size of the audit log file. Once the log reaches the maximum size, it will be rotated and a new log file will be started.
       remediation: |-
-        Set the following parameter in `/etc/audit/auditd.conf`
-        in accordance with site policy:
+        Set the following parameter in `/etc/audit/auditd.conf` in accordance with site policy:
 
         ```
         max_log_file = <MB>
@@ -1263,7 +1259,7 @@ queries:
         setting determines how to handle the audit log file reaching the max file size. A value of `keep_logs`
         will rotate the logs but never delete old logs.
       remediation: |-
-        Set the following parameter in `/etc/audit/auditd.conf:`
+        Set the following parameter in `/etc/audit/auditd.conf`:
 
         ```
         max_log_file_action = keep_logs
@@ -1287,7 +1283,7 @@ queries:
         The `auditd`
         daemon can be configured to halt the system when the audit logs are full.
       remediation: |-
-        Set the following parameters in `/etc/audit/auditd.conf:`
+        Set the following parameters in `/etc/audit/auditd.conf`:
 
         ```
         space_left_action = email
@@ -1312,8 +1308,7 @@ queries:
       desc: |-
         Monitor scope changes for system administrators. If the system has been properly configured to force system administrators to log in as themselves first and then use the `sudo` command to execute privileged commands, it is possible to monitor changes in scope. The file `/etc/sudoers` will be written to when the file or its attributes have changed. The audit records will be tagged with the identifier "scope."
       remediation: |-
-        Edit or create a file in the `/etc/audit/rules.d/`
-        directory ending in `.rules`
+        Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
 
         Example: `vi /etc/audit/rules.d/50-scope.rules`
 
