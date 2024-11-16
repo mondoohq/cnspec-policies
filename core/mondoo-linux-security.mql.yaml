@@ -2107,8 +2107,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/(\s+)?\-e\s+2(\s+)?$/))
     docs:
       desc: |-
-        Set system audit so that audit rules cannot be modified with `auditctl`
-        . Setting the flag "-e 2" forces audit to be put in immutable mode. Audit changes can only be made on system reboot.
+        Set system audit so that audit rules cannot be modified with `auditctl`. Setting the flag "-e 2" forces audit to be put in immutable mode. Audit changes can only be made on system reboot.
       remediation: |-
         Edit or create the file `/etc/audit/audit.rules` and add the following line at the end of the file:
 
@@ -2121,6 +2120,7 @@ queries:
         ```
         augenrules --load
         ```
+
         This command will generate a new `/etc/audit/audit.rules` file containing the newly added rules.
 
 
@@ -3061,7 +3061,7 @@ queries:
   - uid: mondoo-linux-security-access-to-the-su-command-is-restricted
     title: Ensure access to the su command is restricted
     impact: 80
-    filters: | 
+    filters: |
       asset.kind != "container-image"
     props:
       - uid: mondooLinuxSecuritySudoGroup
