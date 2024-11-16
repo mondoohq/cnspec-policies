@@ -31,11 +31,6 @@ policies:
         Non-root users may not be able to access certain areas of the system, especially after remediation has been performed. It is advisable to verify
         root users path integrity and the integrity of any programs being run prior to execution of commands and scripts included in this benchmark.
 
-        ### Intended Audience
-
-        This benchmark is intended for system and application administrators, security specialists, auditors, help desk, and platform deployment personnel
-        who plan to develop, deploy, assess, or secure solutions that incorporate Linux on x86 or x64 platforms.
-
         ## Local scan
 
         Local scan refer to scans of files and operating systems where cnspec is installed.
