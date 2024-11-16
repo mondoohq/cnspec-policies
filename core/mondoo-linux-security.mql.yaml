@@ -2630,7 +2630,10 @@ queries:
         }
       }
     docs:
-      desc: The `/etc/gshadow` file is used to store the information about groups that is critical to the security of those accounts, such as the hashed password and other security information.
+      desc: |-
+        The `/etc/gshadow` file stores hashed group passwords. It serves as a companion to `/etc/group`, which lists groups and membership, but not sensitive password information.
+
+        If an attacker gains access to `/etc/gshadow` file, they could potentially crack the group passwords to gain elevated access across the system.
       remediation: |-
         Run the following chown to set permissions on `/etc/gshadow`:
 
@@ -2654,7 +2657,8 @@ queries:
         }
       }
     docs:
-      desc: The `/etc/passwd-` file contains backup user account information.
+      desc: |-
+        The `/etc/passwd-`` file in Linux is a backup copy of the main `/etc/passwd` file, which contains essential information about system users. The `-` suffix signifies that this file is a backup and is created automatically by the system when there are changes made to the /etc/passwd file, such as adding or deleting a user.
       remediation: |-
         Run this command to set permissions on `/etc/passwd-`:
 
@@ -2742,7 +2746,10 @@ queries:
         }
       }
     docs:
-      desc: The `/etc/gshadow-` file is used to store backup information about groups that is critical to the security of those accounts, such as the hashed password and other security information.
+      desc: |-
+        The `/etc/gshadow-` file in is a backup of `/etc/gshadow` file, which contains group password information. This file stores information about group administrators, group members, and encrypted group passwords.
+
+        If an attacker gains access to `/etc/gshadow-`, they could potentially crack the group passwords to gain elevated access across the system.
       remediation: |-
         Run these commands to set permissions on `/etc/gshadow-`:
 
