@@ -16,16 +16,6 @@ policies:
       desc: |
         The Mondoo GitLab Security policy offers guidance on establishing minimum recommended security best practices for GitLab groups and projects.
 
-        ## Remote scan
-
-        Remote scans use cnspec providers to retrieve on-demand scan results without having to install any agents.
-
-        A complete list of providers can be found by running this command:
-
-        ```bash
-        cnspec scan --help
-        ```
-
         ### Prerequisites
 
         Remote scans of GitLab require a [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) with access to the group and projects you plan to scan.
