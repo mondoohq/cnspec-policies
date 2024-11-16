@@ -513,7 +513,7 @@ queries:
     docs:
       desc: The Network File System (NFS) is one of the first and most widely distributed file systems in the UNIX environment. It provides the ability for systems to mount file systems of other servers through the network.
       remediation: |-
-        Run these commands to stop and disable `nfs`, `nfs-server`, and `rpcbind`:
+        Run these commands to stop and disable `nfs` and `rpcbind`:
 
         ```
         systemctl stop nfs
@@ -884,11 +884,8 @@ queries:
 
         ```
         net.ipv4.conf.all.accept_source_route = 0
-
         net.ipv4.conf.default.accept_source_route = 0
-
         net.ipv6.conf.all.accept_source_route = 0
-
         net.ipv6.conf.default.accept_source_route = 0
         ```
 
@@ -896,15 +893,10 @@ queries:
 
         ```
         sysctl -w net.ipv4.conf.all.accept_source_route=0
-
         sysctl -w net.ipv4.conf.default.accept_source_route=0
-
         sysctl -w net.ipv6.conf.all.accept_source_route=0
-
         sysctl -w net.ipv6.conf.default.accept_source_route=0
-
         sysctl -w net.ipv4.route.flush=1
-
         sysctl -w net.ipv6.route.flush=1
         ```
   - uid: mondoo-linux-security-icmp-redirects-are-not-accepted
@@ -929,11 +921,8 @@ queries:
 
         ```
         net.ipv4.conf.all.accept_redirects = 0
-
         net.ipv4.conf.default.accept_redirects = 0
-
         net.ipv6.conf.all.accept_redirects = 0
-
         net.ipv6.conf.default.accept_redirects = 0
         ```
 
@@ -941,15 +930,10 @@ queries:
 
         ```
         sysctl -w net.ipv4.conf.all.accept_redirects=0
-
         sysctl -w net.ipv4.conf.default.accept_redirects=0
-
         sysctl -w net.ipv6.conf.all.accept_redirects=0
-
         sysctl -w net.ipv6.conf.default.accept_redirects=0
-
         sysctl -w net.ipv4.route.flush=1
-
         sysctl -w net.ipv6.route.flush=1
         ```
   - uid: mondoo-linux-security-secure-icmp-redirects-are-not-accepted
@@ -970,7 +954,6 @@ queries:
 
         ```
         net.ipv4.conf.all.secure_redirects = 0
-
         net.ipv4.conf.default.secure_redirects = 0
         ```
 
@@ -978,9 +961,7 @@ queries:
 
         ```
         sysctl -w net.ipv4.conf.all.secure_redirects=0
-
         sysctl -w net.ipv4.conf.default.secure_redirects=0
-
         sysctl -w net.ipv4.route.flush=1
         ```
   - uid: mondoo-linux-security-suspicious-packets-are-logged
@@ -999,18 +980,16 @@ queries:
 
         ```
         net.ipv4.conf.all.log_martians = 1
-
         net.ipv4.conf.default.log_martians = 1
         ```
+
         Hint: If you're using Ubuntu's UFW, please check the for the above configuration in the file /etc/ufw/sysctl.conf in addition, because these settings will overwrite the kernel parameters on UFW startup.
 
         Run these commands to set the active kernel parameters:
 
         ```
         sysctl -w net.ipv4.conf.all.log_martians=1
-
         sysctl -w net.ipv4.conf.default.log_martians=1
-
         sysctl -w net.ipv4.route.flush=1
         ```
   - uid: mondoo-linux-security-broadcast-icmp-requests-are-ignored
@@ -1034,7 +1013,6 @@ queries:
 
         ```
         sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
-
         sysctl -w net.ipv4.route.flush=1
         ```
   - uid: mondoo-linux-security-bogus-icmp-responses-are-ignored
@@ -1058,7 +1036,6 @@ queries:
 
         ```
         sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1
-
         sysctl -w net.ipv4.route.flush=1
         ```
   - uid: mondoo-linux-security-reverse-path-filtering-is-enabled
@@ -1077,7 +1054,6 @@ queries:
 
         ```
         net.ipv4.conf.all.rp_filter = 1
-
         net.ipv4.conf.default.rp_filter = 1
         ```
 
@@ -1085,9 +1061,7 @@ queries:
 
         ```
         sysctl -w net.ipv4.conf.all.rp_filter=1
-
         sysctl -w net.ipv4.conf.default.rp_filter=1
-
         sysctl -w net.ipv4.route.flush=1
         ```
   - uid: mondoo-linux-security-tcp-syn-cookies-is-enabled
@@ -1111,7 +1085,6 @@ queries:
 
         ```
         sysctl -w net.ipv4.tcp_syncookies=1
-
         sysctl -w net.ipv4.route.flush=1
         ```
   - uid: mondoo-linux-security-ipv6-router-advertisements-are-not-accepted
@@ -1132,7 +1105,6 @@ queries:
 
         ```
         net.ipv6.conf.all.accept_ra = 0
-
         net.ipv6.conf.default.accept_ra = 0
         ```
 
@@ -1140,9 +1112,7 @@ queries:
 
         ```
         sysctl -w net.ipv6.conf.all.accept_ra=0
-
         sysctl -w net.ipv6.conf.default.accept_ra=0
-
         sysctl -w net.ipv6.route.flush=1
         ```
   - uid: mondoo-linux-security-auditd-is-installed
