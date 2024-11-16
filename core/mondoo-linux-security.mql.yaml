@@ -4,7 +4,7 @@
 policies:
   - uid: mondoo-linux-security
     name: Mondoo Linux Security
-    version: 2.4.1
+    version: 2.5.0
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
@@ -73,25 +73,14 @@ policies:
           - uid: mondoo-linux-security--window-system-is-not-installed
           - uid: mondoo-linux-security-address-space-layout-randomization-aslr-is-enabled
           - uid: mondoo-linux-security-aide-is-installed
-          - uid: mondoo-linux-security-avahi-server-is-not-enabled
           - uid: mondoo-linux-security-bogus-icmp-responses-are-ignored
           - uid: mondoo-linux-security-broadcast-icmp-requests-are-ignored
           - uid: mondoo-linux-security-core-dumps-are-restricted
-          - uid: mondoo-linux-security-cups-is-not-enabled
-          - uid: mondoo-linux-security-dhcp-server-is-not-enabled
-          - uid: mondoo-linux-security-dns-server-is-not-enabled
           - uid: mondoo-linux-security-filesystem-integrity-is-regularly-checked
-          - uid: mondoo-linux-security-ftp-server-is-not-enabled
-          - uid: mondoo-linux-security-http-proxy-server-is-not-enabled
-          - uid: mondoo-linux-security-http-server-is-not-enabled
           - uid: mondoo-linux-security-icmp-redirects-are-not-accepted
-          - uid: mondoo-linux-security-imap-and-pop3-server-is-not-enabled
           - uid: mondoo-linux-security-ip-forwarding-is-disabled
           - uid: mondoo-linux-security-ipv6-router-advertisements-are-not-accepted
-          - uid: mondoo-linux-security-ldap-server-is-not-enabled
           - uid: mondoo-linux-security-mail-transfer-agent-is-configured-for-local-only-mode
-          - uid: mondoo-linux-security-nfs-and-rpc-are-not-enabled
-          - uid: mondoo-linux-security-nis-server-is-not-enabled
           - uid: mondoo-linux-security-packet-redirect-sending-is-disabled
           - uid: mondoo-linux-security-permissions-on-etcgroup--are-configured
           - uid: mondoo-linux-security-permissions-on-etcgroup-are-configured
@@ -103,18 +92,33 @@ policies:
           - uid: mondoo-linux-security-permissions-on-etcshadow-are-configured
           - uid: mondoo-linux-security-prelink-is-disabled
           - uid: mondoo-linux-security-reverse-path-filtering-is-enabled
+          - uid: mondoo-linux-security-secure-icmp-redirects-are-not-accepted
+          - uid: mondoo-linux-security-source-routed-packets-are-not-accepted
+          - uid: mondoo-linux-security-suspicious-packets-are-logged
+          - uid: mondoo-linux-security-tcp-syn-cookies-is-enabled
+      - title: Sensitive Services
+        filters: |
+          asset.family.contains('linux')
+        checks:
+          - uid: mondoo-linux-security-avahi-server-is-not-enabled
+          - uid: mondoo-linux-security-dhcp-server-is-not-enabled
+          - uid: mondoo-linux-security-dns-server-is-not-enabled
+          - uid: mondoo-linux-security-ftp-server-is-not-enabled
+          - uid: mondoo-linux-security-http-proxy-server-is-not-enabled
+          - uid: mondoo-linux-security-http-server-is-not-enabled
+          - uid: mondoo-linux-security-imap-and-pop3-server-is-not-enabled
+          - uid: mondoo-linux-security-ldap-server-is-not-enabled
+          - uid: mondoo-linux-security-nfs-and-rpc-are-not-enabled
+          - uid: mondoo-linux-security-nis-server-is-not-enabled
           - uid: mondoo-linux-security-rsh-server-is-not-enabled
           - uid: mondoo-linux-security-rsync-service-is-not-enabled
           - uid: mondoo-linux-security-samba-is-not-enabled
-          - uid: mondoo-linux-security-secure-icmp-redirects-are-not-accepted
           - uid: mondoo-linux-security-snmp-server-is-not-enabled
-          - uid: mondoo-linux-security-source-routed-packets-are-not-accepted
-          - uid: mondoo-linux-security-suspicious-packets-are-logged
           - uid: mondoo-linux-security-talk-server-is-not-enabled
-          - uid: mondoo-linux-security-tcp-syn-cookies-is-enabled
           - uid: mondoo-linux-security-telnet-server-is-not-enabled
           - uid: mondoo-linux-security-tftp-server-is-not-enabled
-      - title: Configure SSH Server
+          - uid: mondoo-linux-security-cups-is-not-enabled
+      - title: SSH Server Configuration
         filters: |
           asset.family.contains('linux')
           package('openssh-server').installed
@@ -316,13 +320,13 @@ queries:
     docs:
       desc: A core dump is the memory of an executable program. It is generally used to determine why a program aborted. It can also be used to glean confidential information from a core file. The system provides the ability to set a soft limit for core dumps, but this can be overridden by the user.
       remediation: |-
-        Add the following line to `/etc/security/limits.conf` or a `/etc/security/limits.d/\*` file:
+        Add the following line to `/etc/security/limits.conf` or a `/etc/security/limits.d/` file:
 
         ```
         * hard core 0
         ```
 
-        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         fs.suid_dumpable = 0
@@ -359,7 +363,7 @@ queries:
     docs:
       desc: Address space layout randomization (ASLR) is an exploit mitigation technique which randomly arranges the address space of key data areas of a process.
       remediation: |-
-        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         kernel.randomize_va_space = 2
@@ -809,7 +813,7 @@ queries:
     docs:
       desc: The `net.ipv4.ip_forward` and `net.ipv6.conf.all.forwarding` flags are used to tell the system whether it can forward packets or not.
       remediation: |-
-        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.ip_forward = 0
@@ -840,7 +844,7 @@ queries:
     docs:
       desc: ICMP Redirects are used to send routing information to other hosts. As a host itself does not act as a router (in a host-only configuration), there is no need to send redirects.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.conf.all.send_redirects = 0
@@ -873,7 +877,7 @@ queries:
     docs:
       desc: In networking, source routing allows a sender to partially or fully specify the route packets take through a network. In contrast, non-source routed packets travel a path determined by routers in the network. In some cases, systems may not be routable or reachable from some locations (e.g. private addresses vs. Internet routable), and so source routed packets would need to be used.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.conf.all.accept_source_route = 0
@@ -911,7 +915,7 @@ queries:
     docs:
       desc: ICMP redirect messages are packets that convey routing information and tell your host (acting as a router) to send packets via an alternate path. It is a way of allowing an outside routing device to update your system routing tables. By setting `net.ipv4.conf.all.accept_redirects` and `net.ipv6.conf.all.accept_redirects` to 0, the system will not accept any ICMP redirect messages, and therefore, won't allow outsiders to update the system's routing tables.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.conf.all.accept_redirects = 0
@@ -946,7 +950,7 @@ queries:
     docs:
       desc: Secure ICMP redirects are the same as ICMP redirects, except they come from gateways listed on the default gateway list. It is assumed that these gateways are known to your system and are likely to be secure.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.conf.all.secure_redirects = 0
@@ -972,7 +976,7 @@ queries:
     docs:
       desc: When enabled, this feature logs packets with un-routable source addresses to the kernel log.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` or in /etc/ufw/sysctl.conf file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` or in /etc/ufw/sysctl.conf file:
 
         ```
         net.ipv4.conf.all.log_martians = 1
@@ -999,7 +1003,7 @@ queries:
     docs:
       desc: Setting `net.ipv4.icmp_echo_ignore_broadcasts` to 1 will cause the system to ignore all ICMP echo and timestamp requests to broadcast and multicast addresses.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.icmp_echo_ignore_broadcasts = 1
@@ -1022,7 +1026,7 @@ queries:
     docs:
       desc: Setting `icmp_ignore_bogus_error_responses` to 1 prevents the kernel from logging bogus responses (RFC-1122 non-compliant) from broadcast reframes, keeping file systems from filling up with useless log messages.
       remediation: |-
-        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.icmp_ignore_bogus_error_responses = 1
@@ -1046,7 +1050,7 @@ queries:
     docs:
       desc: Setting `net.ipv4.conf.all.rp_filter`and `net.ipv4.conf.default.rp_filter` to 1 forces the Linux kernel to utilize reverse path filtering on a received packet to determine if the packet was valid. Essentially, with reverse path filtering, if the return packet does not go out the same interface that the corresponding source packet came from, the packet is dropped (and logged if `log_martians` is set).
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.conf.all.rp_filter = 1
@@ -1071,7 +1075,7 @@ queries:
     docs:
       desc: When `tcp_syncookies` is set, the kernel will handle TCP SYN packets normally until the half-open connection queue is full, at which time, the SYN cookie functionality kicks in. SYN cookies work by not using the SYN queue at all. Instead, the kernel simply replies to the SYN with a SYN\|ACK, but will include a specially crafted TCP sequence number that encodes the source and destination IP address and port number and the time the packet was sent. A legitimate connection would send the ACK packet of the three way handshake with the specially crafted sequence number. This allows the system to verify that it has received a valid response to a SYN cookie and allow the connection, even though there is no corresponding SYN in the queue.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv4.tcp_syncookies = 1
@@ -1097,7 +1101,7 @@ queries:
     docs:
       desc: This setting disables the system's ability to accept IPv6 router advertisements.
       remediation: |-
-        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/\*` file:
+        Set the following parameters in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
         ```
         net.ipv6.conf.all.accept_ra = 0
