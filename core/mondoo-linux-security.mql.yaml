@@ -1328,7 +1328,6 @@ queries:
 
         ```
         -w /var/log/lastlog -p wa -k logins
-
         -w /var/log/tallylog -p wa -k logins
         ```
 
@@ -1387,9 +1386,7 @@ queries:
 
         ```
         -w /var/run/utmp -p wa -k session
-
         -w /var/log/wtmp -p wa -k logins
-
         -w /var/log/btmp -p wa -k logins
         ```
 
@@ -1439,9 +1436,7 @@ queries:
 
         ```
         -a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
-
         -a always,exit -F arch=b32 -S clock_settime -k time-change
-
         -w /etc/localtime -p wa -k time-change
         ```
 
@@ -1453,13 +1448,9 @@ queries:
 
         ```
         -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
-
         -a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
-
         -a always,exit -F arch=b64 -S clock_settime -k time-change
-
         -a always,exit -F arch=b32 -S clock_settime -k time-change
-
         -w /etc/localtime -p wa -k time-change
         ```
 
@@ -1505,7 +1496,6 @@ queries:
 
         ```
         -w /etc/selinux/ -p wa -k MAC-policy
-
         -w /usr/share/selinux/ -p wa -k MAC-policy
         ```
 
@@ -1513,7 +1503,6 @@ queries:
 
         ```
         -w /etc/apparmor/ -p wa -k MAC-policy
-
         -w /etc/apparmor.d/ -p wa -k MAC-policy
         ```
 
@@ -1558,11 +1547,8 @@ queries:
 
         ```
         -a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
-
         -w /etc/issue -p wa -k system-locale
-
         -w /etc/issue.net -p wa -k system-locale
-
         -w /etc/hosts -p wa -k system-locale
         ```
 
