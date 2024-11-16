@@ -205,17 +205,17 @@ queries:
       remediation: |-
         Run this command to install `aide`:
 
-        # RHEL/Fedora/Amazon Linux and derivatives
+        ### RHEL/Fedora/Amazon Linux and derivatives
         ```
         yum install aide
         ```
 
-        # Debian/Ubuntu
+        ### Debian/Ubuntu
         ```
         apt-get install aide
         ```
 
-        # SLES and openSUSE
+        ### SLES and openSUSE
         ```
         zypper install aide
         ```
@@ -2051,7 +2051,6 @@ queries:
 
         ```
         chown root:root /etc/ssh/sshd_config
-
         chmod og-rwx /etc/ssh/sshd_config
         ```
   - uid: mondoo-linux-security-rsyslog-is-installed
@@ -2065,8 +2064,19 @@ queries:
       remediation: |-
         Run this command to install rsyslog:
 
+        ### RHEL/Fedora/Amazon Linux and derivatives
         ```
-        dnf install rsyslog
+        yum install rsyslog
+        ```
+
+        ### Debian/Ubuntu
+        ```
+        apt-get install rsyslog
+        ```
+
+        ### SLES and openSUSE
+        ```
+        zypper install rsyslog
         ```
   - uid: mondoo-linux-security-rsyslog-service-is-enabled
     title: Ensure rsyslog Service is enabled
@@ -2819,7 +2829,7 @@ queries:
       users.where(name == "root").list.all(gid == 0)
     docs:
       desc: |
-        The usermod command can be used to specify which group the root user belongs to. This affects permissions of files that are created by the root user.
+        The `usermod` command can be used to specify which group the root user belongs to. This affects permissions of files that are created by the root user.
       remediation: |
         Run this command to set the `root` user default group to GID `0`:
 
