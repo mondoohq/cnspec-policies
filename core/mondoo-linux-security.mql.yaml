@@ -553,6 +553,8 @@ queries:
     docs:
       desc: |-
         File Transfer Protocol (FTP) servers enables the transfer of files between computers over a network, supporting file upload, download, and management.
+
+        FTP transmits data—including usernames and passwords—in plaintext. If possible use more secure protocols such as FTPS or SFTP, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
       remediation: |-
         Run this command to stop and disable `vsftpd`, `proftpd`, and `pure-ftpd`:
 
