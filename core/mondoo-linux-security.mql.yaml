@@ -221,9 +221,7 @@ queries:
         Initialize AIDE:
 
         ```
-        aide --init
-
-        mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+        aideinit
         ```
   - uid: mondoo-linux-security-filesystem-integrity-is-regularly-checked
     title: Ensure filesystem integrity is regularly checked
