@@ -406,6 +406,11 @@ queries:
         ```
         apt-get purge xserver-xorg
         ```
+
+        ### SLES and openSUSE
+        ```
+        zypper remove xorg-x11-server
+        ```
   - uid: mondoo-linux-security-avahi-server-is-not-enabled
     title: Ensure Avahi server is stopped and not enabled
     impact: 100
