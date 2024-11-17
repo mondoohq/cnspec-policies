@@ -746,7 +746,10 @@ queries:
       service("rlogin.socket").running == false
       service("rexec.socket").running == false
     docs:
-      desc: The Berkeley `rsh-server` ( `rsh`, `rlogin`, `rexec` ) package contains legacy services that exchange credentials in clear-text.
+      desc: |-
+        `rsh`, sometimes referred to as Remote Shell, is a command-line client/server suite or tools (rsh, rlogin, and rcp) used to execute commands on a remote machine.
+
+        `rsh` is inherently insecure because it transmits data, including passwords, in plaintext over the network, making it vulnerable to interception and includes weak host-based authentiction.  If possible use more secure commands such as SSH, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
       remediation: |-
         Run these commands to stop and disable `rsh`, `rlogin`, and `rexec`:
 
