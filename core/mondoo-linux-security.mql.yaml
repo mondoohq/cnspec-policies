@@ -1,3 +1,4 @@
+
 # Copyright (c) Mondoo, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
@@ -529,14 +530,19 @@ queries:
     mql: |
       service("named").enabled == false
       service("named").running == false
+      service("bind9").enabled == false
+      service("bind9").running == false
     docs:
       desc: The Domain Name System (DNS) is a hierarchical naming system that maps names to IP addresses for computers, services and other resources connected to a network.
       remediation: |-
-        Run this command to stop and disable `named`:
+        Run this command to stop and disable BIND:
 
         ```
         systemctl stop named
+        systemctl stop bind9
+
         systemctl disable named
+        systemctl disable bind9
         ```
   - uid: mondoo-linux-security-ftp-server-is-not-enabled
     title: Ensure FTP servers are stopped and not enabled
