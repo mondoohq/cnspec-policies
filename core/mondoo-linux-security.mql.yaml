@@ -719,14 +719,19 @@ queries:
     mql: |
       service("ypserv").enabled == false
       service("ypserv").running == false
+      service("nis").enabled == false
+      service("nis").running == false
     docs:
       desc: The Network Information Service (NIS) (formally known as Yellow Pages) is a client-server directory service protocol for distributing system configuration files. The NIS server is a collection of programs that allow for the distribution of configuration files.
       remediation: |-
-        Run this command to stop and disable `ypserv`:
+        Run this command to stop and disable `ypserv` and `nis` services:
 
         ```
         systemctl stop ypserv
+        systemctl stop nis
+
         systemctl disable ypserv
+        systemctl disable nis
         ```
   - uid: mondoo-linux-security-rsh-server-is-not-enabled
     title: Ensure rsh server is stopped and not enabled
