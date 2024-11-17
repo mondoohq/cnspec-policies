@@ -749,7 +749,7 @@ queries:
       desc: |-
         `rsh`, sometimes referred to as Remote Shell, is a command-line client/server suite or tools (rsh, rlogin, and rcp) used to execute commands on a remote machine.
 
-        `rsh` is inherently insecure because it transmits data, including passwords, in plaintext over the network, making it vulnerable to interception and includes weak host-based authentiction.  If possible use more secure commands such as SSH, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
+        `rsh` is inherently insecure because it transmits data, including passwords, in plaintext over the network, making it vulnerable to interception and includes weak host-based authentiction. If possible use more secure commands such as SSH, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
       remediation: |-
         Run these commands to stop and disable `rsh`, `rlogin`, and `rexec`:
 
@@ -771,7 +771,10 @@ queries:
       service("telnet.socket").enabled == false
       service("telnet.socket").running == false
     docs:
-      desc: The `telnet-server` package contains the `telnet` daemon, which accepts connections from users from other systems via the `telnet` protocol.
+      desc: |-
+        Telnet is a protocol used to connect and manage remote computers via command-line interfaces over a network. It is considered insecure because it transmits data, including login credentials, in plaintext, making it vulnerable to interception and unauthorized access.
+
+        If possible use more secure commands such as SSH, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
       remediation: |-
         Run this command to stop and disable telnet:
 
