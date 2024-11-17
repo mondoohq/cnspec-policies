@@ -824,6 +824,8 @@ queries:
     mql: |
       service("ntalk").enabled == false
       service("ntalk").running == false
+      service("talkd").enabled == false
+      service("talkd").running == false
     docs:
       desc: The talk software allows users to send and receive messages across systems through a terminal session. The talk client (allows initiate of talk sessions) is installed by default.
       remediation: |-
@@ -831,7 +833,10 @@ queries:
 
         ```
         systemctl stop ntalk
+        systemctl stop talkd
+
         systemctl disable ntalk
+        systemctl disable talkd
         ```
   - uid: mondoo-linux-security-ip-forwarding-is-disabled
     title: Ensure IP forwarding is disabled
