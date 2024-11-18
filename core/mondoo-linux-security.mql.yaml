@@ -1363,13 +1363,13 @@ queries:
         -w /var/log/tallylog -p wa -k logins
         ```
 
-        ### Add the following additional line for Debian/Ubuntu based systems:
+        Add the following additional line for Debian/Ubuntu based systems:
 
         ```
         -w /var/log/faillog -p wa -k logins
         ```
 
-        ### Add the following additional line for Red Hat/Fedora/Amazon Linux based systems:
+        Add the following additional line for Red Hat/Fedora/Amazon Linux based systems:
 
         ```
         -w /var/run/faillock -p wa -k logins
