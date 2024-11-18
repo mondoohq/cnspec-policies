@@ -1251,6 +1251,12 @@ queries:
         ```
         max_log_file = <MB>
         ```
+
+        Restart the service to load the new configuration values:
+
+        ```
+        service auditd reload
+        ```
   - uid: mondoo-linux-security-audit-logs-are-not-automatically-deleted
     title: Ensure audit logs are not automatically deleted
     impact: 40
@@ -1267,6 +1273,12 @@ queries:
 
         ```
         max_log_file_action = keep_logs
+        ```
+
+        Restart the service to load the new configuration values:
+
+        ```
+        service auditd reload
         ```
   - uid: mondoo-linux-security-system-is-disabled-when-audit-logs-are-full
     title: Ensure system is disabled when audit logs are full
@@ -1292,6 +1304,12 @@ queries:
         space_left_action = email
         action_mail_acct = root
         admin_space_left_action = halt
+        ```
+
+        Restart the service to load the new configuration values:
+
+        ```
+        service auditd reload
         ```
   - uid: mondoo-linux-security-changes-to-system-administration-scope-sudoers-is-collected
     title: Ensure changes to system administration scope (sudoers) is collected
