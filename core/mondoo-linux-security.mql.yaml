@@ -2233,6 +2233,12 @@ queries:
         ```
         ForwardToSyslog=yes
         ```
+
+        Restart the service to load the new configuration values:
+
+        ```
+        systemctl restart systemd-journald
+        ```
   - uid: mondoo-linux-security-journald-is-configured-to-compress-large-log-files
     title: Ensure journald is configured to compress large log files
     impact: 50
@@ -2250,6 +2256,12 @@ queries:
         ```
         Compress=yes
         ```
+
+        Restart the service to load the new configuration values:
+
+        ```
+        systemctl restart systemd-journald
+        ```
   - uid: mondoo-linux-security-journald-is-configured-to-write-logfiles-to-persistent-disk
     title: Ensure journald is configured to write logfiles to persistent disk
     impact: 50
@@ -2266,6 +2278,12 @@ queries:
 
         ```
         Storage=persistent
+        ```
+
+        Restart the service to load the new configuration values:
+
+        ```
+        systemctl restart systemd-journald
         ```
   - uid: mondoo-linux-security-permissions-on-all-logfiles-are-configured
     title: Ensure secure permissions on all log files are set
