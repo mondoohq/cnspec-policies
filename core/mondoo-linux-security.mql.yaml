@@ -2332,7 +2332,7 @@ queries:
         vi /etc/rsyslog.conf
         ..
         $FileCreateMode 0640
-        $umask 0077
+        $Umask 0077
         ```
 
         Configuration for creation, deletion and cleaning of volatile and temporary files:
