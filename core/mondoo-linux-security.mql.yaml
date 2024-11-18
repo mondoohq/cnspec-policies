@@ -2631,7 +2631,7 @@ queries:
       sshd.config.params["LoginGraceTime"] >= 1
       sshd.config.params["LoginGraceTime"] <= 60
     docs:
-      desc: The `LoginGraceTime` parameter specifies the time allowed for successful authentication to the SSH server. The longer the grace period is, the more open unauthenticated connections can exist. Like other session controls, the grace period should be limited to appropriate organizational limits to ensure the service is available for needed access.
+      desc: The `LoginGraceTime` parameter specifies the time (in seconds) allowed for successful authentication to the SSH server. The longer the grace period is, the more open unauthenticated connections can exist. Like other session controls, the grace period should be limited to appropriate organizational limits to ensure the service is available for needed access.
       remediation: |-
         Edit the `/etc/ssh/sshd_config` file to set the `LoginGraceTime` parameter as follows:
 
