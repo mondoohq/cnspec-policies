@@ -1360,9 +1360,30 @@ queries:
         mql: |
           mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
+    variants:
+      - uid: mondoo-linux-security-login-and-logout-events-are-collected-debian
+      - uid: mondoo-linux-security-login-and-logout-events-are-collected-other
+  - uid: mondoo-linux-security-login-and-logout-events-are-collected-debian
+    filters: asset.family.contains("debian")
     mql: |
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/run\/faillock\s+\-p\s+wa\s+\-k\s+logins(\s+)?$/))
-      props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/lastlog\s+\-p\s+wa\s+\-k\s+logins(\s+)?$/))
+      props.auditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
+      props.auditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
+      props.auditFiles.flat.unique.where(_ == /\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+        split("-").contains(/p wa/)
+          && split(" ").containsAll(["-k","logins"])
+            || split(" ").containsAll(["-F","key=logins"])
+      )
+  - uid: mondoo-linux-security-login-and-logout-events-are-collected-other
+    filters: asset.family.containsNone(["debian"])
+    mql: |
+      props.auditFiles.flat.unique.any(_ == /\/var\/log\/faillog/)
+      props.auditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
+      props.auditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
+      props.auditFiles.flat.unique.where(_ == /\/var\/log\/faillog|\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+        split("-").contains(/p wa/)
+          && split(" ").containsAll(["-k","logins"])
+            || split(" ").containsAll(["-F","key=logins"])
+      )
     docs:
       desc: |-
         Monitor login and logout events. The parameters below track changes to files associated with login/logout events.
