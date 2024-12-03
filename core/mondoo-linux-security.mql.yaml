@@ -1366,9 +1366,9 @@ queries:
   - uid: mondoo-linux-security-login-and-logout-events-are-collected-debian
     filters: asset.family.contains("debian")
     mql: |
-      props.auditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
-      props.auditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
-      props.auditFiles.flat.unique.where(_ == /\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
         split("-").contains(/p wa/)
           && split(" ").containsAll(["-k","logins"])
             || split(" ").containsAll(["-F","key=logins"])
@@ -1376,10 +1376,10 @@ queries:
   - uid: mondoo-linux-security-login-and-logout-events-are-collected-other
     filters: asset.family.containsNone(["debian"])
     mql: |
-      props.auditFiles.flat.unique.any(_ == /\/var\/log\/faillog/)
-      props.auditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
-      props.auditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
-      props.auditFiles.flat.unique.where(_ == /\/var\/log\/faillog|\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/faillog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/log\/faillog|\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
         split("-").contains(/p wa/)
           && split(" ").containsAll(["-k","logins"])
             || split(" ").containsAll(["-F","key=logins"])
