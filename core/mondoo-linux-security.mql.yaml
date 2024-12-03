@@ -1362,24 +1362,36 @@ queries:
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     variants:
       - uid: mondoo-linux-security-login-and-logout-events-are-collected-debian
+      - uid: mondoo-linux-security-login-and-logout-events-are-collected-rhel
       - uid: mondoo-linux-security-login-and-logout-events-are-collected-other
   - uid: mondoo-linux-security-login-and-logout-events-are-collected-debian
     filters: asset.family.contains("debian")
     mql: |
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/faillog/)
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
-      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/log\/faillog|\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+        split("-").contains(/p wa/)
+          && split(" ").containsAll(["-k","logins"])
+            || split(" ").containsAll(["-F","key=logins"])
+      )
+  - uid: mondoo-linux-security-login-and-logout-events-are-collected-rhel
+    filters: asset.family.contains("redhat")
+    mql: |
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/run\/faillock/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/run\/faillock|\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
         split("-").contains(/p wa/)
           && split(" ").containsAll(["-k","logins"])
             || split(" ").containsAll(["-F","key=logins"])
       )
   - uid: mondoo-linux-security-login-and-logout-events-are-collected-other
-    filters: asset.family.containsNone(["debian"])
+    filters: asset.family.contains(/redhat|debian/) == false
     mql: |
-      props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/faillog/)
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
-      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/log\/faillog|\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/var\/log\/lastlog|\/var\/log\/tallylog/).all(
         split("-").contains(/p wa/)
           && split(" ").containsAll(["-k","logins"])
             || split(" ").containsAll(["-F","key=logins"])
