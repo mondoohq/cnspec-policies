@@ -1387,7 +1387,7 @@ queries:
             || split(" ").containsAll(["-F","key=logins"])
       )
   - uid: mondoo-linux-security-login-and-logout-events-are-collected-other
-    filters: asset.family.contains(/redhat|debian/) == false
+    filters: asset.family.contains(/redhat|debian/) == false && asset.platform != "amazonlinux"
     mql: |
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/lastlog/)
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/var\/log\/tallylog/)
