@@ -1594,7 +1594,8 @@ queries:
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/issue.net/)
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/hosts/)
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/sysconfig\/network/)
-      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/etc\/issue|\/etc\/issue.net|\/etc\/hosts|\/etc\/sysconfig\/network/).all(
+        || props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /\/etc\/network/)
+      props.mondooLinuxSecurityAuditFiles.flat.unique.where(_ == /\/etc\/issue|\/etc\/issue.net|\/etc\/hosts|\/etc\/sysconfig\/network|\/etc\/network/).all(
         split("-").contains(/p wa/)
           && split(" ").containsAll(["-k","system-locale"])
             || split(" ").containsAll(["-F","key=system-locale"])
