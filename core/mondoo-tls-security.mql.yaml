@@ -110,7 +110,7 @@ queries:
         default: score(0);
       }
   - uid: mondoo-tls-security-cert-no-certs-expired
-    title: Ensure none of the certificates (intermediate, root) have expired
+    title: None of the certificates (intermediate or root) have expired
     impact: 90
     docs:
       desc: |
