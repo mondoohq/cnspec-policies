@@ -195,7 +195,7 @@ queries:
       desc: |
         Export cipher suites are intentionally weakened cryptographic algorithms designed to meet outdated export regulations. They are vulnerable to brute-force attacks and compromise encryption security.
       remediation: |
-        Remove export cipher suites from your server configuration. Replace them with strong modern cipher suites such as AES-GCM or ChaCha20.
+        Remove export cipher suites from your server configuration. Replace them with strong, modern cipher suites such as AES-GCM or ChaCha20.
     mql: |
       tls.ciphers.none( /export/i )
   - uid: mondoo-tls-security-no-diffie-hellman-cipher-suites
