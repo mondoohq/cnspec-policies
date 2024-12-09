@@ -58,7 +58,7 @@ policies:
     scoring_system: highest impact
 queries:
   - uid: mondoo-tls-security-cert-domain-name-match
-    title: The certificate's domain name must match
+    title: Certificate's domain name must match
     impact: 80
     docs:
       desc: | 
