@@ -183,7 +183,7 @@ queries:
     impact: 100
     docs:
       desc: |
-        NULL cipher suites do not encrypt data during transmission, leaving it exposed to interception and unauthorized access. Their use undermines the purpose of secure communication.
+        NULL cipher suites do not encrypt data during transmission, exposing the data to interception and unauthorized access. Their use undermines the purpose of secure communication.
       remediation: |
         Disable NULL cipher suites in your server configuration. Ensure that only secure cipher suites are enabled, such as those using AES-GCM or ChaCha20.
     mql: |
