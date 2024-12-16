@@ -77,7 +77,7 @@ queries:
       desc: |
         This security check ensures that DNS Name Server (NS) and Mail Exchange (MX) records do not point directly to IP addresses. According to DNS best practices and standards, NS and MX records should point to fully qualified domain names (FQDNs) rather than IP addresses.
 
-        Risks of Using IP Addresses in NS and MX Records:
+        Risks of using IP addresses in NS and MX records include:
 
         * Lack of Flexibility: Pointing to an IP address directly ties your DNS or mail configuration to a specific server, making it difficult to manage changes, such as server migrations or load balancing.
         * Potential Downtime: If the server IP address changes and DNS records are not updated promptly, services dependent on these records (e.g., email or domain resolution) may experience downtime.
