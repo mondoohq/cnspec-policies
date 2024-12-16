@@ -60,9 +60,9 @@ queries:
 
         Implementing a CNAME at the root domain poses several risks, including:
 
-        * DNS Resolution Issues: DNS servers may fail to resolve records properly, causing service interruptions.
-        * Compliance Violations: Most DNS providers enforce rules against the use of CNAMEs on root domains, and using them could result in non-compliance.
-        * Service Unavailability: Essential domain-related services, such as email or subdomains, may cease to function.
+        * DNS resolution issues: DNS servers can fail to resolve records properly, causing service interruptions.
+        * Compliance violations: Most DNS providers enforce rules against the use of CNAMEs on root domains. Using them can result in non-compliance.
+        * Service unavailability: Essential domain-related services, such as email or subdomains, can cease to function.
       remediation: |
         Use A or ALIAS records (if supported by your DNS provider) to point the root domain to the appropriate IP address or hostname while maintaining DNS compatibility and reducing the risk of resolution failures.
   - uid: mondoo-dns-security-no-ip-for-ns-mx-records
