@@ -160,7 +160,7 @@ queries:
         * Regularly monitor DNSSEC configurations to ensure the validity of DNSSEC signatures and prevent expiration issues.
         * Test DNSSEC implementation using tools or online validators to confirm proper configuration.
   - uid: mondoo-dns-security-no-wildcard
-    title: Ensure No Wildcard DNS Records Are Configured
+    title: Ensure no wildcard DNS records are configured
     impact: 85
     mql: |-
       dns.records.none(name == /\*/)
