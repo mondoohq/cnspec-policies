@@ -168,12 +168,12 @@ queries:
       desc: |
         This security check verifies that no wildcard DNS records (e.g., *.example.com) are configured for your domain. Wildcard DNS records allow all subdomains, including those not explicitly defined, to resolve to a specified IP address or hostname.
 
-        Why This Is Important:
+        Why this is important:
 
-        * Increased Attack Surface: Wildcard DNS records can unintentionally expose your domain to abuse, enabling attackers to create arbitrary subdomains (e.g., phishing.example.com) for malicious purposes.
-        * Phishing and Malware Risks: Cybercriminals may exploit wildcard DNS records to impersonate legitimate subdomains and host phishing websites or distribute malware.
-        * Uncontrolled Traffic Routing: Wildcards can cause unexpected behavior by routing traffic for undefined subdomains to unintended or insecure locations.
-        * Compliance Issues: Many security standards discourage the use of wildcard DNS records due to the difficulty in managing and securing them effectively.
+        * Increased attack surface: Wildcard DNS records can unintentionally expose your domain to abuse. Attackers can create arbitrary subdomains (e.g., phishing.example.com) for malicious purposes.
+        * Phishing and malware risks: Cybercriminals can exploit wildcard DNS records to impersonate legitimate subdomains, host phishing websites, or distribute malware.
+        * Uncontrolled traffic routing: Wildcards can cause unexpected behavior by routing traffic for undefined subdomains to unintended or insecure locations.
+        * Compliance issues: Many security standards discourage the use of wildcard DNS records due to the difficulty in managing and securing them effectively.
       remediation: |
         * Remove wildcard DNS records (*.example.com) unless explicitly required for specific use cases.
         * Use explicit DNS records for subdomains to maintain control over domain resolution.
