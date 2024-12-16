@@ -97,9 +97,9 @@ queries:
       dns.mx.all( domainName.downcase != "mail.global.bigfish.com." )
     docs:
       desc: |
-        This security check verifies that legacy MX records, often associated with previous email hosting providers or outdated configurations, are not being used in domains configured for Microsoft Office 365 email services.
+        This security check verifies that legacy MX records, often associated with previous email hosting providers or outdated configurations, are not used in domains configured for Microsoft Office 365 email services.
 
-        Why This Is Important:
+        Why this is important:
 
         * Email Delivery Issues: Legacy MX records may cause email to be routed to incorrect or obsolete mail servers, resulting in failed or delayed email delivery.
         * Security Risks: Misconfigured MX records can expose your email infrastructure to spoofing, phishing, or man-in-the-middle attacks if email traffic is directed to untrusted servers.
