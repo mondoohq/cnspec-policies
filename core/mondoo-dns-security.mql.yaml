@@ -101,10 +101,10 @@ queries:
 
         Why this is important:
 
-        * Email Delivery Issues: Legacy MX records may cause email to be routed to incorrect or obsolete mail servers, resulting in failed or delayed email delivery.
-        * Security Risks: Misconfigured MX records can expose your email infrastructure to spoofing, phishing, or man-in-the-middle attacks if email traffic is directed to untrusted servers.
-        * Incompatibility with Office 365: Microsoft Office 365 requires specific MX record configurations (e.g., *.mail.protection.outlook.com) to properly route and secure email traffic. Using legacy MX records may prevent Office 365 features, such as spam filtering or encryption, from functioning correctly.
-        * Administrative Overhead: Retaining legacy MX records increases complexity and the potential for mismanagement during troubleshooting or migrations.
+        * Email delivery issues: Legacy MX records can cause email to be routed to incorrect or obsolete mail servers, resulting in failed or delayed email delivery.
+        * Security risks: Misconfigured MX records can expose your email infrastructure to spoofing, phishing, or man-in-the-middle attacks if email traffic is directed to untrusted servers.
+        * Incompatibility with Office 365: Microsoft Office 365 requires specific MX record configurations (e.g., *.mail.protection.outlook.com) to properly route and secure email traffic. Using legacy MX records can prevent Office 365 features, such as spam filtering or encryption, from functioning correctly.
+        * Administrative overhead: Retaining legacy MX records increases complexity and the potential for mismanagement during troubleshooting or migrations.
       remediation: |
         Replace all legacy MX records with the correct Office 365 MX records provided in the Microsoft 365 Admin Center. Regularly audit DNS settings to ensure all MX records align with Office 365 requirements.
     refs:
