@@ -147,7 +147,7 @@ queries:
       dns.records.where(type == "DNSKEY").all(name.contains(domainName.fqdn))
     docs:
       desc: |
-        This security check ensures that DNSSEC (Domain Name System Security Extensions) is enabled for your domain. DNSSEC is a critical security feature that provides authentication for DNS responses, protecting against common threats such as DNS spoofing, cache poisoning, and man-in-the-middle attacks.
+        This security check ensures that DNSSEC (Domain Name System Security Extensions) is enabled for your domain. DNSSEC is a critical security feature that provides authentication for DNS responses. It protects against common threats such as DNS spoofing, cache poisoning, and man-in-the-middle attacks.
 
         Why This Is Important:
 
