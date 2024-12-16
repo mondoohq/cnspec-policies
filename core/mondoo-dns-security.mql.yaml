@@ -79,10 +79,10 @@ queries:
 
         Risks of using IP addresses in NS and MX records include:
 
-        * Lack of Flexibility: Pointing to an IP address directly ties your DNS or mail configuration to a specific server, making it difficult to manage changes, such as server migrations or load balancing.
-        * Potential Downtime: If the server IP address changes and DNS records are not updated promptly, services dependent on these records (e.g., email or domain resolution) may experience downtime.
-        * Non-compliance with DNS Standards: DNS resolvers expect NS and MX records to point to hostnames. Using IPs can lead to unpredictable behavior or DNS resolution failures.
-        * Security Risks: Directly exposing IP addresses can make your infrastructure more vulnerable to attacks, such as DDoS or reconnaissance efforts.
+        * Lack of flexibility: Pointing to an IP address directly ties your DNS or mail configuration to a specific server. This makes it difficult to manage changes, such as server migrations or load balancing.
+        * Potential downtime: If the server IP address changes and DNS records are not updated promptly, services dependent on these records (e.g., email or domain resolution) can experience downtime.
+        * Non-compliance with DNS standards: DNS resolvers expect NS and MX records to point to hostnames. Using IPs can lead to unpredictable behavior or DNS resolution failures.
+        * Security risks: Directly exposing IP addresses can make your infrastructure more vulnerable to attacks, such as DDoS or reconnaissance efforts.
       remediation: |
         For NS records: Always configure them to point to the authoritative DNS server’s FQDN (e.g., ns1.example.com).
 
