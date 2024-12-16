@@ -140,7 +140,7 @@ queries:
       - url: https://support.google.com/a/answer/140034?hl=en
         title: Set up MX records for Google Workspace email
   - uid: mondoo-dns-security-dnssec-enabled
-    title: Ensure DNSSEC is Enabled
+    title: Ensure DNSSEC is enabled
     impact: 75
     mql: |-
       dns.records.where(type == "DNSKEY") != empty
