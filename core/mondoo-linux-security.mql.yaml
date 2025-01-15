@@ -2597,7 +2597,7 @@ queries:
           }
           return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
     mql: |
-      sshd.config.ciphers != empty
+
       sshd.config.ciphers.containsOnly(props.mondooLinuxSecuritySshdCiphers)
     docs:
       desc: This variable limits the ciphers that SSH can use during communication.
