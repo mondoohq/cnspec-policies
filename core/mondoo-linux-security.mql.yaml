@@ -1318,7 +1318,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers\.d(\/?)\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
@@ -1358,7 +1358,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     variants:
       - uid: mondoo-linux-security-login-and-logout-events-are-collected-debian
@@ -1447,7 +1447,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/run\/utmp\s+\-p\s+wa\s+\-k\s+session(\s+)?$/))
@@ -1490,7 +1490,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /settimeofday/)
@@ -1560,7 +1560,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       appArmorSys = props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/apparmor(\/?)\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
@@ -1611,7 +1611,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     variants:
     - uid: mondoo-linux-security-events-that-modify-the-systems-network-environment-are-collected-debian-rhel
@@ -1736,7 +1736,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /chmod/)
@@ -1824,7 +1824,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == / creat /)
@@ -1904,7 +1904,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/group\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
@@ -1950,7 +1950,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+mounts(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+mounts(\s+)?$/))
@@ -1999,7 +1999,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.flat.unique.any(_ == /unlink/)
@@ -2071,7 +2071,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/sbin\/insmod\s+\-p\s+x\s+\-k\s+modules(\s+)?$/))
@@ -2128,7 +2128,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/sudo\.log\s+\-p\s+wa\s+\-k\s+actions(\s+)?$/))
@@ -2170,7 +2170,7 @@ queries:
       - uid: mondooLinuxSecurityAuditFiles
         title: Return the content from all /etc/audit/rules.d and /etc/audit/audit.rules
         mql: |
-          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$', type: "file").list.map(path) + ["/etc/audit/audit.rules"]
+          mondooLinuxSecurityAuditFiles = files.find(from: "/etc/audit/rules.d",regex:'.*\.rules$' , type: "file").list.map(path) + ["/etc/audit/audit.rules"]
           return mondooLinuxSecurityAuditFiles.map(file(_).content.lines.where( _ == /^[^#]/ ))
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/(\s+)?\-e\s+2(\s+)?$/))
@@ -2690,9 +2690,19 @@ queries:
     title: Ensure SSH Idle Timeout Interval is configured
     impact: 60
     mql: |
-      sshd.config.params["ClientAliveInterval"] >= 1
-      sshd.config.params["ClientAliveInterval"] <= 300
-      sshd.config.params["ClientAliveCountMax"] = 0
+      defaultBlock = sshd.config.blocks.where(criteria.in([""]) == props.checkDefaultMatchBlock && criteria == "");
+
+      userBlocks = sshd.config.blocks.where(criteria.contains(props.excludedMatchBlocks) == false && criteria != "");
+
+      userBlocks.all(params.ClientAliveInterval >= 1)
+      userBlocks.all(params.ClientAliveInterval <= 900)
+      userBlocks.all(params.ClientAliveCountMax > 0)
+      userBlocks.all(params.ClientAliveCountMax <= 3)
+
+      defaultBlock.all(params.ClientAliveInterval >= 1)
+      defaultBlock.all(params.ClientAliveInterval <= 900)
+      defaultBlock.all(params.ClientAliveCountMax > 0)
+      defaultBlock.all(params.ClientAliveCountMax <= 3)
     docs:
       desc: The two options `ClientAliveInterval` and `ClientAliveCountMax` control the timeout of ssh sessions. When the `ClientAliveInterval` variable is set, ssh sessions that have no activity for the specified length of time are terminated. When the `ClientAliveCountMax` variable is set, `sshd` will send client alive messages at every `ClientAliveInterval` interval. When the number of consecutive client alive messages are sent with no response from the client, the `ssh` session is terminated. For example, if the `ClientAliveInterval` is set to 15 seconds and the `ClientAliveCountMax` is set to 3, the client `ssh` session will be terminated after 45 seconds of idle time.
       remediation: |-
@@ -2700,7 +2710,7 @@ queries:
 
         ```
         ClientAliveInterval 300
-        ClientAliveCountMax 0
+        ClientAliveCountMax 3
         ```
   - uid: mondoo-linux-security-ssh-logingracetime-is-set-to-one-minute-or-less
     title: Ensure SSH LoginGraceTime is set to one minute or less
