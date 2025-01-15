@@ -2638,13 +2638,15 @@ queries:
       - uid: mondooLinuxSecurityKexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./) {
+          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first
+
+          if( semver(sshVersionExtracted) >= semver("6") && semver(sshVersionExtracted) < semver("7") ) {
             return ["curve25519-sha256@libssh.org"]
           }
-          if( package('openssh-server').version == /7./) {
+          if( semver(sshVersionExtracted) >= semver("7") && semver(sshVersionExtracted) < semver("8") ) {
             return ["curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
           }
-          if( package('openssh-server').version == /8\.[0|1|2|3|4|5]/ ) {
+          if( semver(sshVersionExtracted) >= semver("8") && semver(sshVersionExtracted) < semver("9") ) {
             return ["sntrup4591761x25519-sha512@tinyssh.org","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
           }
           return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
