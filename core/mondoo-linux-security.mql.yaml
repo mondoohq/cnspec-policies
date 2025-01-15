@@ -2592,7 +2592,9 @@ queries:
       - uid: mondooLinuxSecuritySshdCiphers
         title: Define the hardened ciphers for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./ ) {
+          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first
+
+          if( semver(sshVersionExtracted) >= semver("6") && semver(sshVersionExtracted) < semver("7") ) {
             return ["aes256-ctr", "aes192-ctr", "aes128-ctr"]
           }
           return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
