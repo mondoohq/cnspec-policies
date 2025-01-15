@@ -2689,6 +2689,17 @@ queries:
   - uid: mondoo-linux-security-ssh-idle-timeout-interval-is-configured
     title: Ensure SSH Idle Timeout Interval is configured
     impact: 60
+    props:
+      - uid: excludedMatchBlocks
+        title: A list of match blocks to exclude from checking, add items such as "User ansible"
+        mql: |
+          return [
+            "placeholder-do-not-delete",
+          ]
+      - uid: checkDefaultMatchBlock
+        title: Set to true if you want to check the default "" match block
+        mql: |
+          return true
     mql: |
       defaultBlock = sshd.config.blocks.where(criteria.in([""]) == props.checkDefaultMatchBlock && criteria == "");
 
