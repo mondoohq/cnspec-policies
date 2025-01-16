@@ -2588,11 +2588,12 @@ queries:
   - uid: mondoo-linux-security-only-strong-ciphers-are-used
     title: Ensure only strong ciphers are used
     impact: 100
+    filters: package('openssh-server').installed == true
     props:
       - uid: mondooLinuxSecuritySshdCiphers
         title: Define the hardened ciphers for all SSH configurations
         mql: |
-          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first
+          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first.split("~").where(_ != empty).first
 
           if( semver(sshVersionExtracted) >= semver("6") && semver(sshVersionExtracted) < semver("7") ) {
             return ["aes256-ctr", "aes192-ctr", "aes128-ctr"]
@@ -2636,11 +2637,12 @@ queries:
   - uid: mondoo-linux-security-only-strong-kex-algorithms-are-used
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
+    filters: package('openssh-server').installed == true
     props:
       - uid: mondooLinuxSecurityKexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
-          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first
+          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first.split("~").where(_ != empty).first
 
           if( semver(sshVersionExtracted) >= semver("6") && semver(sshVersionExtracted) < semver("7") ) {
             return ["curve25519-sha256@libssh.org"]
