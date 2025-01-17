@@ -2588,7 +2588,7 @@ queries:
   - uid: mondoo-linux-security-only-strong-ciphers-are-used
     title: Ensure only strong ciphers are used
     impact: 100
-    filters: package('openssh-server').installed == true
+    filters: package('openssh-server').installed
     props:
       - uid: mondooLinuxSecuritySshdCiphers
         title: Define the hardened ciphers for all SSH configurations
