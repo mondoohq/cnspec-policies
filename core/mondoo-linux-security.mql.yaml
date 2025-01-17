@@ -2637,7 +2637,7 @@ queries:
   - uid: mondoo-linux-security-only-strong-kex-algorithms-are-used
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
-    filters: package('openssh-server').installed == true
+    filters: package('openssh-server').installed
     props:
       - uid: mondooLinuxSecurityKexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
