@@ -1214,6 +1214,7 @@ queries:
           key_vault_id = azurerm_key_vault.example.id
           expiration_date = "2025-05-01T01:02:03Z"
         }
+        ```
   - uid: mondoo-azure-security-ensure-the-expiration-date-is-set-for-all-keys-and-secrets-in-kv-single
     filters: |
       asset.platform == "azure-keyvault-vault"
