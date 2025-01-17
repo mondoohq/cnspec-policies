@@ -2588,11 +2588,14 @@ queries:
   - uid: mondoo-linux-security-only-strong-ciphers-are-used
     title: Ensure only strong ciphers are used
     impact: 100
+    filters: package('openssh-server').installed
     props:
       - uid: mondooLinuxSecuritySshdCiphers
         title: Define the hardened ciphers for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./ ) {
+          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first.split("~").where(_ != empty).first
+
+          if( semver(sshVersionExtracted) >= semver("6") && semver(sshVersionExtracted) < semver("7") ) {
             return ["aes256-ctr", "aes192-ctr", "aes128-ctr"]
           }
           return ["chacha20-poly1305@openssh.com","aes256-gcm@openssh.com","aes128-gcm@openssh.com","aes256-ctr","aes192-ctr","aes128-ctr"]
@@ -2634,17 +2637,20 @@ queries:
   - uid: mondoo-linux-security-only-strong-kex-algorithms-are-used
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
+    filters: package('openssh-server').installed
     props:
       - uid: mondooLinuxSecurityKexAlgos
         title: Define the hardened key exchange algorithms for all SSH configurations
         mql: |
-          if( package('openssh-server').version == /6./) {
+          sshVersionExtracted = package('openssh-server').version.split("1:").where(_ != empty).first.split("~").where(_ != empty).first
+
+          if( semver(sshVersionExtracted) >= semver("6") && semver(sshVersionExtracted) < semver("7") ) {
             return ["curve25519-sha256@libssh.org"]
           }
-          if( package('openssh-server').version == /7./) {
+          if( semver(sshVersionExtracted) >= semver("7") && semver(sshVersionExtracted) < semver("8") ) {
             return ["curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
           }
-          if( package('openssh-server').version == /8\.[0|1|2|3|4|5]/ ) {
+          if( semver(sshVersionExtracted) >= semver("8") && semver(sshVersionExtracted) < semver("9") ) {
             return ["sntrup4591761x25519-sha512@tinyssh.org","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
           }
           return ["sntrup761x25519-sha512@openssh.com","curve25519-sha256@libssh.org","diffie-hellman-group18-sha512"]
