@@ -2365,7 +2365,7 @@ queries:
     mql: |
       aws.es.domains.all(encryptionAtRestEnabled == true)
   - uid: mondoo-aws-security-rotation-customer-created-cmks-enabled
-    title: Ensure rotation for customer managed keys (CMKs) is enabled
+    title: Ensure rotation for customer-managed keys (CMKs) is enabled
     impact: 80
     mql: |
       aws.kms.keys
