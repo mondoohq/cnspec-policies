@@ -2379,7 +2379,7 @@ queries:
       aws.sagemaker.notebookInstances.all(details.kmsKey != empty)
     docs:
       desc: |
-        It is highly recommended that AWS SageMaker notebooks be configured to use AWS Key Management Service (KMS) keys to encrypt data at rest. By enabling KMS encryption, organizations can ensure that sensitive data, including machine learning models, datasets, and notebook outputs, are protected from unauthorized access. Without KMS encryption, data stored in SageMaker could be vulnerable to potential breaches or insider threats.
+        It is highly recommended that AWS SageMaker notebooks be configured to use AWS Key Management Service (KMS) keys to encrypt data at rest. By enabling KMS encryption, you can ensure that sensitive data, including machine learning models, datasets, and notebook outputs, are protected from unauthorized access. Without KMS encryption, data stored in SageMaker could be vulnerable to potential breaches or insider threats.
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
     impact: 70
