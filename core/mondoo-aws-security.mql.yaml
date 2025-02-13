@@ -1300,7 +1300,7 @@ queries:
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-single
     docs:
       desc: |
-        It is highly recommended that AWS EC2 instances do not have an Elastic IP (EIP) attached unless absolutely necessary, as public IP exposure increases the attack surface and potential security risks. Instances with public IP addresses are directly accessible from the internet, making them vulnerable to brute-force attacks, exploitation of software vulnerabilities, and denial-of-service (DoS) attacks.
+        It is highly recommended that AWS EC2 instances not have Elastic IPs (EIPs) attached unless absolutely necessary. Public IP exposure increases the attack surface and potential security risks. Instances with public IP addresses are directly accessible from the internet, making them vulnerable to brute-force attacks, exploitation of software vulnerabilities, and denial-of-service (DoS) attacks.
       audit: |
         __cnspec shell__
 
