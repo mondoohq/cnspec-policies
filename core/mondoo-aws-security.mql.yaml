@@ -2450,7 +2450,7 @@ queries:
       desc: |
         It is highly recommended that AWS Security Groups do not permit access to VNC (port 5900) from the internet (0.0.0.0/0) due to the significant security risks associated with unrestricted remote host management. Allowing open VNC access exposes instances to brute force attacks, credential stuffing, and exploitation of vulnerabilities in the RDP protocol. Attackers frequently scan for open RDP ports, making publicly accessible instances prime targets for unauthorized access attempts.
 
-        Instead, access should be restricted to known, trusted IP addresses or secured using a bastion host, VPN, or AWS Systems Manager Session Manager.
+        You should restrict access to only known and trusted IP addresses  or secure access using a bastion host, a VPN, or the AWS Systems Manager Session Manager.
   - uid: mondoo-aws-security-secgroup-restricted-rdp
     title: Ensure security groups restrict incoming RDP traffic
     impact: 90
