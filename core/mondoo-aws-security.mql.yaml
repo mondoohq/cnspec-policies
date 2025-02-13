@@ -2435,7 +2435,7 @@ queries:
        )
     docs:
       desc: |
-        It is highly recommended that AWS Security Groups not permit access to SSH (port 22) from the internet (0.0.0.0/0) due to the significant security risks associated with unrestricted remote host management. Allowing open SSH access exposes instances to brute force attacks, credential stuffing, and exploitation of vulnerabilities in the RDP protocol. Attackers frequently scan for open RDP ports, making publicly accessible instances prime targets for unauthorized access attempts.
+        It is highly recommended that AWS security groups not permit access to SSH (port 22) from the internet (0.0.0.0/0) due to the significant security risks associated with unrestricted remote host management. Allowing open SSH access exposes instances to brute force attacks, credential stuffing, and exploitation of vulnerabilities in the RDP protocol. Attackers frequently scan for open RDP ports, making publicly accessible instances prime targets for unauthorized access attempts.
 
         Instead, you should restrict access to only known and trusted IP addresses or secure access using a bastion host, a VPN, or the AWS Systems Manager Session Manager.
   - uid: mondoo-aws-security-secgroup-restricted-vnc
