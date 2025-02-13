@@ -409,7 +409,7 @@ queries:
       desc: |
         It is highly recommended that AWS IAM user access keys be rotated regularly to minimize the risk of unauthorized access and credential compromise. Access keys that remain active for extended periods increase the likelihood of exposure through accidental leaks, insider threats, or malicious attacks. Regular rotation ensures that, even if a key is compromised, its window of usefulness is limited. This reduces the impact of potential security breaches.
 
-        By default this check enforces a 90 day rotation period. To change this value modify the `mondooAWSSecurityMaxAccessKeyAge` property.
+        By default this check enforces a 90 day rotation period. To change this value, modify the `mondooAWSSecurityMaxAccessKeyAge` property.
       audit: |
         __cnspec shell__
 
