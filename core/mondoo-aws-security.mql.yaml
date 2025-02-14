@@ -88,11 +88,12 @@ policies:
           - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
           - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
       - title: AWS Security Group
-        filters: asset.platform == "aws"
+        filters: asset.platform == "aws" || asset.platform == "aws-security-group"
         checks:
           - uid: mondoo-aws-security-secgroup-restricted-ssh
           - uid: mondoo-aws-security-secgroup-restricted-vnc
           - uid: mondoo-aws-security-secgroup-restricted-rdp
+          - uid: mondoo-aws-security-secgroup-restrict-traffic
       - title: AWS VPC
         filters: asset.platform == "aws"
         checks:
@@ -2435,39 +2436,98 @@ queries:
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Ensure security groups restrict incoming SSH traffic
     impact: 90
-    mql: |
-      aws.ec2.securityGroups.where(ipPermissions.any(
-        ipRanges.contains('0.0.0.0/0'))).all(
-          ipPermissions.none(fromPort <= 22 && toPort >= 22 && toPort != 0)
-       )
+    variants:
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-single
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-all
     docs:
       desc: |
         It is highly recommended that AWS security groups not permit access to SSH (port 22) from the internet (0.0.0.0/0) due to the significant security risks associated with unrestricted remote host management. Allowing open SSH access exposes instances to brute force attacks, credential stuffing, and exploitation of vulnerabilities in the RDP protocol. Attackers frequently scan for open RDP ports, making publicly accessible instances prime targets for unauthorized access attempts.
 
         Instead, you should restrict access to only known and trusted IP addresses or secure access using a bastion host, a VPN, or the AWS Systems Manager Session Manager.
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.securityGroups.where(ipPermissions.any(
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort == 22 && toPort == 22)
+       )
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort == 22 && toPort == 22).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
   - uid: mondoo-aws-security-secgroup-restricted-vnc
     title: Ensure security groups restrict incoming VNC traffic
     impact: 90
-    mql: |
-      aws.ec2.securityGroups.where(ipPermissions.any(
-        ipRanges.contains('0.0.0.0/0'))).all(
-          ipPermissions.none(fromPort <= 5900 && toPort >= 5900 && toPort != 0)
-       )
+    variants:
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-single
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-all
     docs:
       desc: |
         It is highly recommended that AWS security groups not permit access to VNC (port 5900) from the internet (0.0.0.0/0) due to the significant security risks associated with unrestricted remote host management. Allowing open VNC access exposes instances to brute force attacks, credential stuffing, and exploitation of vulnerabilities in the RDP protocol. Attackers frequently scan for open RDP ports, making publicly accessible instances prime targets for unauthorized access attempts.
 
         You should restrict access to only known and trusted IP addresses  or secure access using a bastion host, a VPN, or the AWS Systems Manager Session Manager.
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.securityGroups.where(ipPermissions.any(
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort == 5900 && toPort == 5900)
+       )
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort == 5900 && toPort == 5900).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
   - uid: mondoo-aws-security-secgroup-restricted-rdp
     title: Ensure security groups restrict incoming RDP traffic
     impact: 90
-    mql: |
-      aws.ec2.securityGroups.where(ipPermissions.any(
-        ipRanges.contains('0.0.0.0/0'))).all(
-          ipPermissions.none(fromPort <= 3389 && toPort >= 3389 && toPort != 0)
-       )
+    variants:
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-single
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-all
     docs:
       desc: |
         It is highly recommended that AWS security groups not permit access to RDP (port 3389) from the internet (0.0.0.0/0) due to the significant security risks associated with unrestricted remote desktop access. Allowing open RDP access exposes instances to brute force attacks, credential stuffing, and exploitation of vulnerabilities in the RDP protocol. Attackers frequently scan for open RDP ports, making publicly accessible instances prime targets for unauthorized access attempts.
 
         You should restrict access to only known and trusted IP addresses  or secure access using a bastion host, a VPN, or the AWS Systems Manager Session Manager.
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.securityGroups.where(ipPermissions.any(
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort == 3389 && toPort == 3389)
+       )
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort == 3389 && toPort == 3389).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
+  - uid: mondoo-aws-security-secgroup-restrict-traffic
+    title: Ensure security groups don't permit all IPs and ports
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-single
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-all
+    docs:
+      desc: |
+        It is highly recommended that AWS Security Groups be configured to restrict traffic only to necessary IP addresses and ports, rather than allowing open access from any IP (0.0.0.0/0) or all ports. Allowing unrestricted inbound or outbound traffic significantly increases the risk of unauthorized access, lateral movement within the network, and exposure to potential exploits. Attackers frequently scan for open ports and misconfigured security rules, making overly permissive Security Groups a major security vulnerability.
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort == -1 && toPort == -1).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.securityGroups.where(ipPermissions.any(
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort == -1 && toPort == -1)
+       )
