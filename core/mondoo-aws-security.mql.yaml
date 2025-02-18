@@ -2449,13 +2449,13 @@ queries:
     mql: |
       aws.ec2.securityGroups.where(ipPermissions.any(
         ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
-          ipPermissions.none(fromPort == 22 && toPort == 22)
+          ipPermissions.none(fromPort <= 22 && toPort >= 22 && toPort != 0)
        )
   - uid: mondoo-aws-security-secgroup-restricted-ssh-single
     filters: asset.platform == "aws-security-group"
     mql: |
       aws.ec2.securitygroup.ipPermissions.where(
-        fromPort == 22 && toPort == 22).none(
+        fromPort <= 22 && toPort >= 22 && toPort != 0).none(
           ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
           )
   - uid: mondoo-aws-security-secgroup-restricted-vnc
@@ -2474,13 +2474,13 @@ queries:
     mql: |
       aws.ec2.securityGroups.where(ipPermissions.any(
         ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
-          ipPermissions.none(fromPort == 5900 && toPort == 5900)
+          ipPermissions.none(fromPort <= 5900 && toPort >= 5900 && toPort != 0)
        )
   - uid: mondoo-aws-security-secgroup-restricted-vnc-single
     filters: asset.platform == "aws-security-group"
     mql: |
       aws.ec2.securitygroup.ipPermissions.where(
-        fromPort == 5900 && toPort == 5900).none(
+        fromPort <= 5900 && toPort >= 5900 && toPort != 0).none(
           ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
           )
   - uid: mondoo-aws-security-secgroup-restricted-rdp
@@ -2499,13 +2499,13 @@ queries:
     mql: |
       aws.ec2.securityGroups.where(ipPermissions.any(
         ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
-          ipPermissions.none(fromPort == 3389 && toPort == 3389)
+          ipPermissions.none(fromPort <= 3389 && toPort >= 3389 && toPort != 0)
        )
   - uid: mondoo-aws-security-secgroup-restricted-rdp-single
     filters: asset.platform == "aws-security-group"
     mql: |
       aws.ec2.securitygroup.ipPermissions.where(
-        fromPort == 3389 && toPort == 3389).none(
+        fromPort <= 3389 && toPort >= 3389 && toPort != 0).none(
           ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
           )
   - uid: mondoo-aws-security-secgroup-restrict-traffic
