@@ -894,6 +894,7 @@ queries:
   - uid: mondoo-aws-security-iam-users-only-one-access-key
     title: Ensure there is only one active access key available for any single IAM user
     impact: 70
+    filters: asset.platform == "aws"
     mql: |
       aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
     docs:
