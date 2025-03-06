@@ -4,7 +4,7 @@
 policies:
   - uid: mondoo-aws-security
     name: Mondoo AWS Security
-    version: 3.1.0
+    version: 4.0.0
     license: BUSL-1.1
     tags:
       mondoo.com/category: security
@@ -89,6 +89,7 @@ policies:
           - uid: mondoo-aws-security-secgroup-restricted-ssh
           - uid: mondoo-aws-security-secgroup-restricted-vnc
           - uid: mondoo-aws-security-secgroup-restricted-rdp
+          - uid: mondoo-aws-security-secgroup-restrict-traffic
       - title: AWS VPC
         checks:
           - uid: mondoo-aws-security-vpc-default-security-group-closed
@@ -3671,12 +3672,6 @@ queries:
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Ensure security groups restrict incoming SSH traffic
     impact: 90
-    filters: asset.platform == "aws"
-    mql: |
-      aws.ec2.securityGroups.where(ipPermissions.any(
-        ipRanges.contains('0.0.0.0/0'))).all(
-          ipPermissions.none(fromPort <= 22 && toPort >= 22 && toPort != 0)
-       )
     docs:
       desc: |
         This check ensures that AWS security groups are configured to restrict incoming SSH `(port 22)` traffic. Allowing unrestricted SSH access `(0.0.0.0/0 or ::/0)` poses a significant security risk by exposing instances to unauthorized access attempts, brute-force attacks, and potential exploitation by malicious actors.
@@ -3741,6 +3736,12 @@ queries:
               protocol    = "tcp"
               cidr_blocks = ["203.0.113.0/24"] # Replace with trusted IP range
             }
+            egress {
+              from_port   = 0
+              to_port     = 0
+              protocol    = "-1"
+              cidr_blocks = ["0.0.0.0/0"]  # Allow outbound traffic
+            }
           }
           ```
       - id: cloudformation
@@ -3779,15 +3780,39 @@ queries:
                   - Key: "Name"
                     Value: "SecureVPC"
           ```
-  - uid: mondoo-aws-security-secgroup-restricted-vnc
-    title: Ensure security groups restrict incoming VNC traffic
+    variants:
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-single
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-all
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-state
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-all
     filters: asset.platform == "aws"
-    impact: 90
     mql: |
       aws.ec2.securityGroups.where(ipPermissions.any(
-        ipRanges.contains('0.0.0.0/0'))).all(
-          ipPermissions.none(fromPort <= 5900 && toPort >= 5900 && toPort != 0)
-       )
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort <= 22 && toPort >= 22 && toPort != 0)
+      )
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort <= 22 && toPort >= 22 && toPort != 0).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )      
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_security_group")
+    mql: terraform.resources.where( nameLabel == "aws_security_group" && blocks.where( type == "ingress").contains( arguments.to_port == 22 )).none( blocks.where( type == "ingress" ) { arguments.cidr_blocks.contains("0.0.0.0/0") || arguments.cidr_blocks.contains("::/0") })
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_security_group")
+    mql: terraform.plan.resourceChanges.where( type == "aws_security_group" && change.after.ingress.contains( to_port == 22 )).none( change.after.ingress[0].cidr_blocks.contains("0.0.0.0/0") || change.after.ingress[0].cidr_blocks.contains("::/0"))
+  - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
+    mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 22 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
+
+  - uid: mondoo-aws-security-secgroup-restricted-vnc
+    title: Ensure security groups restrict incoming VNC traffic
+    impact: 90
     docs:
       desc: |
         This check ensures that AWS security groups do not allow unrestricted incoming Virtual Network Computing (VNC) traffic, which operates on ports 5900-5903. Allowing unrestricted VNC access (0.0.0.0/0 or ::/0) exposes instances to unauthorized access attempts, brute-force attacks, and remote exploitation.
@@ -3854,18 +3879,48 @@ queries:
                 protocol    = "tcp"
                 cidr_blocks = ["203.0.113.0/24"] # Replace with trusted IP range
               }
+
+                egress {
+                  from_port   = 0
+                  to_port     = 0
+                  protocol    = "-1"
+                  cidr_blocks = ["0.0.0.0/0"]  # Allow outbound traffic
+                }
             }
             ```
-
-  - uid: mondoo-aws-security-secgroup-restricted-rdp
-    title: Ensure security groups restrict incoming RDP traffic
+    variants: 
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-single
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-all
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-state
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-all
     filters: asset.platform == "aws"
-    impact: 90
     mql: |
       aws.ec2.securityGroups.where(ipPermissions.any(
-        ipRanges.contains('0.0.0.0/0'))).all(
-          ipPermissions.none(fromPort <= 3389 && toPort >= 3389 && toPort != 0)
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort <= 5900 && toPort >= 5900 && toPort != 0)
        )
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort <= 5900 && toPort >= 5900 && toPort != 0).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_security_group")
+    mql: terraform.resources.where( nameLabel == "aws_security_group" && blocks.where( type == "ingress").contains( arguments.to_port == 5900 )).none( blocks.where( type == "ingress" ) { arguments.cidr_blocks.contains("0.0.0.0/0") || arguments.cidr_blocks.contains("::/0") })
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_security_group")
+    mql: terraform.plan.resourceChanges.where( type == "aws_security_group" && change.after.ingress.contains( to_port == 5900 )).none( change.after.ingress[0].cidr_blocks.contains("0.0.0.0/0") || change.after.ingress[0].cidr_blocks.contains("::/0"))
+  - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
+    mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 5900 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
+  
+  - uid: mondoo-aws-security-secgroup-restricted-rdp
+    title: Ensure security groups restrict incoming RDP traffic
+    impact: 90
     docs:
       desc: |
         This check ensures that AWS security groups are not configured to allow unrestricted inbound Remote Desktop Protocol (RDP) traffic, which operates on port 3389. Allowing unrestricted RDP access (0.0.0.0/0 or ::/0) significantly increases the risk of brute-force attacks, unauthorized remote access, and exploitation by malicious actors.
@@ -3931,6 +3986,229 @@ queries:
                 protocol    = "tcp"
                 cidr_blocks = ["203.0.113.0/24"] # Replace with a trusted IP range
               }
+              
+                egress {
+                  from_port   = 0
+                  to_port     = 0
+                  protocol    = "-1"
+                  cidr_blocks = ["0.0.0.0/0"]  # Allow outbound traffic
+                }
             }
             ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
 
+            Ensure security groups do not allow unrestricted RDP access:
+            ```
+            Resources:
+              SecureSecurityGroup:
+                Type: "AWS::EC2::SecurityGroup"
+                Properties:
+                  GroupDescription: "Security group with restricted RDP access"
+                  VpcId: !Ref VPC
+                  SecurityGroupIngress:
+                    - IpProtocol: "tcp"
+                      FromPort: 3389
+                      ToPort: 3389
+                      CidrIp: "192.168.1.0/24"  # Restrict to a trusted IP range
+                  SecurityGroupEgress:
+                    - IpProtocol: "-1"
+                      FromPort: -1
+                      ToPort: -1
+                      CidrIp: "0.0.0.0/0"  # Allow outbound traffic
+                  Tags:
+                    - Key: "Name"
+                      Value: "RestrictedRDPSecurityGroup"
+
+              VPC:
+                Type: "AWS::EC2::VPC"
+                Properties:
+                  CidrBlock: "10.0.0.0/16"
+                  EnableDnsSupport: true
+                  EnableDnsHostnames: true
+                  Tags:
+                    - Key: "Name"
+                      Value: "SecureVPC"
+            ```
+    variants: 
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-single
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-all
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-state
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.securityGroups.where(ipPermissions.any(
+       ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort <= 3389 && toPort >= 3389 && toPort != 0)
+       )    
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort <= 3389 && toPort >= 3389 && toPort != 0).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_security_group")
+    mql: terraform.resources.where( nameLabel == "aws_security_group" && blocks.where( type == "ingress").contains( arguments.to_port == 3389 )).none( blocks.where( type == "ingress" ) { arguments.cidr_blocks.contains("0.0.0.0/0") || arguments.cidr_blocks.contains("::/0") })
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_security_group")
+    mql: terraform.plan.resourceChanges.where( type == "aws_security_group" && change.after.ingress.contains( to_port == 3389 )).none( change.after.ingress[0].cidr_blocks.contains("0.0.0.0/0") || change.after.ingress[0].cidr_blocks.contains("::/0"))
+  - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
+    mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 3389 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
+      
+  - uid: mondoo-aws-security-secgroup-restrict-traffic
+    title: Ensure Security Groups Restrict Access to Specific IPs and Ports
+    impact: 90
+    docs: 
+      desc: |
+        This check ensures that AWS security groups do not allow unrestricted access to all IPs (0.0.0.0/0 or ::/0) on any port. Allowing open access to security groups exposes AWS resources to unauthorized access, increasing the risk of security breaches, brute-force attacks, and data exfiltration.
+
+        **Rationale:**
+
+        AWS security groups act as virtual firewalls that control inbound and outbound traffic. When a security group allows access from all IPs (0.0.0.0/0 for IPv4 or ::/0 for IPv6) on all ports, it poses significant risks:
+
+        -	Unrestricted access to sensitive services (e.g., SSH on port 22, RDP on port 3389, or databases like MySQL on port 3306).
+        -	Increased exposure to brute-force attacks, credential stuffing, and other cyber threats.
+        -	Compliance violations under security frameworks such as CIS AWS Foundations Benchmark, PCI DSS, HIPAA, ISO 27001, and NIST.
+
+        To mitigate these risks, security groups should be configured with the principle of least privilege, allowing access only to specific IP ranges and necessary ports.
+
+        Risk Mitigation:
+
+        -	Prevents unauthorized access by restricting inbound and outbound traffic.
+        -	Reduces exposure to external attacks (e.g., brute force, malware injections).
+        -	Ensures compliance with industry best practices and cloud security standards.
+      remediation: 
+        - id: console 
+          desc: |
+            **Using AWS Console:**
+
+            1.	Navigate to the AWS EC2 Console.
+            2.	Click on Security Groups in the left panel.
+            3.	Identify security groups with inbound rules allowing 0.0.0.0/0 or ::/0.
+            4.	If a rule allows unrestricted access, modify it:
+              -	Click Edit inbound rules.
+              -	Restrict the source IP range to trusted networks (e.g., corporate VPN, private subnets, specific IPs).
+              -	Click Save changes.
+            5.	Repeat for outbound rules, ensuring traffic is limited to necessary destinations.
+        - id: cli 
+          desc: |
+            **Using AWS CLI:**
+
+            Check security groups for unrestricted inbound rules:
+            ```
+            aws ec2 describe-security-groups --query "SecurityGroups[*].{ID:GroupId, Name:GroupName, Ingress:IpPermissions[*]}"
+            ```
+            Revoke a rule that allows open access:
+            ```
+            aws ec2 revoke-security-group-ingress \
+            --group-id <security-group-id> \
+            --protocol tcp \
+            --port 22 \
+            --cidr 0.0.0.0/0
+            ```
+            Add a restricted rule (e.g., allow SSH only from a trusted IP range):
+            ```
+            aws ec2 authorize-security-group-ingress \
+            --group-id <security-group-id> \
+            --protocol tcp \
+            --port 22 \
+            --cidr 192.168.1.0/24
+            ```
+        - id: terraform 
+          desc: |
+            **Using Terraform:**
+
+            Ensure security groups do not allow open access:
+            ```
+            resource "aws_security_group" "restricted_sg" {
+              name        = "restricted-security-group"
+              description = "Security group with restricted access"
+              vpc_id      = aws_vpc.main.id
+
+              ingress {
+                description = "Allow SSH from a trusted IP range"
+                from_port   = 22
+                to_port     = 22
+                protocol    = "tcp"
+                cidr_blocks = ["192.168.1.0/24"]  # Restrict to a known IP range
+              }
+
+              egress {
+                from_port   = 0
+                to_port     = 0
+                protocol    = "-1"
+                cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic (if necessary)
+              }
+            }
+            ```
+        - id: cloudformation 
+          desc: |
+            **Using AWS CloudFormation:**
+
+            Ensure security groups do not allow unrestricted access:
+            ```
+            Resources:
+              SecureSecurityGroup:
+                Type: "AWS::EC2::SecurityGroup"
+                Properties:
+                  GroupDescription: "Security group with restricted access"
+                  VpcId: !Ref VPC
+                  SecurityGroupIngress:
+                    - IpProtocol: "tcp"
+                      FromPort: 22
+                      ToPort: 22
+                      CidrIp: "192.168.1.0/24"  # Restrict to a trusted IP range
+                  SecurityGroupEgress:
+                    - IpProtocol: "-1"
+                      FromPort: -1
+                      ToPort: -1
+                      CidrIp: "0.0.0.0/0"  # Allow outbound traffic
+                  Tags:
+                    - Key: "Name"
+                      Value: "RestrictedSecurityGroup"
+
+              VPC:
+                Type: "AWS::EC2::VPC"
+                Properties:
+                  CidrBlock: "10.0.0.0/16"
+                  EnableDnsSupport: true
+                  EnableDnsHostnames: true
+                  Tags:
+                    - Key: "Name"
+                      Value: "SecureVPC"
+            ```
+    variants:
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-single
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-all
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-state
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-single
+    filters: asset.platform == "aws-security-group"
+    mql: |
+      aws.ec2.securitygroup.ipPermissions.where(
+        fromPort == -1 && toPort == -1).none(
+          ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0")
+          )
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-all
+    filters: asset.platform == "aws"
+    mql: |
+      aws.ec2.securityGroups.where(ipPermissions.any(
+        ipRanges.contains("0.0.0.0/0") || ipRanges.contains("::/0"))).all(
+          ipPermissions.none(fromPort == -1 && toPort == -1)
+       )
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_security_group")
+    mql: terraform.resources.where( nameLabel == "aws_security_group" && blocks.where( type == "ingress").contains( arguments.to_port == -1 )).none( blocks.where( type == "ingress" ) { arguments.cidr_blocks.contains("0.0.0.0/0") || arguments.cidr_blocks.contains("::/0") })
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_security_group")
+    mql: terraform.plan.resourceChanges.where( type == "aws_security_group" && change.after.ingress.contains( to_port == -1 )).none( change.after.ingress[0].cidr_blocks.contains("0.0.0.0/0") || change.after.ingress[0].cidr_blocks.contains("::/0"))
+  - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
+    mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == -1 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
