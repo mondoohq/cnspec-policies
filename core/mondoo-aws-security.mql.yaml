@@ -992,7 +992,6 @@ queries:
 
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check
     title: Ensure IAM users receive permissions only through groups
-    filters: asset.platform == "aws"
     impact: 70
     docs:
       desc: |
