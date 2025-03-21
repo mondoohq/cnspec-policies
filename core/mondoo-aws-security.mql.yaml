@@ -146,7 +146,7 @@ queries:
 
         **Rationale:**
 
-        Root user access keys pose a high security risk if compromised, as they provide unrestricted access to all AWS resources. If an attacker gains access to a root user’s credentials, they can:
+        Root user access keys pose a high security risk if compromised, as they provide unrestricted access to all AWS resources. If an attacker gains access to a root user's credentials, they can:
 
         - Delete or modify critical resources.
         - Access sensitive data across all AWS services.
@@ -213,7 +213,7 @@ queries:
           desc: |
             **Using Terraform**
 
-            AWS does not allow direct management of the root user’s access key via Terraform. However, you should enforce IAM policies that prevent the creation of root access keys:
+            AWS does not allow direct management of the root user's access key via Terraform. However, you should enforce IAM policies that prevent the creation of root access keys:
 
             ```hcl
             resource "aws_iam_account_password_policy" "secure_policy" {
@@ -685,7 +685,7 @@ queries:
 
         **Rationale:**
 
-        IAM users with console access rely on password-based authentication, which is vulnerable to phishing, credential leaks, and brute-force attacks. Without MFA, an attacker who obtains an IAM user’s password can gain unauthorized access to AWS resources. Enforcing MFA helps mitigate this risk by requiring a second factor, such as a one-time code from a mobile authenticator app or a hardware security key.
+        IAM users with console access rely on password-based authentication, which is vulnerable to phishing, credential leaks, and brute-force attacks. Without MFA, an attacker who obtains an IAM user's password can gain unauthorized access to AWS resources. Enforcing MFA helps mitigate this risk by requiring a second factor, such as a one-time code from a mobile authenticator app or a hardware security key.
 
         AWS best practices and security frameworks such as CIS AWS Foundations Benchmark, PCI DSS, NIST, ISO 27001, and SOC 2 require MFA for all users with administrative or privileged access.
 
@@ -3844,7 +3844,7 @@ queries:
           1.	Navigate to the Amazon EC2 Console.
           2.	Select Security Groups from the left navigation panel.
           3.	Identify security groups that have inbound rules allowing port 22 (SSH) from 0.0.0.0/0 (IPv4) or ::/0 (IPv6).
-          4.	Edit the security group’s inbound rules and replace 0.0.0.0/0 with a trusted IP range (e.g., your office network or VPN).
+          4.	Edit the security group's inbound rules and replace 0.0.0.0/0 with a trusted IP range (e.g., your office network or VPN).
           5.	Save the changes.
       - id: cli
         desc: |
@@ -3992,7 +3992,7 @@ queries:
             1.	Navigate to the Amazon EC2 Console.
             2.	Select Security Groups from the left navigation panel.
             3.	Identify security groups that have inbound rules allowing traffic on ports 5900-5903 from 0.0.0.0/0 (IPv4) or ::/0 (IPv6).
-            4.	Edit the security group’s inbound rules and remove any rule that allows unrestricted VNC access.
+            4.	Edit the security group's inbound rules and remove any rule that allows unrestricted VNC access.
             5.	If necessary, replace 0.0.0.0/0 with a trusted IP range (e.g., your office VPN or bastion host).
             6.	Save the changes.
         - id: cli
