@@ -194,7 +194,7 @@ queries:
             5.	Ensure that MFA is enabled for the root user for additional security.
         - id: cli
           desc: |
-            Using AWS CLI:
+            **Using AWS CLI:**
 
             Check if the root user has an access key:
 
@@ -455,7 +455,7 @@ queries:
       remediation:
         - id: console
           desc: |
-            Using AWS Console:
+            **Using AWS Console:**
 
             1.	Navigate to the AWS IAM Console.
             2.	Select Account settings in the left panel.
@@ -471,7 +471,7 @@ queries:
 
         - id: cli
           desc: |
-            Using AWS CLI:
+            **Using AWS CLI:**
 
             Check the current password policy settings:
 
@@ -494,7 +494,7 @@ queries:
             ```
         - id: terraform
           desc: |
-            Using Terraform:
+            **Using Terraform:**
 
             Define a strict password policy using Terraform:
 
@@ -1237,7 +1237,7 @@ queries:
       remediation:
         - id: console
           desc: |
-            Using AWS Console:
+            **Using AWS Console:**
 
             1.	Navigate to the AWS VPC Console.
             2.	Select Security Groups from the left panel.
@@ -1248,7 +1248,7 @@ queries:
             5.	Save the changes to ensure that the default security group does not allow any traffic.
         - id: cli
           desc: |
-            Using AWS CLI:
+            **Using AWS CLI:**
 
             List all default security groups:
 
@@ -3030,7 +3030,7 @@ queries:
               - Select Save Changes.
         - id: cli
           desc: |
-            Using AWS CLI:
+            **Using AWS CLI:**
 
             Check if any snapshots are publicly accessible:
 
@@ -3045,7 +3045,7 @@ queries:
             ```
         - id: terraform
           desc: |
-            Using Terraform:
+            **Using Terraform:**
 
             Ensure EBS snapshots are private:
 
@@ -3350,7 +3350,7 @@ queries:
       remediation:
         - id: console
           desc: |
-            Using AWS Console:
+            **Using AWS Console:**
 
             1. Navigate to the AWS EC2 Console.
             2. Select Load Balancers under the Load Balancing section.
@@ -3739,7 +3739,7 @@ queries:
               - Select Save changes.
         - id: cli
           desc: |
-            Using AWS CLI:
+            **Using AWS CLI:**
 
             Check if a CloudTrail trail is using KMS encryption:
 
