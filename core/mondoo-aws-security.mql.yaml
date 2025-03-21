@@ -3235,12 +3235,12 @@ queries:
       aws.efs.filesystem.kmsKey != empty
 
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
-    title: Ensure CloudWatch logs are encrypted at rest using KMS CMKs
+    title: Ensure CloudWatch Logs are encrypted at rest using KMS CMKs
     filters: asset.platform == "aws"
     impact: 70
     docs:
       desc: |
-        This check ensures that Amazon CloudWatch Log Groups are configured to encrypt log data at rest using AWS Key Management Service (KMS) Customer-Managed Keys (CMKs). CloudWatch Logs store critical operational and security data, and encrypting them using CMKs enhances security by providing better control over key management and access policies.
+        This check ensures that Amazon CloudWatch log groups are configured to encrypt log data at rest using AWS Key Management Service (KMS) Customer-Managed Keys (CMKs). CloudWatch Logs store critical operational and security data, and encrypting them using CMKs enhances security by providing better control over key management and access policies.
 
         **Rationale:**
 
@@ -3264,7 +3264,7 @@ queries:
 
             1.	Navigate to the AWS CloudWatch Console.
             2.	Select Log Groups from the left panel.
-            3.	Select a Log Group and go to the Log Group Settings.
+            3.	Select a log group and go to the Log Group Settings.
             4.	Under Data Protection, check if KMS encryption is enabled.
             5.	If KMS is not configured:
               - Select Edit and enable Use a KMS key to encrypt log data.
@@ -3274,7 +3274,7 @@ queries:
           desc: |
             **Using AWS CLI:**
 
-            Check if a CloudWatch Log Group is encrypted with a KMS CMK:
+            Check if a CloudWatch log group is encrypted with a KMS CMK:
 
             ```bash
             aws logs describe-log-groups --query "logGroups[*].{LogGroupName:logGroupName, KmsKeyId:kmsKeyId}"
