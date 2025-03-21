@@ -674,7 +674,7 @@ queries:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
         title: AWS Documentation - Manage access keys for IAM users
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
-    title: Ensure Multi-Factor Authentication is Enabled for All IAM users with console access
+    title: Ensure multi-factor authentication is enabled for all IAM users with console access
     filters: asset.platform == "aws"
     impact: 90
     mql: |
@@ -795,7 +795,7 @@ queries:
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
   - uid: mondoo-aws-security-iam-group-has-users-check
-    title: Ensure IAM Groups are utilized by Assigning at Least One user
+    title: Ensure IAM groups are utilized by assigning at least one user
     impact: 30
     docs:
       desc: |
@@ -1519,7 +1519,7 @@ queries:
         title: Configuring block public access settings for your account
 
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
-    title: Ensure Amazon S3 Buckets Have Public Access Restrictions Enforced
+    title: Ensure Amazon S3 buckets have public access restrictions enforced
     impact: 100
     docs:
       desc: |
@@ -1727,7 +1727,7 @@ queries:
 
 
   - uid: mondoo-aws-security-ec2-instance-no-public-ip
-    title: Ensure No Public IP associated with EC2 Instances
+    title: Ensure no public IPs are associated with EC2 instances
     impact: 80
     variants:
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-all
@@ -1889,7 +1889,7 @@ queries:
 
 
   - uid: mondoo-aws-security-ec2-imdsv2-check
-    title: Ensure EC2 instances use IMDSv2
+    title: Ensure EC2 instances use IMDSv2 for metadata access
     impact: 90
     variants:
       - uid: mondoo-aws-security-ec2-imdsv2-check-all
@@ -3325,7 +3325,7 @@ queries:
     mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
 
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
-    title: Ensure Application Load Balancers are Configured with deletion protection enabled
+    title: Ensure Application Load Balancers are configured with deletion protection enabled
     impact: 70
     filters: asset.platform == "aws"
     docs:
@@ -3422,7 +3422,7 @@ queries:
       aws.elb.loadBalancers.all(attributes.any(Key == "deletion_protection.enabled"))
       aws.elb.loadBalancers.all(attributes.where(Key == "deletion_protection.enabled").all(Value == true))
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
-    title: Ensure Amazon OpenSearch Service Domains are Configured with Encryption-at-Rest
+    title: Ensure Amazon OpenSearch Service domains are configured with encryption-at-rest
     impact: 70
     filters: asset.platform == "aws"
     docs:
@@ -4220,7 +4220,7 @@ queries:
     mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 3389 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
 
   - uid: mondoo-aws-security-secgroup-restrict-traffic
-    title: Ensure Security Groups Restrict Access to Specific IPs and Ports
+    title: Ensure security groups restrict access to specific IPs and ports
     impact: 90
     docs:
       desc: |
