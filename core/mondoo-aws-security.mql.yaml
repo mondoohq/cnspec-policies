@@ -4088,7 +4088,7 @@ queries:
         - Use AWS Systems Manager Session Manager as a secure alternative to direct RDP access.
         - Enable multi-factor authentication (MFA) and strong authentication mechanisms.
 
-        **Risk Mitigation:**
+        **Risk mitigation:**
 
         - **Prevent brute-force attacks:** Limits exposure to automated credential-guessing attacks.
         - **Ensure least privilege access:** Only trusted IPs can establish RDP sessions.
