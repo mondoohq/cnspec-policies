@@ -1,0 +1,42 @@
+name: "(nightly) cnspec-policies"
+
+on:
+  schedule:
+  - cron: "0 0 * * *"
+
+env:
+  # C07QZDJFF89 == #release-coordination
+  SLACK_BOT_CHANNEL_ID: "C07QZDJFF89"
+
+jobs:
+  lint-prod:
+    uses: ./.github/workflows/lint-prod.yaml
+
+  lint-edge:
+    uses: ./.github/workflows/lint-edge.yaml
+
+  notify:
+    needs: [lint-prod, lint-edge]
+    runs-on: ubuntu-latest
+    if : ${{ always() && failure() }}
+    steps:
+      - uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: "${{ env.SLACK_BOT_CHANNEL_ID }}"
+            ts: "${{ steps.slack.outputs.ts }}"
+            text: "GitHub Actions Run"
+            attachments:
+              - color: "#FF0000"
+                blocks:
+                  - type: "section"
+                    fields:
+                      - type: "mrkdwn"
+                        text: "<${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}|${{ github.workflow }}>"
+                      - type: "mrkdwn"
+                        text: "<@channel> This needs attention!"
+                      - type: "mrkdwn"
+                        text: "*Status:*\n`Failure`"
+
