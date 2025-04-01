@@ -12,7 +12,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: |-
+      desc: |
         This policy provides prescriptive guidance for establishing a secure configuration posture for Apple macOS. This guide was tested against Apple macOS 10.15, 11, 12, 13, and 14.
 
         ## Local scan
@@ -225,7 +225,7 @@ queries:
         a || b
       }
     docs:
-      desc: |-
+      desc: |
         Starting with 10.13 (macOS High Sierra) Apple introduced a service to make it easier to deploy data from Apple, including software updates, where there are bandwidth constraints to the Internet and fewer constraints and greater bandwidth on the local subnet. This capability can be very valuable for organizations that have throttled and possibly metered Internet connections. In heterogeneous enterprise networks with multiple subnets the effectiveness of this capability would be determined on how many Macs were on each subnet at the time new large updates were made available upstream.
         This capability requires the use of mac OS clients as P2P nodes for updated Apple content. Unless there is a business requirement to manage operational Internet connectivity bandwidth user endpoints should not store content and act as a cluster to provision data.
 
@@ -341,7 +341,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         Starting with macOS 10.15 Apple has provided a control to allow a user to share Apple downloaded content on all Apple devices that are signed in with the same Apple ID. This allows a user to share downloaded Movies, Music or TV shows with other controlled macOS, iOS and iPadOS devices as well as photos with Apple TVs.
 
         With this capability guest users can also use media downloaded on the computer.
@@ -470,7 +470,7 @@ queries:
     impact: 50
     mql: processes.none( command == /ARDAgent/)
     docs:
-      desc: |-
+      desc: |
         Remote Management is the client portion of Apple Remote Desktop (ARD). Remote Management can be used by remote administrators to view the current screen, install software, report on, and generally manage client Macs.
 
         The screen sharing options in Remote Management are identical to those in the Screen Sharing section. In fact, only one of the two can be configured. If Remote Management is used, refer to the Screen Sharing section above on issues regarding screen sharing.
@@ -572,7 +572,7 @@ queries:
         a || b
       }
     docs:
-      desc: |-
+      desc: |
         FileVault secures a system's data by automatically encrypting its boot volume and requiring a password or recovery key to access it.
 
         FileVault may also be enabled using command line using the `fdesetup`
@@ -612,7 +612,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         A firewall is a piece of software that blocks unwanted incoming connections to a system. Apple has posted general documentation about the application firewall.
 
         [Block connections to your Mac with a firewall](https://support.apple.com/guide/mac-help/block-connections-to-your-mac-with-a-firewall-mh34041/mac)
@@ -654,7 +654,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         While in Stealth mode the computer will not respond to unsolicited probes, dropping that traffic.
 
         [Block connections to your Mac with a firewall](https://support.apple.com/guide/mac-help/block-connections-to-your-mac-with-a-firewall-mh34041/mac)
@@ -727,7 +727,7 @@ queries:
     mql: |
       service('com.apple.auditd').enabled == true
     docs:
-      desc: |-
+      desc: |
         macOS's audit facility, `auditd`, receives notifications from the kernel when certain system calls, such as `open`, `fork`, and `exit`, are made. These notifications are captured and written to an audit log.
       remediation: |-
         Perform the following to enable security auditing:
@@ -810,7 +810,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         AirDrop is Apple's built-in on demand ad hoc file exchange system that is compatible with both macOS and iOS. It uses Bluetooth LE for discovery that limits connectivity to Mac or iOS users that are in close proximity. Depending on the setting it allows everyone or only Contacts to share files when they are nearby to each other.
 
         In many ways this technology is far superior to the alternatives. The file transfer is done over a TLS encrypted session, does not require any open ports that are required for file sharing, does not leave file copies on email servers or within cloud storage, and allows for the service to be mitigated so that only people already trusted and added to contacts can interact with you.
@@ -919,7 +919,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         The macOS audit capability contains important information to investigate security or operational issues. This resource is only completely useful if it is retained long enough to allow technical staff to find the root cause of anomalies in the records.
 
         Retention can be set to respect both size and longevity. To retain as much as possible under a certain size the recommendation is to use the following:
@@ -955,7 +955,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         Over time passwords can be captured by third-parties through mistakes, phishing attacks, third party breaches or merely brute force attacks. To reduce the risk of exposure and to decrease the incentives of password reuse (passwords that are not forced to be changed periodically generally are not ever changed) users should reset passwords periodically.
         This check uses 365 days as the acceptable value. Some organizations may be more or less restrictive. This check mainly exists to mitigate against password reuse of the macOS account password in other realms that may be more prone to compromise. Attackers take advantage of exposed information to attack other accounts.
       remediation: |-
@@ -994,7 +994,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         Over time passwords can be captured by third-parties through mistakes, phishing attacks, third party breaches or merely brute force attacks. To reduce the risk of exposure and to decrease the incentives of password reuse (passwords that are not forced to be changed periodically generally are not ever changed) users must reset passwords periodically. This check ensures that previous passwords are not reused immediately by keeping a history of previous password hashes. Ensure that password history checks are part of the password policy on the computer. This check ensures the new password is different than the previous 15.
         The latest NIST guidance based on exploit research referenced in this section details how one of the greatest risks is password exposure rather than password cracking. Passwords should be changed to a new unique value whenever a password might have been exposed to anyone other than the account holder. Attackers have maintained persistent control based on predictable password change patterns and substantially different patterns should be used in case of a leak.
       remediation: |-
@@ -1046,7 +1046,7 @@ queries:
         content == /ttl/
       }
     docs:
-      desc: |-
+      desc: |
         macOS writes information pertaining to system-related events to the file `/var/log/install.log`
         and has a configurable retention policy for this file. The default logging setting limits the file size of the logs and the maximum size for all logs. The default allows for an errant application to fill the log files and does not enforce sufficient log retention. The Benchmark recommends a value based on standard use cases. The value should align with local requirements within the organization.
 
@@ -1092,7 +1092,7 @@ queries:
         a || b || c
       }
     docs:
-      desc: |-
+      desc: |
         A minimum password length is the fewest number of characters a password can contain to meet a system's requirements.
 
         Ensure that a minimum of a 15-character password is part of the password policy on the computer.

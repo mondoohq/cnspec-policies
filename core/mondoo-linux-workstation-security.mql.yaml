@@ -168,7 +168,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         The grub files contain information on boot settings and passwords for unlocking boot options.
 
         If the system uses UEFI, /boot/efi is a vfat filesystem. The vfat filesystem itself doesn't have the concept of permissions but can be mounted under Linux with whatever permissions desired.

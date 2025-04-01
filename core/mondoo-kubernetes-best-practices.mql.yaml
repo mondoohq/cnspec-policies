@@ -13,7 +13,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: |-
+      desc: |
         The Mondoo Kubernetes Best Practices policy bundle provides guidance for establishing reliable Kubernetes clusters by encouraging the adoption of best practices.
 
         ## Remote scan

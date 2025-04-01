@@ -13,7 +13,7 @@ policies:
       - name: Tim Smith
         email: tim@mondoo.com
     docs:
-      desc: |-
+      desc: |
         Chef Infra Server Policy identifies several misconfigurations and end of life components that allow attackers to expose node information:
           - Insecure disk permissions on critical directories and configuration files.
           - End of life components installed on the Chef Infra Server such as Push Jobs, Analytics, or Reporting, which no longer receive security updates.

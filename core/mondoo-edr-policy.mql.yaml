@@ -12,7 +12,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: |-
+      desc: |
         In today's ever-changing world of cybersecurity, it is crucial to ensure the strength of endpoint security. A reliable defense mechanism is the Endpoint Detection and Response (EDR) framework, which provides real-time monitoring, threat identification, and incident response capabilities. However, the effectiveness of this framework depends on the agents' deployment and functionality across organizational endpoints.
 
         In order to strengthen your cyber defenses and stay protected against emerging threats, it is essential to establish a policy that thoroughly confirms the presence and operational status of EDR agents. This policy aims to verify the installation of these critical components and ensure their continuous operation, thereby enhancing our resilience against malicious attacks.
@@ -67,11 +67,11 @@ queries:
     title: Ensure EDR Agent is installed
     impact: 100
     docs:
-      desc: |-
+      desc: |
         This query checks if the EDR agent is installed on the system. The presence of an EDR agent is crucial for real-time monitoring, threat identification, and incident response capabilities. It is essential to ensure that the EDR agent is installed and operational to enhance the resilience against malicious attacks.
       audit: Please ensure that the EDR agent is installed on the system.
       remediation:
-        - desc: |-
+        - desc: |
             To enhance security, install an Endpoint Detection and Response (EDR) agent on this asset. Recommended solutions include SentinelOne, CrowdStrike, ESET Endpoint Security, or Wazuh. Ensuring an active EDR agent helps detect and mitigate threats in real time.
     variants:
         - uid: mondoo-edr-policy-ensure-edr-agent-is-installed-macos
@@ -112,11 +112,11 @@ queries:
     title: Ensure EDR Agent is running
     impact: 100
     docs:
-      desc: |-
+      desc: |
         This query checks if the EDR agent is running on the system. The presence of an EDR agent is crucial for real-time monitoring, threat identification, and incident response capabilities. It is essential to ensure that the EDR agent is installed and operational to enhance the resilience against malicious attacks.
       audit: Please ensure that the EDR agent is running on the system.
       remediation:
-        - desc: |-
+        - desc: |
             To enhance security, install and enable an Endpoint Detection and Response (EDR) agent on this asset. Recommended solutions include SentinelOne, CrowdStrike, ESET Endpoint Security, or Wazuh. Ensuring an active EDR agent helps detect and mitigate threats in real time.
     variants:
       - uid: mondoo-edr-policy-ensure-crowdstrike-agent-is-running-macos

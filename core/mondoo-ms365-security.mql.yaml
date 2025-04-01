@@ -12,7 +12,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: |-
+      desc: |
         The Mondoo Microsoft 365 Security policy provides guidance for establishing minimum recommended security and operational best practices for Microsoft 365.
 
         ## Remote scan
@@ -90,7 +90,7 @@ queries:
           microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'SigninRiskPolicy') {*}
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To configure a Sign-In risk policy, use the following steps:**
 
             1. Navigate to the `Microsoft Entra admin center` https://entra.microsoft.com.
@@ -141,7 +141,7 @@ queries:
           microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'UserRiskPolicy') {*}
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To configure a User risk policy, use the following steps:**
 
             1. Navigate to the `Microsoft Entra admin center` https://entra.microsoft.com.
@@ -194,7 +194,7 @@ queries:
           microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'BlockLegacyAuthentication') {*}
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To setup a conditional access policy to block legacy authentication, use the following steps:**
 
             1. Navigate to the `Microsoft Entra admin center` https://entra.microsoft.com.
@@ -240,7 +240,7 @@ queries:
            microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'AdminMFAV2') {*}
            ```
       remediation:
-        - desc: |-
+        - desc: |
             **To enable multifactor authentication for administrators:**
 
             1. Navigate to the `Microsoft Entra admin center` https://entra.microsoft.com.
@@ -306,7 +306,7 @@ queries:
           microsoft.security.latestSecureScores.controlScores.where(_['controlName'] == 'MFARegistrationV2') {*}
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To enable multifactor authentication for all users:**
 
             1. Navigate to the `Microsoft Entra admin center` https://entra.microsoft.com.
@@ -354,7 +354,7 @@ queries:
           microsoft.policies.identitySecurityDefaultsEnforcementPolicy
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To disable security defaults:**
 
             1. Navigate to the `Microsoft Entra admin center` https://entra.microsoft.com.
@@ -412,7 +412,7 @@ queries:
           microsoft.rolemanagement.roleDefinitions.where(displayName == "Global Administrator") {*}
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To correct the number of global tenant administrators:**
 
             1. Navigate to the `Microsoft 365 admin center` https://admin.microsoft.com
@@ -560,7 +560,7 @@ queries:
           microsoft.domains {*}
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To set Office 365 passwords are set to never expire:**
 
             1. Navigate to `Microsoft 365 admin center` https://admin.microsoft.com.
@@ -612,7 +612,7 @@ queries:
           microsoft.domains.all(serviceConfigurationRecords.where(supportedService == "Email" && recordType == "Txt" )
           ```
       remediation:
-        - desc: |-
+        - desc: |
             **To setup SPF records for Exchange Online accepted domains, perform the following steps:**
 
             1. If all email in your domain is sent from and received by Exchange Online, add the following TXT record for each Accepted Domain:

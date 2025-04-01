@@ -12,7 +12,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-        desc: |-
+        desc: |
           The Dockerfile Security policy by Mondoo provides guidance for establishing secure Docker container configurations and deployments by securing Dockerfiles used to build container images.
 
           If you have questions, comments, or ways to improve this policy, please write us at hello@mondoo.com, or reach out in GitHub Discussions.

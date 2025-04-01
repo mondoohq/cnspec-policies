@@ -12,7 +12,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: |-
+      desc: |
         This policy provides prescriptive guidance for establishing a secure configuration posture for Microsoft Windows. This guide was tested against Microsoft Windows 10 Release 20H2 Enterprise.
 
         ## Local scan
@@ -157,7 +157,7 @@ queries:
         > Note: This user right is considered a "sensitive privilege" for the purposes of auditing.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to "":
@@ -200,7 +200,7 @@ queries:
         Overall, LSA protection is an important security feature that helps to secure Windows systems and protect against various types of attacks that can compromise system security.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             Enable LSA protection via GPO:
@@ -241,13 +241,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'fPromptForPassword' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies whether Remote Desktop Services always prompts the client computer for a password upon connection. You can use this policy setting to enforce a password prompt for users who log on to Remote Desktop Services, even if they already provided the password in the Remote Desktop Connection client.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -291,7 +291,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Application', name: 'Retention' ).value == '0'
     docs:
-      desc: |-
+      desc: |
         This policy setting controls Event Log behavior when the log file reaches its maximum size.
 
         The recommended state for this setting is: `Disabled`.
@@ -301,7 +301,7 @@ queries:
         policy setting.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -345,13 +345,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Application', name: 'MaxSize' ).value >= 32768
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments.
 
         The recommended state for this setting is: `Enabled: 32,768 or greater`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: 32,768 or greater`:
@@ -399,7 +399,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', name: 'LocalAccountTokenFilterPolicy' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This setting controls whether local accounts can be used for remote administration via network logon (e.g., NET USE, connecting to C$, etc.). Local accounts are at high risk for credential theft when the same account and password is configured on multiple systems. Enabling this policy significantly reduces that risk.
 
         **Enabled:**
@@ -416,7 +416,7 @@ queries:
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -485,7 +485,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9217-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9217-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolFailure || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure1)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports when a user's account is locked out as a result of too many failed logon attempts. Events for this subcategory include:
 
         - 4625: An account failed to log on.
@@ -493,7 +493,7 @@ queries:
         The recommended state for this setting is to include: `Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Failure`:
@@ -548,7 +548,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9239-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9239-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure2)
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to audit events generated by changes to application groups such as the following:
 
         - Application group is created, changed, or deleted.
@@ -559,7 +559,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -623,7 +623,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE922F-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE922F-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess3 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure3)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports changes in audit policy including SACL changes. Events for this subcategory include:
 
         - 4715: The audit policy (SACL) on an object was changed.
@@ -639,7 +639,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -694,7 +694,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9230-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9230-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess4 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure4)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports changes in authentication policy. Events for this subcategory include:
 
         - 4706: A new trust was created to a domain.
@@ -712,7 +712,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -767,7 +767,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9231-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9231-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess5 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure5)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports changes in authorization policy. Events for this subcategory include:
 
         - 4704: A user right was assigned.
@@ -779,7 +779,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -834,7 +834,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE923F-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE923F-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure6)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports the results of validation tests on credentials submitted for a user account logon request. These events occur on the computer that is authoritative for the credentials. For domain accounts, the Domain Controller is authoritative, whereas for local accounts, the local computer is authoritative. In domain environments, most of the Account Logon events occur in the Security log of the Domain Controllers that are authoritative for the domain accounts. However, these events can occur on other computers in the organization when local accounts are used to log on. Events for this subcategory include:
 
         - 4774: An account was mapped for logon.
@@ -845,7 +845,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -900,7 +900,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9244-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9244-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolFailure6 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure7)
     docs:
-      desc: |-
+      desc: |
         This subcategory allows you to audit attempts to access files and folders on a shared folder. Events for this subcategory include:
 
         - 5145: network share object was checked to see whether client can be granted desired access.
@@ -908,7 +908,7 @@ queries:
         The recommended state for this setting is to include: `Failure`
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Failure`:
@@ -963,7 +963,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9224-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9224-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure8)
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to audit attempts to access a shared folder.
 
         The recommended state for this setting is: `Success and Failure`.
@@ -972,7 +972,7 @@ queries:
         There are no system access control lists (SACLs) for shared folders. If this policy setting is enabled, access to all shared folders on the system is audited.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -999,7 +999,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'SCENoApplyLegacyAuditPolicy' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting allows administrators to enable the more precise auditing capabilities present in Windows Vista.
 
         The Audit Policy settings available in Windows Server 2003 Active Directory do not yet contain settings for managing the new auditing subcategories. To properly apply the auditing policies prescribed in this baseline, the Audit: Force audit policy subcategory settings (Windows Vista or later) to override audit policy category settings setting needs to be configured to Enabled.
@@ -1010,7 +1010,7 @@ queries:
         Be very cautious about audit settings that can generate a large volume of traffic. For example, if you enable either success or failure auditing for all of the Privilege Use subcategories, the high volume of audit events generated can make it difficult to find other types of entries in the Security log. Such a configuration could also have a significant impact on system performance.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -1075,7 +1075,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9249-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9249-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess9 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure9)
     docs:
-      desc: |-
+      desc: |
         This policy allows you to audit the group membership information in the user's logon token. Events in this subcategory are generated on the computer on which a logon session is created. For an interactive logon, the security audit event is generated on the computer that the user logged on to. For a network logon, such as accessing a shared folder on the network, the security audit event is generated on the computer hosting the resource.
 
         The recommended state for this setting is to include: `Success`.
@@ -1084,7 +1084,7 @@ queries:
         A Windows 10, Server 2016 or newer OS is required to access and set this value in Group Policy.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -1139,7 +1139,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9213-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9213-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure10)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports on the activities of the Internet Protocol security (IPsec) driver. Events for this subcategory include:
 
         - 4960: IPsec dropped an inbound packet that failed an integrity check. If this problem persists, it could indicate a network issue or that packets are being modified in transit to this computer. Verify that the packets sent from the remote computer are the same as those received by this computer. This error might also indicate interoperability problems with other IPsec implementations.
@@ -1157,7 +1157,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1212,7 +1212,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9216-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9216-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess11 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure11)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports when a user logs off from the system. These events occur on the accessed computer. For interactive logons, the generation of these events occurs on the computer that is logged on to. If a network logon takes place to access a share, these events generate on the computer that hosts the accessed resource. If you configure this setting to No auditing, it is difficult or impossible to determine which user has accessed or attempted to access organization computers. Events for this subcategory include:
 
         - 4634: An account was logged off.
@@ -1221,7 +1221,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -1276,7 +1276,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9215-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9215-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure12)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports when a user attempts to log on to the system. These events occur on the accessed computer. For interactive logons, the generation of these events occurs on the computer that is logged on to. If a network logon takes place to access a share, these events generate on the computer that hosts the accessed resource. If you configure this setting to No auditing, it is difficult or impossible to determine which user has accessed or attempted to access organization computers. Events for this subcategory include:
 
         - 4624: An account was successfully logged on.
@@ -1287,7 +1287,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1342,7 +1342,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9232-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9232-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure13)
     docs:
-      desc: |-
+      desc: |
         This subcategory determines whether the operating system generates audit events when changes are made to policy rules for the Microsoft Protection Service (MPSSVC.exe). Events for this subcategory include:
 
         - 4944: The following policy was active when the Windows Firewall started.
@@ -1364,7 +1364,7 @@ queries:
         The recommended state for this setting is : `Success and Failure`
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1419,7 +1419,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE921C-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE921C-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure14)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports other logon/logoff-related events, such as Remote Desktop Services session disconnects and reconnects, using RunAs to run processes under a different account, and locking and unlocking a workstation. Events for this subcategory include:
 
         - 4649: A replay attack was detected.
@@ -1436,7 +1436,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1491,7 +1491,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9227-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9227-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure15)
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to audit events generated by the management of task scheduler jobs or COM+ objects.
 
         For scheduler jobs, the following are audited:
@@ -1511,7 +1511,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1566,7 +1566,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9234-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9234-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolFailure15)
     docs:
-      desc: |-
+      desc: |
         This subcategory contains events about EFS Data Recovery Agent policy changes, changes in Windows Filtering Platform filter, status on Security policy settings updates for local Group Policy settings, Central Access Policy changes, and detailed troubleshooting events for Cryptographic Next Generation (CNG) operations.
 
         - 5063: A cryptographic provider operation was attempted.
@@ -1582,7 +1582,7 @@ queries:
         The recommended state for this setting is to include: `Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Failure`:
@@ -1637,7 +1637,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9214-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9214-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure16)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports on other system events. Events for this subcategory include:
 
         - 5024 : The Windows Firewall Service has started successfully.
@@ -1657,7 +1657,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1712,7 +1712,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9248-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9248-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess18 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure17)
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to audit when plug and play detects an external device.
 
         The recommended state for this setting is to include: `Success`.
@@ -1721,7 +1721,7 @@ queries:
         A Windows 10, Server 2016 or newer OS is required to access and set this value in Group Policy.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -1776,7 +1776,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE922B-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE922B-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess19 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure18)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports the creation of a process and the name of the program or user that created it. Events for this subcategory include:
 
         - 4688: A new process has been created.
@@ -1788,7 +1788,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -1843,7 +1843,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9245-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9245-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure19)
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to audit user attempts to access file system objects on a removable storage device. A security audit event is generated only for all objects for all types of access requested. If you configure this policy setting, an audit event is generated each time an account accesses a file system object on a removable storage. Success audits record successful attempts and Failure audits record unsuccessful attempts. If you do not configure this policy setting, no audit event is generated when an account accesses a file system object on a removable storage.
 
         The recommended state for this setting is: `Success and Failure`.
@@ -1852,7 +1852,7 @@ queries:
         A Windows 8.0, Server 2012 (non-R2) or newer OS is required to access and set this value in Group Policy.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -1907,7 +1907,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9237-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9237-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess21 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure20)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports each event of security group management, such as when a security group is created, changed, or deleted or when a member is added to or removed from a security group. If you enable this Audit policy setting, administrators can track events to detect malicious, accidental, and authorized creation of security group accounts. Events for this subcategory include:
 
         - 4727: A security-enabled global group was created.
@@ -1930,7 +1930,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success:`
@@ -1985,7 +1985,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9210-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9210-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess22 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure21)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports changes in security state of the system, such as when the security subsystem starts and stops. Events for this subcategory include:
 
         - 4608: Windows is starting up.
@@ -1996,7 +1996,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -2051,7 +2051,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9211-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9211-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess23 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure22)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports the loading of extension code such as authentication packages by the security subsystem. Events for this subcategory include:
 
         - 4610: An authentication package has been loaded by the Local Security Authority.
@@ -2063,7 +2063,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -2118,7 +2118,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9228-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9228-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure23)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports when a user account or service uses a sensitive privilege. A sensitive privilege includes the following user rights:
 
         - Act as part of the operating system
@@ -2144,7 +2144,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -2171,7 +2171,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\LSA', name: 'CrashOnAuditFail' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether the system shuts down if it is unable to log Security events. It is a requirement for Trusted Computer System Evaluation Criteria (TCSEC)-C2 and Common Criteria certification to prevent auditable events from occurring if the audit system is unable to log them. Microsoft has chosen to meet this requirement by halting the system and displaying a stop message if the auditing system experiences a failure. When this policy setting is enabled, the system will be shut down if a security audit cannot be logged for any reason.
 
         If the Audit: Shut down system immediately if unable to log security audits setting is enabled, unplanned system failures can occur. The administrative burden can be significant, especially if you also configure the Retention method for the Security log to Do not overwrite events (clear log manually). This configuration causes a repudiation threat (a backup operator could deny that they backed up or restored data) to become a denial of service (DoS) vulnerability, because a server could be forced to shut down if it is overwhelmed with logon events and other security events that are written to the Security log. Also, because the shutdown is not graceful, it is possible that irreparable damage to the operating system, applications, or data could result. Although the NTFS file system guarantees its integrity when an ungraceful computer shutdown occurs, it cannot guarantee that every data file for every application will still be in a usable form when the computer restarts.
@@ -2179,7 +2179,7 @@ queries:
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -2244,7 +2244,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE921B-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE921B-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccess25 || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure24)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports when a special logon is used. A special logon is a logon that has administrator-equivalent privileges and can be used to elevate a process to a higher level. Events for this subcategory include:
 
         - 4964 : Special groups have been assigned to a new logon.
@@ -2252,7 +2252,7 @@ queries:
         The recommended state for this setting is to include: `Success`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to include `Success`:
@@ -2307,7 +2307,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9212-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9212-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure25)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports on violations of integrity of the security subsystem. Events for this subcategory include:
 
         - 4612 : Internal resources allocated for the queuing of audit messages have been exhausted, leading to the loss of some audits.
@@ -2324,7 +2324,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure:`
@@ -2379,7 +2379,7 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9235-69AE-11D9-BED3-505054503030").list != []
       auditpol.where(subcategoryguid == "0CCE9235-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure26)
     docs:
-      desc: |-
+      desc: |
         This subcategory reports each event of user account management, such as when a user account is created, changed, or deleted; a user account is renamed, disabled, or enabled; or a password is set or changed. If you enable this Audit policy setting, administrators can track events to detect malicious, accidental, and authorized creation of user accounts. Events for this subcategory include:
 
         - 4720: A user account was created.
@@ -2402,7 +2402,7 @@ queries:
         The recommended state for this setting is: `Success and Failure`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Success and Failure`:
@@ -2429,7 +2429,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\mrxsmb10', name: 'Start' ).value == 4
     docs:
-      desc: |-
+      desc: |
         This setting configures the start type for the Server Message Block version 1 (SMBv1) client driver service ( `MRxSmb10` ), which is recommended to be disabled.
 
         The recommended state for this setting is: `Enabled: Disable driver (recommended)`.
@@ -2438,7 +2438,7 @@ queries:
         Do not, _under any circumstances_, configure this overall setting as `Disabled`, as doing so will delete the underlying registry entry altogether, which will cause serious problems.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: Disable driver (recommended)`:
@@ -2478,13 +2478,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters', name: 'SMB1' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This setting configures the server-side processing of the Server Message Block version 1 (SMBv1) protocol.
 
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -2524,13 +2524,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'fDisableCcm' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies whether to prevent the redirection of data to client COM ports from the remote computer in a Remote Desktop Services session.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -2571,7 +2571,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'fDisableCdm' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting prevents users from sharing the local drives on their client computers to Remote Desktop Servers that they access. Mapped drives appear in the session folder tree in Windows Explorer in the following format:
 
         `\\\TSClient\\<driveletter>$`
@@ -2582,7 +2582,7 @@ queries:
         .
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -2623,13 +2623,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'fDisableLPT' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies whether to prevent the redirection of data to client LPT ports during a Remote Desktop Services session.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -2670,7 +2670,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'DisablePasswordSaving' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting helps prevent Remote Desktop clients from saving passwords on a computer.
 
         The recommended state for this setting is: `Enabled`.
@@ -2679,7 +2679,7 @@ queries:
         If this policy setting was previously configured as Disabled or Not configured, any previously saved passwords will be deleted the first time a Remote Desktop client disconnects from any server.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -2720,13 +2720,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'fDisablePNPRedir' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to control the redirection of supported Plug and Play devices, such as Windows Portable Devices, to the remote computer in a Remote Desktop Services session.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -2767,13 +2767,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'DeleteTempDirsOnExit' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies whether Remote Desktop Services retains a user's per-session temporary folders at logoff.
 
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -2817,13 +2817,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', name: 'DisableExceptionChainValidation' ).value == 0
     docs:
-      desc: |-
+      desc: |
         Windows includes support for Structured Exception Handling Overwrite Protection (SEHOP). We recommend enabling this feature to improve the security profile of the computer.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -2865,7 +2865,7 @@ queries:
     mql: |
       secpol.systemaccess['PasswordHistorySize'] >= 24
     docs:
-      desc: |-
+      desc: |
         This policy setting determines the number of renewed, unique passwords that have to be associated with a user account before you can reuse an old password. The value for this policy setting must be between 0 and 24 passwords. The default value for Windows Vista is 0 passwords, but the default setting in a domain is 24 passwords. To maintain the effectiveness of this policy setting, use the Minimum password age setting to prevent users from repeatedly changing their password.
 
         The recommended state for this setting is: `24 or more password(s)`.
@@ -2880,7 +2880,7 @@ queries:
         As of the publication of this benchmark, Microsoft currently has a maximum limit of 24 saved passwords. For more information, please visit [Enforce password history (Windows 10) - Windows security \| Microsoft Docs](https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/enforce-password-history#:~:text=The%20Enforce%20password%20history%20policy,a%20long%20period%20of%20time.)
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `24 or more password(s)`:
@@ -2916,7 +2916,7 @@ queries:
       secpol.systemaccess['MaximumPasswordAge'] <= 365
       secpol.systemaccess['MaximumPasswordAge'] > 0
     docs:
-      desc: |-
+      desc: |
         This policy setting defines how long a user can use their password before it expires.
 
         Values for this policy setting range from 0 to 999 days. If you set the value to 0, the password will never expire.
@@ -2932,7 +2932,7 @@ queries:
         user accounts on the computers that receive the GPO. However, custom exceptions to the default password policy and account lockout policy rules for specific domain users and/or groups can be defined using Password Settings Objects (PSOs), which are completely separate from Group Policy and most easily configured using Active Directory Administrative Center.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `365 or fewer days, but not 0`:
@@ -2967,7 +2967,7 @@ queries:
     mql: |
       secpol.systemaccess['MinimumPasswordAge'] >= 1
     docs:
-      desc: |-
+      desc: |
         This policy setting determines the number of days that you must use a password before you can change it. The range of values for this policy setting is between 1 and 999 days. (You may also set the value to 0 to allow immediate password changes.) The default value for this setting is 0 days.
 
         The recommended state for this setting is: `1 or more day(s))`.
@@ -2980,7 +2980,7 @@ queries:
         user accounts on the computers that receive the GPO. However, custom exceptions to the default password policy and account lockout policy rules for specific domain users and/or groups can be defined using Password Settings Objects (PSOs), which are completely separate from Group Policy and most easily configured using Active Directory Administrative Center.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `1 or more day(s)`:
@@ -3021,7 +3021,7 @@ queries:
     mql: |
       secpol.systemaccess['MinimumPasswordLength'] >= props.mondooWindowsSecurityMinimumPasswordLength
     docs:
-      desc: |-
+      desc: |
         This policy setting determines the least number of characters that make up a password for a user account. There are many different theories about how to determine the best password length for an organization, but perhaps "passphrase" is a better term than "password." In Microsoft Windows 2000 and newer, passphrases can be quite long and can include spaces. Therefore, a phrase such as "I want to drink a $5 milkshake" is a valid passphrase; it is a considerably stronger password than an 8 or 10 character string of random numbers and letters, and yet is easier to remember. Users must be educated about the proper selection and maintenance of passwords, especially with regard to password length. In enterprise environments, the ideal value for the Minimum password length setting is 14 characters, however you should adjust this value to meet your organization's business requirements.
 
         The recommended state for this setting is: `14 or more character(s)`.
@@ -3036,7 +3036,7 @@ queries:
         user accounts on the computers that receive the GPO. However, custom exceptions to the default password policy and account lockout policy rules for specific domain users and/or groups can be defined using Password Settings Objects (PSOs), which are completely separate from Group Policy and most easily configured using Active Directory Administrative Center.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `14 or more character(s)`:
@@ -3074,7 +3074,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NetBT\Parameters', name: 'NodeType' ).value == 2
     docs:
-      desc: |-
+      desc: |
         This setting determines which method NetBIOS over TCP/IP (NetBT) uses to register and resolve names. The available methods are:
 
         - The B-node (broadcast) method only uses broadcasts.
@@ -3091,7 +3091,7 @@ queries:
         configured for the network, or H-node (hybrid) if there is at least one WINS server configured.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: P-node (recommended)`:
@@ -3137,13 +3137,13 @@ queries:
     mql: |
       secpol.systemaccess['LSAAnonymousNameLookup'] == 0
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether an anonymous user can request security identifier (SID) attributes for another user, or use a SID to obtain its corresponding user name.
 
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -3178,7 +3178,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'RestrictAnonymousSAM' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting controls the ability of anonymous users to enumerate the accounts in the Security Accounts Manager (SAM). If you enable this policy setting, users with anonymous connections will not be able to enumerate domain account user names on the systems in your environment. This policy setting also allows additional restrictions on anonymous connections.
 
         The recommended state for this setting is: `Enabled`.
@@ -3187,7 +3187,7 @@ queries:
         This policy has no effect on Domain Controllers.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -3224,7 +3224,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'RestrictAnonymous' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting controls the ability of anonymous users to enumerate SAM accounts as well as shares. If you enable this policy setting, anonymous users will not be able to enumerate domain account user names and network share names on the systems in your environment.
 
         The recommended state for this setting is: `Enabled`.
@@ -3233,7 +3233,7 @@ queries:
         This policy has no effect on Domain Controllers.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -3270,7 +3270,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'DisableDomainCreds' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether Credential Manager (formerly called Stored User Names and Passwords) saves passwords or credentials for later use when it gains domain authentication.
 
         The recommended state for this setting is: `Enabled`.
@@ -3279,7 +3279,7 @@ queries:
         Changes to this setting will not take effect until Windows is restarted.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -3316,13 +3316,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'EveryoneIncludesAnonymous' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This policy setting determines what additional permissions are assigned for anonymous connections to the computer.
 
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -3360,13 +3360,13 @@ queries:
       - uid: mondoo-windows-security-network-access-named-pipes-that-can-be-accessed-anonymously-is-set-to-none-dc
       - uid: mondoo-windows-security-network-access-named-pipes-that-can-be-accessed-anonymously-is-set-to-none-ms
     docs:
-      desc: |-
+      desc: |
         This policy setting determines which communication sessions, or pipes, will have attributes and permissions that allow anonymous access.
 
         The recommended state for this setting is: `<blank>` (i.e. None).
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `<blank>` (i.e. None):
@@ -3403,7 +3403,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters', name: 'RestrictNullSessAccess' ).value == 1
     docs:
-      desc: |-
+      desc: |
         When enabled, this policy setting restricts anonymous access to only those shares and pipes that are named in the `Network access: Named pipes that can be accessed anonymously`and `Network access: Shares that can be accessed anonymously`
         settings. This policy setting controls null session access to shares on your computers by adding `RestrictNullSessAccess`
         with the value `1` in the
@@ -3415,7 +3415,7 @@ queries:
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -3465,7 +3465,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa', name: 'restrictremotesam' ).value == 'O:BAG:BAD:(A;;RC;;;BA)'
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to restrict remote RPC connections to SAM.
 
         The recommended state for this setting is: `Administrators: Remote Access: Allow`.
@@ -3477,7 +3477,7 @@ queries:
         If your organization is using Azure Advanced Threat Protection (APT), the service account, “AATP Service” will need to be added to the recommendation configuration. For more information on adding the “AATP Service” account please see [Configure SAM-R to enable lateral movement path detection in Microsoft Defender for Identity \| Microsoft Docs](https://learn.microsoft.com/en-us/defender-for-identity/install-step8-samr).
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Administrators: Remote Access: Allow`:
@@ -3514,13 +3514,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanManServer\Parameters', name: 'NullSessionShares' ).value == ""
     docs:
-      desc: |-
+      desc: |
         This policy setting determines which network shares can be accessed by anonymous users. The default configuration for this policy setting has little effect because all users have to be authenticated before they can access shared resources on the server.
 
         The recommended state for this setting is: `<blank>` (i.e. None).
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `<blank>` (i.e. None):
@@ -3557,7 +3557,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'ForceGuest' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This policy setting determines how network logons that use local accounts are authenticated. The Classic option allows precise control over access to resources, including the ability to assign different types of access to different users for the same resource. The Guest only option allows you to treat all users equally. In this context, all users authenticate as Guest only to receive the same access level to a given resource.
 
         The recommended state for this setting is: `Classic - local users authenticate as themselves`.
@@ -3566,7 +3566,7 @@ queries:
         This setting does not affect interactive logons that are performed remotely by using such services as Telnet or Remote Desktop Services (formerly called Terminal Services).
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Classic - local users authenticate as themselves`:
@@ -3603,13 +3603,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'UseMachineId' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether Local System services that use Negotiate when reverting to NTLM authentication can use the computer identity. This policy is supported on at least Windows 7 or Windows Server 2008 R2.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -3646,13 +3646,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0', name: 'AllowNullSessionFallback' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether NTLM is allowed to fall back to a NULL session when used with LocalSystem.
 
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -3689,7 +3689,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\pku2u', name: 'AllowOnlineID' ).value == 0
     docs:
-      desc: |-
+      desc: |
         This setting determines if online identities are able to authenticate to this computer.
 
         The Public Key Cryptography Based User-to-User (PKU2U) protocol introduced in Windows 7 and Windows Server 2008 R2 is implemented as a security support provider (SSP). The SSP enables peer-to-peer authentication, particularly through the Windows 7 media and file sharing feature called HomeGroup, which permits sharing between computers that are not members of a domain.
@@ -3702,7 +3702,7 @@ queries:
         The recommended state for this setting is: `Disabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -3739,7 +3739,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters', name: 'SupportedEncryptionTypes' ).value == 2147483640
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to set the encryption types that Kerberos is allowed to use.
 
         The recommended state for this setting is: `AES128_HMAC_SHA1, AES256_HMAC_SHA1, Future encryption types`.
@@ -3749,7 +3749,7 @@ queries:
         \- we recommend you test in your environment and verify whether you can safely remove it.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `AES128_HMAC_SHA1, AES256_HMAC_SHA1, Future encryption types`:
@@ -3801,7 +3801,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'NoLMHash' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether the LAN Manager (LM) hash value for the new password is stored when the password is changed. The LM hash is relatively weak and prone to attack compared to the cryptographically stronger Microsoft Windows NT hash. Since LM hashes are stored on the local computer in the security database, passwords can then be easily compromised if the database is attacked.
 
         **Note:**
@@ -3810,7 +3810,7 @@ queries:
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -3847,7 +3847,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'LmCompatibilityLevel' ).value == 5
     docs:
-      desc: |-
+      desc: |
         LAN Manager (LM) was a family of early Microsoft client/server software (predating Windows NT) that allowed users to link personal computers together on a single network. LM network capabilities included transparent file and print sharing, user security features, and network administration tools. In Active Directory domains, the Kerberos protocol is the default authentication protocol. However, if the Kerberos protocol is not negotiated for some reason, Active Directory will use LM, NTLM, or NTLMv2. LAN Manager authentication includes the LM, NTLM, and NTLM version 2 (NTLMv2) variants, and is the protocol that is used to authenticate all Windows clients when they perform the following operations:
 
         - Join a domain
@@ -3861,7 +3861,7 @@ queries:
         The recommended state for this setting is: `Send NTLMv2 response only. Refuse LM & NTLM`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to: `Send NTLMv2 response only. Refuse LM & NTLM`:
@@ -3898,7 +3898,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\LDAP', name: 'LDAPClientIntegrity' ).value >= 1
     docs:
-      desc: |-
+      desc: |
         This policy setting determines the level of data signing that is requested on behalf of clients that issue LDAP BIND requests.
 
         **Note:**
@@ -3908,7 +3908,7 @@ queries:
         The recommended state for this setting is: `Negotiate signing`. Configuring this setting to `Require signing` also conforms to the benchmark.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Negotiate signing` (configuring to `Require signing`
@@ -3948,7 +3948,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0', name: 'NTLMMinServerSec' ).value == 537395200
     docs:
-      desc: |-
+      desc: |
         This policy setting determines which behaviors are allowed by servers for applications using the NTLM Security Support Provider (SSP). The SSP Interface (SSPI) is used by applications that need authentication services. The setting does not modify how the authentication sequence works but instead require certain behaviors in applications that use the SSPI.
 
         The recommended state for this setting is: `Require NTLMv2 session security, Require 128-bit encryption`.
@@ -3958,7 +3958,7 @@ queries:
         (Rule 2.3.11.7) security setting value.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Require NTLMv2 session security, Require 128-bit encryption`:
@@ -3996,7 +3996,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0', name: 'NTLMMinClientSec' ).value == 537395200
     docs:
-      desc: |-
+      desc: |
         This policy setting determines which behaviors are allowed by clients for applications using the NTLM Security Support Provider (SSP). The SSP Interface (SSPI) is used by applications that need authentication services. The setting does not modify how the authentication sequence works but instead require certain behaviors in applications that use the SSPI.
 
         The recommended state for this setting is: `Require NTLMv2 session security, Require 128-bit encryption`.
@@ -4006,7 +4006,7 @@ queries:
         (Rule 2.3.11.7) security setting value.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Require NTLMv2 session security, Require 128-bit encryption`:
@@ -4044,7 +4044,7 @@ queries:
     mql: |
       secpol.systemaccess['PasswordComplexity'] == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting checks all new passwords to ensure that they meet basic requirements for strong passwords.
 
         When this policy is enabled, passwords must meet the following minimum requirements:
@@ -4070,7 +4070,7 @@ queries:
         user accounts on the computers that receive the GPO. However, custom exceptions to the default password policy and account lockout policy rules for specific domain users and/or groups can be defined using Password Settings Objects (PSOs), which are completely separate from Group Policy and most easily configured using Active Directory Administrative Center.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -4109,7 +4109,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SAM', name: 'RelaxMinimumPasswordLengthLimits' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether the minimum password length setting can be increased beyond the legacy limit of 14 characters. For more information please see the following [Microsoft Security Blog](https://techcommunity.microsoft.com/t5/microsoft-security-baselines/security-baseline-draft-windows-10-and-windows-server-version/ba-p/1419213).
 
         The recommended state for this setting is: `Enabled`.
@@ -4119,7 +4119,7 @@ queries:
         accounts on the computer. Domain accounts are only affected by settings on the Domain Controllers, because that is where domain accounts are stored.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -4163,7 +4163,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Terminal Services', name: 'fEncryptRPCTraffic' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to specify whether Remote Desktop Services requires secure Remote Procedure Call (RPC) communication with all clients or allows unsecured communication.
 
         You can use this policy setting to strengthen the security of RPC communication with clients by allowing only authenticated and encrypted requests.
@@ -4171,7 +4171,7 @@ queries:
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -4212,7 +4212,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'SecurityLayer' ).value == 2
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies whether to require the use of a specific security layer to secure communications between clients and RD Session Host servers during Remote Desktop Protocol (RDP) connections.
 
         The recommended state for this setting is: `Enabled: SSL`.
@@ -4221,7 +4221,7 @@ queries:
         In spite of this setting being labeled _SSL_, it is actually enforcing Transport Layer Security (TLS) version 1.0, not the older (and less secure) SSL protocol.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: SSL`:
@@ -4268,13 +4268,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'UserAuthentication' ).value == 1
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to specify whether to require user authentication for remote connections to the RD Session Host server by using Network Level Authentication.
 
         The recommended state for this setting is: `Enabled`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -4321,7 +4321,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Security', name: 'Retention' ).value == '0'
     docs:
-      desc: |-
+      desc: |
         This policy setting controls Event Log behavior when the log file reaches its maximum size.
 
         The recommended state for this setting is: `Disabled`.
@@ -4331,7 +4331,7 @@ queries:
         policy setting.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -4374,13 +4374,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Security', name: 'MaxSize' ).value >= 196608
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments.
 
         The recommended state for this setting is: `Enabled: 196,608 or greater`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: 196,608 or greater`:
@@ -4428,13 +4428,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MinEncryptionLevel' ).value == 3
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies whether to require the use of a specific encryption level to secure communications between client computers and RD Session Host servers during Remote Desktop Protocol (RDP) connections. This policy only applies when you are using native RDP encryption. However, native RDP encryption (as opposed to SSL encryption) is not recommended. This policy does not apply to SSL encryption.
 
         The recommended state for this setting is: `Enabled: High Level`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: High Level`:
@@ -4482,13 +4482,13 @@ queries:
       registrykey.property(path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime').value <= props.mondooWindowsSecurityMaxIdleTime
       registrykey.property(path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime').value != 0
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to specify the maximum amount of time that an active Remote Desktop Services session can be idle (without user input) before it is automatically disconnected.
 
         The recommended state for this setting is: `Enabled: 15 minutes or less, but not Never (0)`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled:``15 minutes or less, but not Never (0)`:
@@ -4532,13 +4532,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxDisconnectionTime' ).value == 60000
     docs:
-      desc: |-
+      desc: |
         This policy setting allows you to configure a time limit for disconnected Remote Desktop Services sessions.
 
         The recommended state for this setting is: `Enabled: 1 minute`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: 1 minute`:
@@ -4579,7 +4579,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Setup', name: 'Retention' ).value == '0'
     docs:
-      desc: |-
+      desc: |
         This policy setting controls Event Log behavior when the log file reaches its maximum size.
 
         The recommended state for this setting is: `Disabled`.
@@ -4589,7 +4589,7 @@ queries:
         policy setting.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -4633,13 +4633,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Setup', name: 'MaxSize' ).value >= 32768
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments.
 
         The recommended state for this setting is: `Enabled: 32,768 or greater`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: 32,768 or greater`:
@@ -4687,7 +4687,7 @@ queries:
     mql: |
       secpol.systemaccess['ClearTextPassword'] == 0
     docs:
-      desc: |-
+      desc: |
         This policy setting determines whether the operating system stores passwords in a way that uses reversible encryption, which provides support for application protocols that require knowledge of the user's password for authentication purposes. Passwords that are stored with reversible encryption are essentially the same as plaintext versions of the passwords.
 
         The recommended state for this setting is: `Disabled`.
@@ -4699,7 +4699,7 @@ queries:
         user accounts on the computers that receive the GPO. However, custom exceptions to the default password policy and account lockout policy rules for specific domain users and/or groups can be defined using Password Settings Objects (PSOs), which are completely separate from Group Policy and most easily configured using Active Directory Administrative Center.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -4734,7 +4734,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\System', name: 'Retention' ).value == '0'
     docs:
-      desc: |-
+      desc: |
         This policy setting controls Event Log behavior when the log file reaches its maximum size.
 
         The recommended state for this setting is: `Disabled`.
@@ -4744,7 +4744,7 @@ queries:
         policy setting.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:
@@ -4788,13 +4788,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\System', name: 'MaxSize' ).value >= 32768
     docs:
-      desc: |-
+      desc: |
         This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments.
 
         The recommended state for this setting is: `Enabled: 32,768 or greater`.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled: 32,768 or greater`:
@@ -4842,13 +4842,13 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient', name: 'EnableMulticast' ).value == 0
     docs:
-      desc: |-
+      desc: |
         LLMNR is a secondary name resolution protocol. With LLMNR, queries are sent using multicast over a local network link on a single subnet from a client computer to another client computer on the same subnet that also has LLMNR enabled. LLMNR does not require a DNS server or DNS client configuration, and provides name resolution in scenarios in which conventional DNS name resolution is not possible.
 
         The recommended state for this setting is: `Enabled`
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Enabled`:
@@ -4889,7 +4889,7 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest', name: 'UseLogonCredential' ).value == 0
     docs:
-      desc: |-
+      desc: |
         When WDigest authentication is enabled, Lsass.exe retains a copy of the user's plaintext password in memory, where it can be at risk of theft. If this setting is not configured, WDigest authentication is disabled in Windows 8.1 and in Windows Server 2012 R2; it is enabled by default in earlier versions of Windows and Windows Server.
 
         For more information about local accounts and credential theft, review the " [Mitigating Pass-the-Hash (PtH) Attacks and Other Credential Theft Techniques](https://www.microsoft.com/en-us/download/details.aspx?id=36036)" documents.
@@ -4899,7 +4899,7 @@ queries:
         The recommended state for this setting is: `Disabled`
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Group Policy Approach
 
             To establish the recommended configuration via GP, set the following UI path to `Disabled`:

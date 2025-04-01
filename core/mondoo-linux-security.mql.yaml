@@ -14,7 +14,7 @@ policies:
       - name: Mondoo, Inc
         email: hello@mondoo.com
     docs:
-      desc: |-
+      desc: |
         The Mondoo Linux Security policy provides guidance for establishing a secure baseline configuration for Linux systems running on x86 and x64 platforms.
 
         This policy includes queries to help harden Linux systems by:
@@ -561,7 +561,7 @@ queries:
       service("pure-ftpd").enabled == false
       service("pure-ftpd").running == false
     docs:
-      desc: |-
+      desc: |
         File Transfer Protocol (FTP) servers enables the transfer of files between computers over a network, supporting file upload, download, and management.
 
         FTP transmits data—including usernames and passwords—in plaintext. If possible use more secure protocols such as FTPS or SFTP, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
@@ -750,7 +750,7 @@ queries:
       service("rlogin.socket").running == false
       service("rexec.socket").running == false
     docs:
-      desc: |-
+      desc: |
         `rsh`, sometimes referred to as Remote Shell, is a command-line client/server suite or tools (rsh, rlogin, and rcp) used to execute commands on a remote machine.
 
         `rsh` is inherently insecure because it transmits data, including passwords, in plaintext over the network, making it vulnerable to interception and includes weak host-based authentication. If possible use more secure commands such as SSH, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
@@ -775,7 +775,7 @@ queries:
       service("telnet.socket").enabled == false
       service("telnet.socket").running == false
     docs:
-      desc: |-
+      desc: |
         Telnet is a protocol used to connect and manage remote computers via command-line interfaces over a network. It is considered insecure because it transmits data, including login credentials, in plaintext, making it vulnerable to interception and unauthorized access.
 
         If possible use more secure commands such as SSH, which encrypt the entire session, ensuring that sensitive information and files remain secure from unauthorized access.
@@ -1163,7 +1163,7 @@ queries:
       package("auditd").installed && package("audispd-plugins").installed
       || package("audit").installed || package("audit-libs").installed
     docs:
-      desc: |-
+      desc: |
         `auditd` is the user space component to the Linux Auditing System. It's responsible for writing audit records to the disk.
       remediation: |-
         Run this command to install `auditd`:
@@ -1191,7 +1191,7 @@ queries:
     mql: |
       service("auditd").enabled
     docs:
-      desc: |-
+      desc: |
         Turn on the `auditd` daemon to record system events.
       remediation: |-
         Run this command to enable `auditd`:
@@ -1222,7 +1222,7 @@ queries:
         default: false
       }
     docs:
-      desc: |-
+      desc: |
         Configure `grub2` so that processes that are capable of being audited can be audited even if they start up prior to `auditd` startup.
       remediation: |-
         Edit `/etc/default/grub` and add `audit=1` to `GRUB_CMDLINE_LINUX`:
@@ -1277,7 +1277,7 @@ queries:
         parse.ini(_).params["max_log_file_action"].downcase == "keep_logs"
       }
     docs:
-      desc: |-
+      desc: |
         The `max_log_file_action` setting determines how to handle the audit log file reaching the max file size. A value of `keep_logs` will rotate the logs but never delete old logs.
       remediation: |-
         Set the following parameter in `/etc/audit/auditd.conf`:
@@ -1306,7 +1306,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         The `auditd` daemon can be configured to halt the system when the audit logs are full.
       remediation: |-
         Set the following parameters in `/etc/audit/auditd.conf`:
@@ -1335,7 +1335,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers\.d(\/?)\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/sudoers(\/?)\s+\-p\s+wa\s+\-k\s+scope(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Monitor scope changes for system administrators. If the system has been properly configured to force system administrators to log in as themselves first and then use the `sudo` command to execute privileged commands, it is possible to monitor changes in scope. The file `/etc/sudoers` will be written to when the file or its attributes have changed. The audit records will be tagged with the identifier "scope."
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -1408,7 +1408,7 @@ queries:
             || split(" ").containsAll(["-F","key=logins"])
       )
     docs:
-      desc: |-
+      desc: |
         Monitor login and logout events. The parameters below track changes to files associated with login/logout events.
 
         - The file `/var/log/lastlog` maintain records of the last time a user successfully logged in.
@@ -1465,7 +1465,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/wtmp\s+\-p\s+wa\s+\-k\s+(logins|session)(\s+)?$/))
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/btmp\s+\-p\s+wa\s+\-k\s+(logins|session)(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Monitor session initiation events. The parameters in this section track changes to the files associated with session events. The file `/var/run/utmp` tracks all currently logged in users. All audit records will be tagged with the identifier "session." The `/var/log/wtmp` file tracks logins, logouts, shutdown, and reboot events. The file `/var/log/btmp` keeps track of failed login attempts and can be read by entering the command `/usr/bin/last -f /var/log/btmp`. All audit records will be tagged with the identifier "logins."
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -1521,7 +1521,7 @@ queries:
             || split(" ").containsAll(["-k", "time-change"])
       )
     docs:
-      desc: |-
+      desc: |
         Capture events where the system date and/or time has been modified. The parameters in this section are set to determine if the `adjtimex` (tune kernel clock), `settimeofday` (Set time, using timeval and timezone structures) `stime` (using seconds since 1/1/1970) or `clock_settime` (allows for the setting of several internal clocks and timers) system calls have been executed and always write an audit record to the `/var/log/audit.log` file upon exit, tagging the records with the identifier "time-change"
       remediation: |-
         For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`_
@@ -1580,7 +1580,7 @@ queries:
        && props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/usr\/share\/selinux(\/?)\s+\-p\s+wa\s+\-k\s+MAC-policy(\s+)?$/))
       appArmorSys || seLinuxSys
     docs:
-      desc: |-
+      desc: |
         Monitor SELinux/AppArmor mandatory access controls. The parameters below monitor any write access (potential additional, deletion or modification of files in the directory) or attribute changes to the /etc/selinux or /etc/apparmor and /etc/apparmor.d directories.
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -1671,7 +1671,7 @@ queries:
             || split(" ").containsAll(["-F","key=system-locale"])
       )
     docs:
-      desc: |-
+      desc: |
         Record changes to network environment files or system calls. The below parameters monitor the sethostname (set the systems host name) or setdomainname (set the systems domainname) system calls, and write an audit event on system call exit. The other parameters monitor the `/etc/issue` and `/etc/issue.net` files (messages displayed pre-login), `/etc/hosts` (file containing host names and associated IP addresses) and `/etc/sysconfig/network` (directory containing network interface scripts and configurations) files.
       remediation: |-
         For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -1775,7 +1775,7 @@ queries:
             || split("-").containsAll(["k perm_mod"])
       )
     docs:
-      desc: |-
+      desc: |
         Monitor changes to file permissions, attributes, ownership and group. The parameters in this section track changes for system calls that affect file permissions and attributes. The `chmod`, `fchmod` and `fchmodat` system calls affect the permissions associated with a file. The `chown`, `fchown`, `fchownat` and `lchown` system calls affect owner and group attributes on a file. The `setxattr`, `lsetxattr`, `fsetxattr` (set extended file attributes) and `removexattr`, `lremovexattr`, `fremovexattr` (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system user ids (auid >= 1000) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier "perm_mod."
 
         **Note:**
@@ -1859,7 +1859,7 @@ queries:
             || split("-").containsAll(["k perm_mod"])
       )
     docs:
-      desc: |-
+      desc: |
         Monitor for unsuccessful attempts to access files. The parameters below are associated with system calls that control creation ( `creat` ), opening ( `open`, `openat` ) and truncation ( `truncate`, `ftruncate` ) of files. An audit log record will only be written if the user is a non-privileged user (auid > = 1000), is not a Daemon event (auid=4294967295) and if the system call returned EACCES (permission denied to the file) or EPERM (some other permanent error associated with the specific system call). All audit records will be tagged with the identifier "access."
 
         **Note:**
@@ -1924,7 +1924,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/shadow\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/etc\/security\/opasswd\s+\-p\s+wa\s+\-k\s+identity(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Record events affecting the `group`, `passwd` (user IDs), `shadow` and `gshadow` (passwords) or `/etc/security/opasswd` (old passwords, based on remember parameter in the PAM configuration) files. The parameters in this section will watch the files to see if they have been opened for write or have had attribute changes (e.g. permissions) and tag them with the identifier "identity" in the audit log file.
       remediation: |-
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -1966,7 +1966,7 @@ queries:
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b64\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+mounts(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always\,exit\s+\-F\s+arch\=b32\s+\-S\s+mount\s+\-F\s+auid\>\=1000\s+\-F\s+auid\!\=(4294967295|unset|-1)\s+\-k\s+mounts(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Monitor the use of the `mount` system call. The `mount` (and `umount`) system call controls the mounting and unmounting of file systems. The parameters below configure the system to create an audit record when the mount system call is used by a non-privileged user
       remediation: |-
         For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -2029,7 +2029,7 @@ queries:
             || split("-").containsAll(["k delete"])
       )
     docs:
-      desc: |-
+      desc: |
         Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the `unlink` (remove a file), `unlinkat` (remove a file attribute), `rename` (rename a file) and `renameat` (rename a file attribute) system calls and tags them with the identifier "delete".
 
         **Note:**
@@ -2090,7 +2090,7 @@ queries:
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/sbin\/modprobe\s+\-p\s+x\s+\-k\s+modules(\s+)?$/))
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always,exit\s+\-F\s+arch\=b64\s+\-S\s+init\_module\s+\-S\s+delete\_module\s+\-k\s+modules(\s+)?$/)) || props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-a\s+always,exit\s+\-F\s+arch\=b32\s+\-S\s+init\_module\s+\-S\s+delete\_module\s+\-k\s+modules(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Monitor the loading and unloading of kernel modules. The programs `insmod` (install a kernel module), `rmmod` (remove a kernel module), and `modprobe` (a more sophisticated program to load and unload modules, as well as some other features) control loading and unloading of modules. The `init_module` (load a module) and `delete_module` (delete a module) system calls control loading and unloading of modules. Any execution of the loading and unloading module programs and system calls will trigger an audit record with an identifier of "modules".
       remediation: |-
         For 32-bit systems edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules`
@@ -2144,7 +2144,7 @@ queries:
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/^(\s+)?\-w\s+\/var\/log\/sudo\.log\s+\-p\s+wa\s+\-k\s+actions(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Monitor the `sudo` log file. If the system has been properly configured to disable the use of the `su` command and force all administrators to have to log in first and then use `sudo` to execute privileged commands, then all administrator commands will be logged to `/var/log/sudo.log`. Any time a command is executed, an audit event will be triggered as the `/var/log/sudo.log` file will be opened for write and the executed administration command will be written to the log.
       remediation: |
         Edit or create a file in the `/etc/audit/rules.d/` directory ending in `.rules` and add the following line:
@@ -2186,7 +2186,7 @@ queries:
     mql: |
       props.mondooLinuxSecurityAuditFiles.any(_.contains(/(\s+)?\-e\s+2(\s+)?$/))
     docs:
-      desc: |-
+      desc: |
         Set system audit so that audit rules cannot be modified with `auditctl`. Setting the flag `-e 2` forces audit to be put in immutable mode. Audit changes can only be made on system reboot.
       remediation: |-
         Edit or create the file `/etc/audit/audit.rules` and add the following line at the end of the file:
@@ -2259,7 +2259,7 @@ queries:
     mql: |
       package("rsyslog").installed
     docs:
-      desc: |-
+      desc: |
         The `rsyslog` software is a recommended replacement to the original `syslogd` daemon which provide improvements over `syslogd`, such as connection-oriented (i.e. TCP) transmission of logs, the option to log to database formats, and the encryption of log data en route to a central logging server.
       remediation: |-
         Run this command to install rsyslog:
@@ -2317,7 +2317,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         Data from journald may be stored in volatile memory or persisted locally on the server. Utilities exist to accept remote export of journald logs, however, use of the rsyslog service provides a consistent means of log collection and export.
       remediation: |-
         Edit the `/etc/systemd/journald.conf` file and add the following line:
@@ -2492,7 +2492,7 @@ queries:
     mql: |
       sshd.config.params["LogLevel"] == /INFO|VERBOSE/
     docs:
-      desc: |-
+      desc: |
         `INFO` level is the basic level that only records the login activity of SSH users. In many situations, such as incident response, it is important to determine when a particular user was active on a system. The logout record can eliminate those users who disconnected, which helps narrow the field.
 
         `VERBOSE` level specifies that login and logout activity as well as the key fingerprint for any SSH key used for login will be logged. This information is important for SSH key management, especially in legacy environments.
@@ -2764,7 +2764,7 @@ queries:
       if (sshd.config.params["DenyUsers"] != empty) { sshd.config.params["DenyUsers"] != "" }
       if (sshd.config.params["DenyGroups"] != empty) { sshd.config.params["DenyGroups"] != "" }
     docs:
-      desc: |-
+      desc: |
         There are several options available to limit which users and groups can access the system via SSH. It is recommended that at least one of the following options be leveraged: `AllowUsers`
 
         The `AllowUsers` variable gives the system administrator the option of allowing specific users to `ssh` into the system. The list consists of space-separated user names. Numeric user IDs are not recognized with this variable. If a system administrator wants to restrict user access further by only allowing the allowed users to log in from a particular host, the entry can be specified in the form of user@host. `AllowGroups`
@@ -2875,7 +2875,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         The `/etc/gshadow` file stores hashed group passwords. It serves as a companion to `/etc/group`, which lists groups and membership, but not sensitive password information.
 
         If an attacker gains access to `/etc/gshadow` file, they could potentially crack the group passwords to gain elevated access across the system.
@@ -2902,7 +2902,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         The `/etc/passwd-`` file in Linux is a backup copy of the main `/etc/passwd` file, which contains essential information about system users. The `-` suffix signifies that this file is a backup and is created automatically by the system when there are changes made to the /etc/passwd file, such as adding or deleting a user.
       remediation: |-
         Run this command to set permissions on `/etc/passwd-`:
@@ -2991,7 +2991,7 @@ queries:
         }
       }
     docs:
-      desc: |-
+      desc: |
         The `/etc/gshadow-` file in is a backup of `/etc/gshadow` file, which contains group password information. This file stores information about group administrators, group members, and encrypted group passwords.
 
         If an attacker gains access to `/etc/gshadow-`, they could potentially crack the group passwords to gain elevated access across the system.

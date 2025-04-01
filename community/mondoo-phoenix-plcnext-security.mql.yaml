@@ -260,7 +260,7 @@ queries:
     mql: |
       sshd.config.params["LogLevel"] == /INFO|VERBOSE/
     docs:
-      desc: |-
+      desc: |
         `INFO` level is the basic level that only records the login activity of SSH users. In many situations, such as incident response, it is important to determine when a particular user was active on a system. The logout record can eliminate those users who disconnected, which helps narrow the field.
 
         `VERBOSE` level specifies that login and logout activity as well as the key fingerprint for any SSH key used for login will be logged. This information is important for SSH key management, especially in legacy environments.
@@ -404,7 +404,7 @@ queries:
       sshd.config.params["AllowUsers"] != "" || sshd.config.params["DenyUsers"] != ""
       sshd.config.params["AllowGroups"] != "" || sshd.config.params["DenyGroups"] != ""
     docs:
-      desc: |-
+      desc: |
         There are several options available to limit which users and groups can access the system via SSH. It is recommended that at least one of the following options be leveraged: `AllowUsers`
 
         The `AllowUsers` variable gives the system administrator the option of allowing specific users to `ssh` into the system. The list consists of space-separated user names. Numeric user IDs are not recognized with this variable. If a system administrator wants to restrict user access further by only allowing the allowed users to log in from a particular host, the entry can be specified in the form of user@host. `AllowGroups`
