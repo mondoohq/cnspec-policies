@@ -109,7 +109,7 @@ queries:
           googleworkspace.users { fullName primaryEmail isEnforcedIn2Sv isAdmin }
           ```
       remediation: |
-        Make sure that all users have some form of two-factor authentication enabled. To learn about setting up two-factor authentication, read [Protect your business with 2-Step Verification] (https://support.google.com/a/answer/175197?hl=en#zippy=%2Cenforce--step-verification-for-administrators-and-key-users).
+        Make sure that all users have some form of two-factor authentication enabled. To learn about setting up two-factor authentication, read [Protect your business with 2-Step Verification](https://support.google.com/a/answer/175197?hl=en#zippy=%2Cenforce--step-verification-for-administrators-and-key-users).
   - uid: mondoo-googleworkspace-security-limit-super-admins
     title: Ensure fewer than four users have super admin permissions
     impact: 60
