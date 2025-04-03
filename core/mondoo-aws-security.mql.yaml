@@ -2710,7 +2710,7 @@ queries:
     mql: terraform.state.resources.where( type == "aws_redshift_cluster" ).all( values.publicly_accessible != true )
   - uid: mondoo-aws-security-ec2-volume-inuse-check
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
-    filters: asset.platform == "aws-ec2-volume" && aws.ec2.volume.attachments != empty
+    filters: asset.platform == "aws-ebs-volume" && aws.ec2.volume.attachments != empty
     impact: 60
     mql: |
       aws.ec2.volume.attachments.any(DeleteOnTermination == true)
@@ -2841,7 +2841,7 @@ queries:
         title: AWS Documentation - Delete an Amazon EBS volume
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
     title: Ensure EBS snapshots are not publicly restorable
-    filters: asset.platform == "aws-ec2-snapshot" || asset.platform == "aws-ebs-snapshot"
+    filters: asset.platform == "aws-ebs-snapshot"
     impact: 80
     mql: |
       aws.ec2.snapshot.createVolumePermission.none(Group == "all")
