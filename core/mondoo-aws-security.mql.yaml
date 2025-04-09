@@ -3788,27 +3788,6 @@ queries:
                   Description: "KMS key for CloudTrail encryption"
                   EnableKeyRotation: true
             ```
-      audit: |
-        __cnspec Shell__
-
-        1. Open a terminal.
-        2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run this query:
-
-        ```mql
-        aws.cloudtrail.trails.all(
-          kmsKey != empty
-        )
-        ```
-
-        Example output:
-
-        ```mql
-        [failed] [].all()
-          actual:   [
-            0: aws.cloudtrail.trail id = arn:aws:cloudtrail:us-east-1:053121068929:trail/s3-data-events
-          ]
-        ```
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Ensure security groups restrict incoming SSH traffic
     impact: 90
