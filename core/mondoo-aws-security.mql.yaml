@@ -1645,7 +1645,6 @@ queries:
     title: Ensure no public IPs are associated with EC2 instances
     impact: 80
     variants:
-      - uid: mondoo-aws-security-ec2-instance-no-public-ip-all
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-single
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-terraform-hcl
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-terraform-plan
@@ -1787,9 +1786,6 @@ queries:
         title: AWS Documentation - IP addressing for your VPCs and subnets
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
         title: Terraform Registry - aws_instance
-  - uid: mondoo-aws-security-ec2-instance-no-public-ip-all
-    filters: asset.platform == "aws"
-    mql: aws.ec2.instances.all(publicIp == empty)
   - uid: mondoo-aws-security-ec2-instance-no-public-ip-single
     filters: asset.platform == "aws-ec2-instance"
     mql: aws.ec2.instance.publicIp == empty
