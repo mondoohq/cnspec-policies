@@ -82,6 +82,7 @@ policies:
           - uid: mondoo-aws-security-ec2-instance-no-public-ip
           - uid: mondoo-aws-security-ec2-volume-inuse-check
           - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
+          - uid: mondoo-aws-security-ec2-encrypted-volumes
       - title: AWS EFS Filesystem
         checks:
           - uid: mondoo-aws-security-efs-encrypted-check
@@ -3038,6 +3039,37 @@ queries:
                   Size: 20
                   AvailabilityZone: "us-east-1a"
             ```
+
+
+
+  - uid: mondoo-aws-security-ec2-encrypted-volumes
+    title: Attached EBS volumes are configured to be encrypted at-rest
+    impact: 70
+    variants:
+      - uid: aws-ec2-encrypted-volumes-single
+    docs:
+      desc: |
+        This check ensures that Amazon Elastic Block Store (EBS) volumes are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that volume contents are stored securely. AWS KMS provides centralized key management and integrates with EBS to automatically encrypt and decrypt data transparently.
+
+        **Rationale:**
+
+        As of May 2019, AWS enables encryption by default for newly created EBS volumes in supported regions. However, organizations should still verify this setting, as encryption settings can be modified and older volumes created before this change may remain unencrypted. Additionally, organizations may want to use specific KMS keys rather than the default AWS-managed keys.
+
+        AWS KMS encryption ensures that volume data is protected at rest, preventing unauthorized users or malicious actors from accessing sensitive information. This is particularly important for compliance with security frameworks such as GDPR, HIPAA, PCI DSS, and SOC 2.
+
+        **Risk mitigation:**
+
+        - **Data Security:** Protects data at rest from unauthorized access.
+        - **Regulatory Compliance:** Helps meet compliance requirements for data protection and privacy.
+        - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
+  - uid: aws-ec2-encrypted-volumes-single
+    filters: |
+      asset.platform == "aws-ebs-volume" &&
+      aws.ec2.volume.state != /deleting|deleted|error/
+    mql: aws.ec2.volume.encrypted == true
+
+
+
   - uid: mondoo-aws-security-efs-encrypted-check
     title: Ensure EFS is configured to encrypt file data using KMS
     filters: |
