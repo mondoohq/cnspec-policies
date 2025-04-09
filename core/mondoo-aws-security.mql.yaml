@@ -624,29 +624,6 @@ queries:
         - Prevents unauthorized access due to stolen or weak passwords
         - Enhances security posture by enforcing multi-layer authentication
         - Aligns with compliance and security best practices
-      audit: |
-        __cnspec shell__
-
-        1. Open a terminal.
-        2. Run this command: `cnspec shell aws`
-        3. Run this query:
-
-        ```mql
-        aws.iam.credentialReport.where(
-          mfaActive != true
-        ) {arn properties["user"]}
-        ```
-
-        Example output:
-
-        ```mql
-        aws.iam.credentialReport.where: [
-          0: {
-            properties[user]: "test-iam-user"
-            arn: "arn:aws:iam::053121068929:user/users/test-iam-user"
-          }
-        ]
-        ```
       remediation:
         - id: console
           desc: |
