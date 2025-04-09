@@ -131,27 +131,6 @@ queries:
         - **Prevents root key compromise:** Eliminates a major attack vector for AWS account takeovers.
         - **Ensures compliance:** Aligns with security frameworks like CIS AWS Foundations Benchmark, SOC 2, PCI DSS, and ISO 27001.
         - **Encourages least privilege:** Promotes the use of IAM users and roles for secure access control.
-      audit: |
-        __cnspec shell__
-
-        1. Open a terminal
-        2. Connect cnspec shell to your AWS environment: `cnspec shell aws`
-        3. Run this query:
-
-          ```mql
-          aws.iam.credentialReport.where( properties["user"] == "<root_account>") { accessKey1Active accessKey2Active }
-          ```
-
-          Example output:
-
-          ```mql
-          aws.iam.credentialReport.where: [
-            0: {
-              accessKey1Active: false
-              accessKey2Active: false
-            }
-          ]
-          ```
       remediation:
         - id: console
           desc: |
