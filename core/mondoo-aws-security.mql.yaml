@@ -1802,7 +1802,6 @@ queries:
     title: Ensure EC2 instances use IMDSv2 for metadata access
     impact: 90
     variants:
-      - uid: mondoo-aws-security-ec2-imdsv2-check-all
       - uid: mondoo-aws-security-ec2-imdsv2-check-single
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-hcl
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-plan
@@ -1925,9 +1924,6 @@ queries:
                     HttpPutResponseHopLimit: 1
                     HttpEndpoint: "enabled"
             ```
-  - uid: mondoo-aws-security-ec2-imdsv2-check-all
-    filters: asset.platform == "aws"
-    mql: aws.ec2.instances.where(state != /terminated|shutting-down/ && httpEndpoint == "enabled").all(httpTokens == "required")
   - uid: mondoo-aws-security-ec2-imdsv2-check-single
     filters: |
       asset.platform == "aws-ec2-instance"
