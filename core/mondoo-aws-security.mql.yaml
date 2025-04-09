@@ -3062,6 +3062,32 @@ queries:
         - **Data Security:** Protects data at rest from unauthorized access.
         - **Regulatory Compliance:** Helps meet compliance requirements for data protection and privacy.
         - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
+      remediation:
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            Ensure EBS volumes are deleted on termination:
+
+            ```yaml
+            Resources:
+              SecureInstance:
+                Type: "AWS::EC2::Instance"
+                Properties:
+                  ImageId: "ami-12345678"
+                  InstanceType: "t3.micro"
+                  BlockDeviceMappings:
+                    - DeviceName: "/dev/sda1"
+                      Ebs:
+                        VolumeSize: 20
+                        Encrypted: true
+                        KmsKeyId: !Ref "AWS::NoValue"  # Uses AWS-managed key by default
+                    - DeviceName: "/dev/sdf"
+                      Ebs:
+                        VolumeSize: 50
+                        Encrypted: true
+                        KmsKeyId: !Ref "AWS::NoValue"  # Uses AWS-managed key by default
+            ```
   - uid: aws-ec2-encrypted-volumes-single
     filters: |
       asset.platform == "aws-ebs-volume" &&
