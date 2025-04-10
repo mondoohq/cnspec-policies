@@ -49,6 +49,7 @@ policies:
       - title: AWS Lambda Function
         checks:
           - uid: mondoo-aws-security-lambda-concurrency-check
+          - uid: mondoo-aws-security-lambda-function-public-access-prohibited
       - title: AWS S3 Bucket
         checks:
           - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
@@ -2311,6 +2312,40 @@ queries:
                   FunctionName: !Ref SecureLambdaFunction
                   ReservedConcurrentExecutions: 10
             ```
+  - uid: mondoo-aws-security-lambda-function-public-access-prohibited
+    title: Ensure the attached policy attached to the lambda function prohibits public access
+    impact: 95
+    variants:
+      - uid: aws-lambda-function-public-access-prohibited-single
+    docs:
+      desc: |
+        This check ensures that AWS Lambda functions have resource-based policies that explicitly prohibit public access. Resource-based policies control who can invoke or access Lambda functions, and improperly configured policies may inadvertently allow unauthorized users to trigger functions or access sensitive functionality and data.
+
+        **Rationale:**
+
+        Without proper access controls on Lambda functions:
+
+        - Unauthorized users may be able to invoke functions that process sensitive data or perform privileged operations.
+        - Malicious actors could potentially trigger resource-intensive functions as part of a denial-of-service attack.
+        - Public exposure of Lambda functions may violate compliance requirements such as CIS AWS Foundations Benchmark, PCI DSS, HIPAA, and SOC 2, which mandate strict access controls for compute resources.
+
+        Lambda functions should follow the principle of least privilege, ensuring that only explicitly authorized identities can invoke or access the function.
+
+        **Risk mitigation:**
+
+        - Prevents unauthorized invocation of Lambda functions by restricting access to trusted entities only.
+        - Reduces the attack surface by eliminating public exposure of serverless compute resources.
+        - Ensures compliance with security frameworks that require controlled access to computing resources.
+      remediation:
+        - id: console
+  - uid: aws-lambda-function-public-access-prohibited-single
+    filters: |
+      asset.platform == "aws-lambda-function"
+      aws.lambda.function.policy != empty
+    mql: |
+      aws.lambda.function.policy.Statement.where(Effect == "Allow").all(Principal {AWS {_ != "*"}})
+
+
   - uid: mondoo-aws-security-rds-cluster-public-access-check
     title: Ensure all RDS clusters are not publicly accessible
     impact: 100
