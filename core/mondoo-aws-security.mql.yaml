@@ -3062,6 +3062,48 @@ queries:
         - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
       remediation:
         - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            Ensure that EBS snapshots are private in CloudFormation:
+
+            ```yaml
+            Resources:
+              SecureEBSVolume:
+                Type: "AWS::EC2::Volume"
+                Properties:
+                  Size: 20
+                  AvailabilityZone: "us-east-1a"
+                  Encrypted: true
+                  KmsKeyId: !Ref MyKMSKey  # Optional - references a KMS key you define
+                  Tags:
+                    - Key: "Name"
+                      Value: "Secure Volume"
+
+              SecureEBSSnapshot:
+                Type: "AWS::EC2::Snapshot"
+                Properties:
+                  VolumeId: !Ref SecureEBSVolume
+                  Description: "Encrypted EBS snapshot"
+                  Tags:
+                    - Key: "Name"
+                      Value: "Secure Snapshot"
+
+              # Optional: Define your own KMS key for encryption
+              MyKMSKey:
+                Type: "AWS::KMS::Key"
+                Properties:
+                  Description: "KMS key for EBS volume encryption"
+                  EnableKeyRotation: true
+                  KeyPolicy:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+                        Action: "kms:*"
+                        Resource: "*"
+            ```
   - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
     filters: asset.platform == "aws-ebs-snapshot"
     mql: |
