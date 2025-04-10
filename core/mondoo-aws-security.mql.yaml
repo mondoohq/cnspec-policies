@@ -82,6 +82,7 @@ policies:
           - uid: mondoo-aws-security-ec2-instance-no-public-ip
           - uid: mondoo-aws-security-ec2-volume-inuse-check
           - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
+          - uid: mondoo-aws-security-ebs-snapshot-encrypted
           - uid: mondoo-aws-security-ec2-encrypted-volumes
       - title: AWS EFS Filesystem
         checks:
@@ -3039,8 +3040,32 @@ queries:
                   Size: 20
                   AvailabilityZone: "us-east-1a"
             ```
+  - uid: mondoo-aws-security-ebs-snapshot-encrypted
+    title: Ensure EBS Snapshots are configured to be encrypted at-rest
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
+    docs:
+      desc: |
+        This check ensures that Amazon Elastic Block Store (EBS) snapshots are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that snapshot contents are stored securely. AWS KMS provides centralized key management and integrates with EBS snapshots to automatically encrypt and decrypt data transparently.
 
+        **Rationale:**
 
+        EBS snapshots inherit the encryption status of their source volumes. If a snapshot is created from an encrypted volume, the snapshot will be encrypted automatically using the same KMS key. However, snapshots from unencrypted volumes will remain unencrypted unless explicitly configured for encryption during the copy operation. Organizations should verify that all snapshots, including those shared or copied across accounts, maintain proper encryption settings.
+
+        AWS KMS encryption ensures that snapshot data is protected at rest, preventing unauthorized users or malicious actors from accessing sensitive information. This is particularly important for compliance with security frameworks such as GDPR, HIPAA, PCI DSS, and SOC 2.
+
+        **Risk mitigation:**
+
+        - **Data Security:** Protects backup data at rest from unauthorized access.
+        - **Regulatory Compliance:** Helps meet compliance requirements for data protection and privacy.
+        - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
+      remediation:
+        - id: cloudformation
+  - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
+    filters: asset.platform == "aws-ebs-snapshot"
+    mql: |
+      aws.ec2.snapshot.encrypted == true
 
   - uid: mondoo-aws-security-ec2-encrypted-volumes
     title: Attached EBS volumes are configured to be encrypted at-rest
