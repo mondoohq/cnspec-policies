@@ -3579,8 +3579,8 @@ queries:
                       Value: "true"
             ```
     mql: |
-      aws.elb.loadBalancers.all(attributes.any(Key == "deletion_protection.enabled"))
-      aws.elb.loadBalancers.all(attributes.where(Key == "deletion_protection.enabled").all(Value == true))
+      aws.elb.loadbalancer.attributes.any(Key == "deletion_protection.enabled")
+      aws.elb.loadbalancer.attributes.where(Key == "deletion_protection.enabled").all(Value == true)
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
     title: Ensure Amazon OpenSearch Service domains are configured with encryption-at-rest
     impact: 70
