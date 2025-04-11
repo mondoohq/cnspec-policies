@@ -49,6 +49,7 @@ policies:
       - title: AWS Lambda Function
         checks:
           - uid: mondoo-aws-security-lambda-concurrency-check
+          - uid: mondoo-aws-security-lambda-function-public-access-prohibited
       - title: AWS S3 Bucket
         checks:
           - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
@@ -69,6 +70,7 @@ policies:
       - title: AWS RDS DB Instance
         checks:
           - uid: mondoo-aws-security-rds-instance-public-access-check
+          - uid: mondoo-aws-security-rds-instance-encryption-at-rest
       - title: AWS RDS DB Cluster
         checks:
           - uid: mondoo-aws-security-rds-cluster-public-access-check
@@ -82,6 +84,8 @@ policies:
           - uid: mondoo-aws-security-ec2-instance-no-public-ip
           - uid: mondoo-aws-security-ec2-volume-inuse-check
           - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
+          - uid: mondoo-aws-security-ebs-snapshot-encrypted
+          - uid: mondoo-aws-security-ec2-encrypted-volumes
       - title: AWS EFS Filesystem
         checks:
           - uid: mondoo-aws-security-efs-encrypted-check
@@ -91,6 +95,9 @@ policies:
       - title: AWS ELB Load Balancer
         checks:
           - uid: mondoo-aws-security-elb-deletion-protection-enabled
+          - uid: mondoo-aws-security-elb-logging-enabled
+          - uid: mondoo-aws-security-elb-security-policy-enabled
+          - uid: mondoo-aws-security-elb-ssl-listener
       - title: AWS Elasticsearch Domain
         checks:
           - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
@@ -103,6 +110,7 @@ policies:
       - title: AWS CloudTrail Trail
         checks:
           - uid: mondoo-aws-security-cloud-trail-encryption-enabled
+          - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled
     scoring_system: highest impact
 queries:
   - uid: mondoo-aws-security-iam-root-access-key-check
@@ -131,27 +139,6 @@ queries:
         - **Prevents root key compromise:** Eliminates a major attack vector for AWS account takeovers.
         - **Ensures compliance:** Aligns with security frameworks like CIS AWS Foundations Benchmark, SOC 2, PCI DSS, and ISO 27001.
         - **Encourages least privilege:** Promotes the use of IAM users and roles for secure access control.
-      audit: |
-        __cnspec shell__
-
-        1. Open a terminal
-        2. Connect cnspec shell to your AWS environment: `cnspec shell aws`
-        3. Run this query:
-
-          ```mql
-          aws.iam.credentialReport.where( properties["user"] == "<root_account>") { accessKey1Active accessKey2Active }
-          ```
-
-          Example output:
-
-          ```mql
-          aws.iam.credentialReport.where: [
-            0: {
-              accessKey1Active: false
-              accessKey2Active: false
-            }
-          ]
-          ```
       remediation:
         - id: console
           desc: |
@@ -242,26 +229,6 @@ queries:
         - **Prevents account takeovers:** Even if the root password is stolen, MFA blocks unauthorized logins.
         - **Ensures compliance:** Meets security standards such as CIS AWS Foundations Benchmark, SOC 2, ISO 27001, and PCI DSS.
         - **Strengthens account security:** Adds an extra layer of authentication beyond the password.
-      audit: |
-        __cnspec shell__
-
-        1. Open a terminal
-        2. Connect cnspec shell to your AWS environment: `cnspec shell aws`
-        3. Run this query:
-
-           ```mql
-           aws.iam.credentialReport.where( properties["user"] == "<root_account>") { mfaActive passwordLastChanged passwordLastUsed }
-           ```
-
-          Example output:
-
-          ```mql
-          aws.iam.credentialReport.where: [
-            0: {
-              mfaActive: true
-            }
-          ]
-          ```
       remediation:
         - id: console
           desc: |
@@ -665,29 +632,6 @@ queries:
         - Prevents unauthorized access due to stolen or weak passwords
         - Enhances security posture by enforcing multi-layer authentication
         - Aligns with compliance and security best practices
-      audit: |
-        __cnspec shell__
-
-        1. Open a terminal.
-        2. Run this command: `cnspec shell aws`
-        3. Run this query:
-
-        ```mql
-        aws.iam.credentialReport.where(
-          mfaActive != true
-        ) {arn properties["user"]}
-        ```
-
-        Example output:
-
-        ```mql
-        aws.iam.credentialReport.where: [
-          0: {
-            properties[user]: "test-iam-user"
-            arn: "arn:aws:iam::053121068929:user/users/test-iam-user"
-          }
-        ]
-        ```
       remediation:
         - id: console
           desc: |
@@ -1645,7 +1589,6 @@ queries:
     title: Ensure no public IPs are associated with EC2 instances
     impact: 80
     variants:
-      - uid: mondoo-aws-security-ec2-instance-no-public-ip-all
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-single
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-terraform-hcl
       - uid: mondoo-aws-security-ec2-instance-no-public-ip-terraform-plan
@@ -1787,9 +1730,6 @@ queries:
         title: AWS Documentation - IP addressing for your VPCs and subnets
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
         title: Terraform Registry - aws_instance
-  - uid: mondoo-aws-security-ec2-instance-no-public-ip-all
-    filters: asset.platform == "aws"
-    mql: aws.ec2.instances.all(publicIp == empty)
   - uid: mondoo-aws-security-ec2-instance-no-public-ip-single
     filters: asset.platform == "aws-ec2-instance"
     mql: aws.ec2.instance.publicIp == empty
@@ -1806,7 +1746,6 @@ queries:
     title: Ensure EC2 instances use IMDSv2 for metadata access
     impact: 90
     variants:
-      - uid: mondoo-aws-security-ec2-imdsv2-check-all
       - uid: mondoo-aws-security-ec2-imdsv2-check-single
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-hcl
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-plan
@@ -1929,9 +1868,6 @@ queries:
                     HttpPutResponseHopLimit: 1
                     HttpEndpoint: "enabled"
             ```
-  - uid: mondoo-aws-security-ec2-imdsv2-check-all
-    filters: asset.platform == "aws"
-    mql: aws.ec2.instances.where(state != /terminated|shutting-down/ && httpEndpoint == "enabled").all(httpTokens == "required")
   - uid: mondoo-aws-security-ec2-imdsv2-check-single
     filters: |
       asset.platform == "aws-ec2-instance"
@@ -2381,6 +2317,83 @@ queries:
                   FunctionName: !Ref SecureLambdaFunction
                   ReservedConcurrentExecutions: 10
             ```
+  - uid: mondoo-aws-security-lambda-function-public-access-prohibited
+    title: Ensure the attached policy attached to the lambda function prohibits public access
+    impact: 95
+    variants:
+      - uid: aws-lambda-function-public-access-prohibited-single
+    docs:
+      desc: |
+        This check ensures that AWS Lambda functions have resource-based policies that explicitly prohibit public access. Resource-based policies control who can invoke or access Lambda functions, and improperly configured policies may inadvertently allow unauthorized users to trigger functions or access sensitive functionality and data.
+
+        **Rationale:**
+
+        Without proper access controls on Lambda functions:
+
+        - Unauthorized users may be able to invoke functions that process sensitive data or perform privileged operations.
+        - Malicious actors could potentially trigger resource-intensive functions as part of a denial-of-service attack.
+        - Public exposure of Lambda functions may violate compliance requirements such as CIS AWS Foundations Benchmark, PCI DSS, HIPAA, and SOC 2, which mandate strict access controls for compute resources.
+
+        Lambda functions should follow the principle of least privilege, ensuring that only explicitly authorized identities can invoke or access the function.
+
+        **Risk mitigation:**
+
+        - Prevents unauthorized invocation of Lambda functions by restricting access to trusted entities only.
+        - Reduces the attack surface by eliminating public exposure of serverless compute resources.
+        - Ensures compliance with security frameworks that require controlled access to computing resources.
+      remediation:
+        - id: console
+  - uid: aws-lambda-function-public-access-prohibited-single
+    filters: |
+      asset.platform == "aws-lambda-function"
+      aws.lambda.function.policy != empty
+    mql: |
+      aws.lambda.function.policy.Statement.where(Effect == "Allow").all(Principal {AWS {_ != "*"}})
+
+
+  - uid: mondoo-aws-security-rds-instance-encryption-at-rest
+    title: Ensure all RDS instances are not publicly accessible
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-rds-instance-encryption-at-rest-single
+      - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-hcl
+      - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-plan
+      - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
+    docs:
+      desc: |
+        This check ensures that Amazon Relational Database Service (RDS) instances are not configured to be publicly accessible via the internet. When an RDS instance is publicly accessible, it means it can potentially be reached by any host on the internet, significantly expanding the attack surface and increasing the risk of unauthorized access attempts.
+
+        **Rationale:**
+
+        Without proper access restrictions on RDS instances:
+
+        - Database systems become exposed to internet-wide scanning and brute-force attacks.
+        - Unauthorized users may attempt to exploit database vulnerabilities or weak credentials to gain access to sensitive data.
+        - Compliance frameworks such as PCI DSS, HIPAA, GDPR, and SOC 2 requirements for protected database environments may be violated.
+
+        RDS instances should typically be deployed in private subnets with access restricted to specific applications or services through security groups and network ACLs, following the principle of least privilege.
+
+        **Risk mitigation:**
+
+        - **Attack Surface Reduction:** Prevents database exposure to internet-based threats and unauthorized access attempts.
+        - **Defense in Depth:** Ensures databases are only accessible through controlled network paths and authorized applications.
+        - **Data Protection:** Helps safeguard sensitive information stored in databases from external threats.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-rds-instance-encryption-at-rest-single
+    filters: asset.platform == "aws-rds-dbinstance"
+    mql: aws.rds.dbinstance.storageEncrypted == true
+  - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster")
+    mql: terraform.resources.where(nameLabel == "aws_rds_cluster").all(arguments['storage_encrypted'] == true)
+  - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster")
+    mql: terraform.plan.resourceChanges.where(type == "aws_rds_cluster").all( change.after.storage_encrypted == true )
+  - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
+    mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
+
+
   - uid: mondoo-aws-security-rds-cluster-public-access-check
     title: Ensure all RDS clusters are not publicly accessible
     impact: 100
@@ -3110,6 +3123,129 @@ queries:
                   Size: 20
                   AvailabilityZone: "us-east-1a"
             ```
+  - uid: mondoo-aws-security-ebs-snapshot-encrypted
+    title: Ensure EBS Snapshots are configured to be encrypted at-rest
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
+    docs:
+      desc: |
+        This check ensures that Amazon Elastic Block Store (EBS) snapshots are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that snapshot contents are stored securely. AWS KMS provides centralized key management and integrates with EBS snapshots to automatically encrypt and decrypt data transparently.
+
+        **Rationale:**
+
+        EBS snapshots inherit the encryption status of their source volumes. If a snapshot is created from an encrypted volume, the snapshot will be encrypted automatically using the same KMS key. However, snapshots from unencrypted volumes will remain unencrypted unless explicitly configured for encryption during the copy operation. Organizations should verify that all snapshots, including those shared or copied across accounts, maintain proper encryption settings.
+
+        AWS KMS encryption ensures that snapshot data is protected at rest, preventing unauthorized users or malicious actors from accessing sensitive information. This is particularly important for compliance with security frameworks such as GDPR, HIPAA, PCI DSS, and SOC 2.
+
+        **Risk mitigation:**
+
+        - **Data Security:** Protects backup data at rest from unauthorized access.
+        - **Regulatory Compliance:** Helps meet compliance requirements for data protection and privacy.
+        - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
+      remediation:
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            Ensure that EBS snapshots are private in CloudFormation:
+
+            ```yaml
+            Resources:
+              SecureEBSVolume:
+                Type: "AWS::EC2::Volume"
+                Properties:
+                  Size: 20
+                  AvailabilityZone: "us-east-1a"
+                  Encrypted: true
+                  KmsKeyId: !Ref MyKMSKey  # Optional - references a KMS key you define
+                  Tags:
+                    - Key: "Name"
+                      Value: "Secure Volume"
+
+              SecureEBSSnapshot:
+                Type: "AWS::EC2::Snapshot"
+                Properties:
+                  VolumeId: !Ref SecureEBSVolume
+                  Description: "Encrypted EBS snapshot"
+                  Tags:
+                    - Key: "Name"
+                      Value: "Secure Snapshot"
+
+              # Optional: Define your own KMS key for encryption
+              MyKMSKey:
+                Type: "AWS::KMS::Key"
+                Properties:
+                  Description: "KMS key for EBS volume encryption"
+                  EnableKeyRotation: true
+                  KeyPolicy:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+                        Action: "kms:*"
+                        Resource: "*"
+            ```
+  - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
+    filters: asset.platform == "aws-ebs-snapshot"
+    mql: |
+      aws.ec2.snapshot.encrypted == true
+
+  - uid: mondoo-aws-security-ec2-encrypted-volumes
+    title: Attached EBS volumes are configured to be encrypted at-rest
+    impact: 70
+    variants:
+      - uid: aws-ec2-encrypted-volumes-single
+    docs:
+      desc: |
+        This check ensures that Amazon Elastic Block Store (EBS) volumes are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that volume contents are stored securely. AWS KMS provides centralized key management and integrates with EBS to automatically encrypt and decrypt data transparently.
+
+        **Rationale:**
+
+        As of May 2019, AWS enables encryption by default for newly created EBS volumes in supported regions. However, organizations should still verify this setting, as encryption settings can be modified and older volumes created before this change may remain unencrypted. Additionally, organizations may want to use specific KMS keys rather than the default AWS-managed keys.
+
+        AWS KMS encryption ensures that volume data is protected at rest, preventing unauthorized users or malicious actors from accessing sensitive information. This is particularly important for compliance with security frameworks such as GDPR, HIPAA, PCI DSS, and SOC 2.
+
+        **Risk mitigation:**
+
+        - **Data Security:** Protects data at rest from unauthorized access.
+        - **Regulatory Compliance:** Helps meet compliance requirements for data protection and privacy.
+        - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
+      remediation:
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            Ensure EBS volumes are deleted on termination:
+
+            ```yaml
+            Resources:
+              SecureInstance:
+                Type: "AWS::EC2::Instance"
+                Properties:
+                  ImageId: "ami-12345678"
+                  InstanceType: "t3.micro"
+                  BlockDeviceMappings:
+                    - DeviceName: "/dev/sda1"
+                      Ebs:
+                        VolumeSize: 20
+                        Encrypted: true
+                        KmsKeyId: !Ref "AWS::NoValue"  # Uses AWS-managed key by default
+                    - DeviceName: "/dev/sdf"
+                      Ebs:
+                        VolumeSize: 50
+                        Encrypted: true
+                        KmsKeyId: !Ref "AWS::NoValue"  # Uses AWS-managed key by default
+            ```
+  - uid: aws-ec2-encrypted-volumes-single
+    filters: |
+      asset.platform == "aws-ebs-volume" &&
+      aws.ec2.volume.state != /deleting|deleted|error/
+    mql: aws.ec2.volume.encrypted == true
+
+
+
   - uid: mondoo-aws-security-efs-encrypted-check
     title: Ensure EFS is configured to encrypt file data using KMS
     filters: |
@@ -3242,6 +3378,7 @@ queries:
     title: Ensure CloudWatch Logs are encrypted at rest using KMS CMKs
     filters: asset.platform == "aws"
     impact: 70
+    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
     docs:
       desc: |
         This check ensures that Amazon CloudWatch log groups are configured to encrypt log data at rest using AWS Key Management Service (KMS) Customer-Managed Keys (CMKs). CloudWatch Logs store critical operational and security data, and encrypting them using CMKs enhances security by providing better control over key management and access policies.
@@ -3326,11 +3463,116 @@ queries:
                   Description: "KMS key for CloudWatch Log encryption"
                   EnableKeyRotation: true
             ```
-    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
+
+  - uid: mondoo-aws-security-elb-security-policy-enabled
+    title: Ensure Application Load Balancers have configured with a secure TLS security policy
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-elb-security-policy-enabled-single
+    docs:
+      desc: |
+        This check ensures that AWS Application Load Balancers (ALBs) are configured with secure Transport Layer Security (TLS) policies that enforce strong encryption protocols and cipher suites. TLS security policies define which protocols and ciphers are supported when establishing secure connections between clients and the load balancer, protecting data in transit from interception and tampering.
+
+        **Rationale:**
+
+        Without secure TLS policies on Application Load Balancers:
+
+        - Outdated or vulnerable cryptographic protocols (such as TLS 1.0, TLS 1.1, or SSLv3) may be used, exposing communications to known security vulnerabilities.
+        - Weak cipher suites might be enabled, reducing the strength of encryption and potentially allowing attackers to decrypt intercepted traffic.
+        - Compliance requirements for data protection in transit, including PCI DSS, HIPAA, GDPR, and SOC 2, may not be satisfied.
+
+        Modern TLS security policies (such as ELBSecurityPolicy-TLS-1-2-2017-01 or newer) ensure that only strong encryption methods are used, protecting sensitive information transmitted between clients and your applications.
+
+        **Risk mitigation:**
+
+        - **Data Protection:** Ensures sensitive data is properly encrypted in transit using strong protocols and ciphers.
+        - **Security Posture:** Prevents exploitation of known vulnerabilities in outdated TLS versions and weak cipher suites.
+        - **Regulatory Compliance:** Helps meet requirements for secure data transmission in various compliance frameworks.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-elb-security-policy-enabled-single
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: |
+      aws.elb.loadbalancer.listenerDescriptions.all(
+        SslPolicy == "ELBSecurityPolicy-TLS13-1-2-2021-06"
+        || SslPolicy == "ELBSecurityPolicy-TLS13-1-3-2021-06"
+        || SslPolicy == "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
+      )
+
+
+  - uid: mondoo-aws-security-elb-ssl-listener
+    title: Ensure Application Load Balancers are configured with HTTPS listeners
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-elb-ssl-listener-single
+    docs:
+      desc: |
+        This check ensures that AWS Application Load Balancers (ALBs) are configured with HTTPS listeners to encrypt traffic between clients and the load balancer. HTTPS listeners use TLS/SSL certificates to establish secure encrypted connections, protecting sensitive data transmitted over the network from eavesdropping and man-in-the-middle attacks.
+
+        **Rationale:**
+
+        Without HTTPS listeners on Application Load Balancers:
+
+        - Data transmitted between clients and applications remains unencrypted and vulnerable to interception by malicious actors.
+        - Authentication credentials, session tokens, personal information, and other sensitive data could be exposed in plaintext.
+        - Organizations may fail to meet compliance requirements such as PCI DSS, HIPAA, GDPR, and SOC 2, which mandate encryption for data in transit.
+
+        Using HTTP-only listeners poses significant security risks, especially when transmitting sensitive information. Modern security best practices require encryption for all web traffic, regardless of the sensitivity level.
+
+        **Risk mitigation:**
+
+        - **Data Confidentiality:** Encrypts communications to prevent unauthorized access to sensitive information.
+        - **Authentication Protection:** Secures user credentials and session information from being intercepted.
+        - **Trust and Compliance:** Builds user trust and satisfies regulatory requirements for protecting data in transit.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-elb-ssl-listener-single
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: |
+      aws.elb.loadbalancer.listenerDescriptions.all(Protocol == "HTTPS")
+
+
+
+
+  - uid: mondoo-aws-security-elb-logging-enabled
+    title: Ensure Application Load Balancers have logging enabled
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-elb-logging-enabled-single
+    docs:
+      desc: |
+        This check ensures that AWS Application Load Balancers (ALBs) are configured with access logging enabled to capture detailed information about requests sent to the load balancer. Access logs provide comprehensive data including client IP addresses, request paths, latencies, response codes, and more, which are delivered to an Amazon S3 bucket for storage and analysis.
+
+        **Rationale:**
+
+        Without access logging enabled on Application Load Balancers:
+
+        - Security teams lack visibility into traffic patterns and potential security incidents targeting web applications.
+        - Troubleshooting application issues becomes more difficult without historical request data.
+        - Compliance frameworks such as PCI DSS, HIPAA, and SOC 2 requirements for maintaining audit trails of system access may not be satisfied.
+
+        Access logs are critical for security monitoring, compliance auditing, operational troubleshooting, and traffic analysis. These logs help identify suspicious patterns that may indicate security threats or application issues.
+
+        **Risk mitigation:**
+
+        - **Security Monitoring:** Provides visibility into potential attacks, such as SQL injection attempts or cross-site scripting.
+        - **Compliance Documentation:** Helps meet regulatory requirements for maintaining audit trails of system access.
+        - **Operational Intelligence:** Allows analysis of traffic patterns, error rates, and client behaviors to improve application performance.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-elb-logging-enabled-single
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: |
+      aws.elb.loadbalancer.attributes.any(Key == "access_logs.s3.enabled")
+      aws.elb.loadbalancer.attributes.where(Key == "access_logs.s3.enabled").all(Value == true)
+
+
+
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
     title: Ensure Application Load Balancers are configured with deletion protection enabled
     impact: 70
-    filters: asset.platform == "aws"
+    variants:
+      - uid: mondoo-aws-security-elb-deletion-protection-enabled-single
     docs:
       desc: |
         This check ensures that AWS Application Load Balancers (ALBs) have deletion protection enabled to prevent accidental or unauthorized deletion. Deleting a load balancer without proper authorization or by mistake can result in application downtime, traffic disruption, and loss of critical configurations.
@@ -3421,9 +3663,14 @@ queries:
                     - Key: "deletion_protection.enabled"
                       Value: "true"
             ```
+  - uid: mondoo-aws-security-elb-deletion-protection-enabled
+    filters: asset.platform == "aws-elb-loadbalancer"
     mql: |
-      aws.elb.loadBalancers.all(attributes.any(Key == "deletion_protection.enabled"))
-      aws.elb.loadBalancers.all(attributes.where(Key == "deletion_protection.enabled").all(Value == true))
+      aws.elb.loadbalancer.attributes.any(Key == "deletion_protection.enabled")
+      aws.elb.loadbalancer.attributes.where(Key == "deletion_protection.enabled").all(Value == true)
+
+
+
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
     title: Ensure Amazon OpenSearch Service domains are configured with encryption-at-rest
     impact: 70
@@ -3701,6 +3948,54 @@ queries:
                   Description: "KMS key for SageMaker encryption"
                   EnableKeyRotation: true
             ```
+
+
+
+  - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled
+    title: Ensure CloudTrail log file validation is enabled
+    impact: 60
+    variants:
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-single
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-hcl
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-plan
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-state
+    docs:
+      desc: |
+        This check ensures that AWS CloudTrail has log file validation enabled to verify the integrity of logged events. Log file validation generates a digitally signed digest file containing a hash of each log that CloudTrail delivers, allowing you to determine whether a log file was modified, deleted, or unchanged after CloudTrail delivered it.
+
+        **Rationale:**
+
+        Without log file validation enabled in CloudTrail:
+
+        - Unauthorized modifications to log files may go undetected, compromising the reliability of audit trails.
+        - Attackers could potentially alter or delete log records to cover their tracks after gaining unauthorized access.
+        - Compliance frameworks such as PCI DSS, HIPAA, and SOC 2 requirements for maintaining tamper-proof audit logs may not be satisfied.
+
+        Log file validation is crucial for maintaining the chain of custody for security events and ensuring the authenticity of CloudTrail logs during security investigations, compliance audits, and forensic analysis of security incidents.
+
+        **Risk mitigation:**
+
+        - **Log Integrity:** Provides cryptographic assurance that logs have not been modified since they were delivered by CloudTrail.
+        - **Forensic Readiness:** Ensures reliable evidence for security incident investigations and dispute resolution.
+        - **Compliance Validation:** Helps meet regulatory requirements for tamper-evident logging mechanisms.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-single
+    filters: asset.platform == "aws-cloudtrail-trail"
+    mql: aws.cloudtrail.trail.logFileValidationEnabled == true
+  - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_cloudtrail")
+    mql: terraform.resources.where(nameLabel == "aws_cloudtrail").all(arguments.enable_log_file_validation == true)
+  - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_cloudtrail")
+    mql: terraform.plan.resourceChanges.where(type == "aws_cloudtrail").all(change.after.enable_log_file_validation == true)
+  - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_cloudtrail")
+    mql: terraform.state.resources.where(type == "aws_cloudtrail").all(values.enable_log_file_validation == true)
+
+
+
+
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
     impact: 70
@@ -3796,27 +4091,6 @@ queries:
                   Description: "KMS key for CloudTrail encryption"
                   EnableKeyRotation: true
             ```
-      audit: |
-        __cnspec Shell__
-
-        1. Open a terminal.
-        2. Connect to your AWS environment with cnspec shell: `cnspec shell aws`
-        3. Run this query:
-
-        ```mql
-        aws.cloudtrail.trails.all(
-          kmsKey != empty
-        )
-        ```
-
-        Example output:
-
-        ```mql
-        [failed] [].all()
-          actual:   [
-            0: aws.cloudtrail.trail id = arn:aws:cloudtrail:us-east-1:053121068929:trail/s3-data-events
-          ]
-        ```
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Ensure security groups restrict incoming SSH traffic
     impact: 90
