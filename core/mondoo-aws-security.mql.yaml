@@ -94,6 +94,7 @@ policies:
       - title: AWS ELB Load Balancer
         checks:
           - uid: mondoo-aws-security-elb-deletion-protection-enabled
+          - uid: mondoo-aws-security-elb-logging-enabled
       - title: AWS Elasticsearch Domain
         checks:
           - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
@@ -3330,6 +3331,7 @@ queries:
     title: Ensure CloudWatch Logs are encrypted at rest using KMS CMKs
     filters: asset.platform == "aws"
     impact: 70
+    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
     docs:
       desc: |
         This check ensures that Amazon CloudWatch log groups are configured to encrypt log data at rest using AWS Key Management Service (KMS) Customer-Managed Keys (CMKs). CloudWatch Logs store critical operational and security data, and encrypting them using CMKs enhances security by providing better control over key management and access policies.
@@ -3414,7 +3416,47 @@ queries:
                   Description: "KMS key for CloudWatch Log encryption"
                   EnableKeyRotation: true
             ```
-    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
+
+
+
+  - uid: mondoo-aws-security-elb-logging-enabled
+    title: Ensure Application Load Balancers have logging enabled
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-elb-logging-enabled-single
+    docs:
+      desc: |
+        This check ensures that AWS Application Load Balancers (ALBs) are configured with access logging enabled to capture detailed information about requests sent to the load balancer. Access logs provide comprehensive data including client IP addresses, request paths, latencies, response codes, and more, which are delivered to an Amazon S3 bucket for storage and analysis.
+
+        **Rationale:**
+
+        Without access logging enabled on Application Load Balancers:
+
+        - Security teams lack visibility into traffic patterns and potential security incidents targeting web applications.
+        - Troubleshooting application issues becomes more difficult without historical request data.
+        - Compliance frameworks such as PCI DSS, HIPAA, and SOC 2 requirements for maintaining audit trails of system access may not be satisfied.
+
+        Access logs are critical for security monitoring, compliance auditing, operational troubleshooting, and traffic analysis. These logs help identify suspicious patterns that may indicate security threats or application issues.
+
+        **Risk mitigation:**
+
+        - **Security Monitoring:** Provides visibility into potential attacks, such as SQL injection attempts or cross-site scripting.
+        - **Compliance Documentation:** Helps meet regulatory requirements for maintaining audit trails of system access.
+        - **Operational Intelligence:** Allows analysis of traffic patterns, error rates, and client behaviors to improve application performance.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-elb-logging-enabled-single
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: |
+      aws.elb.loadBalancers
+        .where(name == asset.name)
+        .all(attributes.any(Key == "access_logs.s3.enabled"))
+      aws.elb.loadBalancers
+        .where(name == asset.name)
+        .all(attributes.where(Key == "access_logs.s3.enabled").all(Value == true))
+
+
+
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
     title: Ensure Application Load Balancers are configured with deletion protection enabled
     impact: 70
