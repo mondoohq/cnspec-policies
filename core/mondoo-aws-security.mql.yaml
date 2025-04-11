@@ -96,6 +96,7 @@ policies:
           - uid: mondoo-aws-security-elb-deletion-protection-enabled
           - uid: mondoo-aws-security-elb-logging-enabled
           - uid: mondoo-aws-security-elb-security-policy-enabled
+          - uid: mondoo-aws-security-elb-ssl-listener
       - title: AWS Elasticsearch Domain
         checks:
           - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
@@ -3452,6 +3453,39 @@ queries:
         || SslPolicy == "ELBSecurityPolicy-TLS13-1-3-2021-06"
         || SslPolicy == "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
       )
+
+
+  - uid: mondoo-aws-security-elb-ssl-listener
+    title: Ensure Application Load Balancers are configured with HTTPS listeners
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-elb-ssl-listener-single
+    docs:
+      desc: |
+        This check ensures that AWS Application Load Balancers (ALBs) are configured with HTTPS listeners to encrypt traffic between clients and the load balancer. HTTPS listeners use TLS/SSL certificates to establish secure encrypted connections, protecting sensitive data transmitted over the network from eavesdropping and man-in-the-middle attacks.
+
+        **Rationale:**
+
+        Without HTTPS listeners on Application Load Balancers:
+
+        - Data transmitted between clients and applications remains unencrypted and vulnerable to interception by malicious actors.
+        - Authentication credentials, session tokens, personal information, and other sensitive data could be exposed in plaintext.
+        - Organizations may fail to meet compliance requirements such as PCI DSS, HIPAA, GDPR, and SOC 2, which mandate encryption for data in transit.
+
+        Using HTTP-only listeners poses significant security risks, especially when transmitting sensitive information. Modern security best practices require encryption for all web traffic, regardless of the sensitivity level.
+
+        **Risk mitigation:**
+
+        - **Data Confidentiality:** Encrypts communications to prevent unauthorized access to sensitive information.
+        - **Authentication Protection:** Secures user credentials and session information from being intercepted.
+        - **Trust and Compliance:** Builds user trust and satisfies regulatory requirements for protecting data in transit.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-elb-ssl-listener-single
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: |
+      aws.elb.loadbalancer.listenerDescriptions.all(Protocol == "HTTPS")
+
 
 
 
