@@ -95,6 +95,7 @@ policies:
         checks:
           - uid: mondoo-aws-security-elb-deletion-protection-enabled
           - uid: mondoo-aws-security-elb-logging-enabled
+          - uid: mondoo-aws-security-elb-security-policy-enabled
       - title: AWS Elasticsearch Domain
         checks:
           - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
@@ -3417,6 +3418,36 @@ queries:
                   EnableKeyRotation: true
             ```
 
+  - uid: mondoo-aws-security-elb-security-policy-enabled
+    title: Ensure Application Load Balancers have configured with a secure TLS security policy
+    impact: 70
+    variants:
+      - uid: mondoo-aws-security-elb-security-policy-enabled-single
+    docs:
+      desc: |
+        This check ensures that AWS Application Load Balancers (ALBs) are configured with secure Transport Layer Security (TLS) policies that enforce strong encryption protocols and cipher suites. TLS security policies define which protocols and ciphers are supported when establishing secure connections between clients and the load balancer, protecting data in transit from interception and tampering.
+
+        **Rationale:**
+
+        Without secure TLS policies on Application Load Balancers:
+
+        - Outdated or vulnerable cryptographic protocols (such as TLS 1.0, TLS 1.1, or SSLv3) may be used, exposing communications to known security vulnerabilities.
+        - Weak cipher suites might be enabled, reducing the strength of encryption and potentially allowing attackers to decrypt intercepted traffic.
+        - Compliance requirements for data protection in transit, including PCI DSS, HIPAA, GDPR, and SOC 2, may not be satisfied.
+
+        Modern TLS security policies (such as ELBSecurityPolicy-TLS-1-2-2017-01 or newer) ensure that only strong encryption methods are used, protecting sensitive information transmitted between clients and your applications.
+
+        **Risk mitigation:**
+
+        - **Data Protection:** Ensures sensitive data is properly encrypted in transit using strong protocols and ciphers.
+        - **Security Posture:** Prevents exploitation of known vulnerabilities in outdated TLS versions and weak cipher suites.
+        - **Regulatory Compliance:** Helps meet requirements for secure data transmission in various compliance frameworks.
+      remediation:
+        - id: console
+  - uid: mondoo-aws-security-elb-security-policy-enabled-single
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: aws.elb.loadbalancer.listenerDescriptions.all(SslPolicy == "ELBSecurityPolicy-TLS13-1-2-2021-06" || SslPolicy == "ELBSecurityPolicy-TLS13-1-3-2021-06" || SslPolicy == "ELBSecurityPolicy-TLS13-1-2-Res-2021-06")
+
 
 
   - uid: mondoo-aws-security-elb-logging-enabled
@@ -3448,12 +3479,8 @@ queries:
   - uid: mondoo-aws-security-elb-logging-enabled-single
     filters: asset.platform == "aws-elb-loadbalancer"
     mql: |
-      aws.elb.loadBalancers
-        .where(name == asset.name)
-        .all(attributes.any(Key == "access_logs.s3.enabled"))
-      aws.elb.loadBalancers
-        .where(name == asset.name)
-        .all(attributes.where(Key == "access_logs.s3.enabled").all(Value == true))
+      aws.elb.loadbalancer.attributes.any(Key == "access_logs.s3.enabled")
+      aws.elb.loadbalancer.attributes.where(Key == "access_logs.s3.enabled").all(Value == true)
 
 
 
