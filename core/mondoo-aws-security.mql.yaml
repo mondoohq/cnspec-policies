@@ -109,6 +109,7 @@ policies:
       - title: AWS CloudTrail Trail
         checks:
           - uid: mondoo-aws-security-cloud-trail-encryption-enabled
+          - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled
     scoring_system: highest impact
 queries:
   - uid: mondoo-aws-security-iam-root-access-key-check
@@ -3903,6 +3904,54 @@ queries:
                   Description: "KMS key for SageMaker encryption"
                   EnableKeyRotation: true
             ```
+
+
+
+  - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled
+    title: Ensure CloudTrail log file validation is enabled
+    impact: 60
+    variants:
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-single
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-hcl
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-plan
+      - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-
+    docs:
+      desc: |
+        This check ensures that AWS CloudTrail trails are configured to use AWS Key Management Service (KMS) for server-side encryption (SSE). Using KMS encryption protects log data from unauthorized access and enhances the security of audit logs.
+
+        **Rationale:**
+
+        By default, CloudTrail logs are not encrypted using a customer-managed KMS key (CMK) unless explicitly configured. Without KMS encryption:
+
+        - CloudTrail logs may be accessed or modified if security policies are misconfigured.
+        - Sensitive log data is stored in plaintext, increasing security risks.
+        - Compliance requirements under CIS AWS Foundations Benchmark, PCI DSS, HIPAA, ISO 27001, and NIST may not be met.
+
+        Using KMS CMKs provides fine-grained access control, automatic key rotation, and detailed audit logging via AWS CloudTrail.
+
+        **Risk mitigation:**
+
+        - Prevents unauthorized access to audit logs by enforcing encryption.
+        - Enhances security posture by integrating AWS KMS for key management.
+        - Ensures compliance with industry security frameworks requiring encryption at rest.
+      remediation:
+        - id: console
+  - uid: aws-cloudtrail-log-file-validation-enabled-single
+    filters: asset.platform == "aws-cloudtrail-trail"
+    mql: aws.cloudtrail.trail.logFileValidationEnabled == true
+  - uid: aws-cloudtrail-log-file-validation-enabled-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_cloudtrail")
+    mql: terraform.resources.where(nameLabel == "aws_cloudtrail").all(arguments.enable_log_file_validation == true)
+  - uid: aws-cloudtrail-log-file-validation-enabled-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_cloudtrail")
+    mql: terraform.plan.resourceChanges.where(type == "aws_cloudtrail").all(change.after.enable_log_file_validation == true)
+  - uid: aws-cloudtrail-log-file-validation-enabled-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_cloudtrail")
+    mql: terraform.state.resources.where(type == "aws_cloudtrail").all(values.enable_log_file_validation == true)
+
+
+
+
   - uid: mondoo-aws-security-cloud-trail-encryption-enabled
     title: Ensure CloudTrail trails are configured to use the server-side encryption KMS
     impact: 70
