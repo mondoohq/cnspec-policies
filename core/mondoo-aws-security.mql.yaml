@@ -3446,7 +3446,8 @@ queries:
         - id: console
   - uid: mondoo-aws-security-elb-security-policy-enabled-single
     filters: asset.platform == "aws-elb-loadbalancer"
-    mql: aws.elb.loadbalancer.listenerDescriptions.all(SslPolicy == "ELBSecurityPolicy-TLS13-1-2-2021-06" || SslPolicy == "ELBSecurityPolicy-TLS13-1-3-2021-06" || SslPolicy == "ELBSecurityPolicy-TLS13-1-2-Res-2021-06")
+    mql: |
+      aws.elb.loadbalancer.listenerDescriptions.all(SslPolicy == "ELBSecurityPolicy-TLS13-1-2-2021-06" || SslPolicy == "ELBSecurityPolicy-TLS13-1-3-2021-06" || SslPolicy == "ELBSecurityPolicy-TLS13-1-2-Res-2021-06")
 
 
 
@@ -3487,10 +3488,8 @@ queries:
   - uid: mondoo-aws-security-elb-deletion-protection-enabled
     title: Ensure Application Load Balancers are configured with deletion protection enabled
     impact: 70
-    filters: asset.platform == "aws-elb-loadbalancer"
-    mql: |
-      aws.elb.loadbalancer.attributes.any(Key == "deletion_protection.enabled")
-      aws.elb.loadbalancer.attributes.where(Key == "deletion_protection.enabled").all(Value == true)
+    variants:
+      - uid: mondoo-aws-security-elb-deletion-protection-enabled-single
     docs:
       desc: |
         This check ensures that AWS Application Load Balancers (ALBs) have deletion protection enabled to prevent accidental or unauthorized deletion. Deleting a load balancer without proper authorization or by mistake can result in application downtime, traffic disruption, and loss of critical configurations.
@@ -3581,6 +3580,14 @@ queries:
                     - Key: "deletion_protection.enabled"
                       Value: "true"
             ```
+  - uid: mondoo-aws-security-elb-deletion-protection-enabled
+    filters: asset.platform == "aws-elb-loadbalancer"
+    mql: |
+      aws.elb.loadbalancer.attributes.any(Key == "deletion_protection.enabled")
+      aws.elb.loadbalancer.attributes.where(Key == "deletion_protection.enabled").all(Value == true)
+
+
+
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
     title: Ensure Amazon OpenSearch Service domains are configured with encryption-at-rest
     impact: 70
