@@ -74,6 +74,7 @@ policies:
       - title: AWS RDS DB Cluster
         checks:
           - uid: mondoo-aws-security-rds-cluster-public-access-check
+          - uid: mondoo-aws-security-rds-cluster-encryption-at-rest
       - title: AWS Redshift Cluster
         checks:
           - uid: mondoo-aws-security-redshift-cluster-public-access-check
@@ -2393,6 +2394,59 @@ queries:
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
     mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
+
+
+
+
+
+  - uid: mondoo-aws-security-rds-cluster-encryption-at-rest
+    title: Ensure all RDS clusters are set to be encrypted-at-rest
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-single
+      - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-hcl
+      - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-plan
+      - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-state
+    docs:
+      desc: |
+        This check ensures that Amazon RDS database clusters, including Aurora clusters, are not configured to be publicly accessible via the internet. When an RDS cluster is publicly accessible, it can potentially be reached by any host on the internet, significantly expanding the attack surface and increasing the risk of unauthorized access attempts to your database infrastructure.
+
+        **Rationale:**
+
+        Without proper access restrictions on RDS clusters:
+
+        - Entire database clusters become exposed to internet-wide scanning and brute-force attacks.
+        - Unauthorized users may attempt to exploit database vulnerabilities or weak credentials to gain access to sensitive data across multiple database instances.
+        - Compliance frameworks such as PCI DSS, HIPAA, GDPR, and SOC 2 requirements for protected database environments may be violated.
+
+        RDS clusters should be deployed in private subnets with access restricted to specific applications or services through security groups and network ACLs, following the principle of least privilege and defense-in-depth security practices.
+
+        **Risk mitigation:**
+
+        - **Attack Surface Reduction:** Prevents database cluster exposure to internet-based threats and unauthorized access attempts.
+        - **Defense in Depth:** Ensures database clusters are only accessible through controlled network paths and authorized applications.
+        - **Data Protection:** Helps safeguard sensitive information stored across database clusters from external threats.
+      remediation:
+        - id: console
+          desc: |
+            Text
+  - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-single
+    filters: |
+      asset.platform == "aws-rds-dbcluster"
+    mql: |
+      aws.rds.dbcluster.storageEncrypted == true
+  - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster")
+    mql: terraform.resources.where(nameLabel == "aws_rds_cluster").all(arguments['storage_encrypted'] == true)
+  - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster")
+    mql: terraform.plan.resourceChanges.where(type == "aws_rds_cluster").all( change.after.storage_encrypted == true )
+  - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_rds_cluster" )
+    mql: terraform.state.resources.where( type == "aws_rds_cluster" ).all( values.storage_encrypted == true )
+
+
+
 
 
 
