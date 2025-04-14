@@ -2384,11 +2384,11 @@ queries:
     filters: asset.platform == "aws-rds-dbinstance"
     mql: aws.rds.dbinstance.storageEncrypted == true
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-hcl
-    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster")
-    mql: terraform.resources.where(nameLabel == "aws_rds_cluster").all(arguments['storage_encrypted'] == true)
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_db_instance")
+    mql: terraform.resources.where(nameLabel == "aws_db_instance").all(arguments['storage_encrypted'] == true)
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-plan
-    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster")
-    mql: terraform.plan.resourceChanges.where(type == "aws_rds_cluster").all( change.after.storage_encrypted == true )
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_db_instance")
+    mql: terraform.plan.resourceChanges.where(type == "aws_db_instance").all( change.after.storage_encrypted == true )
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
     mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
