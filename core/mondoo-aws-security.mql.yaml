@@ -2351,8 +2351,9 @@ queries:
       aws.lambda.function.policy.Statement.where(Effect == "Allow").all(Principal {AWS {_ != "*"}})
 
 
+
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest
-    title: Ensure all RDS instances are not publicly accessible
+    title: Ensure all RDS instances are enabled for encryption-at-rest
     impact: 90
     variants:
       - uid: mondoo-aws-security-rds-instance-encryption-at-rest-single
@@ -2392,6 +2393,7 @@ queries:
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
     mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
+
 
 
   - uid: mondoo-aws-security-rds-cluster-public-access-check
@@ -2568,6 +2570,18 @@ queries:
         title: Terraform Registry - rds_cluster_instance
       - url: https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html
         title: AWS Documentation - Security Hub controls reference
+  - uid: mondoo-aws-security-rds-cluster-public-access-check-single
+    filters: |
+      asset.platform == "aws-rds-dbcluster"
+    mql: |
+      aws.rds.dbcluster.publiclyAccessible == false
+      aws.rds.dbcluster.securityGroups.none(
+        vpc.routeTables.where(
+          routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
+        )
+      )
+
+
   - uid: mondoo-aws-security-rds-instance-public-access-check
     title: Ensure all RDS instances are not publicly accessible
     impact: 100
@@ -2729,16 +2743,6 @@ queries:
           routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
         )
       )
-  - uid: mondoo-aws-security-rds-cluster-public-access-check-single
-    filters: |
-      asset.platform == "aws-rds-dbcluster"
-    mql: |
-      aws.rds.dbcluster.publiclyAccessible == false
-      aws.rds.dbcluster.securityGroups.none(
-        vpc.routeTables.where(
-          routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
-        )
-      )
   - uid: mondoo-aws-security-rds-instance-public-access-check-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_db_instance" )
     mql: terraform.resources.where( nameLabel == "aws_db_instance" ).all( arguments.publicly_accessible != true )
@@ -2748,6 +2752,9 @@ queries:
   - uid: mondoo-aws-security-rds-instance-public-access-check-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
     mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.publicly_accessible != true )
+
+
+
   - uid: mondoo-aws-security-redshift-cluster-public-access-check
     title: Ensure Redshift clusters are not publicly accessible
     impact: 95
@@ -2903,6 +2910,9 @@ queries:
   - uid: mondoo-aws-security-redshift-cluster-public-access-check-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_redshift_cluster" )
     mql: terraform.state.resources.where( type == "aws_redshift_cluster" ).all( values.publicly_accessible != true )
+
+
+
   - uid: mondoo-aws-security-ec2-volume-inuse-check
     title: Ensure EBS volumes attached to EC2 instances are configured for deletion on instance termination
     filters: asset.platform == "aws-ebs-volume" && aws.ec2.volume.attachments != empty
