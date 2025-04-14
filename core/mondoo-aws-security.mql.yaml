@@ -64,6 +64,7 @@ policies:
         checks:
           - uid: mondoo-aws-security-vpc-default-security-group-closed
           - uid: mondoo-aws-security-vpc-flow-logs-enabled
+          - uid: mondoo-aws-security-vpc-bpa-enabled
       - title: AWS DynamoDB Table
         checks:
           - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
@@ -1884,6 +1885,80 @@ queries:
   - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_instance")
     mql: terraform.state.resources.where( type == "aws_instance" ).all( values.metadata_options[0].http_endpoint == "disabled" || values.metadata_options[0].http_tokens == "required" )
+
+
+
+  - uid: mondoo-aws-security-vpc-bpa-enabled
+    title: Ensure EC2 instances use IMDSv2 for metadata access
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-vpc-bpa-enabled-single
+      - uid: mondoo-aws-security-vpc-bpa-enabled-terraform-hcl
+      - uid: mondoo-aws-security-vpc-bpa-enabled-terraform-plan
+      - uid: mondoo-aws-security-vpc-bpa-enabled-terraform-state
+    docs:
+      desc: |
+        This check ensures that AWS Virtual Private Cloud (VPC) Block Public Access (BPA) is enabled on all VPCs to prevent accidental exposure of resources to the internet. VPC BPA provides a centralized control to block the creation of Internet Gateways, public route table entries, and public security group rules, thereby preventing resources within the VPC from becoming publicly accessible.
+
+        **Rationale:**
+
+        Without VPC Block Public Access enabled:
+
+        - Resources may be inadvertently exposed to the internet through misconfigured network settings.
+        - Human error during configuration changes could lead to unintended public access to sensitive workloads.
+        - Compliance frameworks such as CIS AWS Foundations Benchmark, PCI DSS, and SOC 2 recommendations for network isolation may be compromised.
+
+        VPC Block Public Access serves as a guardrail that prevents accidental exposure while still allowing for intentional public-facing workloads when properly configured.
+
+        **Risk mitigation:**
+
+        - **Defense Against Misconfiguration:** Prevents accidental public exposure of resources through configuration errors.
+        - **Consistent Security Posture:** Maintains network isolation across the organization even during rapid development.
+        - **Reduced Attack Surface:** Minimizes the risk of resources being unintentionally exposed to internet-based threats.
+
+        **Important caveats:**
+
+        - VPC BPA will block all new public access, which may disrupt legitimate public-facing workloads like web applications unless exceptions are properly configured.
+        - Enabling BPA does not retroactively remove existing public access; pre-existing Internet Gateways and public routes remain functional.
+        - Service-linked resources managed by AWS (such as those for ELB or NAT Gateways) require explicit exemptions to continue functioning properly.
+        - There may be organizational impacts requiring coordination across teams before implementation to avoid disrupting business operations.
+      remediation:
+        - id: console
+          desc: |
+            **Using AWS Console:**
+  - uid: mondoo-aws-security-vpc-bpa-enabled-single
+    filters: asset.platform == "aws-vpc"
+    mql: aws.vpc.internetGatewayBlockMode != "off"
+
+
+
+  - uid: mondoo-aws-security-vpc-bpa-enabled-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_vpc")
+    mql: |
+      bpaBlock = terraform.resources.where( nameLabel == "aws_vpc_block_public_access_exclusion" )
+      bpaBlock.any(arguments.internet_gateway_exclusion_mode == /allow-egress|allow-bidirectional/)
+      bpaBlock.any(related.where(labels.contains("aws_subnet")))
+
+
+
+  - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_vpc")
+    mql: |
+      bpaPlan = terraform.plan.resourceChanges.where( type == "aws_vpc_block_public_access_exclusion" )
+      bpaPlan.any(change.after.internet_gateway_exclusion_mode == /allow-egress|allow-bidirectional/)
+
+      terraform.plan.resourceChanges.where( type == "aws_instance" ).all( change.after.metadata_options[0].http_endpoint == "disabled"
+       || change.after.metadata_options[0].http_tokens == "required" )
+
+
+
+  - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_instance")
+    mql: terraform.state.resources.where( type == "aws_instance" ).all( values.metadata_options[0].http_endpoint == "disabled" || values.metadata_options[0].http_tokens == "required" )
+
+
+
+
   - uid: mondoo-aws-security-vpc-flow-logs-enabled
     title: Ensure VPC flow logging is enabled in all VPCs
     filters: asset.platform == "aws-vpc"
@@ -2032,6 +2107,9 @@ queries:
         title: Terraform registry - Cloud Posse AWS Utils Provider
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+
+
+
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
     title: Ensure DynamoDB tables are encrypted with AWS Key Management Service (KMS)
     filters: |
