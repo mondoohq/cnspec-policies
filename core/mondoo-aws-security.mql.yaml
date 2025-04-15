@@ -4330,6 +4330,108 @@ queries:
         - **Regulatory Compliance:** Helps meet requirements for secure data transmission in various compliance frameworks.
       remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS EC2 Console.
+            2. Select Load Balancers under the Load Balancing section.
+            3. Select the Application Load Balancer you want to update.
+            4. Select the Listeners tab.
+            5. For the HTTPS listener, select Edit.
+            6. Under Security policy, select a more secure policy:
+               - ELBSecurityPolicy-TLS13-1-2-2021-06 (recommended)
+               - ELBSecurityPolicy-TLS13-1-3-2021-06 (if you need TLS 1.3 only)
+               - ELBSecurityPolicy-FS-1-2-Res-2020-10 (for FIPS compliance)
+            7. Select Save changes to apply the updated security policy.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Identify listeners for your load balancer:
+
+            ```bash
+            aws elbv2 describe-listeners --load-balancer-arn arn:aws:elasticloadbalancing:region:account-id:loadbalancer/app/my-load-balancer/1234567890abcdef
+            ```
+
+            Update the security policy for an HTTPS listener:
+
+            ```bash
+            aws elbv2 modify-listener \
+              --listener-arn arn:aws:elasticloadbalancing:region:account-id:listener/app/my-load-balancer/1234567890abcdef/listener-id \
+              --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06
+            ```
+
+            Verify the updated security policy:
+
+            ```bash
+            aws elbv2 describe-listeners \
+              --listener-arns arn:aws:elasticloadbalancing:region:account-id:listener/app/my-load-balancer/1234567890abcdef/listener-id \
+              --query "Listeners[0].SslPolicy"
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            resource "aws_lb" "secure_alb" {
+              name               = "secure-alb"
+              internal           = false
+              load_balancer_type = "application"
+              security_groups    = [aws_security_group.lb_sg.id]
+              subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+            }
+
+            resource "aws_lb_listener" "https" {
+              load_balancer_arn = aws_lb.secure_alb.arn
+              port              = "443"
+              protocol          = "HTTPS"
+              ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06" # Secure TLS policy
+              certificate_arn   = aws_acm_certificate.cert.arn
+
+              default_action {
+                type             = "forward"
+                target_group_arn = aws_lb_target_group.app.arn
+              }
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              SecureLoadBalancer:
+                Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+                Properties:
+                  Name: "secure-alb"
+                  Scheme: "internet-facing"
+                  Type: "application"
+                  SecurityGroups:
+                    - !Ref LoadBalancerSecurityGroup
+                  Subnets:
+                    - !Ref PublicSubnetA
+                    - !Ref PublicSubnetB
+
+              SecureHttpsListener:
+                Type: "AWS::ElasticLoadBalancingV2::Listener"
+                Properties:
+                  LoadBalancerArn: !Ref SecureLoadBalancer
+                  Port: 443
+                  Protocol: "HTTPS"
+                  SslPolicy: "ELBSecurityPolicy-TLS13-1-2-2021-06"
+                  Certificates:
+                    - CertificateArn: !Ref SSLCertificate
+                  DefaultActions:
+                    - Type: "forward"
+                      TargetGroupArn: !Ref DefaultTargetGroup
+
+              DefaultTargetGroup:
+                Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+                Properties:
+                  VpcId: !Ref VPC
+                  Port: 80
+                  Protocol: "HTTP"
+            ```
   - uid: mondoo-aws-security-elb-security-policy-enabled-single
     filters: asset.platform == "aws-elb-loadbalancer"
     mql: |
