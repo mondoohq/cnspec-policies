@@ -77,6 +77,7 @@ policies:
         checks:
           - uid: mondoo-aws-security-rds-cluster-public-access-check
           - uid: mondoo-aws-security-rds-cluster-encryption-at-rest
+          - uid: mondoo-aws-security-rds-cluster-no-pending-os-upgrades
       - title: AWS Redshift Cluster
         checks:
           - uid: mondoo-aws-security-redshift-cluster-public-access-check
@@ -2497,6 +2498,39 @@ queries:
 
 
 
+  - uid: mondoo-aws-security-rds-cluster-no-pending-os-upgrades
+    title: Ensure no pending OS upgrades are available for RDS clusters
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-rds-cluster-no-pending-os-upgrades-single
+    docs:
+      desc: |
+        This check ensures that Amazon RDS database clusters, including Aurora clusters, have the latest operating system patches applied and no pending OS upgrades are available. Operating system patches include critical security updates, bug fixes, and performance improvements that help maintain the security posture and stability of database clusters.
+
+        **Rationale:**
+
+        Without regular application of OS patches on RDS clusters:
+
+        - Known vulnerabilities in the underlying operating system may remain unaddressed, potentially allowing attackers to exploit these weaknesses across multiple database instances.
+        - Database clusters may miss important performance improvements and stability fixes that could impact application reliability and high availability.
+        - Compliance frameworks such as PCI DSS, HIPAA, and SOC 2 requirements for timely security patch management may not be satisfied.
+
+        While AWS manages the underlying infrastructure, customers are responsible for scheduling and applying OS patches to their RDS clusters during defined maintenance windows. Postponing these upgrades increases the risk exposure window for known vulnerabilities.
+
+        **Risk mitigation:**
+
+        - **Security Posture:** Reduces vulnerability exposure by ensuring the latest security patches are applied across all instances in the cluster.
+        - **Operational Stability:** Incorporates bug fixes and performance improvements that enhance database reliability and consistency.
+        - **Compliance Management:** Helps meet regulatory requirements for timely security patch management.
+      remediation:
+        - id: console
+          desc: |
+            Text
+  - uid: mondoo-aws-security-rds-cluster-no-pending-os-upgrades-single
+    filters: asset.platform == "aws-rds-dbinstance"
+    mql: |
+      rdsArn = asset.ids.where(_ == /^arn/).first
+      aws.rds.allPendingMaintenanceActions.where(resourceArn == rdsArn) == empty
 
 
   - uid: mondoo-aws-security-rds-cluster-encryption-at-rest
