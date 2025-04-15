@@ -2902,7 +2902,113 @@ queries:
       remediation:
         - id: console
           desc: |
-            Text
+            **Using AWS Console:**
+
+            1. Navigate to the AWS RDS Console.
+            2. Select Databases in the left panel.
+            3. Look for the RDS cluster (such as an Aurora cluster) with pending OS upgrades.
+            4. Under Maintenance & backups tab, check for pending maintenance.
+            5. If maintenance is pending, select Actions, then Upgrade operating system.
+            6. Choose whether to apply immediately or during the next maintenance window.
+            7. If there are multiple instances in the cluster, you can choose to apply to all or specific instances.
+            8. Select Upgrade operating system to apply the pending patches.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Check for pending maintenance actions on RDS clusters:
+
+            ```bash
+            aws rds describe-pending-maintenance-actions
+            ```
+
+            Apply pending OS upgrades immediately to a cluster:
+
+            ```bash
+            aws rds apply-pending-maintenance-action \
+              --resource-identifier arn:aws:rds:region:account-id:cluster:cluster-id \
+              --apply-action system-update \
+              --opt-in-type immediate
+            ```
+
+            Schedule the upgrade for the next maintenance window:
+
+            ```bash
+            aws rds apply-pending-maintenance-action \
+              --resource-identifier arn:aws:rds:region:account-id:cluster:cluster-id \
+              --apply-action system-update \
+              --opt-in-type next-maintenance
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # Ensure auto minor version upgrades are enabled to reduce manual management of OS patches
+            resource "aws_rds_cluster" "secure_cluster" {
+              cluster_identifier      = "secure-aurora-cluster"
+              engine                  = "aurora-mysql"
+              engine_version          = "5.7.mysql_aurora.2.10.2"
+              availability_zones      = ["us-west-2a", "us-west-2b", "us-west-2c"]
+              database_name           = "mydb"
+              master_username         = "admin"
+              master_password         = "YourSecurePassword123"
+              backup_retention_period = 7
+              preferred_maintenance_window = "sun:05:00-sun:06:00"
+              skip_final_snapshot     = true
+            }
+
+            resource "aws_rds_cluster_instance" "cluster_instances" {
+              count               = 2
+              identifier          = "secure-aurora-cluster-${count.index}"
+              cluster_identifier  = aws_rds_cluster.secure_cluster.id
+              instance_class      = "db.r5.large"
+              engine              = aws_rds_cluster.secure_cluster.engine
+              engine_version      = aws_rds_cluster.secure_cluster.engine_version
+              auto_minor_version_upgrade = true
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              SecureAuroraCluster:
+                Type: "AWS::RDS::DBCluster"
+                Properties:
+                  DBClusterIdentifier: "secure-aurora-cluster"
+                  Engine: "aurora-mysql"
+                  EngineVersion: "5.7.mysql_aurora.2.10.2"
+                  AvailabilityZones:
+                    - !Select [0, !GetAZs ""]
+                    - !Select [1, !GetAZs ""]
+                    - !Select [2, !GetAZs ""]
+                  DatabaseName: "mydb"
+                  MasterUsername: "admin"
+                  MasterUserPassword: "YourSecurePassword123"
+                  BackupRetentionPeriod: 7
+                  PreferredMaintenanceWindow: "sun:05:00-sun:06:00"
+                  DeletionProtection: true
+
+              InstanceOne:
+                Type: "AWS::RDS::DBInstance"
+                Properties:
+                  DBClusterIdentifier: !Ref SecureAuroraCluster
+                  DBInstanceIdentifier: "secure-aurora-cluster-0"
+                  DBInstanceClass: "db.r5.large"
+                  Engine: "aurora-mysql"
+                  AutoMinorVersionUpgrade: true
+
+              InstanceTwo:
+                Type: "AWS::RDS::DBInstance"
+                Properties:
+                  DBClusterIdentifier: !Ref SecureAuroraCluster
+                  DBInstanceIdentifier: "secure-aurora-cluster-1"
+                  DBInstanceClass: "db.r5.large"
+                  Engine: "aurora-mysql"
+                  AutoMinorVersionUpgrade: true
+            ```
   - uid: mondoo-aws-security-rds-cluster-no-pending-os-upgrades-single
     filters: asset.platform == "aws-rds-dbinstance"
     mql: |
