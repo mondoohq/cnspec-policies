@@ -72,6 +72,7 @@ policies:
         checks:
           - uid: mondoo-aws-security-rds-instance-public-access-check
           - uid: mondoo-aws-security-rds-instance-encryption-at-rest
+          - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades
       - title: AWS RDS DB Cluster
         checks:
           - uid: mondoo-aws-security-rds-cluster-public-access-check
@@ -2417,6 +2418,62 @@ queries:
       aws.lambda.function.policy != empty
     mql: |
       aws.lambda.function.policy.Statement.where(Effect == "Allow").all(Principal {AWS {_ != "*"}})
+
+
+
+  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades
+    title: Ensure no pending OS upgrades are available for RDS instances
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-single
+      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-terraform-hcl
+      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-terraform-plan
+      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-terraform-state
+    docs:
+      desc: |
+        This check ensures that Amazon Relational Database Service (RDS) instances have the latest operating system patches applied and no pending OS upgrades are available. Operating system patches include critical security updates, bug fixes, and performance improvements that help maintain the security posture and stability of database instances.
+
+        **Rationale:**
+
+        Without regular application of OS patches on RDS instances:
+
+        - Known vulnerabilities in the underlying operating system may remain unaddressed, potentially allowing attackers to exploit these weaknesses.
+        - Database instances may miss important performance improvements and stability fixes that could impact application reliability.
+        - Compliance frameworks such as PCI DSS, HIPAA, and SOC 2 requirements for timely security patch management may not be satisfied.
+
+        While AWS manages the underlying infrastructure, customers are responsible for scheduling and applying OS patches to their RDS instances during defined maintenance windows. Postponing these upgrades increases the risk exposure window for known vulnerabilities.
+
+        **Risk mitigation:**
+
+        - **Security Posture:** Reduces vulnerability exposure by ensuring the latest security patches are applied.
+        - **Operational Stability:** Incorporates bug fixes and performance improvements that enhance database reliability.
+        - **Compliance Management:** Helps meet regulatory requirements for timely security patch management.
+      remediation:
+        - id: console
+
+  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-single
+    filters: asset.platform == "aws-rds-dbinstance"
+    mql: aws.rds.dbinstance.storageEncrypted == true
+
+
+
+  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_db_instance")
+    mql: terraform.resources.where(nameLabel == "aws_db_instance").all(arguments['storage_encrypted'] == true)
+
+
+
+  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_db_instance")
+    mql: terraform.plan.resourceChanges.where(type == "aws_db_instance").all( change.after.storage_encrypted == true )
+
+
+
+  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
+    mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
+
+
 
 
 
