@@ -1889,7 +1889,7 @@ queries:
 
 
   - uid: mondoo-aws-security-vpc-bpa-enabled
-    title: Ensure EC2 instances use IMDSv2 for metadata access
+    title: Ensure VPC Block Public Access (BPA) is enabled
     impact: 90
     variants:
       - uid: mondoo-aws-security-vpc-bpa-enabled-single
@@ -1947,8 +1947,6 @@ queries:
       bpaPlan = terraform.plan.resourceChanges.where( type == "aws_vpc_block_public_access_exclusion" )
       bpaPlan.any(change.after.internet_gateway_exclusion_mode == /allow-egress|allow-bidirectional/)
 
-      terraform.plan.resourceChanges.where( type == "aws_instance" ).all( change.after.metadata_options[0].http_endpoint == "disabled"
-       || change.after.metadata_options[0].http_tokens == "required" )
 
 
 
