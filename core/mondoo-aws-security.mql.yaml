@@ -779,9 +779,7 @@ queries:
                         Condition:
                           NumericGreaterThan:
                             "aws:MultiFactorAuthAge": "7776000" # 90 days in seconds
-
             ```
-
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
         title: AWS Documentation - Manage access keys for IAM users
