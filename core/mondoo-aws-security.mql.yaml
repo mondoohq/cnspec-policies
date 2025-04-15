@@ -3047,7 +3047,165 @@ queries:
       remediation:
         - id: console
           desc: |
-            Text
+            **Using AWS Console:**
+
+            1. Navigate to the AWS RDS Console.
+            2. Select Databases in the left panel.
+            3. Note: Encryption cannot be enabled on an existing unencrypted DB cluster. Instead, create a new encrypted cluster:
+               - Select Create database.
+               - Choose Amazon Aurora.
+               - Configure the cluster with the same settings as the unencrypted cluster.
+               - Under Encryption, enable "Turn on encryption".
+               - Choose an AWS KMS key (default or custom).
+               - Complete the cluster creation.
+            4. Migrate data from the unencrypted cluster to the encrypted one using one of these methods:
+               - For Aurora MySQL: Use mysqldump, AWS Database Migration Service, or native Aurora backup/restore.
+               - For Aurora PostgreSQL: Use pg_dump/pg_restore, logical replication, or AWS DMS.
+            5. Once migration is complete, decommission the unencrypted cluster.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Export data from unencrypted cluster (for MySQL):
+
+            ```bash
+            # Use the RDS export feature to S3
+            aws rds start-export-task \
+              --export-task-identifier "export-unencrypted-cluster" \
+              --source-arn "arn:aws:rds:region:account-id:cluster:unencrypted-cluster" \
+              --s3-bucket-name "your-export-bucket" \
+              --iam-role-arn "arn:aws:iam::account-id:role/rds-s3-export-role" \
+              --kms-key-id "arn:aws:kms:region:account-id:key/key-id"
+            ```
+
+            Create a new encrypted cluster:
+
+            ```bash
+            aws rds create-db-cluster \
+              --db-cluster-identifier encrypted-cluster \
+              --engine aurora-mysql \
+              --engine-version 5.7.mysql_aurora.2.10.2 \
+              --master-username admin \
+              --master-user-password YourSecurePassword123 \
+              --storage-encrypted \
+              --kms-key-id arn:aws:kms:region:account-id:key/key-id
+            ```
+
+            Create DB instances for the new cluster:
+
+            ```bash
+            aws rds create-db-instance \
+              --db-instance-identifier encrypted-instance-1 \
+              --db-cluster-identifier encrypted-cluster \
+              --engine aurora-mysql \
+              --db-instance-class db.r5.large
+            ```
+
+            After migration and verification, delete the unencrypted cluster:
+
+            ```bash
+            aws rds delete-db-cluster \
+              --db-cluster-identifier unencrypted-cluster \
+              --skip-final-snapshot
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # Create a KMS key for RDS cluster encryption
+            resource "aws_kms_key" "aurora_encryption_key" {
+              description         = "KMS key for Aurora cluster encryption"
+              enable_key_rotation = true
+            }
+
+            # Create an encrypted Aurora cluster
+            resource "aws_rds_cluster" "encrypted_cluster" {
+              cluster_identifier      = "encrypted-aurora-cluster"
+              engine                  = "aurora-mysql"
+              engine_version          = "5.7.mysql_aurora.2.10.2"
+              availability_zones      = ["us-west-2a", "us-west-2b", "us-west-2c"]
+              database_name           = "mydb"
+              master_username         = "admin"
+              master_password         = "YourSecurePassword123"
+              backup_retention_period = 7
+              preferred_backup_window = "07:00-09:00"
+
+              # Enable encryption
+              storage_encrypted       = true
+              kms_key_id              = aws_kms_key.aurora_encryption_key.arn
+
+              skip_final_snapshot     = true
+            }
+
+            # Create cluster instances
+            resource "aws_rds_cluster_instance" "cluster_instances" {
+              count               = 2
+              identifier          = "encrypted-aurora-cluster-${count.index}"
+              cluster_identifier  = aws_rds_cluster.encrypted_cluster.id
+              instance_class      = "db.r5.large"
+              engine              = aws_rds_cluster.encrypted_cluster.engine
+              engine_version      = aws_rds_cluster.encrypted_cluster.engine_version
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              AuroraEncryptionKey:
+                Type: "AWS::KMS::Key"
+                Properties:
+                  Description: "KMS key for Aurora cluster encryption"
+                  EnableKeyRotation: true
+                  KeyPolicy:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+                        Action: "kms:*"
+                        Resource: "*"
+
+              EncryptedAuroraCluster:
+                Type: "AWS::RDS::DBCluster"
+                Properties:
+                  DBClusterIdentifier: "encrypted-aurora-cluster"
+                  Engine: "aurora-mysql"
+                  EngineVersion: "5.7.mysql_aurora.2.10.2"
+                  AvailabilityZones:
+                    - !Select [0, !GetAZs ""]
+                    - !Select [1, !GetAZs ""]
+                    - !Select [2, !GetAZs ""]
+                  DatabaseName: "mydb"
+                  MasterUsername: "admin"
+                  MasterUserPassword: "YourSecurePassword123"
+                  BackupRetentionPeriod: 7
+                  PreferredBackupWindow: "07:00-09:00"
+
+                  # Enable encryption
+                  StorageEncrypted: true
+                  KmsKeyId: !Ref AuroraEncryptionKey
+
+                  DeletionProtection: true
+
+              InstanceOne:
+                Type: "AWS::RDS::DBInstance"
+                Properties:
+                  DBClusterIdentifier: !Ref EncryptedAuroraCluster
+                  DBInstanceIdentifier: "encrypted-aurora-cluster-0"
+                  DBInstanceClass: "db.r5.large"
+                  Engine: "aurora-mysql"
+
+              InstanceTwo:
+                Type: "AWS::RDS::DBInstance"
+                Properties:
+                  DBClusterIdentifier: !Ref EncryptedAuroraCluster
+                  DBInstanceIdentifier: "encrypted-aurora-cluster-1"
+                  DBInstanceClass: "db.r5.large"
+                  Engine: "aurora-mysql"
+            ```
   - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-single
     filters: |
       asset.platform == "aws-rds-dbcluster"
