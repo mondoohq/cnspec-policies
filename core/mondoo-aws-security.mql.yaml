@@ -2493,6 +2493,97 @@ queries:
         - Ensures compliance with security frameworks that require controlled access to computing resources.
       remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS Lambda Console.
+            2. Select Functions in the left panel.
+            3. Select the Lambda function that has public access.
+            4. Go to the Configuration tab and select Permissions.
+            5. Under Resource-based policy, check for any policy statements with "Principal": "*" or "Principal": {"AWS": "*"}.
+            6. Select Edit to modify the resource-based policy.
+            7. Remove or update any policy statements that allow public access, restricting access to specific AWS accounts or services.
+            8. Select Save to apply the changes.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Get the current policy for a Lambda function:
+
+            ```bash
+            aws lambda get-policy --function-name <function-name>
+            ```
+
+            Remove the existing policy if it contains public access:
+
+            ```bash
+            aws lambda remove-permission --function-name <function-name> --statement-id <sid>
+            ```
+
+            Add a more restrictive policy:
+
+            ```bash
+            aws lambda add-permission \
+              --function-name <function-name> \
+              --statement-id AllowExecutionFromSpecificAccount \
+              --action lambda:InvokeFunction \
+              --principal <trusted-aws-account-id> \
+              --source-account <source-account-id>
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            resource "aws_lambda_function" "secure_function" {
+              function_name = "secure-function"
+              role          = aws_iam_role.lambda_role.arn
+              handler       = "index.handler"
+              runtime       = "nodejs18.x"
+              filename      = "lambda.zip"
+            }
+
+            # Use a proper permission policy without public access
+            resource "aws_lambda_permission" "secure_permission" {
+              statement_id  = "AllowExecutionFromSpecificAccount"
+              action        = "lambda:InvokeFunction"
+              function_name = aws_lambda_function.secure_function.function_name
+              principal     = "123456789012" # Specific AWS account ID, not "*"
+
+              # Optional: Add additional restrictions
+              source_account = "123456789012"
+              source_arn     = "arn:aws:s3:::example-bucket"
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              SecureLambdaFunction:
+                Type: "AWS::Lambda::Function"
+                Properties:
+                  FunctionName: "secure-function"
+                  Handler: "index.handler"
+                  Runtime: "nodejs18.x"
+                  Role: !GetAtt LambdaExecutionRole.Arn
+                  Code:
+                    ZipFile: |
+                      exports.handler = async (event) => {
+                        return { statusCode: 200, body: 'Success' };
+                      };
+
+              # Permission with proper restrictions (not public)
+              LambdaPermission:
+                Type: "AWS::Lambda::Permission"
+                Properties:
+                  Action: "lambda:InvokeFunction"
+                  FunctionName: !Ref SecureLambdaFunction
+                  Principal: "123456789012" # Specific AWS account ID, not "*"
+                  SourceAccount: "123456789012"
+                  SourceArn: !Sub "arn:aws:s3:::example-bucket"
+            ```
   - uid: aws-lambda-function-public-access-prohibited-single
     filters: |
       asset.platform == "aws-lambda-function"
