@@ -4114,6 +4114,8 @@ queries:
     mql: |
       aws.ec2.snapshot.encrypted == true
 
+
+
   - uid: mondoo-aws-security-ec2-encrypted-volumes
     title: Attached EBS volumes are configured to be encrypted at-rest
     impact: 70
@@ -4135,6 +4137,153 @@ queries:
         - **Regulatory Compliance:** Helps meet compliance requirements for data protection and privacy.
         - **Centralized Key Management:** Uses AWS KMS for key lifecycle management, auditing, and fine-grained access control.
       remediation:
+        - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS EC2 Console.
+            2. Select Volumes under the Elastic Block Store section.
+            3. For unencrypted volumes, create encrypted replacements:
+               a. First, create a snapshot of the unencrypted volume:
+                  - Select the unencrypted volume.
+                  - Choose Actions > Create Snapshot.
+                  - Add a description and tags, then click Create Snapshot.
+               b. Create an encrypted copy of the snapshot:
+                  - Go to Snapshots, select the newly created snapshot.
+                  - Choose Actions > Copy.
+                  - Check Encrypt this snapshot.
+                  - Select a KMS key.
+                  - Click Copy Snapshot.
+               c. Create a new encrypted volume from the encrypted snapshot:
+                  - Select the encrypted snapshot.
+                  - Choose Actions > Create Volume.
+                  - Configure the volume size and type.
+                  - Verify Encryption is enabled.
+                  - Click Create Volume.
+               d. Attach the new encrypted volume:
+                  - Stop the EC2 instance.
+                  - Detach the original unencrypted volume.
+                  - Attach the new encrypted volume.
+                  - Start the instance.
+
+            4. For future volumes, enable EBS encryption by default:
+               - Go to EC2 Dashboard > EBS settings.
+               - Select Manage under EBS encryption.
+               - Check Always encrypt new EBS volumes.
+               - Click Update.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Check for unencrypted volumes:
+
+            ```bash
+            aws ec2 describe-volumes --query "Volumes[?Encrypted==`false`].VolumeId"
+            ```
+
+            Create a snapshot of an unencrypted volume:
+
+            ```bash
+            aws ec2 create-snapshot \
+              --volume-id vol-1234567890abcdef0 \
+              --description "Snapshot of unencrypted volume"
+            ```
+
+            Create an encrypted copy of the snapshot:
+
+            ```bash
+            aws ec2 copy-snapshot \
+              --source-region us-east-1 \
+              --source-snapshot-id snap-1234567890abcdef0 \
+              --description "Encrypted copy of snapshot" \
+              --encrypted \
+              --kms-key-id arn:aws:kms:us-east-1:account-id:key/key-id
+            ```
+
+            Create a new encrypted volume from the encrypted snapshot:
+
+            ```bash
+            aws ec2 create-volume \
+              --availability-zone us-east-1a \
+              --snapshot-id snap-0abcdef1234567890 \
+              --volume-type gp3
+            ```
+
+            Stop the instance, detach the old volume, and attach the new volume:
+
+            ```bash
+            aws ec2 stop-instances --instance-ids i-1234567890abcdef0
+
+            aws ec2 detach-volume --volume-id vol-1234567890abcdef0
+
+            aws ec2 attach-volume \
+              --volume-id vol-0abcdef1234567890 \
+              --instance-id i-1234567890abcdef0 \
+              --device /dev/sda1
+
+            aws ec2 start-instances --instance-ids i-1234567890abcdef0
+            ```
+
+            Enable EBS encryption by default:
+
+            ```bash
+            aws ec2 enable-ebs-encryption-by-default
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # Enable default EBS encryption for the account
+            resource "aws_ebs_encryption_by_default" "example" {
+              enabled = true
+            }
+
+            # Create a KMS key for EBS encryption
+            resource "aws_kms_key" "ebs_encryption" {
+              description             = "KMS key for EBS encryption"
+              deletion_window_in_days = 10
+              enable_key_rotation     = true
+            }
+
+            # Set the default KMS key for EBS encryption
+            resource "aws_ebs_default_kms_key" "example" {
+              key_arn = aws_kms_key.ebs_encryption.arn
+            }
+
+            # Create an encrypted volume
+            resource "aws_ebs_volume" "encrypted_volume" {
+              availability_zone = "us-west-2a"
+              size              = 50
+              encrypted         = true
+              kms_key_id        = aws_kms_key.ebs_encryption.arn
+
+              tags = {
+                Name = "encrypted-volume"
+              }
+            }
+
+            # EC2 instance with encrypted root and additional volumes
+            resource "aws_instance" "example" {
+              ami           = "ami-12345678"
+              instance_type = "t3.micro"
+
+              root_block_device {
+                volume_size = 20
+                volume_type = "gp3"
+                encrypted   = true
+                kms_key_id  = aws_kms_key.ebs_encryption.arn
+              }
+
+              ebs_block_device {
+                device_name = "/dev/sdf"
+                volume_size = 50
+                volume_type = "gp3"
+                encrypted   = true
+                kms_key_id  = aws_kms_key.ebs_encryption.arn
+              }
+            }
+            ```
         - id: cloudformation
           desc: |
             **Using AWS CloudFormation:**
