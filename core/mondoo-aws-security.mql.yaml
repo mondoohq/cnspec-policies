@@ -282,6 +282,9 @@ queries:
         title: AWS Documentation - AWS account root user
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_delete-key.html
         title: AWS Documentation - Delete access keys for the root user
+
+
+
   - uid: mondoo-aws-security-root-account-mfa-enabled
     title: Ensure MFA is enabled for the "root user" account
     filters: asset.platform == "aws"
