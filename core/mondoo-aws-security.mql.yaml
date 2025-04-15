@@ -4442,6 +4442,7 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-elb-ssl-listener
     title: Ensure Application Load Balancers are configured with HTTPS listeners
     impact: 70
@@ -4468,6 +4469,144 @@ queries:
         - **Trust and Compliance:** Builds user trust and satisfies regulatory requirements for protecting data in transit.
       remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS EC2 Console.
+            2. Select Load Balancers under the Load Balancing section.
+            3. Select the Application Load Balancer that needs HTTPS configuration.
+            4. Select the Listeners tab.
+            5. If there isn't an HTTPS listener (port 443):
+               - Select Add listener.
+               - Set Protocol:Port to HTTPS:443.
+               - Under Security policy, select a secure policy like ELBSecurityPolicy-TLS13-1-2-2021-06.
+               - Under Default SSL certificate, choose one of:
+                 * Choose from ACM (recommended)
+                 * Choose from IAM
+                 * Import a certificate
+               - Configure the default action (typically forwarding to a target group).
+            6. Select Add to create the HTTPS listener.
+
+            7. For existing HTTP listeners, consider implementing a redirect to HTTPS:
+               - Select the HTTP listener and choose Edit.
+               - Change the default action to Redirect.
+               - Set Protocol to HTTPS, Port to 443, and Status code to 301 (Permanently moved).
+            8. Select Save changes to apply the updated configuration.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Create an HTTPS listener:
+
+            ```bash
+            aws elbv2 create-listener \
+              --load-balancer-arn arn:aws:elasticloadbalancing:region:account-id:loadbalancer/app/my-load-balancer/1234567890abcdef \
+              --protocol HTTPS \
+              --port 443 \
+              --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06 \
+              --certificates CertificateArn=arn:aws:acm:region:account-id:certificate/certificate-id \
+              --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:region:account-id:targetgroup/my-target-group/1234567890abcdef
+            ```
+
+            Update an existing HTTP listener to redirect to HTTPS:
+
+            ```bash
+            aws elbv2 modify-listener \
+              --listener-arn arn:aws:elasticloadbalancing:region:account-id:listener/app/my-load-balancer/1234567890abcdef/listener-id \
+              --port 80 \
+              --protocol HTTP \
+              --default-actions Type=redirect,RedirectConfig="{Protocol=HTTPS,Port=443,StatusCode=HTTP_301}"
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            resource "aws_lb" "secure_alb" {
+              name               = "secure-alb"
+              internal           = false
+              load_balancer_type = "application"
+              security_groups    = [aws_security_group.lb_sg.id]
+              subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+            }
+
+            # HTTPS listener
+            resource "aws_lb_listener" "https" {
+              load_balancer_arn = aws_lb.secure_alb.arn
+              port              = "443"
+              protocol          = "HTTPS"
+              ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+              certificate_arn   = aws_acm_certificate.cert.arn
+
+              default_action {
+                type             = "forward"
+                target_group_arn = aws_lb_target_group.app.arn
+              }
+            }
+
+            # HTTP listener redirecting to HTTPS
+            resource "aws_lb_listener" "http" {
+              load_balancer_arn = aws_lb.secure_alb.arn
+              port              = "80"
+              protocol          = "HTTP"
+
+              default_action {
+                type = "redirect"
+
+                redirect {
+                  port        = "443"
+                  protocol    = "HTTPS"
+                  status_code = "HTTP_301"
+                }
+              }
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              SecureLoadBalancer:
+                Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+                Properties:
+                  Name: "secure-alb"
+                  Scheme: "internet-facing"
+                  Type: "application"
+                  SecurityGroups:
+                    - !Ref LoadBalancerSecurityGroup
+                  Subnets:
+                    - !Ref PublicSubnetA
+                    - !Ref PublicSubnetB
+
+              # HTTPS Listener
+              HttpsListener:
+                Type: "AWS::ElasticLoadBalancingV2::Listener"
+                Properties:
+                  LoadBalancerArn: !Ref SecureLoadBalancer
+                  Port: 443
+                  Protocol: "HTTPS"
+                  SslPolicy: "ELBSecurityPolicy-TLS13-1-2-2021-06"
+                  Certificates:
+                    - CertificateArn: !Ref SSLCertificate
+                  DefaultActions:
+                    - Type: "forward"
+                      TargetGroupArn: !Ref DefaultTargetGroup
+
+              # HTTP Listener with redirect to HTTPS
+              HttpListener:
+                Type: "AWS::ElasticLoadBalancingV2::Listener"
+                Properties:
+                  LoadBalancerArn: !Ref SecureLoadBalancer
+                  Port: 80
+                  Protocol: "HTTP"
+                  DefaultActions:
+                    - Type: "redirect"
+                      RedirectConfig:
+                        Protocol: "HTTPS"
+                        Port: "443"
+                        StatusCode: "HTTP_301"
+            ```
   - uid: mondoo-aws-security-elb-ssl-listener-single
     filters: asset.platform == "aws-elb-loadbalancer"
     mql: |
