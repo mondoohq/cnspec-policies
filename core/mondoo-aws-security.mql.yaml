@@ -783,6 +783,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
         title: AWS Documentation - Manage access keys for IAM users
+
+
+
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
     title: Ensure multi-factor authentication is enabled for all IAM users with console access
     filters: asset.platform == "aws"
@@ -872,6 +875,215 @@ queries:
                 ]
               })
             }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              # IAM policy to enforce MFA
+              EnforceMFAPolicy:
+                Type: "AWS::IAM::ManagedPolicy"
+                Properties:
+                  ManagedPolicyName: "EnforceMFA"
+                  Description: "Require MFA for all IAM users with console access"
+                  PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Sid: "AllowViewAccountInfo"
+                        Effect: "Allow"
+                        Action:
+                          - "iam:GetAccountPasswordPolicy"
+                          - "iam:GetAccountSummary"
+                          - "iam:ListVirtualMFADevices"
+                        Resource: "*"
+
+                      - Sid: "AllowManageOwnPasswords"
+                        Effect: "Allow"
+                        Action:
+                          - "iam:ChangePassword"
+                          - "iam:GetUser"
+                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
+
+                      - Sid: "AllowManageOwnAccessKeys"
+                        Effect: "Allow"
+                        Action:
+                          - "iam:CreateAccessKey"
+                          - "iam:DeleteAccessKey"
+                          - "iam:ListAccessKeys"
+                          - "iam:UpdateAccessKey"
+                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
+
+                      - Sid: "AllowManageOwnSigningCertificates"
+                        Effect: "Allow"
+                        Action:
+                          - "iam:DeleteSigningCertificate"
+                          - "iam:ListSigningCertificates"
+                          - "iam:UpdateSigningCertificate"
+                          - "iam:UploadSigningCertificate"
+                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
+
+                      - Sid: "AllowManageOwnMFA"
+                        Effect: "Allow"
+                        Action:
+                          - "iam:DeactivateMFADevice"
+                          - "iam:EnableMFADevice"
+                          - "iam:ListMFADevices"
+                          - "iam:ResyncMFADevice"
+                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
+
+                      - Sid: "AllowManageOwnVirtualMFADevice"
+                        Effect: "Allow"
+                        Action:
+                          - "iam:CreateVirtualMFADevice"
+                          - "iam:DeleteVirtualMFADevice"
+                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:mfa/${aws:username}"
+
+                      - Sid: "DenyAllExceptListedIfNoMFA"
+                        Effect: "Deny"
+                        NotAction:
+                          - "iam:CreateVirtualMFADevice"
+                          - "iam:EnableMFADevice"
+                          - "iam:GetUser"
+                          - "iam:ListMFADevices"
+                          - "iam:ListVirtualMFADevices"
+                          - "iam:ResyncMFADevice"
+                          - "sts:GetSessionToken"
+                        Resource: "*"
+                        Condition:
+                          BoolIfExists:
+                            "aws:MultiFactorAuthPresent": "false"
+
+              # IAM group for all users
+              AllUsersGroup:
+                Type: "AWS::IAM::Group"
+                Properties:
+                  GroupName: "all-users"
+                  ManagedPolicyArns:
+                    - !Ref EnforceMFAPolicy
+
+              # CloudWatch EventBridge rule to monitor for users without MFA
+              ConsoleLoginWithoutMFARule:
+                Type: "AWS::Events::Rule"
+                Properties:
+                  Name: "console-login-without-mfa"
+                  Description: "Detects console logins without MFA"
+                  EventPattern:
+                    source:
+                      - "aws.signin"
+                    detail-type:
+                      - "AWS Console Sign In via CloudTrail"
+                    detail:
+                      eventName:
+                        - "ConsoleLogin"
+                      additionalEventData:
+                        MFAUsed:
+                          - "No"
+                      responseElements:
+                        ConsoleLogin:
+                          - "Success"
+
+              # SNS topic for MFA alerts
+              MFAAlertsTopic:
+                Type: "AWS::SNS::Topic"
+                Properties:
+                  TopicName: "mfa-alerts"
+
+              # Set the SNS topic as the target for the EventBridge rule
+              RuleTarget:
+                Type: "AWS::Events::Target"
+                Properties:
+                  Rule: !Ref ConsoleLoginWithoutMFARule
+                  Arn: !Ref MFAAlertsTopic
+                  Id: "SendToSNS"
+
+              # Lambda function to scan for IAM users without MFA
+              MFAComplianceCheckFunction:
+                Type: "AWS::Lambda::Function"
+                Properties:
+                  FunctionName: "mfa-compliance-check"
+                  Handler: "index.lambda_handler"
+                  Role: !GetAtt IAMMFACheckRole.Arn
+                  Runtime: "python3.9"
+                  Timeout: 60
+                  Code:
+                    ZipFile: |
+                      import boto3
+                      import json
+
+                      def lambda_handler(event, context):
+                          iam = boto3.client('iam')
+                          sns = boto3.client('sns')
+
+                          # Get all IAM users
+                          users = iam.list_users()['Users']
+                          non_compliant_users = []
+
+                          for user in users:
+                              username = user['UserName']
+
+                              # Check if user has console access
+                              has_console_access = False
+                              try:
+                                  iam.get_login_profile(UserName=username)
+                                  has_console_access = True
+                              except iam.exceptions.NoSuchEntityException:
+                                  # User doesn't have console access
+                                  continue
+
+                              # Check if user has MFA enabled
+                              mfa_devices = iam.list_mfa_devices(UserName=username)['MFADevices']
+                              if has_console_access and len(mfa_devices) == 0:
+                                  non_compliant_users.append(username)
+
+                          # Send notification if non-compliant users found
+                          if non_compliant_users:
+                              message = "The following IAM users have console access but no MFA enabled:\n\n"
+                              message += "\n".join(non_compliant_users)
+
+                              sns.publish(
+                                  TopicArn=event['sns_topic_arn'],
+                                  Subject="AWS IAM Users Without MFA Alert",
+                                  Message=message
+                              )
+
+                          return {
+                              'statusCode': 200,
+                              'body': json.dumps('Compliance check completed')
+                          }
+
+              # IAM role for the Lambda function
+              IAMMFACheckRole:
+                Type: "AWS::IAM::Role"
+                Properties:
+                  AssumeRolePolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          Service: "lambda.amazonaws.com"
+                        Action: "sts:AssumeRole"
+                  ManagedPolicyArns:
+                    - "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+                    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                    - "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
+
+              # Schedule to run the MFA compliance check daily
+              MFAComplianceCheckSchedule:
+                Type: "AWS::Events::Rule"
+                Properties:
+                  Name: "daily-mfa-compliance-check"
+                  Description: "Run the MFA compliance check daily"
+                  ScheduleExpression: "rate(1 day)"
+                  State: "ENABLED"
+                  Targets:
+                    - Arn: !GetAtt MFAComplianceCheckFunction.Arn
+                      Id: "MFAComplianceCheck"
+                      Input: !Sub |
+                        {
+                          "sns_topic_arn": "${MFAAlertsTopic}"
+                        }
             ```
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html
