@@ -2533,6 +2533,7 @@ queries:
       aws.rds.allPendingMaintenanceActions.where(resourceArn == rdsArn) == empty
 
 
+
   - uid: mondoo-aws-security-rds-cluster-encryption-at-rest
     title: Ensure all RDS clusters are set to be encrypted-at-rest
     impact: 90
