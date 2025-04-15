@@ -2426,9 +2426,6 @@ queries:
     impact: 90
     variants:
       - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-single
-      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-terraform-hcl
-      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-terraform-plan
-      - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Relational Database Service (RDS) instances have the latest operating system patches applied and no pending OS upgrades are available. Operating system patches include critical security updates, bug fixes, and performance improvements that help maintain the security posture and stability of database instances.
@@ -2450,30 +2447,9 @@ queries:
         - **Compliance Management:** Helps meet regulatory requirements for timely security patch management.
       remediation:
         - id: console
-
   - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-single
     filters: asset.platform == "aws-rds-dbinstance"
-    mql: aws.rds.dbinstance.storageEncrypted == true
-
-
-
-  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-hcl
-    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_db_instance")
-    mql: terraform.resources.where(nameLabel == "aws_db_instance").all(arguments['storage_encrypted'] == true)
-
-
-
-  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-plan
-    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_db_instance")
-    mql: terraform.plan.resourceChanges.where(type == "aws_db_instance").all( change.after.storage_encrypted == true )
-
-
-
-  - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-state
-    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
-    mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
-
-
+    mql: aws.rds.dbinstance.pendingMaintenanceActions == empty
 
 
 
