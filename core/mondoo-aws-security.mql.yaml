@@ -4614,7 +4614,6 @@ queries:
 
 
 
-
   - uid: mondoo-aws-security-elb-logging-enabled
     title: Ensure Application Load Balancers have logging enabled
     impact: 70
@@ -4641,6 +4640,153 @@ queries:
         - **Operational Intelligence:** Allows analysis of traffic patterns, error rates, and client behaviors to improve application performance.
       remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS EC2 Console.
+            2. Select Load Balancers under the Load Balancing section.
+            3. Select the Application Load Balancer you want to enable logging for.
+            4. Select the Attributes tab.
+            5. Select Edit.
+            6. Under Access logs, check Enable.
+            7. Specify an existing S3 bucket or create a new one.
+            8. Optionally, specify a prefix to organize the logs within the bucket.
+            9. Select Save changes to enable access logging.
+
+            Note: Ensure the S3 bucket has the appropriate permissions to allow the ELB to write logs.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Enable access logs for a load balancer:
+
+            ```bash
+            aws elbv2 modify-load-balancer-attributes \
+              --load-balancer-arn arn:aws:elasticloadbalancing:region:account-id:loadbalancer/app/my-load-balancer/1234567890abcdef \
+              --attributes Key=access_logs.s3.enabled,Value=true Key=access_logs.s3.bucket,Value=my-log-bucket Key=access_logs.s3.prefix,Value=my-app-logs
+            ```
+
+            Verify that logging is enabled:
+
+            ```bash
+            aws elbv2 describe-load-balancer-attributes \
+              --load-balancer-arn arn:aws:elasticloadbalancing:region:account-id:loadbalancer/app/my-load-balancer/1234567890abcdef \
+              --query "Attributes[?Key=='access_logs.s3.enabled' || Key=='access_logs.s3.bucket']"
+            ```
+
+            Create an S3 bucket policy to allow ELB to write logs:
+
+            ```bash
+            aws s3api put-bucket-policy \
+              --bucket my-log-bucket \
+              --policy '{
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "AWS": "arn:aws:iam::elb-account-id:root"
+                    },
+                    "Action": "s3:PutObject",
+                    "Resource": "arn:aws:s3:::my-log-bucket/my-app-logs/AWSLogs/account-id/*"
+                  }
+                ]
+              }'
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # S3 bucket for ALB access logs
+            resource "aws_s3_bucket" "alb_logs" {
+              bucket = "my-alb-logs-bucket"
+              force_destroy = true
+            }
+
+            # S3 bucket policy to allow ALB to write logs
+            resource "aws_s3_bucket_policy" "alb_logs_policy" {
+              bucket = aws_s3_bucket.alb_logs.id
+
+              policy = jsonencode({
+                Version = "2012-10-17"
+                Statement = [
+                  {
+                    Effect = "Allow"
+                    Principal = {
+                      AWS = "arn:aws:iam::${data.aws_elb_service_account.main.id}:root"
+                    }
+                    Action = "s3:PutObject"
+                    Resource = "${aws_s3_bucket.alb_logs.arn}/alb-logs/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+                  }
+                ]
+              })
+            }
+
+            # Get AWS ELB service account ID
+            data "aws_elb_service_account" "main" {}
+
+            # Get current AWS account ID
+            data "aws_caller_identity" "current" {}
+
+            # Create ALB with logging enabled
+            resource "aws_lb" "secure_alb" {
+              name               = "secure-alb"
+              internal           = false
+              load_balancer_type = "application"
+              security_groups    = [aws_security_group.lb_sg.id]
+              subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+
+              access_logs {
+                bucket  = aws_s3_bucket.alb_logs.id
+                prefix  = "alb-logs"
+                enabled = true
+              }
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              LogBucket:
+                Type: "AWS::S3::Bucket"
+                Properties:
+                  BucketName: "my-alb-logs-bucket"
+
+              LogBucketPolicy:
+                Type: "AWS::S3::BucketPolicy"
+                Properties:
+                  Bucket: !Ref LogBucket
+                  PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+                        Action: "s3:PutObject"
+                        Resource: !Sub "${LogBucket.Arn}/alb-logs/AWSLogs/${AWS::AccountId}/*"
+
+              SecureLoadBalancer:
+                Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+                Properties:
+                  Name: "secure-alb"
+                  Scheme: "internet-facing"
+                  Type: "application"
+                  SecurityGroups:
+                    - !Ref LoadBalancerSecurityGroup
+                  Subnets:
+                    - !Ref PublicSubnetA
+                    - !Ref PublicSubnetB
+                  LoadBalancerAttributes:
+                    - Key: "access_logs.s3.enabled"
+                      Value: "true"
+                    - Key: "access_logs.s3.bucket"
+                      Value: !Ref LogBucket
+                    - Key: "access_logs.s3.prefix"
+                      Value: "alb-logs"
+            ```
   - uid: mondoo-aws-security-elb-logging-enabled-single
     filters: asset.platform == "aws-elb-loadbalancer"
     mql: |
