@@ -1928,6 +1928,86 @@ queries:
         - id: console
           desc: |
             **Using AWS Console:**
+
+            1. Navigate to the AWS VPC Console.
+            2. Select Your VPCs from the left panel.
+            3. Select the target VPC.
+            4. Under Actions, select Edit VPC settings.
+            5. In the Block Public Access settings section, select Enable block public access.
+            6. Configure appropriate exclusions for resources that need public access, if needed.
+            7. Select Save changes to apply the settings.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Enable VPC Block Public Access for a specific VPC:
+
+            ```bash
+            aws ec2 enable-vpc-block-public-access-v2 --vpc-ids vpc-12345678
+            ```
+
+            Create an exclusion for specific resources (if necessary):
+
+            ```bash
+            aws ec2 create-vpc-block-public-access-exclusion --vpc-id vpc-12345678 --internet-gateway-exclusion-mode "allow-egress" --subnet-id subnet-12345678
+            ```
+
+            Verify the status of VPC BPA:
+
+            ```bash
+            aws ec2 describe-vpc-block-public-access --vpc-ids vpc-12345678
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            resource "aws_vpc" "main" {
+              cidr_block = "10.0.0.0/16"
+              tags = {
+                Name = "main-vpc"
+              }
+            }
+
+            resource "aws_vpc_block_public_access" "example" {
+              vpc_id = aws_vpc.main.id
+            }
+
+            # Optional: If you need exclusions for specific resources
+            resource "aws_vpc_block_public_access_exclusion" "example" {
+              vpc_id                         = aws_vpc.main.id
+              subnet_id                      = aws_subnet.public.id
+              internet_gateway_exclusion_mode = "allow-egress"
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              MainVPC:
+                Type: "AWS::EC2::VPC"
+                Properties:
+                  CidrBlock: "10.0.0.0/16"
+                  Tags:
+                    - Key: "Name"
+                      Value: "main-vpc"
+
+              VPCBlockPublicAccess:
+                Type: "AWS::EC2::VPCBlockPublicAccess"
+                Properties:
+                  VpcId: !Ref MainVPC
+
+              # Optional: If you need exclusions for specific resources
+              VPCBlockPublicAccessExclusion:
+                Type: "AWS::EC2::VPCBlockPublicAccessExclusion"
+                Properties:
+                  VpcId: !Ref MainVPC
+                  SubnetId: !Ref PublicSubnet
+                  InternetGatewayExclusionMode: "allow-egress"
+            ```
+
   - uid: mondoo-aws-security-vpc-bpa-enabled-single
     filters: asset.platform == "aws-vpc"
     mql: aws.vpc.internetGatewayBlockMode != "off"
