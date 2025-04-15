@@ -1087,6 +1087,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html
         title: AWS Documentation - IAM user groups
+
+
+
   - uid: mondoo-aws-security-iam-users-only-one-access-key
     title: Ensure there is only one active access key available for any single IAM user
     impact: 70
@@ -1136,7 +1139,6 @@ queries:
               - Determine which key is in use.
               - Disable and delete the extra key(s).
               - If a key is needed for rotation, create a new key before deleting the old one.
-
         - id: cli
           desc: |
             **Using AWS CLI:**
@@ -1186,6 +1188,94 @@ queries:
                 ]
               })
             }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              # Policy to deny creation of more than one access key per user
+              LimitAccessKeysPolicy:
+                Type: "AWS::IAM::ManagedPolicy"
+                Properties:
+                  ManagedPolicyName: "LimitAccessKeys"
+                  Description: "Ensure IAM users have at most one active access key"
+                  PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Deny"
+                        Action: "iam:CreateAccessKey"
+                        Resource: "*"
+                        Condition:
+                          NumericGreaterThan:
+                            "iam:ActiveAccessKeys": "0"
+
+              # Example IAM group
+              ExampleGroup:
+                Type: "AWS::IAM::Group"
+                Properties:
+                  GroupName: "example-group"
+                  ManagedPolicyArns:
+                    - !Ref LimitAccessKeysPolicy
+
+              # Example IAM user
+              ExampleUser:
+                Type: "AWS::IAM::User"
+                Properties:
+                  UserName: "example-user"
+                  Groups:
+                    - !Ref ExampleGroup
+
+              # Lambda function to regularly check for multiple active keys
+              AccessKeyCheckFunction:
+                Type: "AWS::Lambda::Function"
+                Properties:
+                  FunctionName: "access-key-checker"
+                  Runtime: "python3.9"
+                  Handler: "index.lambda_handler"
+                  Role: !GetAtt AccessKeyCheckRole.Arn
+                  Code:
+                    ZipFile: |
+                      import boto3
+                      import json
+
+                      def lambda_handler(event, context):
+                          iam = boto3.client('iam')
+                          users = iam.list_users()['Users']
+                          violations = []
+
+                          for user in users:
+                              username = user['UserName']
+                              keys = iam.list_access_keys(UserName=username)['AccessKeyMetadata']
+                              active_keys = [k for k in keys if k['Status'] == 'Active']
+
+                              if len(active_keys) > 1:
+                                  violations.append({
+                                      'username': username,
+                                      'active_key_count': len(active_keys),
+                                      'access_key_ids': [k['AccessKeyId'] for k in active_keys]
+                                  })
+
+                          return {
+                              'statusCode': 200,
+                              'body': json.dumps(violations)
+                          }
+
+              # IAM role for the Lambda function
+              AccessKeyCheckRole:
+                Type: "AWS::IAM::Role"
+                Properties:
+                  AssumeRolePolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          Service: "lambda.amazonaws.com"
+                        Action: "sts:AssumeRole"
+                  ManagedPolicyArns:
+                    - "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+                    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
             ```
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check
     title: Ensure IAM users receive permissions only through groups
@@ -2627,6 +2717,9 @@ queries:
         title: Terraform Documentation - AWS Provider
       - url: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/EncryptionAtRest.html
         title: AWS Documentation - DynamoDB encryption at rest
+
+
+
   - uid: mondoo-aws-security-lambda-concurrency-check
     title: Ensure Lambda functions are configured with function-level concurrent execution limits
     filters: |
@@ -2665,7 +2758,6 @@ queries:
             4.	Under Concurrency, select Edit.
             5.	Enable Reserved Concurrency and set an appropriate concurrent execution limit.
             6.	Save the changes.
-
         - id: cli
           desc: |
             **Using AWS CLI:**
@@ -4707,6 +4799,9 @@ queries:
         title: Terraform Registry - aws_efs_file_system resource
       - url: https://docs.aws.amazon.com/efs/latest/ug/creating-using-create-fs.html#creating-using-fs-part1-cli
         title: AWS Documentation - Creating a file system using the AWS CLI
+
+
+
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
     title: Ensure CloudWatch Logs are encrypted at rest using KMS CMKs
     filters: asset.platform == "aws"
@@ -5948,6 +6043,9 @@ queries:
                   Description: "KMS key for CloudTrail encryption"
                   EnableKeyRotation: true
             ```
+
+
+
   - uid: mondoo-aws-security-secgroup-restricted-ssh
     title: Ensure security groups restrict incoming SSH traffic
     impact: 90
