@@ -971,6 +971,9 @@ queries:
         title: Assign a virtual MFA device in the AWS Management Console
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+
+
+
   - uid: mondoo-aws-security-iam-group-has-users-check
     title: Ensure IAM groups are utilized by assigning at least one user
     filters: asset.platform == "aws-iam-group"
