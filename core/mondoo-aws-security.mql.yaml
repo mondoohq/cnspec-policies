@@ -204,6 +204,85 @@ queries:
               })
             }
             ```
+        - id: cloudformation
+            desc: |
+              **Using AWS CloudFormation:**
+
+              AWS does not allow direct management of the root user's access keys via CloudFormation. However, you can create a stack that implements preventative controls:
+
+              ```yaml
+              Resources:
+                SecurePasswordPolicy:
+                  Type: "AWS::IAM::AccountPasswordPolicy"
+                  Properties:
+                    MinimumPasswordLength: 14
+                    RequireUppercaseCharacters: true
+                    RequireLowercaseCharacters: true
+                    RequireNumbers: true
+                    RequireSymbols: true
+                    AllowUsersToChangePassword: true
+
+                DenyRootAccessKeysPolicy:
+                  Type: "AWS::IAM::ManagedPolicy"
+                  Properties:
+                    Description: "Prevents creation of root user access keys"
+                    ManagedPolicyName: "DenyRootAccessKeys"
+                    PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                        - Effect: "Deny"
+                          Action: "iam:CreateAccessKey"
+                          Resource: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+
+                SecurityAuditRole:
+                  Type: "AWS::IAM::Role"
+                  Properties:
+                    RoleName: "SecurityAuditRole"
+                    AssumeRolePolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                        - Effect: "Allow"
+                          Principal:
+                            Service: "lambda.amazonaws.com"
+                          Action: "sts:AssumeRole"
+                    ManagedPolicyArns:
+                      - !Ref DenyRootAccessKeysPolicy
+
+                # Create a CloudWatch Events rule to periodically check for root access keys
+                RootAccessKeyMonitor:
+                  Type: "AWS::Events::Rule"
+                  Properties:
+                    Name: "CheckForRootAccessKeys"
+                    Description: "Periodically checks for root user access keys"
+                    ScheduleExpression: "rate(1 day)"
+                    State: "ENABLED"
+                    Targets:
+                      - Arn: !GetAtt SecurityAuditLambda.Arn
+                        Id: "SecurityAuditTarget"
+
+                # Example Lambda function that could check for and alert on root access keys
+                SecurityAuditLambda:
+                  Type: "AWS::Lambda::Function"
+                  Properties:
+                    FunctionName: "CheckRootAccessKeys"
+                    Runtime: "python3.9"
+                    Handler: "index.handler"
+                    Role: !GetAtt SecurityAuditRole.Arn
+                    Code:
+                      ZipFile: |
+                        import boto3
+                        import os
+                        def handler(event, context):
+                            iam = boto3.client('iam')
+                            summary = iam.get_account_summary()
+                            if summary['SummaryMap']['RootAccessKeysPresent'] > 0:
+                                # Send alert via SNS, etc.
+                                print("WARNING: Root access keys detected")
+                            return {
+                                'statusCode': 200,
+                                'body': 'Root access key check completed'
+                            }
+              ```
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
         title: AWS Documentation - AWS account root user
@@ -5436,7 +5515,6 @@ queries:
         - **Log Integrity:** Provides cryptographic assurance that logs have not been modified since they were delivered by CloudTrail.
         - **Forensic Readiness:** Ensures reliable evidence for security incident investigations and dispute resolution.
         - **Compliance Validation:** Helps meet regulatory requirements for tamper-evident logging mechanisms.
-      remediation:
       remediation:
         - id: console
           desc: |
