@@ -436,6 +436,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/enable-virt-mfa-for-root.html
         title: Enable a virtual MFA device for the root user (console)
+
+
+
   - uid: mondoo-aws-security-iam-password-policy
     title: Ensure strong account password policy requirements are used
     filters: asset.platform == "aws"
@@ -612,6 +615,9 @@ queries:
         title: User passwords in AWS
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html
         title: Set an account password policy for IAM users
+
+
+
   - uid: mondoo-aws-security-access-keys-rotated
     title: Ensure IAM user access keys are rotated
     filters: asset.platform == "aws"
@@ -747,6 +753,35 @@ queries:
               })
             }
             ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              # IAM policy to enforce key rotation
+              EnforceKeyRotationPolicy:
+                Type: "AWS::IAM::ManagedPolicy"
+                Properties:
+                  ManagedPolicyName: "EnforceKeyRotation"
+                  Description: "Requires IAM users to rotate access keys every 90 days"
+                  PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Deny"
+                        Action:
+                          - "iam:*"
+                          - "ec2:*"
+                          - "s3:*"
+                          - "dynamodb:*"
+                          - "lambda:*"
+                        Resource: "*"
+                        Condition:
+                          NumericGreaterThan:
+                            "aws:MultiFactorAuthAge": "7776000" # 90 days in seconds
+
+            ```
+
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
         title: AWS Documentation - Manage access keys for IAM users
