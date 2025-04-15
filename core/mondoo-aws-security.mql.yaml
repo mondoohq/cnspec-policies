@@ -1944,7 +1944,7 @@ queries:
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_vpc")
     mql: |
       bpaState = terraform.state.resources.where( type == "aws_vpc_block_public_access_exclusion" )
-      bpaState.any(values.internet_gateway_exclusion_mode == /allow-egress|allow-bidirectionala/)
+      bpaState.any(values.internet_gateway_exclusion_mode == /allow-egress|allow-bidirectional/)
 
 
 
