@@ -5437,7 +5437,146 @@ queries:
         - **Forensic Readiness:** Ensures reliable evidence for security incident investigations and dispute resolution.
         - **Compliance Validation:** Helps meet regulatory requirements for tamper-evident logging mechanisms.
       remediation:
+      remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS CloudTrail Console.
+            2. Select Trails in the left panel.
+            3. Select the CloudTrail trail you want to update.
+            4. Select Edit.
+            5. Scroll down to the Additional settings section.
+            6. Check the Enable log file validation checkbox.
+            7. Select Save changes to update the trail.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Check if log file validation is enabled for a specific trail:
+
+            ```bash
+            aws cloudtrail describe-trails \
+              --trail-name-list my-trail \
+              --query "trailList[*].{Name:Name,LogFileValidation:LogFileValidationEnabled}"
+            ```
+
+            Enable log file validation for a trail:
+
+            ```bash
+            aws cloudtrail update-trail \
+              --name my-trail \
+              --enable-log-file-validation
+            ```
+
+            Verify that log file validation is now enabled:
+
+            ```bash
+            aws cloudtrail describe-trails \
+              --trail-name-list my-trail \
+              --query "trailList[*].{Name:Name,LogFileValidation:LogFileValidationEnabled}"
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # Create a secure CloudTrail trail with log file validation enabled
+            resource "aws_cloudtrail" "secure_trail" {
+              name                          = "secure-cloudtrail"
+              s3_bucket_name                = aws_s3_bucket.cloudtrail_logs.id
+              is_multi_region_trail         = true
+              include_global_service_events = true
+              enable_logging                = true
+              enable_log_file_validation    = true  # Ensure log file validation is enabled
+            }
+
+            # S3 bucket for CloudTrail logs
+            resource "aws_s3_bucket" "cloudtrail_logs" {
+              bucket        = "cloudtrail-logs-bucket"
+              force_destroy = true
+            }
+
+            # S3 bucket policy for CloudTrail
+            resource "aws_s3_bucket_policy" "cloudtrail" {
+              bucket = aws_s3_bucket.cloudtrail_logs.id
+              policy = jsonencode({
+                Version = "2012-10-17"
+                Statement = [
+                  {
+                    Sid    = "AWSCloudTrailAclCheck"
+                    Effect = "Allow"
+                    Principal = {
+                      Service = "cloudtrail.amazonaws.com"
+                    }
+                    Action   = "s3:GetBucketAcl"
+                    Resource = aws_s3_bucket.cloudtrail_logs.arn
+                  },
+                  {
+                    Sid    = "AWSCloudTrailWrite"
+                    Effect = "Allow"
+                    Principal = {
+                      Service = "cloudtrail.amazonaws.com"
+                    }
+                    Action   = "s3:PutObject"
+                    Resource = "${aws_s3_bucket.cloudtrail_logs.arn}/AWSLogs/*"
+                    Condition = {
+                      StringEquals = {
+                        "s3:x-amz-acl" = "bucket-owner-full-control"
+                      }
+                    }
+                  }
+                ]
+              })
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              CloudTrailLogsBucket:
+                Type: "AWS::S3::Bucket"
+                Properties:
+                  BucketName: !Sub "cloudtrail-logs-${AWS::AccountId}"
+                  VersioningConfiguration:
+                    Status: Enabled
+
+              CloudTrailBucketPolicy:
+                Type: "AWS::S3::BucketPolicy"
+                Properties:
+                  Bucket: !Ref CloudTrailLogsBucket
+                  PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Sid: "AWSCloudTrailAclCheck"
+                        Effect: "Allow"
+                        Principal:
+                          Service: "cloudtrail.amazonaws.com"
+                        Action: "s3:GetBucketAcl"
+                        Resource: !GetAtt CloudTrailLogsBucket.Arn
+                      - Sid: "AWSCloudTrailWrite"
+                        Effect: "Allow"
+                        Principal:
+                          Service: "cloudtrail.amazonaws.com"
+                        Action: "s3:PutObject"
+                        Resource: !Sub "${CloudTrailLogsBucket.Arn}/AWSLogs/${AWS::AccountId}/*"
+                        Condition:
+                          StringEquals:
+                            "s3:x-amz-acl": "bucket-owner-full-control"
+
+              SecureCloudTrail:
+                Type: "AWS::CloudTrail::Trail"
+                DependsOn:
+                  - CloudTrailBucketPolicy
+                Properties:
+                  TrailName: "secure-cloudtrail"
+                  S3BucketName: !Ref CloudTrailLogsBucket
+                  IsMultiRegionTrail: true
+                  EnableLogFileValidation: true  # Enable log file validation
+                  IncludeGlobalServiceEvents: true
+            ```
   - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-single
     filters: asset.platform == "aws-cloudtrail-trail"
     mql: aws.cloudtrail.trail.logFileValidationEnabled == true
@@ -5450,7 +5589,6 @@ queries:
   - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_cloudtrail")
     mql: terraform.state.resources.where(type == "aws_cloudtrail").all(values.enable_log_file_validation == true)
-
 
 
 
