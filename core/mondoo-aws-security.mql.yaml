@@ -2619,6 +2619,88 @@ queries:
         - **Compliance Management:** Helps meet regulatory requirements for timely security patch management.
       remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS RDS Console.
+            2. Select Databases in the left panel.
+            3. Select the RDS instance with pending OS upgrades.
+            4. Under Maintenance & backups tab, check for pending maintenance.
+            5. If maintenance is pending, select Actions, then Upgrade operating system.
+            6. Choose whether to apply immediately or during the next maintenance window.
+            7. Select Upgrade operating system to apply the pending patches.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Check for RDS instances with pending OS upgrades:
+
+            ```bash
+            aws rds describe-pending-maintenance-actions
+            ```
+
+            Apply pending upgrades immediately:
+
+            ```bash
+            aws rds apply-pending-maintenance-action \
+              --resource-identifier arn:aws:rds:region:account-id:db:instance-id \
+              --apply-action system-update \
+              --opt-in-type immediate
+            ```
+
+            Or schedule for next maintenance window:
+
+            ```bash
+            aws rds apply-pending-maintenance-action \
+              --resource-identifier arn:aws:rds:region:account-id:db:instance-id \
+              --apply-action system-update \
+              --opt-in-type next-maintenance
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # Ensure auto minor version upgrades are enabled to reduce manual management
+            resource "aws_db_instance" "secure_rds" {
+              identifier                  = "secure-rds-instance"
+              engine                      = "mysql"
+              engine_version              = "8.0"
+              auto_minor_version_upgrade  = true
+              maintenance_window          = "Mon:03:00-Mon:04:00"
+
+              # Other configuration parameters
+              instance_class              = "db.t3.micro"
+              allocated_storage           = 20
+              storage_type                = "gp2"
+              username                    = "admin"
+              password                    = "YourSecurePassword123"
+              skip_final_snapshot         = true
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              SecureRDSInstance:
+                Type: "AWS::RDS::DBInstance"
+                Properties:
+                  DBInstanceIdentifier: "secure-rds-instance"
+                  Engine: "mysql"
+                  EngineVersion: "8.0"
+                  AutoMinorVersionUpgrade: true
+                  PreferredMaintenanceWindow: "Mon:03:00-Mon:04:00"
+
+                  # Other configuration parameters
+                  DBInstanceClass: "db.t3.micro"
+                  AllocatedStorage: 20
+                  StorageType: "gp2"
+                  MasterUsername: "admin"
+                  MasterUserPassword: "YourSecurePassword123"
+                  SkipFinalSnapshot: true
+            ```
   - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades-single
     filters: asset.platform == "aws-rds-dbinstance"
     mql: aws.rds.dbinstance.pendingMaintenanceActions == empty
