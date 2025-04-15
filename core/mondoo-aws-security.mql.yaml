@@ -2736,6 +2736,130 @@ queries:
         - **Data Protection:** Helps safeguard sensitive information stored in databases from external threats.
       remediation:
         - id: console
+          desc: |
+            **Using AWS Console:**
+
+            1. Navigate to the AWS RDS Console.
+            2. Select Databases in the left panel.
+            3. Note: Encryption cannot be enabled on an existing unencrypted DB instance. Instead, create a new encrypted instance:
+               - Select Create database.
+               - Configure the database with the same settings as the unencrypted instance.
+               - Under Encryption, enable "Turn on encryption".
+               - Choose an AWS KMS key (default or custom).
+               - Complete the database creation.
+            4. Migrate data from the unencrypted instance to the encrypted one.
+               - For MySQL/MariaDB: Use mysqldump or AWS Database Migration Service.
+               - For PostgreSQL: Use pg_dump/pg_restore or AWS DMS.
+               - For Oracle: Use Oracle Data Pump or AWS DMS.
+               - For SQL Server: Use native backup/restore or AWS DMS.
+            5. Once migration is complete, decommission the unencrypted instance.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
+
+            Create a snapshot of the unencrypted instance:
+
+            ```bash
+            aws rds create-db-snapshot \
+              --db-instance-identifier unencrypted-instance \
+              --db-snapshot-identifier unencrypted-snapshot
+            ```
+
+            Create an encrypted copy of the snapshot:
+
+            ```bash
+            aws rds copy-db-snapshot \
+              --source-db-snapshot-identifier unencrypted-snapshot \
+              --target-db-snapshot-identifier encrypted-snapshot \
+              --kms-key-id arn:aws:kms:region:account-id:key/key-id
+            ```
+
+            Restore a new instance from the encrypted snapshot:
+
+            ```bash
+            aws rds restore-db-instance-from-db-snapshot \
+              --db-instance-identifier new-encrypted-instance \
+              --db-snapshot-identifier encrypted-snapshot
+            ```
+
+            After verification, delete the unencrypted instance:
+
+            ```bash
+            aws rds delete-db-instance \
+              --db-instance-identifier unencrypted-instance \
+              --skip-final-snapshot
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
+
+            ```hcl
+            # Create a KMS key for RDS encryption
+            resource "aws_kms_key" "rds_encryption_key" {
+              description         = "KMS key for RDS encryption"
+              enable_key_rotation = true
+            }
+
+            # Create an encrypted RDS instance
+            resource "aws_db_instance" "encrypted_instance" {
+              identifier           = "encrypted-rds-instance"
+              engine               = "mysql"
+              engine_version       = "8.0"
+              instance_class       = "db.t3.micro"
+              allocated_storage    = 20
+              storage_type         = "gp2"
+              username             = "admin"
+              password             = "YourSecurePassword123"
+
+              # Enable encryption
+              storage_encrypted    = true
+              kms_key_id           = aws_kms_key.rds_encryption_key.arn
+
+              # Other configuration
+              multi_az             = true
+              skip_final_snapshot  = true
+            }
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            ```yaml
+            Resources:
+              RDSEncryptionKey:
+                Type: "AWS::KMS::Key"
+                Properties:
+                  Description: "KMS key for RDS encryption"
+                  EnableKeyRotation: true
+                  KeyPolicy:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Effect: "Allow"
+                        Principal:
+                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+                        Action: "kms:*"
+                        Resource: "*"
+
+              EncryptedRDSInstance:
+                Type: "AWS::RDS::DBInstance"
+                Properties:
+                  DBInstanceIdentifier: "encrypted-rds-instance"
+                  Engine: "mysql"
+                  EngineVersion: "8.0"
+                  DBInstanceClass: "db.t3.micro"
+                  AllocatedStorage: 20
+                  StorageType: "gp2"
+                  MasterUsername: "admin"
+                  MasterUserPassword: "YourSecurePassword123"
+
+                  # Enable encryption
+                  StorageEncrypted: true
+                  KmsKeyId: !Ref RDSEncryptionKey
+
+                  # Other configuration
+                  MultiAZ: true
+                  SkipFinalSnapshot: true
+            ```
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-single
     filters: asset.platform == "aws-rds-dbinstance"
     mql: aws.rds.dbinstance.storageEncrypted == true
