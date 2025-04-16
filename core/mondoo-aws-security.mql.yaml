@@ -1566,44 +1566,15 @@ queries:
 
             ```yaml
             Resources:
-              # Enable default EBS encryption
-              EnableDefaultEbsEncryption:
-                Type: "AWS::EC2::EBSEncryptionByDefault"
+              DefaultEBSEncryption:
+                Type: AWS::EC2::EBSEncryptionByDefault
                 Properties:
-                  EnableEbsEncryptionByDefault: true
+                  Enabled: true
 
-              # Optional: Create a KMS key for EBS encryption
-              EbsEncryptionKey:
-                Type: "AWS::KMS::Key"
+              DefaultEBSKMSKey:
+                Type: AWS::EC2::EBSDefaultKMSKey
                 Properties:
-                  Description: "KMS key for EBS encryption"
-                  EnableKeyRotation: true
-                  KeyPolicy:
-                    Version: "2012-10-17"
-                    Statement:
-                      - Sid: "Enable IAM User Permissions"
-                        Effect: "Allow"
-                        Principal:
-                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
-                        Action: "kms:*"
-                        Resource: "*"
-                      - Sid: "Allow use of the key for EBS"
-                        Effect: "Allow"
-                        Principal:
-                          Service: "ec2.amazonaws.com"
-                        Action:
-                          - "kms:Encrypt"
-                          - "kms:Decrypt"
-                          - "kms:ReEncrypt*"
-                          - "kms:GenerateDataKey*"
-                          - "kms:DescribeKey"
-                        Resource: "*"
-
-              # Set the default KMS key for EBS encryption
-              DefaultEbsEncryptionKey:
-                Type: "AWS::EC2::EBSDefaultKmsKeyId"
-                Properties:
-                  KmsKeyId: !GetAtt EbsEncryptionKey.Arn
+                  KmsKeyId: !GetAtt EBSEncryptionKey.Arn
             ```
     refs:
       - url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default
