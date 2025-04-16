@@ -1672,6 +1672,9 @@ queries:
         title: AWS Documentation - AWS CLI Reference - EC2
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+
+
+
   - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
     title: Ensure EBS volume encryption is enabled by default
     filters: asset.platform == "aws"
@@ -1780,9 +1783,59 @@ queries:
               key_arn = aws_kms_key.ebs_encryption.arn
             }
             ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            CloudFormation can enable EBS encryption by default for your AWS account:
+
+            ```yaml
+            Resources:
+              # Enable default EBS encryption
+              EnableDefaultEbsEncryption:
+                Type: "AWS::EC2::EBSEncryptionByDefault"
+                Properties:
+                  EnableEbsEncryptionByDefault: true
+
+              # Optional: Create a KMS key for EBS encryption
+              EbsEncryptionKey:
+                Type: "AWS::KMS::Key"
+                Properties:
+                  Description: "KMS key for EBS encryption"
+                  EnableKeyRotation: true
+                  KeyPolicy:
+                    Version: "2012-10-17"
+                    Statement:
+                      - Sid: "Enable IAM User Permissions"
+                        Effect: "Allow"
+                        Principal:
+                          AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+                        Action: "kms:*"
+                        Resource: "*"
+                      - Sid: "Allow use of the key for EBS"
+                        Effect: "Allow"
+                        Principal:
+                          Service: "ec2.amazonaws.com"
+                        Action:
+                          - "kms:Encrypt"
+                          - "kms:Decrypt"
+                          - "kms:ReEncrypt*"
+                          - "kms:GenerateDataKey*"
+                          - "kms:DescribeKey"
+                        Resource: "*"
+
+              # Set the default KMS key for EBS encryption
+              DefaultEbsEncryptionKey:
+                Type: "AWS::EC2::EBSDefaultKmsKeyId"
+                Properties:
+                  KmsKeyId: !GetAtt EbsEncryptionKey.Arn
+            ```
     refs:
       - url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default
         title: AWS Documentation - Encryption by default
+
+
+
   - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
     title: Ensure public access to S3 buckets is blocked at the account level
     filters: asset.platform == "aws"
