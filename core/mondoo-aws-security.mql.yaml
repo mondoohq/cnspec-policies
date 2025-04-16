@@ -1924,6 +1924,9 @@ queries:
       terraform.state.resources.where( type == "aws_s3_bucket_public_access_block" ).all( values.block_public_policy == true )
       terraform.state.resources.where( type == "aws_s3_bucket_public_access_block" ).all( values.ignore_public_acls == true )
       terraform.state.resources.where( type == "aws_s3_bucket_public_access_block" ).all( values.restrict_public_buckets == true )
+
+
+
   - uid: mondoo-aws-security-ec2-instance-no-public-ip
     title: Ensure no public IPs are associated with EC2 instances
     impact: 80
@@ -2081,6 +2084,9 @@ queries:
   - uid: mondoo-aws-security-ec2-instance-no-public-ip-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_instance" )
     mql: terraform.state.resources.where( type == "aws_instance" ).none( values.associate_public_ip_address == true )
+
+
+
   - uid: mondoo-aws-security-ec2-imdsv2-check
     title: Ensure EC2 instances use IMDSv2 for metadata access
     impact: 90
@@ -2342,7 +2348,6 @@ queries:
                   SubnetId: !Ref PublicSubnet
                   InternetGatewayExclusionMode: "allow-egress"
             ```
-
   - uid: mondoo-aws-security-vpc-bpa-enabled-single
     filters: asset.platform == "aws-vpc"
     mql: aws.vpc.internetGatewayBlockMode != "off"
@@ -2804,6 +2809,9 @@ queries:
                   FunctionName: !Ref SecureLambdaFunction
                   ReservedConcurrentExecutions: 10
             ```
+
+
+
   - uid: mondoo-aws-security-lambda-function-public-access-prohibited
     title: Ensure the attached policy attached to the lambda function prohibits public access
     impact: 95
@@ -2898,28 +2906,25 @@ queries:
 
             ```yaml
             Resources:
-              SecureLambdaFunction:
-                Type: "AWS::Lambda::Function"
+              SecureFunction:
+                Type: AWS::Lambda::Function
                 Properties:
-                  FunctionName: "secure-function"
-                  Handler: "index.handler"
-                  Runtime: "nodejs18.x"
-                  Role: !GetAtt LambdaExecutionRole.Arn
+                  FunctionName: secure-function
+                  Role: !GetAtt LambdaRole.Arn
+                  Handler: index.handler
+                  Runtime: nodejs18.x
                   Code:
-                    ZipFile: |
-                      exports.handler = async (event) => {
-                        return { statusCode: 200, body: 'Success' };
-                      };
+                    ZipFile: !Ref LambdaZipFile  # Or use S3Bucket/S3Key if stored in S3
 
-              # Permission with proper restrictions (not public)
-              LambdaPermission:
-                Type: "AWS::Lambda::Permission"
+              SecureFunctionPermission:
+                Type: AWS::Lambda::Permission
                 Properties:
-                  Action: "lambda:InvokeFunction"
-                  FunctionName: !Ref SecureLambdaFunction
-                  Principal: "123456789012" # Specific AWS account ID, not "*"
-                  SourceAccount: "123456789012"
-                  SourceArn: !Sub "arn:aws:s3:::example-bucket"
+                  FunctionName: !Ref SecureFunction
+                  Action: lambda:InvokeFunction
+                  Principal: '123456789012'  # Specific AWS account ID, not "*"
+                  SourceAccount: '123456789012'
+                  SourceArn: 'arn:aws:s3:::example-bucket'
+                  StatementId: AllowExecutionFromSpecificAccount
             ```
   - uid: aws-lambda-function-public-access-prohibited-single
     filters: |
