@@ -1411,6 +1411,7 @@ queries:
                 Name = "Restricted Default SG"
               }
             }
+            ```
         - id: cloudformation
           desc: |
             **Using AWS CloudFormation:**
@@ -1419,104 +1420,25 @@ queries:
 
             ```yaml
             Resources:
-              # Custom resource to modify default security group rules
-              EmptyDefaultSecurityGroupRules:
-                Type: "AWS::CloudFormation::CustomResource"
+              DefaultSecurityGroup:
+                Type: AWS::EC2::SecurityGroupIngress
                 Properties:
-                  ServiceToken: !GetAtt EmptyDefaultSGFunction.Arn
-                  VpcId: !Ref VPC
+                  GroupId: !GetAtt MainVPC.DefaultSecurityGroup
+                  # Empty list for no inbound rules
 
-              # VPC for demonstration
-              VPC:
-                Type: "AWS::EC2::VPC"
+              DefaultSecurityGroupEgress:
+                Type: AWS::EC2::SecurityGroupEgress
                 Properties:
-                  CidrBlock: "10.0.0.0/16"
-                  EnableDnsSupport: true
-                  EnableDnsHostnames: true
+                  GroupId: !GetAtt MainVPC.DefaultSecurityGroup
+                  # Empty list for no outbound rules
+
+              DefaultSecurityGroupTagging:
+                Type: AWS::EC2::Tags
+                Properties:
+                  ResourceId: !GetAtt MainVPC.DefaultSecurityGroup
                   Tags:
                     - Key: Name
-                      Value: "TestVPC"
-
-              # Lambda function to empty default security group rules
-              EmptyDefaultSGFunction:
-                Type: "AWS::Lambda::Function"
-                Properties:
-                  Handler: "index.handler"
-                  Role: !GetAtt EmptyDefaultSGRole.Arn
-                  Runtime: "python3.9"
-                  Timeout: 60
-                  Code:
-                    ZipFile: |
-                      import boto3
-                      import cfnresponse
-
-                      def handler(event, context):
-                          responseData = {}
-                          try:
-                              if event['RequestType'] in ['Create', 'Update']:
-                                  ec2 = boto3.client('ec2')
-                                  vpc_id = event['ResourceProperties']['VpcId']
-
-                                  # Get the default security group for the VPC
-                                  response = ec2.describe_security_groups(
-                                      Filters=[
-                                          {'Name': 'vpc-id', 'Values': [vpc_id]},
-                                          {'Name': 'group-name', 'Values': ['default']}
-                                      ]
-                                  )
-
-                                  if not response['SecurityGroups']:
-                                      responseData['Message'] = "Default security group not found for VPC"
-                                      cfnresponse.send(event, context, cfnresponse.FAILED, responseData)
-                                      return
-
-                                  sg_id = response['SecurityGroups'][0]['GroupId']
-
-                                  # Remove all ingress rules
-                                  if response['SecurityGroups'][0]['IpPermissions']:
-                                      ec2.revoke_security_group_ingress(
-                                          GroupId=sg_id,
-                                          IpPermissions=response['SecurityGroups'][0]['IpPermissions']
-                                      )
-
-                                  # Remove all egress rules
-                                  if response['SecurityGroups'][0]['IpPermissionsEgress']:
-                                      ec2.revoke_security_group_egress(
-                                          GroupId=sg_id,
-                                          IpPermissions=response['SecurityGroups'][0]['IpPermissionsEgress']
-                                      )
-
-                                  responseData['Message'] = f"Successfully removed all rules from default security group {sg_id}"
-
-                              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
-                          except Exception as e:
-                              responseData['Error'] = str(e)
-                              cfnresponse.send(event, context, cfnresponse.FAILED, responseData)
-
-              # IAM role for Lambda execution
-              EmptyDefaultSGRole:
-                Type: "AWS::IAM::Role"
-                Properties:
-                  AssumeRolePolicyDocument:
-                    Version: "2012-10-17"
-                    Statement:
-                      - Effect: "Allow"
-                        Principal:
-                          Service: "lambda.amazonaws.com"
-                        Action: "sts:AssumeRole"
-                  ManagedPolicyArns:
-                    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-                  Policies:
-                    - PolicyName: "SecurityGroupAccess"
-                      PolicyDocument:
-                        Version: "2012-10-17"
-                        Statement:
-                          - Effect: "Allow"
-                            Action:
-                              - "ec2:DescribeSecurityGroups"
-                              - "ec2:RevokeSecurityGroupIngress"
-                              - "ec2:RevokeSecurityGroupEgress"
-                            Resource: "*"
+                      Value: Restricted Default SG
             ```
     refs:
       - url: https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html
