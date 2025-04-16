@@ -6651,9 +6651,17 @@ queries:
   - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
     mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 3389 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
+
+
+
   - uid: mondoo-aws-security-secgroup-restrict-traffic
     title: Ensure security groups restrict access to specific IPs and ports
     impact: 90
+    variants:
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-single
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-state
     docs:
       desc: |
         This check ensures that AWS security groups do not allow unrestricted access to all IPs (0.0.0.0/0 or ::/0) on any port. Allowing open access to security groups exposes AWS resources to unauthorized access, increasing the risk of security breaches, brute-force attacks, and data exfiltration.
@@ -6780,11 +6788,6 @@ queries:
                     - Key: "Name"
                       Value: "SecureVPC"
             ```
-    variants:
-      - uid: mondoo-aws-security-secgroup-restrict-traffic-single
-      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-hcl
-      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-plan
-      - uid: mondoo-aws-security-secgroup-restrict-traffic-terraform-state
   - uid: mondoo-aws-security-secgroup-restrict-traffic-single
     filters: asset.platform == "aws-security-group"
     mql: |
