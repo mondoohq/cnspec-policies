@@ -1094,7 +1094,7 @@ queries:
                         Resource: "*"
                         Condition:
                           NumericGreaterThan:
-                            "iam:ActiveAccessKeys": "0"
+                            "iam:ActiveAccessKeys": "1"
             ```
 
 
