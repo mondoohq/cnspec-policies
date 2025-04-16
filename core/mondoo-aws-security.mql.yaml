@@ -358,6 +358,7 @@ queries:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/enable-virt-mfa-for-root.html
         title: Enable a virtual MFA device for the root user (console)
 
+  mql: terraform.resources.where(nameLabel == "aws_iam_policy") { arguments.policy {  Statement { Condition {BoolIfExists {_["aws:MultiFactorAuthPresent"] == false}} } } }
 
 
   - uid: mondoo-aws-security-iam-password-policy
