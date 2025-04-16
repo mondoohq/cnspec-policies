@@ -333,9 +333,6 @@ queries:
         - id: cloudformation
           desc: |
             **Using AWS CloudFormation:**
-
-            AWS does not allow managing root MFA directly through CloudFormation. However, you can create a stack that monitors for root logins without MFA and alerts security teams:
-
             ```yaml
             Resources:
               RequireRootMFAPolicy:
@@ -354,40 +351,6 @@ queries:
                             "aws:MultiFactorAuthPresent": "false"
                         Principal:
                           AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
-
-              # CloudWatch EventBridge rule to monitor for root logins without MFA
-              RootLoginWithoutMFARule:
-                Type: "AWS::Events::Rule"
-                Properties:
-                  Name: "root-login-without-mfa"
-                  Description: "Detects root logins without MFA"
-                  EventPattern:
-                    source:
-                      - "aws.signin"
-                    detail-type:
-                      - "AWS Console Sign In via CloudTrail"
-                    detail:
-                      userIdentity:
-                        type:
-                          - "Root"
-                        additionalEventData:
-                          MFAUsed:
-                            - "No"
-
-              # SNS topic for security alerts
-              SecurityAlertsTopic:
-                Type: "AWS::SNS::Topic"
-                Properties:
-                  DisplayName: "Security Alerts"
-                  TopicName: "security-alerts"
-
-              # Set the SNS topic as the target for the EventBridge rule
-              RuleTarget:
-                Type: "AWS::Events::Target"
-                Properties:
-                  Rule: !Ref RootLoginWithoutMFARule
-                  Arn: !Ref SecurityAlertsTopic
-                  Id: "SendToSNS"
             ```
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/enable-virt-mfa-for-root.html
