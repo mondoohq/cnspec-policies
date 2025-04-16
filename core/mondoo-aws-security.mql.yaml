@@ -431,9 +431,9 @@ queries:
         2. Connect cnspec shell to your AWS environment: `cnspec shell aws`
         3. Run this query:
 
-           ```mql
-           aws.iam.accountPasswordPolicy
-           ```
+          ```mql
+          aws.iam.accountPasswordPolicy
+          ```
 
           Example output:
 
@@ -679,25 +679,21 @@ queries:
             ```yaml
             Resources:
               # IAM policy to enforce key rotation
+            Resources:
               EnforceKeyRotationPolicy:
-                Type: "AWS::IAM::ManagedPolicy"
+                Type: AWS::IAM::ManagedPolicy
                 Properties:
-                  ManagedPolicyName: "EnforceKeyRotation"
-                  Description: "Requires IAM users to rotate access keys every 90 days"
+                  ManagedPolicyName: EnforceKeyRotation
+                  Description: Requires IAM users to rotate access keys every 90 days
                   PolicyDocument:
-                    Version: "2012-10-17"
+                    Version: '2012-10-17'
                     Statement:
-                      - Effect: "Deny"
-                        Action:
-                          - "iam:*"
-                          - "ec2:*"
-                          - "s3:*"
-                          - "dynamodb:*"
-                          - "lambda:*"
-                        Resource: "*"
+                      - Effect: Deny
+                        Action: 'iam:UpdateAccessKey'
+                        Resource: '*'
                         Condition:
                           NumericGreaterThan:
-                            "aws:MultiFactorAuthAge": "7776000" # 90 days in seconds
+                            'aws:MultiFactorAuthAge': 7776000  # 90 days in seconds
             ```
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
