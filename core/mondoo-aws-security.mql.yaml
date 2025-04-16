@@ -6384,6 +6384,9 @@ queries:
   - uid: mondoo-aws-security-secgroup-restricted-ssh-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
     mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 22 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
+
+
+
   - uid: mondoo-aws-security-secgroup-restricted-vnc
     title: Ensure security groups restrict incoming VNC traffic
     impact: 90
@@ -6464,6 +6467,26 @@ queries:
                   cidr_blocks = ["0.0.0.0/0"]  # Allow outbound traffic
                 }
             }
+        - id: cloudformation
+          desc: |
+            **Ensure security groups restrict VNC access to a specific IP range:**
+
+            Resources:
+              RestrictedVNC:
+                Type: AWS::EC2::SecurityGroup
+                Properties:
+                  GroupName: restricted-vnc
+                  GroupDescription: Restricts VNC access
+                  SecurityGroupIngress:
+                    - IpProtocol: tcp
+                      FromPort: 5900
+                      ToPort: 5903
+                      CidrIp: 203.0.113.0/24  # Replace with trusted IP range
+                  SecurityGroupEgress:
+                    - IpProtocol: -1
+                      FromPort: 0
+                      ToPort: 0
+                      CidrIp: 0.0.0.0/0  # Allow all outbound traffic
             ```
     variants:
       - uid: mondoo-aws-security-secgroup-restricted-vnc-single
