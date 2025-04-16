@@ -1443,6 +1443,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html
         title: Managed policies and inline policies
+
+
+
   - uid: mondoo-aws-security-vpc-default-security-group-closed
     title: Ensure the default security group of every VPC restricts all traffic
     filters: asset.platform == "aws-security-group" && aws.ec2.securitygroup.name == "default"
