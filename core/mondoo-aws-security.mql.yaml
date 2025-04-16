@@ -119,11 +119,12 @@ policies:
 queries:
   - uid: mondoo-aws-security-iam-root-access-key-check
     title: Ensure no root user account access key exists
-    filters: asset.platform == "aws"
     impact: 85
-    mql: |
-      aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey1Active == false)
-      aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey2Active == false)
+    variants:
+      - uid: mondoo-aws-security-iam-root-access-key-check-single
+      - uid: mondoo-aws-security-iam-root-access-key-check-terraform-hcl
+      - uid: mondoo-aws-security-iam-root-access-key-check-terraform-plan
+      - uid: mondoo-aws-security-iam-root-access-key-check-terraform-state
     docs:
       desc: |
         This check ensures that the AWS root user account does not have an active access key. The AWS root user has full administrative privileges over the AWS account, making it the most powerful identity in AWS. AWS best practices recommend that root user credentials should never be used for everyday operations, and instead, AWS Identity and Access Management (IAM) users or roles should be utilized for all administrative tasks.
@@ -238,6 +239,25 @@ queries:
         title: AWS Documentation - AWS account root user
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_delete-key.html
         title: AWS Documentation - Delete access keys for the root user
+  - uid: mondoo-aws-security-iam-root-access-key-check-single
+    filters: asset.platform == "aws"
+    mql: |
+      aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey1Active == false)
+      aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey2Active == false)
+
+  - uid: mondoo-aws-security-iam-root-access-key-check-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "xxx" )
+    mql: terraform.resources.where( nameLabel == "xxx" ) { arguments.xxx }
+
+  - uid: mondoo-aws-security-iam-root-access-key-check-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_xxx" )
+    mql: terraform.plan.resourceChanges.where( type == "aws_xxx" ) { change.after.xxx == xxx }
+
+  - uid: mondoo-aws-security-iam-root-access-key-check-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_xxx" )
+    mql: terraform.state.resources.where( type == "aws_xxx" ) { values.xxx == xxx }
+
+
 
 
 
