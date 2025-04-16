@@ -1387,6 +1387,59 @@ queries:
               users = [aws_iam_user.user1.name]
             }
             ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            CloudFormation can enforce that IAM users receive permissions through groups only:
+
+            ```yaml
+            Resources:
+              # Create IAM groups with appropriate permissions
+              ReadOnlyGroup:
+                Type: "AWS::IAM::Group"
+                Properties:
+                  GroupName: "ReadOnlyUsers"
+                  ManagedPolicyArns:
+                    - "arn:aws:iam::aws:policy/ReadOnlyAccess"
+
+              AdminGroup:
+                Type: "AWS::IAM::Group"
+                Properties:
+                  GroupName: "Administrators"
+                  ManagedPolicyArns:
+                    - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+              # Create IAM users without direct policies
+              ReadOnlyUser:
+                Type: "AWS::IAM::User"
+                Properties:
+                  UserName: "readonly-user"
+                  Path: "/"
+                  # No inline policies or managed policies attached directly
+
+              AdminUser:
+                Type: "AWS::IAM::User"
+                Properties:
+                  UserName: "admin-user"
+                  Path: "/"
+                  # No inline policies or managed policies attached directly
+
+              # Add users to the appropriate groups
+              ReadOnlyUserGroupMembership:
+                Type: "AWS::IAM::UserToGroupAddition"
+                Properties:
+                  GroupName: !Ref ReadOnlyGroup
+                  Users:
+                    - !Ref ReadOnlyUser
+
+              AdminUserGroupMembership:
+                Type: "AWS::IAM::UserToGroupAddition"
+                Properties:
+                  GroupName: !Ref AdminGroup
+                  Users:
+                    - !Ref AdminUser
+            ```
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html
         title: Managed policies and inline policies
