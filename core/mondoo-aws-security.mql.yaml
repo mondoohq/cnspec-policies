@@ -5586,6 +5586,11 @@ queries:
     title: Ensure rotation for customer-managed keys (CMKs) is enabled
     impact: 80
     filters: asset.platform == "aws"
+    mql: |
+      aws.kms.keys
+        .where(metadata.KeyState == "Enabled")
+        .where(metadata.KeySpec == "SYMMETRIC_DEFAULT")
+        .all(keyRotationEnabled == true)
     docs:
       desc: |
         This check ensures that AWS Key Management Service (KMS) customer-managed keys (CMKs) have automatic key rotation enabled. Enabling key rotation ensures that cryptographic keys are periodically refreshed, reducing the risk of long-term key compromise and enhancing overall security.
@@ -5660,11 +5665,9 @@ queries:
                   Description: "Customer-managed KMS key with automatic rotation"
                   EnableKeyRotation: true
             ```
-    mql: |
-      aws.kms.keys
-        .where(metadata.KeyState == "Enabled")
-        .where(metadata.KeySpec == "SYMMETRIC_DEFAULT")
-        .all(keyRotationEnabled == true)
+
+
+
   - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured
     title: Ensure SageMaker notebook instances are configured to use KMS
     impact: 50
