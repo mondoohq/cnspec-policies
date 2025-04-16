@@ -1948,9 +1948,17 @@ queries:
         title: Blocking public access to your Amazon S3 storage
       - url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/configuring-block-public-access-account.html
         title: Configuring block public access settings for your account
+
+
+
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited
     title: Ensure Amazon S3 buckets have public access restrictions enforced
     impact: 100
+    variants:
+      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
+      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-terraform-hcl
+      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-terraform-plan
+      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-terraform-state
     docs:
       desc: |
         This check ensures that each Amazon S3 bucket has public access restrictions enforced to prevent unauthorized exposure of sensitive data. While account-level public access block settings provide a broad safeguard, bucket-level controls ensure that no individual bucket is unintentionally exposed due to misconfigurations in bucket policies, ACLs, or object permissions.
@@ -2109,11 +2117,6 @@ queries:
         title: AWS CLI Command Reference - aws s3api put-public-access-block
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block
         title: Terraform Documentation - AWS Provider - aws_s3_bucket_public_access_block
-    variants:
-      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
-      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-terraform-hcl
-      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-terraform-plan
-      - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-terraform-state
   - uid: mondoo-aws-security-s3-bucket-level-public-access-prohibited-bucket
     filters: asset.platform == "aws-s3-bucket"
     mql: |
