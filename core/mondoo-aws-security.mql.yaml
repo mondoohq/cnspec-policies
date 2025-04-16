@@ -6509,9 +6509,17 @@ queries:
   - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_security_group")
     mql: terraform.state.resources.where( type == "aws_security_group" && values.ingress.contains( to_port == 5900 ) ).none( values.ingress[0].cidr_blocks.contains("0.0.0.0/0") || values.ingress[0].cidr_blocks.contains("::/0"))
+
+
+
   - uid: mondoo-aws-security-secgroup-restricted-rdp
     title: Ensure security groups restrict incoming RDP traffic
     impact: 90
+    variants:
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-single
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-state
     docs:
       desc: |
         This check ensures that AWS security groups are not configured to allow unrestricted inbound Remote Desktop Protocol (RDP) traffic, which operates on port 3389. Allowing unrestricted RDP access (0.0.0.0/0 or ::/0) significantly increases the risk of brute-force attacks, unauthorized remote access, and exploitation by malicious actors.
@@ -6627,11 +6635,6 @@ queries:
                     - Key: "Name"
                       Value: "SecureVPC"
             ```
-    variants:
-      - uid: mondoo-aws-security-secgroup-restricted-rdp-single
-      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-hcl
-      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-plan
-      - uid: mondoo-aws-security-secgroup-restricted-rdp-terraform-state
   - uid: mondoo-aws-security-secgroup-restricted-rdp-single
     filters: asset.platform == "aws-security-group"
     mql: |
