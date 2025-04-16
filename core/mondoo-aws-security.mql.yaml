@@ -3565,9 +3565,6 @@ queries:
 
 
 
-
-
-
   - uid: mondoo-aws-security-rds-cluster-public-access-check
     title: Ensure all RDS clusters are not publicly accessible
     impact: 100
@@ -3752,6 +3749,7 @@ queries:
           routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
         )
       )
+
 
 
   - uid: mondoo-aws-security-rds-instance-public-access-check
@@ -4215,6 +4213,9 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-deleting-volume.html
         title: AWS Documentation - Delete an Amazon EBS volume
+
+
+
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
     title: Ensure EBS snapshots are not publicly restorable
     filters: asset.platform == "aws-ebs-snapshot"
@@ -4305,6 +4306,9 @@ queries:
                   Size: 20
                   AvailabilityZone: "us-east-1a"
             ```
+
+
+
   - uid: mondoo-aws-security-ebs-snapshot-encrypted
     title: Ensure EBS Snapshots are configured to be encrypted at-rest
     impact: 70
