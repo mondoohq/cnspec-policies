@@ -1925,6 +1925,24 @@ queries:
               restrict_public_buckets = true
             }
             ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            CloudFormation can enable S3 Block Public Access at the account level:
+
+            ```yaml
+            Resources:
+              # Enable S3 Block Public Access at the account level
+                S3AccountPublicAccessBlock:
+                Type: AWS::S3::AccountPublicAccessBlock
+                Properties:
+                  BlockPublicAcls: true
+                  IgnorePublicAcls: true
+                  BlockPublicPolicy: true
+                  RestrictPublicBuckets: true
+            ```
+
     refs:
       - url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
         title: Blocking public access to your Amazon S3 storage
