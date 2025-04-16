@@ -6390,6 +6390,11 @@ queries:
   - uid: mondoo-aws-security-secgroup-restricted-vnc
     title: Ensure security groups restrict incoming VNC traffic
     impact: 90
+    variants:
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-single
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-hcl
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-plan
+      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-state
     docs:
       desc: |
         This check ensures that AWS security groups do not allow unrestricted incoming Virtual Network Computing (VNC) traffic, which operates on ports 5900-5903. Allowing unrestricted VNC access (0.0.0.0/0 or ::/0) exposes instances to unauthorized access attempts, brute-force attacks, and remote exploitation.
@@ -6488,11 +6493,6 @@ queries:
                       ToPort: 0
                       CidrIp: 0.0.0.0/0  # Allow all outbound traffic
             ```
-    variants:
-      - uid: mondoo-aws-security-secgroup-restricted-vnc-single
-      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-hcl
-      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-plan
-      - uid: mondoo-aws-security-secgroup-restricted-vnc-terraform-state
   - uid: mondoo-aws-security-secgroup-restricted-vnc-single
     filters: asset.platform == "aws-security-group"
     mql: |
