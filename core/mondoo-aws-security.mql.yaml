@@ -4884,6 +4884,8 @@ queries:
                   EnableKeyRotation: true
             ```
 
+
+
   - uid: mondoo-aws-security-elb-security-policy-enabled
     title: Ensure Application Load Balancers have configured with a secure TLS security policy
     impact: 70
@@ -5470,7 +5472,7 @@ queries:
                     - Key: "deletion_protection.enabled"
                       Value: "true"
             ```
-  - uid: mondoo-aws-security-elb-deletion-protection-enabled
+  - uid: mondoo-aws-security-elb-deletion-protection-enabled-single
     filters: asset.platform == "aws-elb-loadbalancer"
     mql: |
       aws.elb.loadbalancer.attributes.any(Key == "deletion_protection.enabled")
