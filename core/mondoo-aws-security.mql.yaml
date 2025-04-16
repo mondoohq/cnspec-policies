@@ -180,15 +180,6 @@ queries:
             AWS does not allow direct management of the root user's access key via Terraform. However, you should enforce IAM policies that prevent the creation of root access keys:
 
             ```hcl
-            resource "aws_iam_account_password_policy" "secure_policy" {
-              minimum_password_length        = 14
-              require_uppercase_characters   = true
-              require_lowercase_characters   = true
-              require_numbers                = true
-              require_symbols                = true
-              allow_users_to_change_password = true
-            }
-
             resource "aws_iam_policy" "deny_root_access_keys" {
               name        = "DenyRootAccessKeys"
               description = "Prevents creation of root user access keys"
@@ -211,16 +202,6 @@ queries:
             AWS does not allow direct management of the root user's access keys via CloudFormation. However, you can create a stack that implements preventative controls:
             ```yaml
             Resources:
-              SecurePasswordPolicy:
-                Type: AWS::IAM::AccountPasswordPolicy
-                Properties:
-                  MinimumPasswordLength: 14
-                  RequireUppercaseCharacters: true
-                  RequireLowercaseCharacters: true
-                  RequireNumbers: true
-                  RequireSymbols: true
-                  AllowUsersToChangePassword: true
-
               DenyRootAccessKeysPolicy:
                 Type: AWS::IAM::ManagedPolicy
                 Properties:
@@ -247,7 +228,8 @@ queries:
 
   - uid: mondoo-aws-security-iam-root-access-key-check-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "xxx" )
-    mql: terraform.resources.where( nameLabel == "xxx" ) { arguments.xxx }
+    mql: |
+      terraform.resources.where(nameLabel == "aws_iam_policy").any(arguments.policy.any(Statement {Effect == "Deny" && Action == "iam:CreateAccessKey"} ) )
 
   - uid: mondoo-aws-security-iam-root-access-key-check-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_xxx" )
