@@ -5692,6 +5692,7 @@ queries:
     title: Ensure Amazon OpenSearch Service domains are configured with encryption-at-rest
     impact: 70
     filters: asset.platform == "aws"
+    mql: aws.es.domains.all(encryptionAtRestEnabled == true)
     docs:
       desc: |
         This check ensures that Amazon OpenSearch Service domains are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption at rest protects sensitive search and analytics data from unauthorized access, ensuring that stored data is automatically encrypted before being written to disk.
@@ -5786,7 +5787,9 @@ queries:
                   Description: "KMS key for OpenSearch encryption"
                   EnableKeyRotation: true
             ```
-    mql: aws.es.domains.all(encryptionAtRestEnabled == true)
+
+
+
   - uid: mondoo-aws-security-rotation-customer-created-cmks-enabled
     title: Ensure rotation for customer-managed keys (CMKs) is enabled
     impact: 80
