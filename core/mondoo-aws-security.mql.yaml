@@ -797,86 +797,24 @@ queries:
 
             ```yaml
             Resources:
-              # IAM policy to enforce MFA
               EnforceMFAPolicy:
-                Type: "AWS::IAM::ManagedPolicy"
+                Type: AWS::IAM::ManagedPolicy
                 Properties:
-                  ManagedPolicyName: "EnforceMFA"
-                  Description: "Require MFA for all IAM users with console access"
+                  ManagedPolicyName: EnforceMFA
+                  Description: Require MFA for all IAM users with console access
                   PolicyDocument:
-                    Version: "2012-10-17"
+                    Version: '2012-10-17'
                     Statement:
-                      - Sid: "AllowViewAccountInfo"
-                        Effect: "Allow"
+                      - Effect: Deny
                         Action:
-                          - "iam:GetAccountPasswordPolicy"
-                          - "iam:GetAccountSummary"
-                          - "iam:ListVirtualMFADevices"
-                        Resource: "*"
-
-                      - Sid: "AllowManageOwnPasswords"
-                        Effect: "Allow"
-                        Action:
-                          - "iam:ChangePassword"
-                          - "iam:GetUser"
-                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
-
-                      - Sid: "AllowManageOwnAccessKeys"
-                        Effect: "Allow"
-                        Action:
-                          - "iam:CreateAccessKey"
-                          - "iam:DeleteAccessKey"
-                          - "iam:ListAccessKeys"
-                          - "iam:UpdateAccessKey"
-                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
-
-                      - Sid: "AllowManageOwnSigningCertificates"
-                        Effect: "Allow"
-                        Action:
-                          - "iam:DeleteSigningCertificate"
-                          - "iam:ListSigningCertificates"
-                          - "iam:UpdateSigningCertificate"
-                          - "iam:UploadSigningCertificate"
-                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
-
-                      - Sid: "AllowManageOwnMFA"
-                        Effect: "Allow"
-                        Action:
-                          - "iam:DeactivateMFADevice"
-                          - "iam:EnableMFADevice"
-                          - "iam:ListMFADevices"
-                          - "iam:ResyncMFADevice"
-                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/${aws:username}"
-
-                      - Sid: "AllowManageOwnVirtualMFADevice"
-                        Effect: "Allow"
-                        Action:
-                          - "iam:CreateVirtualMFADevice"
-                          - "iam:DeleteVirtualMFADevice"
-                        Resource: !Sub "arn:aws:iam::${AWS::AccountId}:mfa/${aws:username}"
-
-                      - Sid: "DenyAllExceptListedIfNoMFA"
-                        Effect: "Deny"
-                        NotAction:
-                          - "iam:CreateVirtualMFADevice"
-                          - "iam:EnableMFADevice"
-                          - "iam:GetUser"
-                          - "iam:ListMFADevices"
-                          - "iam:ListVirtualMFADevices"
-                          - "iam:ResyncMFADevice"
-                          - "sts:GetSessionToken"
-                        Resource: "*"
+                          - 'ec2:*'
+                          - 's3:*'
+                          - 'iam:*'
+                          - 'lambda:*'
+                        Resource: '*'
                         Condition:
-                          BoolIfExists:
-                            "aws:MultiFactorAuthPresent": "false"
-
-              # IAM group for all users
-              AllUsersGroup:
-                Type: "AWS::IAM::Group"
-                Properties:
-                  GroupName: "all-users"
-                  ManagedPolicyArns:
-                    - !Ref EnforceMFAPolicy
+                          Bool:
+                            'aws:MultiFactorAuthPresent': 'false'
 
             ```
     refs:
