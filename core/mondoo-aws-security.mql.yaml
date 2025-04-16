@@ -1084,6 +1084,38 @@ queries:
               users = [aws_iam_user.user1.name]
             }
             ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
+
+            CloudFormation can manage IAM groups and group memberships. To ensure IAM groups have at least one user:
+
+            ```yaml
+            Resources:
+              # Create an IAM group
+              AdminGroup:
+                Type: "AWS::IAM::Group"
+                Properties:
+                  GroupName: "Administrators"
+                  Path: "/"
+                  ManagedPolicyArns:
+                    - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+              # Create an IAM user
+              AdminUser:
+                Type: "AWS::IAM::User"
+                Properties:
+                  UserName: "admin-user"
+                  Path: "/"
+
+              # Add user to the group
+              GroupMembership:
+                Type: "AWS::IAM::UserToGroupAddition"
+                Properties:
+                  GroupName: !Ref AdminGroup
+                  Users:
+                    - !Ref AdminUser
+            ```
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html
         title: AWS Documentation - IAM user groups
@@ -1211,6 +1243,9 @@ queries:
                           NumericGreaterThan:
                             "iam:ActiveAccessKeys": "0"
             ```
+
+
+
   - uid: mondoo-aws-security-iam-user-no-inline-policies-check
     title: Ensure IAM users receive permissions only through groups
     filters: asset.platform == "aws-iam-user"
