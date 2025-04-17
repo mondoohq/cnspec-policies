@@ -398,7 +398,6 @@ queries:
 
   - uid: mondoo-aws-security-iam-password-policy
     title: Ensure strong account password policy requirements are used
-    filters: asset.platform == "aws"
     impact: 60
     props:
       - uid: mondooAWSSecurityIamPasswordPolicyMaxPasswordAge
@@ -422,23 +421,11 @@ queries:
       - uid: mondooAWSSecurityIamPasswordPolicyRequireUppercaseCharacters
         title: Denotes whether uppercase characters are required for passwords
         mql: "true"
-    mql: |
-      // Ensure properties do exist.
-      aws.iam.accountPasswordPolicy.RequireUppercaseCharacters != empty
-      aws.iam.accountPasswordPolicy.RequireLowercaseCharacters != empty
-      aws.iam.accountPasswordPolicy.RequireSymbols != empty
-      aws.iam.accountPasswordPolicy.RequireNumbers != empty
-      aws.iam.accountPasswordPolicy.MinimumPasswordLength != empty
-      aws.iam.accountPasswordPolicy.PasswordReusePrevention != empty
-      aws.iam.accountPasswordPolicy.MaxPasswordAge != empty
-      // Validate each policy setting against props
-      aws.iam.accountPasswordPolicy.where(RequireUppercaseCharacters != empty).all(RequireUppercaseCharacters == props.mondooAWSSecurityIamPasswordPolicyRequireUppercaseCharacters)
-      aws.iam.accountPasswordPolicy.where(RequireLowercaseCharacters != empty).all(RequireLowercaseCharacters == props.mondooAWSSecurityIamPasswordPolicyRequireLowercaseCharacters)
-      aws.iam.accountPasswordPolicy.where(RequireSymbols != empty).all(RequireSymbols == props.mondooAWSSecurityIamPasswordPolicyRequireSymbols)
-      aws.iam.accountPasswordPolicy.where(RequireNumbers != empty).all(RequireNumbers == props.mondooAWSSecurityIamPasswordPolicyRequireNumbers)
-      aws.iam.accountPasswordPolicy.where(MinimumPasswordLength != empty).all(MinimumPasswordLength >= props.mondooAWSSecurityIamPasswordPolicyMinimumPasswordLength)
-      aws.iam.accountPasswordPolicy.where(PasswordReusePrevention != empty).all(PasswordReusePrevention >= props.mondooAWSSecurityIamPasswordPolicyPasswordReusePrevention)
-      aws.iam.accountPasswordPolicy.where(MaxPasswordAge != empty).all(MaxPasswordAge <= props.mondooAWSSecurityIamPasswordPolicyMaxPasswordAge)
+    variants:
+      - uid: mondoo-aws-security-iam-password-policy-single
+      - uid: mondoo-aws-security-iam-password-policy-terraform-hcl
+      - uid: mondoo-aws-security-iam-password-policy-terraform-plan
+      - uid: mondoo-aws-security-iam-password-policy-terraform-state
     docs:
       desc: |
         This check ensures that AWS accounts enforce a strong IAM password policy to enhance security by preventing weak or easily guessable passwords. A well-defined password policy helps protect against brute-force attacks, credential stuffing, and unauthorized access.
@@ -572,6 +559,64 @@ queries:
         title: User passwords in AWS
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html
         title: Set an account password policy for IAM users
+  - uid: mondoo-aws-security-iam-password-policy-single
+    filters: asset.platform == "aws"
+    mql: |
+      // Ensure properties do exist.
+      aws.iam.accountPasswordPolicy.RequireUppercaseCharacters != empty
+      aws.iam.accountPasswordPolicy.RequireLowercaseCharacters != empty
+      aws.iam.accountPasswordPolicy.RequireSymbols != empty
+      aws.iam.accountPasswordPolicy.RequireNumbers != empty
+      aws.iam.accountPasswordPolicy.MinimumPasswordLength != empty
+      aws.iam.accountPasswordPolicy.PasswordReusePrevention != empty
+      aws.iam.accountPasswordPolicy.MaxPasswordAge != empty
+      // Validate each policy setting against props
+      aws.iam.accountPasswordPolicy.where(RequireUppercaseCharacters != empty).all(RequireUppercaseCharacters == props.mondooAWSSecurityIamPasswordPolicyRequireUppercaseCharacters)
+      aws.iam.accountPasswordPolicy.where(RequireLowercaseCharacters != empty).all(RequireLowercaseCharacters == props.mondooAWSSecurityIamPasswordPolicyRequireLowercaseCharacters)
+      aws.iam.accountPasswordPolicy.where(RequireSymbols != empty).all(RequireSymbols == props.mondooAWSSecurityIamPasswordPolicyRequireSymbols)
+      aws.iam.accountPasswordPolicy.where(RequireNumbers != empty).all(RequireNumbers == props.mondooAWSSecurityIamPasswordPolicyRequireNumbers)
+      aws.iam.accountPasswordPolicy.where(MinimumPasswordLength != empty).all(MinimumPasswordLength >= props.mondooAWSSecurityIamPasswordPolicyMinimumPasswordLength)
+      aws.iam.accountPasswordPolicy.where(PasswordReusePrevention != empty).all(PasswordReusePrevention >= props.mondooAWSSecurityIamPasswordPolicyPasswordReusePrevention)
+      aws.iam.accountPasswordPolicy.where(MaxPasswordAge != empty).all(MaxPasswordAge <= props.mondooAWSSecurityIamPasswordPolicyMaxPasswordAge)
+  - uid: mondoo-aws-security-iam-password-policy-terraform-hcl
+    filters: asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == "aws_iam_account_password_policy") {
+        arguments.minimum_password_length >= props.mondooAWSSecurityIamPasswordPolicyMinimumPasswordLength
+        arguments.require_uppercase_characters == true
+        arguments.require_lowercase_characters == true
+        arguments.require_numbers == true
+        arguments.require_symbols == true
+        arguments.max_password_age <= props.mondooAWSSecurityIamPasswordPolicyMaxPasswordAge
+        arguments.password_reuse_prevention >= props.mondooAWSSecurityIamPasswordPolicyPasswordReusePrevention
+        arguments.allow_users_to_change_password == true
+      }
+  - uid: mondoo-aws-security-iam-password-policy-terraform-plan
+    filters: asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_iam_account_password_policy") {
+        change.after.minimum_password_length >= props.mondooAWSSecurityIamPasswordPolicyMinimumPasswordLength
+        change.after.require_uppercase_characters == true
+        change.after.require_lowercase_characters == true
+        change.after.require_numbers == true
+        change.after.require_symbols == true
+        change.after.max_password_age <= props.mondooAWSSecurityIamPasswordPolicyMaxPasswordAge
+        change.after.password_reuse_prevention >= props.mondooAWSSecurityIamPasswordPolicyPasswordReusePrevention
+        change.after.allow_users_to_change_password == true
+      }
+  - uid: mondoo-aws-security-iam-password-policy-terraform-state
+    filters: asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == "aws_iam_account_password_policy") {
+        values.minimum_password_length >= props.mondooAWSSecurityIamPasswordPolicyMinimumPasswordLength
+        values.require_uppercase_characters == true
+        values.require_lowercase_characters == true
+        values.require_numbers == true
+        values.require_symbols == true
+        values.max_password_age <= props.mondooAWSSecurityIamPasswordPolicyMaxPasswordAge
+        values.password_reuse_prevention >= props.mondooAWSSecurityIamPasswordPolicyPasswordReusePrevention
+        values.allow_users_to_change_password == true
+      }
 
 
 
