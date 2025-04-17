@@ -387,7 +387,12 @@ queries:
       policyPlan.contains('aws:MultiFactorAuthPresent') && policyPlan.contains('false')
   - uid: mondoo-aws-security-root-account-mfa-enabled-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_xxx" )
-    mql: terraform.state.resources.where( type == "aws_xxx" ) { values.xxx == xxx }
+    mql: |
+      policyState = terraform.state.resources.where(type == "aws_iam_policy").map(values.policy).first
+      policyState.contains('Action') && policyState.contains('sts:AssumeRole')
+      policyState.contains('Effect') && policyState.contains('Deny')
+      policyState.contains('Resource') && policyState.contains('"*"')
+      policyState.contains('aws:MultiFactorAuthPresent') && policyState.contains('false')
 
 
 
