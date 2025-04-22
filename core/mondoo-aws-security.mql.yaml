@@ -78,6 +78,7 @@ policies:
           - uid: mondoo-aws-security-rds-cluster-public-access-check
           - uid: mondoo-aws-security-rds-cluster-encryption-at-rest
           - uid: mondoo-aws-security-rds-cluster-no-pending-os-upgrades
+          - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl
       - title: AWS Redshift Cluster
         checks:
           - uid: mondoo-aws-security-redshift-cluster-public-access-check
@@ -3297,6 +3298,207 @@ queries:
   - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_db_instance" )
     mql: terraform.state.resources.where( type == "aws_db_instance" ).all( values.storage_encrypted == true )
+
+
+
+  - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl
+    title: Ensure that encryption in transit is enabled for all RDS Clusters via cluster parameter groups
+    impact: 90
+    variants:
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-single
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-hcl
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-plan
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-state
+    docs:
+      desc: |
+        # Ensure that encryption in transit is enabled for all RDS Clusters via a cluster parameter group
+
+        This check ensures that Amazon RDS database clusters have encryption in transit enforced through the appropriate cluster parameter group settings. Specifically, this verifies that the parameter`ssl` is set to "1" which mandates TLS/SSL connections for all database communications, preventing any unencrypted connections to the instances of the cluster.
+
+        **Rationale:**
+
+        Without proper parameter group configuration enforcing encryption in transit:
+
+        - Database administrators or applications may be able to establish unencrypted connections to the cluster, even if TLS is available.
+        - There is no uniform enforcement of secure connections across all instances in the cluster, potentially creating security inconsistencies.
+        - Compliance frameworks such as PCI DSS, HIPAA, GDPR, and SOC 2 requirements for mandatory encryption of data in transit may not be satisfied.
+
+        Using cluster parameter groups to enforce encryption provides a centralized and consistent approach to securing all instances within the cluster. Unlike instance-level or application-level settings, parameter groups ensure that secure connection requirements cannot be bypassed or misconfigured on individual instances.
+
+        **Risk mitigation:**
+
+        - **Consistent Security Policy:** Ensures uniform encryption requirements across all instances in the cluster.
+        - **Prevent Configuration Drift:** Eliminates the risk of individual instances having different security settings.
+        - **Compliance Enforcement:** Provides an auditable mechanism to demonstrate mandatory encryption for all database connections.
+
+        **Note:**
+
+        In general cluster parameter groups can be overriden by instance parameter groups, but there is no equivalent setting on instance group level to `ssl`.
+      # Completed Remediation for RDS Cluster Parameter Group SSL
+    remediation:
+      - id: console
+        desc: |
+          **Using AWS Console:**
+
+          1. Navigate to the AWS RDS Console.
+          2. In the left navigation panel, select Parameter groups.
+          3. Identify the cluster parameter group associated with your RDS cluster.
+          4. Select the parameter group and choose Edit parameters.
+          5. In the parameter search field, search for "ssl".
+          6. Change the value of the ssl parameter from "0" to "1" to enforce SSL connections.
+          7. Select Save changes to apply the modified parameter.
+          8. If this is a new parameter group, you need to associate it with your RDS cluster:
+             - Navigate to Databases in the left panel.
+             - Select your RDS cluster.
+             - Select Modify.
+             - Under Additional configuration, select the parameter group with SSL enabled.
+             - Select Continue and Apply immediately to apply the changes.
+          9. After applying the changes, monitor the cluster status until it shows "Available" again.
+          10. Note that the cluster may require a reboot to apply the parameter change.
+      - id: cli
+        desc: |
+          **Using AWS CLI:**
+
+          First, check if the cluster parameter group has SSL enabled:
+
+          ```bash
+          aws rds describe-db-cluster-parameters \
+            --db-cluster-parameter-group-name <parameter-group-name> \
+            --query "Parameters[?ParameterName=='ssl']"
+          ```
+
+          If SSL is not enabled (value is "0"), create a modified parameter group:
+
+          ```bash
+          # First, create a new parameter group (if needed)
+          aws rds create-db-cluster-parameter-group \
+            --db-cluster-parameter-group-name secure-cluster-params \
+            --db-parameter-group-family aurora-mysql5.7 \
+            --description "Cluster parameter group with SSL enabled"
+
+          # Modify the SSL parameter to enforce SSL connections
+          aws rds modify-db-cluster-parameter-group \
+            --db-cluster-parameter-group-name secure-cluster-params \
+            --parameters "ParameterName=ssl,ParameterValue=1,ApplyMethod=immediate"
+          ```
+
+          Apply the parameter group to your RDS cluster:
+
+          ```bash
+          aws rds modify-db-cluster \
+            --db-cluster-identifier <cluster-identifier> \
+            --db-cluster-parameter-group-name secure-cluster-params \
+            --apply-immediately
+          ```
+
+          Verify the parameter group is associated and the SSL parameter is set correctly:
+
+          ```bash
+          aws rds describe-db-clusters \
+            --db-cluster-identifier <cluster-identifier> \
+            --query "DBClusters[*].DBClusterParameterGroup"
+
+          aws rds describe-db-cluster-parameters \
+            --db-cluster-parameter-group-name secure-cluster-params \
+            --query "Parameters[?ParameterName=='ssl']"
+          ```
+      - id: terraform
+        desc: |
+          **Using Terraform:**
+
+          ```hcl
+          # Create a cluster parameter group with SSL enabled
+          resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
+            name        = "secure-cluster-params"
+            family      = "aurora-mysql5.7"
+            description = "Cluster parameter group with SSL enabled"
+
+            parameter {
+              name  = "ssl"
+              value = "1"
+            }
+          }
+
+          # Create or update an RDS cluster to use the secure parameter group
+          resource "aws_rds_cluster" "secure_cluster" {
+            cluster_identifier      = "secure-aurora-cluster"
+            engine                  = "aurora-mysql"
+            engine_version          = "5.7.mysql_aurora.2.10.2"
+            db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.secure_cluster_params.name
+
+            # Other required configurations
+            master_username         = "admin"
+            master_password         = "YourSecurePassword123"
+            backup_retention_period = 7
+            preferred_backup_window = "07:00-09:00"
+
+            # For existing clusters, ensure apply_immediately is set correctly for your use case
+            apply_immediately       = true
+          }
+
+          # Create cluster instances with the appropriate instance parameter group
+          resource "aws_rds_cluster_instance" "cluster_instances" {
+            count                = 2
+            identifier           = "secure-aurora-cluster-${count.index}"
+            cluster_identifier   = aws_rds_cluster.secure_cluster.id
+            instance_class       = "db.r5.large"
+            engine               = aws_rds_cluster.secure_cluster.engine
+            engine_version       = aws_rds_cluster.secure_cluster.engine_version
+          }
+          ```
+      - id: cloudformation
+        desc: |
+          **Using AWS CloudFormation:**
+
+          ```yaml
+          Resources:
+            # Create a cluster parameter group with SSL enabled
+            SecureClusterParameterGroup:
+              Type: "AWS::RDS::DBClusterParameterGroup"
+              Properties:
+                Description: "Cluster parameter group with SSL enabled"
+                Family: "aurora-mysql5.7"
+                Parameters:
+                  ssl: "1"
+                Tags:
+                  - Key: "Name"
+                    Value: "secure-cluster-params"
+
+            # Create or update an RDS cluster to use the secure parameter group
+            SecureRDSCluster:
+              Type: "AWS::RDS::DBCluster"
+              Properties:
+                DBClusterIdentifier: "secure-aurora-cluster"
+                Engine: "aurora-mysql"
+                EngineVersion: "5.7.mysql_aurora.2.10.2"
+                DBClusterParameterGroupName: !Ref SecureClusterParameterGroup
+                MasterUsername: "admin"
+                MasterUserPassword: "YourSecurePassword123"
+                BackupRetentionPeriod: 7
+                PreferredBackupWindow: "07:00-09:00"
+                # For existing clusters, consider whether to apply changes immediately
+                ApplyImmediately: true
+
+            # Create cluster instances
+            ClusterInstance1:
+              Type: "AWS::RDS::DBInstance"
+              Properties:
+                DBClusterIdentifier: !Ref SecureRDSCluster
+                DBInstanceIdentifier: "secure-aurora-cluster-0"
+                DBInstanceClass: "db.r5.large"
+                Engine: "aurora-mysql"
+                EngineVersion: !GetAtt SecureRDSCluster.EngineVersion
+
+            ClusterInstance2:
+              Type: "AWS::RDS::DBInstance"
+              Properties:
+                DBClusterIdentifier: !Ref SecureRDSCluster
+                DBInstanceIdentifier: "secure-aurora-cluster-1"
+                DBInstanceClass: "db.r5.large"
+                Engine: "aurora-mysql"
+                EngineVersion: !GetAtt SecureRDSCluster.EngineVersion
+          ```
+
 
 
 
