@@ -3510,11 +3510,21 @@ queries:
 
 
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-hcl
-    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_db_instance")
-    mql: terraform.resources.where(nameLabel == "aws_db_instance").all(arguments['storage_encrypted'] == true)
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster_parameter_group")
+    mql: |
+      awsRdsClusterParameterGroupsMySql = terraform.resources.where(nameLabel == "aws_rds_cluster_parameter_group" && arguments.family == /mysql/)
+      awsRdsClusterParameterGroupsPostgresql = terraform.resources.where(nameLabel == "aws_rds_cluster_parameter_group" && arguments.family == /postgres/)
+
+      awsRdsClusterParameterGroupsMySql.all(blocks.any(attributes {_['name']['value'] == "require_secure_transport" && _['value']['value'] == "ON" }  ) )
+      awsRdsClusterParameterGroupsPostgresql.all(blocks.any(attributes {_['name']['value'] == "ssl" && _['value']['value'] == 1 }  ) )
+
+
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-plan
-    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_db_instance")
-    mql: terraform.plan.resourceChanges.where(type == "aws_db_instance")
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster_parameter_group")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_rds_cluster_parameter_group") {change.after.parameter.where(name == 'ssl') {value == 1} }
+      terraform.plan.resourceChanges.where(type == "aws_rds_cluster_parameter_group") {change.after.parameter.where(name == 'require_secure_transport') {value == "ON"} }
+
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-state
     filters: asset.platform == "terraform-state"
     mql: terraform.state.resources.where( type == "aws_db_cluster" ).all( x )
