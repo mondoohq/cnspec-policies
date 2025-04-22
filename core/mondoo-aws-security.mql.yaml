@@ -226,17 +226,17 @@ queries:
       aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey1Active == false)
       aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey2Active == false)
   - uid: mondoo-aws-security-iam-root-access-key-check-terraform-hcl
-    filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "xxx" )
+    filters: asset.platform == "terraform-hcl"
     mql: |
       terraform.resources.where(nameLabel == "aws_iam_policy").any(arguments.policy.any(Statement {Effect == "Deny" && Action == "iam:CreateAccessKey"} ) )
   - uid: mondoo-aws-security-iam-root-access-key-check-terraform-plan
-    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains( type == "aws_xxx" )
+    filters: asset.platform == "terraform-plan"
     mql: |
       policyPlan = terraform.plan.resourceChanges.where(type == "aws_iam_policy").map(change.after.policy).first
       policyPlan.contains('Action') && policyPlan.contains('iam:CreateAccessKey')
       policyPlan.contains('Effect') && policyPlan.contains('Deny')
   - uid: mondoo-aws-security-iam-root-access-key-check-terraform-state
-    filters: asset.platform == "terraform-state" && terraform.state.resources.contains( type == "aws_xxx" )
+    filters: asset.platform == "terraform-state"
     mql: |
       policyState = terraform.state.resources.where(type == "aws_iam_policy").map(values.policy).first
       policyState.contains('Action') && policyState.contains('iam:CreateAccessKey')
