@@ -3498,7 +3498,26 @@ queries:
                 Engine: "aurora-mysql"
                 EngineVersion: !GetAtt SecureRDSCluster.EngineVersion
           ```
+  - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-single
+    filters: asset.platform == "aws-rds-dbcluster"
+    mql: |
+      clusterParameterGroup = aws.rds.dbcluster.parameterGroupName
+      aws.rds.clusterParameterGroups.where(name == clusterParameterGroup)
+        .all(
+          parameters.where(name == 'ssl').any(value == 1)
+            || parameters.where(name == 'require_secure_transport').any(value == "ON")
+        )
 
+
+  - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_db_instance")
+    mql: terraform.resources.where(nameLabel == "aws_db_instance").all(arguments['storage_encrypted'] == true)
+  - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_db_instance")
+    mql: terraform.plan.resourceChanges.where(type == "aws_db_instance")
+  - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-state
+    filters: asset.platform == "terraform-state"
+    mql: terraform.state.resources.where( type == "aws_db_cluster" ).all( x )
 
 
 
