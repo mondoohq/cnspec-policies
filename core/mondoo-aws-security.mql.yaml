@@ -724,10 +724,9 @@ queries:
 
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
     title: Ensure multi-factor authentication is enabled for all IAM users with console access
-    filters: asset.platform == "aws"
     impact: 90
     variants:
-      - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-single
+      - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-api
       - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-hcl
       - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-plan
       - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-state
@@ -848,7 +847,7 @@ queries:
         title: Assign a virtual MFA device in the AWS Management Console
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
-  - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-single
+  - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-api
     filters: asset.platform == "aws"
     mql: |
       aws.iam.credentialReport.where(passwordEnabled == true).all(mfaActive == true)
@@ -885,9 +884,12 @@ queries:
 
   - uid: mondoo-aws-security-iam-group-has-users-check
     title: Ensure IAM groups are utilized by assigning at least one user
-    filters: asset.platform == "aws-iam-group"
     impact: 30
-    mql: aws.iam.group.usernames != empty
+    variants:
+      - uid: mondoo-aws-security-iam-group-has-users-check-single
+      - uid: mondoo-aws-security-iam-group-has-users-check-terraform-hcl
+      - uid: mondoo-aws-security-iam-group-has-users-check-terraform-plan
+      - uid: mondoo-aws-security-iam-group-has-users-check-terraform-state
     docs:
       desc: |
         This check ensures that IAM groups in AWS have at least one assigned user. IAM groups help manage permissions efficiently by allowing administrators to assign policies at the group level instead of managing permissions for individual IAM users. If IAM groups exist without any users, it indicates potential misconfigurations or unused access controls.
@@ -1003,7 +1005,30 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html
         title: AWS Documentation - IAM user groups
+  - uid: mondoo-aws-security-iam-group-has-users-check-single
+    filters: asset.platform == "aws-iam-group"
+    mql: aws.iam.group.usernames != empty
 
+  - uid: mondoo-aws-security-iam-group-has-users-check-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_iam_group")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_iam_group_membership").all(
+        arguments.users != empty
+      )
+
+  - uid: mondoo-aws-security-iam-group-has-users-check-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_iam_group")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_iam_group_membership").all(
+        change.after.users != empty
+      )
+
+  - uid: mondoo-aws-security-iam-group-has-users-check-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_iam_group")
+    mql: |
+      terraform.state.resources.where(type == "aws_iam_group_membership").all(
+        values.users != empty
+      )
 
 
   - uid: mondoo-aws-security-iam-users-only-one-access-key
