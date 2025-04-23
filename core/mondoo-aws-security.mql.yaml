@@ -1146,7 +1146,6 @@ queries:
     filters: asset.platform == "aws"
     mql: |
       aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
-
   - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_iam_policy")
     mql: |
@@ -1159,7 +1158,6 @@ queries:
           )
         )
       )
-
   - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_iam_policy")
     mql: |
@@ -1169,7 +1167,6 @@ queries:
         change.after.policy.contains('NumericGreaterThan') &&
         change.after.policy.contains('iam:AccessKeysCount')
       )
-
   - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_iam_policy")
     mql: |
@@ -1179,13 +1176,6 @@ queries:
         values.policy.contains('NumericGreaterThan') &&
         values.policy.contains('iam:AccessKeysCount')
       )
-
-
-
-    filters: asset.platform == "aws"
-    mql: |
-      aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
-
 
 
 
