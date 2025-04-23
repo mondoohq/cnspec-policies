@@ -158,21 +158,21 @@ queries:
         )
   - uid: gcp-compute-instances-configured-use-default-service-account-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl" && terraform.plan.resourceChanges.contains(type == "google_compute_instance")
+      asset.platform == "terraform-hcl"
     mql: |
       terraform.resources.where(nameLabel == "google_compute_instance").any(
         blocks.where(type == "service_account").one(type == "service_account")
       )
   - uid: gcp-compute-instances-configured-use-default-service-account-terraform-plan
     filters: |
-      asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "google_compute_instance")
+      asset.platform == "terraform-plan"
     mql: |
       terraform.plan.resourceChanges.where(type == "google_compute_instance").none(
         change.after.contains(/^.*compute@developer\.gserviceaccount\.com$/)
       )
   - uid: gcp-compute-instances-configured-use-default-service-account-terraform-state
     filters: |
-      asset.platform == "terraform-state" && terraform.state.resources.contains(type == "google_compute_instance") 
+      asset.platform == "terraform-state"
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance'){ 
         values.service_account.contains(/^.*compute@developer\.gserviceaccount\.com$/) 
@@ -702,9 +702,9 @@ queries:
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed
     title: Ensure Cloud SQL MySQL instances are not publicly exposed
-    impact: 80
+    impact: 100
     variants:
-      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-single
+      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed
       - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
       - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
       - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
@@ -759,8 +759,7 @@ queries:
         **Prevention:**
 
         To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
-
-  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-single
+  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed
     filters: asset.platform == ""
     mql: |
       gcp.project.sql.instances.all(
@@ -792,4 +791,728 @@ queries:
     mql: |
       terraform.state.resources.where(type == "google_sql_database_instance") { 
         values['ip_address'].none(type == "PRIMARY") 
+      }
+
+  - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls
+    title: Ensure Cloud SQL MySQL connections require SSL/TLS
+    impact: 100
+    variants:
+      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-all
+      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-hcl
+      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-plan
+      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-state
+    docs:
+      desc: |
+        Requiring SSL/TLS for connections to Cloud SQL MySQL instances encrypts data in transit between the client and the database server. This prevents potential eavesdropping and man-in-the-middle attacks, protecting sensitive data from unauthorized access during transmission.
+
+        It is strongly recommended to configure Cloud SQL instances to enforce SSL/TLS for all incoming connections to maintain data confidentiality and integrity. Note that enabling this setting requires clients to be configured correctly to use SSL/TLS, which might necessitate application updates.
+      audit: |
+        **Using the Google Cloud Console**
+
+        1.  Navigate to the Cloud SQL Instances page: https://console.cloud.google.com/sql/instances
+        2.  Click on the name of the MySQL instance you want to audit.
+        3.  Select the **Connections** tab.
+        4.  Go to the **Security** sub-tab.
+        5.  Verify that the checkbox for **Allow only SSL connections** is checked.
+
+        **Using the Google Cloud CLI**
+
+        1.  Retrieve the configuration details for the instance:
+            ```bash
+            gcloud sql instances describe INSTANCE_NAME
+            ```
+        2.  Inspect the output and locate the `settings.ipConfiguration` section.
+        3.  Ensure the value for `sslMode` is set to `ENCRYPTED_ONLY` and the value for `requireSsl` is set to `true`.
+
+            Example relevant output snippet:
+            ```yaml
+            settings:
+              ipConfiguration:
+                sslMode: ENCRYPTED_ONLY
+                requireSsl: true
+                # ... other ipConfiguration settings
+            ```
+      remediation: |
+        **Using the Google Cloud Console**
+
+        1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
+        2.  Click the name of the target MySQL instance.
+        3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
+        4.  Check the box labeled **Allow only SSL connections**.
+        5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
+
+        **Using the Google Cloud CLI**
+
+        1.  Enable the "Require SSL" setting for the instance:
+            ```bash
+            gcloud sql instances patch INSTANCE_NAME --require-ssl
+            ```
+            *Note: This command may cause the instance to restart.*
+        2.  Confirm the change:
+            ```bash
+            gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
+            ```
+            The output should be `True`.
+
+        **Using Terraform**
+
+        Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+
+        ```hcl
+        resource "google_sql_database_instance" "default" {
+          name             = "my-mysql-instance"
+          database_version = "MYSQL_8_0"
+          region           = "us-central1"
+
+          settings {
+            tier = "db-f1-micro"
+            ip_configuration {
+              ipv4_enabled = true
+              # Set require_ssl to true
+              require_ssl  = true
+              ssl_mode     = "ENCRYPTED_ONLY"
+            }
+          }
+        }
+        ```
+
+        **Prevention:**
+
+        Always configure new Cloud SQL MySQL instances with the "Allow only SSL connections" option enabled during creation via the Console, CLI (`--require-ssl` flag), or Terraform (`require_ssl = true`). Regularly audit instances to ensure compliance.
+  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-all
+    filters: |
+      asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.project.sql.instances.where(maintenanceVersion.contains('MYSQL')) { 
+        settings.ipConfiguration { 
+          sslMode == 'ENCRYPTED_ONLY'
+        } 
+      }
+  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-hcl
+    filters: |
+      asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
+        blocks { 
+          blocks.where(attributes['ssl_mode'] != null) { 
+            _.attributes['ssl_mode'].value == 'ENCRYPTED_ONLY'
+          } 
+        } 
+      }
+  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-plan
+    filters: |
+      asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') { 
+        change.after['settings'].first['ip_configuration'].first['ssl_mode'] == 'ENCRYPTED_ONLY'
+      }
+  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-state
+    filters: |
+      asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == "google_sql_database_instance") { 
+        values['settings'].first['ip_configuration'].first['ssl_mode'] == 'ENCRYPTED_ONLY' 
+      }
+
+  - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled
+    title: Ensure 'skip_show_database' Database Flag for Cloud SQL MySQL Instances is enabled
+    impact: 70
+    variants:
+      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-all
+      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
+      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
+      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-state
+    docs:
+      desc: |
+        **Rationale:**
+
+        The 'skip_show_database' flag enhances security by restricting the use of the `SHOW DATABASES` command. When enabled ('on'), only users explicitly granted the `SHOW DATABASES` privilege can execute the command, and they will see all databases. If disabled ('off'), any user can run `SHOW DATABASES`, but they will only see databases for which they possess the `SHOW DATABASES` privilege or other specific privileges. Enabling this flag helps prevent users from discovering the existence of databases they shouldn't access. This setting applies specifically to Cloud SQL for MySQL instances.
+      audit: |
+        **Using the Google Cloud Console**
+
+        1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select a MySQL instance to view its details.
+        3.  In the **Configuration** section, find the **Database flags** area.
+        4.  Verify that the `skip_show_database` flag is listed and its value is set to `on`.
+
+        **Using the Google Cloud CLI**
+
+        1.  List your Cloud SQL instances:
+            ```bash
+            gcloud sql instances list
+            ```
+        2.  For each MySQL instance, check the flag's value:
+            ```bash
+            gcloud sql instances describe INSTANCE_NAME --format=json | jq '.settings.databaseFlags[] | select(.name=="skip_show_database")|.value'
+            ```
+            Ensure the output for each MySQL instance is `"on"`.
+
+        **Using cnquery**
+
+        1. Ensure the `gcloud` CLI is configured for your project:
+           ```bash
+           gcloud config set project <project_id>
+           ```
+        2. Run the query:
+           ```mql
+           cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(settings.databaseFlags['skip_show_database'] == 'on')"
+           ```
+           Verify the flag value is `on` for all relevant instances.
+      remediation: |
+        **Using the Google Cloud Console**
+
+        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select the target MySQL instance.
+        3.  Click **Edit**.
+        4.  Scroll down to the **Flags** section.
+        5.  If the flag isn't present, click **Add item**.
+        6.  Choose `skip_show_database` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
+        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+
+        **Using the Google Cloud CLI**
+
+        Update the flag for a specific MySQL instance:
+        ```bash
+        gcloud sql instances patch INSTANCE_NAME --database-flags skip_show_database=on
+        ```
+        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags skip_show_database=on,other_flag=value`).*
+
+        **Using Terraform**
+
+        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+        ```hcl
+        resource "google_sql_database_instance" "mysql_instance" {
+          name             = "my-mysql-instance"
+          database_version = "MYSQL_8_0"
+          region           = "us-central1"
+          settings {
+            tier = "db-f1-micro"
+            database_flags {
+              name  = "skip_show_database"
+              value = "on"
+            }
+            # Include other settings and flags as needed
+          }
+        }
+        ```
+  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-all
+    filters: |
+      asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
+        settings.databaseFlags['skip_show_database'] == 'on'
+      )
+  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
+    filters: |
+      asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
+        blocks.where(type == "settings") { 
+          blocks.where(type == "database_flags").where(attributes["name"].value == 'skip_show_database') { 
+            arguments["value"] == "on" 
+          } 
+        }
+      }
+  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
+    filters: |
+      asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL')) {
+        change.after['settings'].first['database_flags'].where(name == 'skip_show_database') {
+          value == 'on'
+        }
+      }
+  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-state
+    filters: |
+      asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) { 
+        values['settings'].first['database_flags'].where(name == 'skip_show_database') {
+         value == 'on' 
+        } 
+      }
+
+
+  - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled
+    title: Ensure the 'local_infile' Database Flag for Cloud SQL MySQL Instance is disabled
+    impact: 70
+    variants:
+      - uid: gcp-cloud-sql-mysql-local-infile-disabled-all
+      - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-hcl
+      - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-plan
+      - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-state
+    docs:
+      desc: |
+        **Rationale:**
+
+        The `local_infile` database flag dictates whether the server permits clients to load data using the `LOAD DATA LOCAL INFILE` statement. Enabling this feature (setting it to `on`) can introduce security vulnerabilities, as a compromised client or a malicious server could potentially access local files on the machine running the client or server, respectively. To mitigate this risk, it is strongly recommended to disable this flag by setting it to `off`. This recommendation applies specifically to Cloud SQL for MySQL instances.
+      audit: |
+        **Using the Google Cloud Console**
+
+        1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select a MySQL instance to view its details.
+        3.  In the **Configuration** section, find the **Database flags** area.
+        4.  Verify that the `local_infile` flag is listed and its value is set to `off`.
+
+        **Using the Google Cloud CLI**
+
+        1.  List your Cloud SQL instances:
+            ```bash
+            gcloud sql instances list
+            ```
+        2.  For each MySQL instance, check the flag's value:
+            ```bash
+            gcloud sql instances describe INSTANCE_NAME --format=json | jq '.settings.databaseFlags[] | select(.name=="local_infile")|.value'
+            ```
+            Ensure the output for each MySQL instance is `"off"`.
+
+        **Using cnquery**
+
+        1. Ensure the `gcloud` CLI is configured for your project:
+           ```bash
+           gcloud config set project <project_id>
+           ```
+        2. Run the query:
+           ```mql
+           cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(settings.databaseFlags['local_infile'] == 'off')"
+           ```
+           Verify the flag value is `off` for all relevant instances.
+      remediation: |
+        **Using the Google Cloud Console**
+
+        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select the target MySQL instance.
+        3.  Click **Edit**.
+        4.  Scroll down to the **Flags** section.
+        5.  If the flag isn't present, click **Add item**.
+        6.  Choose `local_infile` from the dropdown and set its value to `off`. If the flag exists but is `on`, change its value to `off`.
+        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+
+        **Using the Google Cloud CLI**
+
+        Update the flag for a specific MySQL instance:
+        ```bash
+        gcloud sql instances patch INSTANCE_NAME --database-flags local_infile=off
+        ```
+        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags local_infile=off,other_flag=value`).*
+
+        **Using Terraform**
+
+        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+        ```hcl
+        resource "google_sql_database_instance" "mysql_instance" {
+          name             = "my-mysql-instance"
+          database_version = "MYSQL_8_0"
+          region           = "us-central1"
+          settings {
+            tier = "db-f1-micro"
+            database_flags {
+              name  = "local_infile"
+              value = "off"
+            }
+            # Include other settings and flags as needed
+          }
+        }
+        ```
+  - uid: gcp-cloud-sql-mysql-local-infile-disabled-all
+    filters: |
+      asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
+        settings.databaseFlags['local_infile'] == 'off'
+      )
+  - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-hcl
+    filters: |
+      asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
+        blocks.where(type == "settings") { 
+          blocks.where(type == "database_flags").where(attributes["name"].value == 'local_infile') { 
+            arguments["value"] == "off" 
+          } 
+        }
+      }
+  - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-plan
+    filters: |
+      asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL')) {
+        change.after['settings'].first['database_flags'].where(name == 'local_infile') { 
+          value == 'off'
+        }
+      }
+  - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-state
+    filters: |
+      asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) {
+        values['settings'].first['database_flags'].where(name == 'local_infile') { 
+          value == 'off' 
+        }
+      }
+
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose
+    title: Ensure the 'log_error_verbosity' Database Flag for Cloud SQL PostgreSQL Instance Is Set to 'DEFAULT' or 'verbose'
+    impact: 70
+    variants:
+      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-all
+      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
+      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
+      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
+    docs:
+      desc: |
+        **Rationale:**
+
+        The `log_error_verbosity` flag in PostgreSQL controls the level of detail included in server log messages for errors. Possible settings include `TERSE` (minimal details), `DEFAULT` (standard details), and `VERBOSE` (includes SQLSTATE codes, source file, function name, and line number). Logging provides essential information for troubleshooting and security analysis. Setting this flag to `DEFAULT` or `VERBOSE` ensures sufficient detail is captured without being overly sparse. Setting it to `TERSE` might omit crucial context needed for effective analysis. This recommendation applies specifically to Cloud SQL for PostgreSQL instances.
+      audit: |
+        **Using the Google Cloud Console**
+
+        1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select a PostgreSQL instance to view its details.
+        3.  In the **Configuration** section, find the **Database flags** area.
+        4.  Verify that the `log_error_verbosity` flag is listed and its value is set to `DEFAULT` or `VERBOSE`.
+
+        **Using the Google Cloud CLI**
+
+        1.  List your Cloud SQL instances:
+            ```bash
+            gcloud sql instances list
+            ```
+        2.  For each PostgreSQL instance, check the flag's value:
+            ```bash
+            # This command shows the value, verify it's "DEFAULT" or "VERBOSE"
+            gcloud sql instances describe INSTANCE_NAME --format=json | jq '.settings.databaseFlags[] | select(.name=="log_error_verbosity")|.value'
+            ```
+            Ensure the output for each PostgreSQL instance is `"DEFAULT"` or `"VERBOSE"`.
+
+        **Using cnquery**
+
+        1. Ensure the `gcloud` CLI is configured for your project:
+           ```bash
+           gcloud config set project <project_id>
+           ```
+        2. Run the query:
+           ```mql
+           cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings { databaseFlags['log_error_verbosity'] == 'verbose' })"
+           ```
+           Verify the flag value is `DEFAULT` or `VERBOSE` for all relevant instances.
+      remediation: |
+        **Using the Google Cloud Console**
+
+        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select the target PostgreSQL instance.
+        3.  Click **Edit**.
+        4.  Scroll down to the **Flags** section.
+        5.  If the flag isn't present, click **Add item**.
+        6.  Choose `log_error_verbosity` from the dropdown and set its value to `DEFAULT` or `VERBOSE`. If the flag exists but is set to `TERSE`, change its value.
+        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+
+        **Using the Google Cloud CLI**
+
+        Update the flag for a specific PostgreSQL instance (choose `DEFAULT` or `VERBOSE`):
+        ```bash
+        # Example using DEFAULT
+        gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=DEFAULT
+
+        # Example using VERBOSE
+        gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=VERBOSE
+        ```
+        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_error_verbosity=DEFAULT,other_flag=value`).*
+
+        **Using Terraform**
+
+        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting (choose `DEFAULT` or `VERBOSE`):
+        ```hcl
+        resource "google_sql_database_instance" "postgres_instance" {
+          name             = "my-postgres-instance"
+          database_version = "POSTGRES_15"
+          region           = "us-central1"
+          settings {
+            tier = "db-f1-micro"
+            database_flags {
+              name  = "log_error_verbosity"
+              # Choose either "DEFAULT" or "VERBOSE"
+              value = "DEFAULT"
+            }
+            # Include other settings and flags as needed
+          }
+        }
+        ```
+  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-all
+    filters: |
+      asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
+        settings {
+          databaseFlags['log_error_verbosity'] == 'verbose'
+        }
+      )
+  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
+    filters: |
+      asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
+        blocks.where(type == "settings") { 
+          blocks.where(type == "database_flags").where(attributes["name"].value == 'log_error_verbosity') { 
+            arguments["value"] == "verbose" 
+          } 
+        }
+      }
+  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
+    filters: |
+      asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
+        change.after['settings'].first['database_flags'].where(name == 'log_error_verbosity') {
+          value.upcase == 'verbose'
+        }
+      }
+  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
+    filters: |
+      asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
+        values['settings'].first['database_flags'].where(name == 'log_error_verbosity') {
+          value == 'verbose'
+        }
+      }
+
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled
+    title: Ensure 'log_connections' Database Flag for Cloud SQL PostgreSQL Instances is enabled
+    impact: 70
+    variants:
+      - uid: gcp-cloud-sql-postgres-log-connections-enabled-all
+      - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-hcl
+      - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-plan
+      - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-state
+    docs:
+      desc: |
+        **Rationale:**
+
+        By default, PostgreSQL does not log connection attempts. Enabling the `log_connections` flag (setting it to `on`) configures the server to record each attempted connection and successful client authentication. This logging is valuable for security monitoring, allowing administrators to identify unusual connection patterns or potential unauthorized access attempts, and for troubleshooting connectivity issues. This recommendation applies specifically to Cloud SQL for PostgreSQL instances.
+      audit: |
+        **Using the Google Cloud Console**
+
+        1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select a PostgreSQL instance to view its details.
+        3.  In the **Configuration** section, find the **Database flags** area.
+        4.  Verify that the `log_connections` flag is listed and its value is set to `on`.
+
+        **Using the Google Cloud CLI**
+
+        1.  List your Cloud SQL instances:
+            ```bash
+            gcloud sql instances list
+            ```
+        2.  For each PostgreSQL instance, check the flag's value:
+            ```bash
+            gcloud sql instances describe INSTANCE_NAME --format=json | jq '.settings.databaseFlags[] | select(.name=="log_connections")|.value'
+            ```
+            Ensure the output for each PostgreSQL instance is `"on"`.
+
+        **Using cnquery**
+
+        1. Ensure the `gcloud` CLI is configured for your project:
+           ```bash
+           gcloud config set project <project_id>
+           ```
+        2. Run the query:
+           ```mql
+           cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings.databaseFlags['log_connections'] == 'on')"
+           ```
+           Verify the flag value is `on` for all relevant instances.
+      remediation: |
+        **Using the Google Cloud Console**
+
+        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select the target PostgreSQL instance.
+        3.  Click **Edit**.
+        4.  Scroll down to the **Flags** section.
+        5.  If the flag isn't present, click **Add item**.
+        6.  Choose `log_connections` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
+        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+
+        **Using the Google Cloud CLI**
+
+        Update the flag for a specific PostgreSQL instance:
+        ```bash
+        gcloud sql instances patch INSTANCE_NAME --database-flags log_connections=on
+        ```
+        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_connections=on,other_flag=value`).*
+
+        **Using Terraform**
+
+        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+        ```hcl
+        resource "google_sql_database_instance" "postgres_instance" {
+          name             = "my-postgres-instance"
+          database_version = "POSTGRES_15"
+          region           = "us-central1"
+          settings {
+            tier = "db-f1-micro"
+            database_flags {
+              name  = "log_connections"
+              value = "on"
+            }
+            # Include other settings and flags as needed
+          }
+        }
+        ```
+  - uid: gcp-cloud-sql-postgres-log-connections-enabled-all
+    filters: |
+      asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
+        settings.databaseFlags['log_connections'] == 'on'
+      )
+  - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-hcl
+    filters: |
+      asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
+        blocks.where(type == "settings") { 
+          blocks.where(type == "database_flags").where(attributes["name"].value == 'log_connections') { 
+            arguments['value'] == 'on' 
+          } 
+        }
+      }
+  - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-plan
+    filters: |
+      asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
+        change.after['settings'].first['database_flags'].where(name == 'log_connections') { 
+          value == 'on'
+        }
+      }
+  - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-state
+    filters: |
+      asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
+        values['settings'].first['database_flags'].where(name == 'log_connections') { 
+          value == 'on' 
+        }
+      }
+
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled
+    title: Ensure 'log_disconnections' Database Flag for Cloud SQL PostgreSQL Instances is enabled
+    impact: 70
+    variants:
+      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-all
+      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
+      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
+      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-state
+    docs:
+      desc: |
+        **Rationale:**
+
+        PostgreSQL, by default, does not log the end of user sessions or their duration. Enabling the `log_disconnections` flag (setting it to `on`) causes the server to log this information. This data complements the information provided by `log_connections` and is crucial for auditing user activity, identifying long-running or unusual sessions, and troubleshooting connection-related issues. It provides a complete picture of the connection lifecycle. This recommendation applies specifically to Cloud SQL for PostgreSQL instances.
+      audit: |
+        **Using the Google Cloud Console**
+
+        1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select a PostgreSQL instance to view its details.
+        3.  In the **Configuration** section, find the **Database flags** area.
+        4.  Verify that the `log_disconnections` flag is listed and its value is set to `on`.
+
+        **Using the Google Cloud CLI**
+
+        1.  List your Cloud SQL instances:
+            ```bash
+            gcloud sql instances list
+            ```
+        2.  For each PostgreSQL instance, check the flag's value:
+            ```bash
+            gcloud sql instances describe INSTANCE_NAME --format=json | jq '.settings.databaseFlags[] | select(.name=="log_disconnections")|.value'
+            ```
+            Ensure the output for each PostgreSQL instance is `"on"`.
+
+        **Using cnquery**
+
+        1. Ensure the `gcloud` CLI is configured for your project:
+           ```bash
+           gcloud config set project <project_id>
+           ```
+        2. Run the query:
+           ```mql
+           cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings.databaseFlags['log_disconnections'] == 'on')"
+           ```
+           Verify the flag value is `on` for all relevant instances.
+      remediation: |
+        **Using the Google Cloud Console**
+
+        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+        2.  Select the target PostgreSQL instance.
+        3.  Click **Edit**.
+        4.  Scroll down to the **Flags** section.
+        5.  If the flag isn't present, click **Add item**.
+        6.  Choose `log_disconnections` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
+        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+
+        **Using the Google Cloud CLI**
+
+        Update the flag for a specific PostgreSQL instance:
+        ```bash
+        gcloud sql instances patch INSTANCE_NAME --database-flags log_disconnections=on
+        ```
+        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_disconnections=on,other_flag=value`).*
+
+        **Using Terraform**
+
+        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+        ```hcl
+        resource "google_sql_database_instance" "postgres_instance" {
+          name             = "my-postgres-instance"
+          database_version = "POSTGRES_15"
+          region           = "us-central1"
+          settings {
+            tier = "db-f1-micro"
+            database_flags {
+              name  = "log_disconnections"
+              value = "on"
+            }
+            # Include other settings and flags as needed, e.g., log_connections
+            database_flags {
+              name  = "log_connections"
+              value = "on"
+            }
+          }
+        }
+        ```
+  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-all
+    filters: |
+      asset.platform == "gcp" || asset.platform == "gcp-project"
+    mql: |
+      gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
+        settings.databaseFlags['log_disconnections'] == 'on'
+      )
+  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
+    filters: |
+      asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
+        blocks.where(type == "settings") { 
+          blocks.where(type == "database_flags").where(attributes["name"].value == 'log_disconnections') { 
+            arguments['value'] == 'on' 
+          } 
+        }
+      }
+  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
+    filters: |
+      asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
+        change.after['settings'].first['database_flags'].where(name == 'log_disconnections') { 
+          value == 'on' 
+        }
+      }
+  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-state
+    filters: |
+      asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
+        values['settings'].first['database_flags'].where(name == 'log_disconnections') { 
+          value == 'on' 
+        }
       }
