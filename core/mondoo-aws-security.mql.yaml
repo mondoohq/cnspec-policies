@@ -3405,43 +3405,28 @@ queries:
           **Using Terraform:**
 
           ```hcl
-          # Create a cluster parameter group with SSL enabled
+          # Create a MySQL cluster parameter group with SSL enabled
           resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
-            name        = "secure-cluster-params"
+            name        = "secure-cluster-params-mysql5.7"
             family      = "aurora-mysql5.7"
+            description = "Cluster parameter group with SSL enabled"
+
+            parameter {
+              name  = "require_secure_transport"
+              value = "ON"
+            }
+          }
+
+          # Create a Postgresql cluster parameter group with SSL enabled
+          resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
+            name        = "secure-cluster-params-pg10"
+            family      = "aurora-postgresql10"
             description = "Cluster parameter group with SSL enabled"
 
             parameter {
               name  = "ssl"
               value = "1"
             }
-          }
-
-          # Create or update an RDS cluster to use the secure parameter group
-          resource "aws_rds_cluster" "secure_cluster" {
-            cluster_identifier      = "secure-aurora-cluster"
-            engine                  = "aurora-mysql"
-            engine_version          = "5.7.mysql_aurora.2.10.2"
-            db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.secure_cluster_params.name
-
-            # Other required configurations
-            master_username         = "admin"
-            master_password         = "YourSecurePassword123"
-            backup_retention_period = 7
-            preferred_backup_window = "07:00-09:00"
-
-            # For existing clusters, ensure apply_immediately is set correctly for your use case
-            apply_immediately       = true
-          }
-
-          # Create cluster instances with the appropriate instance parameter group
-          resource "aws_rds_cluster_instance" "cluster_instances" {
-            count                = 2
-            identifier           = "secure-aurora-cluster-${count.index}"
-            cluster_identifier   = aws_rds_cluster.secure_cluster.id
-            instance_class       = "db.r5.large"
-            engine               = aws_rds_cluster.secure_cluster.engine
-            engine_version       = aws_rds_cluster.secure_cluster.engine_version
           }
           ```
       - id: cloudformation
@@ -3451,50 +3436,28 @@ queries:
           ```yaml
           Resources:
             # Create a cluster parameter group with SSL enabled
-            SecureClusterParameterGroup:
+            SecureClusterParameterGroupMysql57:
               Type: "AWS::RDS::DBClusterParameterGroup"
               Properties:
                 Description: "Cluster parameter group with SSL enabled"
                 Family: "aurora-mysql5.7"
                 Parameters:
-                  ssl: "1"
+                  require_secure_transport: "ON"
                 Tags:
                   - Key: "Name"
                     Value: "secure-cluster-params"
 
-            # Create or update an RDS cluster to use the secure parameter group
-            SecureRDSCluster:
-              Type: "AWS::RDS::DBCluster"
+            # Create a cluster parameter group with SSL enabled
+            SecureClusterParameterGroupPG10:
+              Type: "AWS::RDS::DBClusterParameterGroup"
               Properties:
-                DBClusterIdentifier: "secure-aurora-cluster"
-                Engine: "aurora-mysql"
-                EngineVersion: "5.7.mysql_aurora.2.10.2"
-                DBClusterParameterGroupName: !Ref SecureClusterParameterGroup
-                MasterUsername: "admin"
-                MasterUserPassword: "YourSecurePassword123"
-                BackupRetentionPeriod: 7
-                PreferredBackupWindow: "07:00-09:00"
-                # For existing clusters, consider whether to apply changes immediately
-                ApplyImmediately: true
-
-            # Create cluster instances
-            ClusterInstance1:
-              Type: "AWS::RDS::DBInstance"
-              Properties:
-                DBClusterIdentifier: !Ref SecureRDSCluster
-                DBInstanceIdentifier: "secure-aurora-cluster-0"
-                DBInstanceClass: "db.r5.large"
-                Engine: "aurora-mysql"
-                EngineVersion: !GetAtt SecureRDSCluster.EngineVersion
-
-            ClusterInstance2:
-              Type: "AWS::RDS::DBInstance"
-              Properties:
-                DBClusterIdentifier: !Ref SecureRDSCluster
-                DBInstanceIdentifier: "secure-aurora-cluster-1"
-                DBInstanceClass: "db.r5.large"
-                Engine: "aurora-mysql"
-                EngineVersion: !GetAtt SecureRDSCluster.EngineVersion
+                Description: "Cluster parameter group with SSL enabled"
+                Family: "aurora-postgresql10"
+                Parameters:
+                  ssl: 1
+                Tags:
+                  - Key: "Name"
+                    Value: "secure-cluster-params-pg10"
           ```
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-single
     filters: asset.platform == "aws-rds-dbcluster"
@@ -3505,8 +3468,6 @@ queries:
           parameters.where(name == 'ssl').any(value == 1)
             || parameters.where(name == 'require_secure_transport').any(value == "ON")
         )
-
-
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster_parameter_group")
     mql: |
@@ -3515,17 +3476,17 @@ queries:
 
       awsRdsClusterParameterGroupsMySql.all(blocks.any(attributes {_['name']['value'] == "require_secure_transport" && _['value']['value'] == "ON" }  ) )
       awsRdsClusterParameterGroupsPostgresql.all(blocks.any(attributes {_['name']['value'] == "ssl" && _['value']['value'] == 1 }  ) )
-
-
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster_parameter_group")
     mql: |
-      terraform.plan.resourceChanges.where(type == "aws_rds_cluster_parameter_group") {change.after.parameter.where(name == 'ssl') {value == 1} }
-      terraform.plan.resourceChanges.where(type == "aws_rds_cluster_parameter_group") {change.after.parameter.where(name == 'require_secure_transport') {value == "ON"} }
-
+      terraform.plan.resourceChanges.where(type == "aws_rds_cluster_parameter_group").where(change.after.family == /postgres/) {change.after.parameter.where(name == 'ssl') {value == 1} }
+      terraform.plan.resourceChanges.where(type == "aws_rds_cluster_parameter_group").where(change.after.family == /mysql/) {change.after.parameter.where(name == 'require_secure_transport') {value == "ON"} }
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-state
     filters: asset.platform == "terraform-state"
-    mql: terraform.state.resources.where( type == "aws_db_cluster" ).all( x )
+    mql: |
+      terraform.state.resources.where(type == "aws_rds_cluster_parameter_group").where(values.family == /mysql/) {values.parameter.where(name == 'require_secure_transport') {value == "ON"} values.arn}
+      terraform.state.resources.where(type == "aws_rds_cluster_parameter_group").where(values.family == /postgres/) {values.parameter.where(name == 'ssl') {value == 1} values.arn}
+
 
 
 
