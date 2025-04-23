@@ -2735,6 +2735,7 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-lambda-function-public-access-prohibited
     title: Ensure the attached policy attached to the lambda function prohibits public access
     impact: 95
