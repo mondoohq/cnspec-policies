@@ -2421,12 +2421,11 @@ queries:
       terraform.plan.resourceChanges.where(type == "aws_flow_log").any(
         change.after.traffic_type == "ALL" || change.after.traffic_type == "REJECT" && change.after.log_destination_type == "cloud-watch-logs"
       )
-
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_vpc")
     mql: |
       terraform.state.resources.where(type == "aws_flow_log").any(
-        values.traffic_type == "ALL" || values.traffic_type == "REJECT"
+        values.traffic_type == "ALL" || values.traffic_type == "REJECT" && values.log_destination_type ==  "cloud-watch-logs"
       )
 
 
