@@ -2431,12 +2431,12 @@ queries:
 
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
     title: Ensure DynamoDB tables are encrypted with AWS Key Management Service (KMS)
-    filters: |
-      asset.platform == "aws-dynamodb-table"
     impact: 30
-    mql: |
-      aws.dynamodb.table.sseDescription.SSEType == "KMS"
-      aws.dynamodb.table.sseDescription.Status == "ENABLED"
+    variants:
+      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-single
+      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-terraform-hcl
+      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-terraform-plan
+      - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-terraform-state
     docs:
       desc: |
         This check ensures that Amazon DynamoDB tables are encrypted using AWS Key Management Service (KMS) to protect sensitive data at rest. DynamoDB encryption at rest ensures that data is automatically encrypted before being written to disk and decrypted when read, preventing unauthorized access to stored information.
@@ -2571,7 +2571,48 @@ queries:
         title: Terraform Documentation - AWS Provider
       - url: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/EncryptionAtRest.html
         title: AWS Documentation - DynamoDB encryption at rest
+  - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-single
+    filters: asset.platform == "aws-dynamodb-table"
+    mql: |
+      aws.dynamodb.table.sseDescription.SSEType == "KMS"
+      aws.dynamodb.table.sseDescription.Status == "ENABLED"
+  - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_dynamodb_table")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_dynamodb_table").any(
+        blocks.where(type == "server_side_encryption").all(
+          arguments.enabled == true && arguments.kms_key_arn != empty
+        )
+      )
+  - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_dynamodb_table")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_dynamodb_table").all(
+        change.after.server_side_encryption.any(enabled == true)
+      )
+      terraform.plan.resourceChanges.where(type == "aws_dynamodb_table").all(
+        change.afterUnknown.server_side_encryption.any(kms_key_arn == true)
+      )
+  - uid: mondoo-aws-security-dynamodb-table-encrypted-kms-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_dynamodb_table")
+    mql: |
+      terraform.state.resources.where(type == "aws_dynamodb_table").all(
+        values.server_side_encryption.any(enabled == true)
+      )
+      terraform.state.resources.where(type == "aws_dynamodb_table").all(
+        values.server_side_encryption.any(kms_key_arn != empty)
+      )
 
+
+
+
+
+
+    filters: |
+      asset.platform == "aws-dynamodb-table"
+    mql: |
+      aws.dynamodb.table.sseDescription.SSEType == "KMS"
+      aws.dynamodb.table.sseDescription.Status == "ENABLED"
 
 
   - uid: mondoo-aws-security-lambda-concurrency-check
