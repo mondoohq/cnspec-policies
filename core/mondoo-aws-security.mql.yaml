@@ -1028,12 +1028,15 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-iam-users-only-one-access-key
     title: Ensure there is only one active access key available for any single IAM user
     impact: 70
-    filters: asset.platform == "aws"
-    mql: |
-      aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
+    variants:
+      - uid: mondoo-aws-security-iam-users-only-one-access-key-api
+      - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-hcl
+      - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-plan
+      - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-state
     docs:
       desc: |
         This check ensures that each AWS IAM user has no more than one active access key. IAM users can have up to two access keys, but maintaining multiple active keys increases the risk of credential leakage and unauthorized access if one of the keys is compromised. Best practices dictate that only one active key should exist per IAM user to reduce attack surfaces and ensure proper key management.
@@ -1139,6 +1142,50 @@ queries:
                           NumericGreaterThan:
                             "iam:ActiveAccessKeys": "1"
             ```
+  - uid: mondoo-aws-security-iam-users-only-one-access-key-api
+    filters: asset.platform == "aws"
+    mql: |
+      aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
+
+  - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_iam_policy")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_iam_policy").any(
+        arguments.policy.any(
+          _['Statement'].any(
+            _['Effect'] == "Deny" &&
+            _['Action'] == "iam:CreateAccessKey" &&
+            _['Condition']['NumericGreaterThan']['iam:AccessKeysCount'] >= 1
+          )
+        )
+      )
+
+  - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_iam_policy")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_iam_policy").any(
+        change.after.policy.contains('iam:CreateAccessKey') &&
+        change.after.policy.contains('Deny') &&
+        change.after.policy.contains('NumericGreaterThan') &&
+        change.after.policy.contains('iam:AccessKeysCount')
+      )
+
+  - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_iam_policy")
+    mql: |
+      terraform.state.resources.where(type == "aws_iam_policy").any(
+        values.policy.contains('iam:CreateAccessKey') &&
+        values.policy.contains('Deny') &&
+        values.policy.contains('NumericGreaterThan') &&
+        values.policy.contains('iam:AccessKeysCount')
+      )
+
+
+
+    filters: asset.platform == "aws"
+    mql: |
+      aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
+
 
 
 
