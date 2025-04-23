@@ -22,8 +22,8 @@ policies:
     groups:
       - title: GCP Project
         filters: |
-          asset.family.contains("google")
-          asset.runtime == "gcp"
+          asset.family.contains('google')
+          asset.runtime == 'gcp'
         checks:
           - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
           - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
@@ -102,11 +102,11 @@ queries:
           name         = "secure-instance"
           machine_type = var.machine_type
           zone         = var.zone
-          tags = ["terraform"]
+          tags = ['terraform']
 
           service_account {
             email  = "example@example.com"
-            scopes = ["user-email", "compute-ro", "storage-ro"]
+            scopes = ['user-email", "compute-ro", "storage-ro']
           }
         }
         ```
@@ -147,10 +147,9 @@ queries:
           ```bash
           gcloud compute instances start INSTANCE_NAME
           ```
-
   - uid: gcp-compute-instances-configured-use-default-service-account-single
     filters: |
-      asset.platform == "gcp-compute-instance"
+      asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
     mql: |
         gcp.compute.instance.serviceAccounts.none(
@@ -158,21 +157,21 @@ queries:
         )
   - uid: gcp-compute-instances-configured-use-default-service-account-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
-      terraform.resources.where(nameLabel == "google_compute_instance").any(
-        blocks.where(type == "service_account").one(type == "service_account")
+      terraform.resources.where(nameLabel == 'google_compute_instance').any(
+        blocks.where(type == 'service_account').one(type == 'service_account')
       )
   - uid: gcp-compute-instances-configured-use-default-service-account-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance").none(
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance').none(
         change.after.contains(/^.*compute@developer\.gserviceaccount\.com$/)
       )
   - uid: gcp-compute-instances-configured-use-default-service-account-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance'){ 
         values.service_account.contains(/^.*compute@developer\.gserviceaccount\.com$/) 
@@ -237,12 +236,12 @@ queries:
           name         = "secure-instance"
           machine_type = var.machine_type
           zone         = var.zone
-          tags = ["terraform"]
+          tags = ['terraform']
 
           service_account {
             # Google recommends custom service accounts with cloud-platform scope and permissions granted via IAM Roles.
             email  = google_service_account.default.email
-            scopes = ["cloud-platform"]
+            scopes = ['cloud-platform']
           }
         }
         ```
@@ -285,31 +284,31 @@ queries:
           ```
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
     filters: |
-      asset.platform == "gcp-compute-instance"
+      asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
     mql: |
       gcp.compute.instance.serviceAccounts.none(
-        scopes == "https://www.googleapis.com/auth/cloud-platform"
+        scopes == 'https://www.googleapis.com/auth/cloud-platform'
       )
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl" && terraform.plan.resourceChanges.contains(type == "google_compute_instance")
+      asset.platform == 'terraform-hcl' && terraform.plan.resourceChanges.contains(type == 'google_compute_instance')
     mql: |
-      terraform.resources.where(nameLabel == "google_compute_instance") { 
-        blocks.where(type == "service_account") { 
-          arguments.scopes.none(_ == "https://www.googleapis.com/auth/cloud-platform") 
+      terraform.resources.where(nameLabel == 'google_compute_instance') { 
+        blocks.where(type == 'service_account') { 
+          arguments.scopes.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
         } 
       }
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
     filters: |
-      asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "google_compute_instance")
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.contains(type 'google_compute_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance") { 
-        change.after.service_account.map(scopes).first.none(_ == "https://www.googleapis.com/auth/cloud-platform") 
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
+        change.after.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
       }
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
     filters: |
-      asset.platform == "terraform-state" && terraform.state.resources.contains(type == "google_compute_instance")
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.service_account.map(scopes).first.where(_ == 'https://www.googleapis.com/auth/cloud-platform') 
@@ -374,7 +373,7 @@ queries:
           name         = "secure-instance"
           machine_type = var.machine_type
           zone         = var.zone
-          tags = ["terraform"]
+          tags = ['terraform']
 
           metadata = {
             block-project-ssh-keys = true
@@ -406,12 +405,12 @@ queries:
           gcloud compute instances add-metadata INSTANCE_NAME --metadata block-projectssh-keys=TRUE
           ```
   - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
-    filters: asset.platform == "gcp-compute-instance"
+    filters: asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance.metadata['block-project-ssh-keys'] == true
   - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     filters: |
-      asset.platform == "terraform-state" && terraform.state.resources.contains(type == "google_compute_instance")
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['block-project-ssh-keys'] == true 
@@ -484,7 +483,7 @@ queries:
           name         = "secure-instance"
           machine_type = var.machine_type
           zone         = var.zone
-          tags = ["terraform"]
+          tags = ['terraform']
 
           metadata = {
             enable-oslogin = true
@@ -523,12 +522,12 @@ queries:
           gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
           ```
   - uid: gcp-compute-oslogin-enabled-project-single
-    filters: asset.platform == "gcp-compute-instance"
+    filters: asset.platform 'gcp-compute-instance'
     mql:
       gcp.compute.instance.metadata['enable-oslogin'] == true
   - uid: gcp-compute-oslogin-enabled-project-terraform-state
     filters: |
-      asset.platform == "terraform-state" && terraform.state.resources.contains(type == "google_compute_instance")
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['enable-oslogin'] == true
@@ -618,10 +617,10 @@ queries:
         gcloud storage buckets update gs://BUCKET_NAME --no-pap
         ```
   - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
-    filters: asset.platform == "gcp-storage-bucket"
+    filters: asset.platform == 'gcp-storage-bucket'
     mql: |
-      gcp.storage.bucket.iamPolicy.all(members.none(_ == "allUsers"))
-      gcp.storage.bucket.iamPolicy.all(members.none(_ == "allAuthenticatedUsers"))
+      gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allUsers'))
+      gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allAuthenticatedUsers'))
 
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
     title: Ensure that Cloud Storage buckets have uniform bucket-level access enabled
@@ -697,14 +696,14 @@ queries:
         gsutil uniformbucketlevelaccess set STATE gs://BUCKET_NAME
         ```
   - uid: gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
-    filters: asset.platform == "gcp-storage-bucket"
+    filters: asset.platform 'gcp-storage-bucket'
     mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed
     title: Ensure Cloud SQL MySQL instances are not publicly exposed
     impact: 100
     variants:
-      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed
+      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
       - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
       - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
       - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
@@ -759,17 +758,18 @@ queries:
         **Prevention:**
 
         To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
-  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed
-    filters: asset.platform == ""
+  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
+    filters: |
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
-      gcp.project.sql.instances.all(
+      gcp.project.sql.instances.where(maintenanceVersion.contains('MYSQL')) {
         ipAddresses.all(
           _.type != "PRIMARY"
         )
-      )
+      }
   - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
         blocks { 
@@ -780,17 +780,17 @@ queries:
       }
   - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
     filters: |
-      asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "google_sql_database_instance")
+      asset.platform == 'terraform-plan'
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_sql_database_instance") { 
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') { 
         change.after['settings'].first['ip_configuration'].first['ipv4_enabled'] == true 
       }
   - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == "terraform-state" && terraform.state.resources.contains(type == "google_sql_database_instance")
+      asset.platform == 'terraform-state'
     mql: |
-      terraform.state.resources.where(type == "google_sql_database_instance") { 
-        values['ip_address'].none(type == "PRIMARY") 
+      terraform.state.resources.where(type == 'google_sql_database_instance') { 
+        values['ip_address'].none(type == 'PRIMARY') 
       }
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls
@@ -881,7 +881,7 @@ queries:
         Always configure new Cloud SQL MySQL instances with the "Allow only SSL connections" option enabled during creation via the Console, CLI (`--require-ssl` flag), or Terraform (`require_ssl = true`). Regularly audit instances to ensure compliance.
   - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-all
     filters: |
-      asset.platform == "gcp" || asset.platform == "gcp-project"
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('MYSQL')) { 
         settings.ipConfiguration { 
@@ -890,7 +890,7 @@ queries:
       }
   - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
         blocks { 
@@ -901,16 +901,16 @@ queries:
       }
   - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') { 
         change.after['settings'].first['ip_configuration'].first['ssl_mode'] == 'ENCRYPTED_ONLY'
       }
   - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
-      terraform.state.resources.where(type == "google_sql_database_instance") { 
+      terraform.state.resources.where(type == 'google_sql_database_instance') { 
         values['settings'].first['ip_configuration'].first['ssl_mode'] == 'ENCRYPTED_ONLY' 
       }
 
@@ -997,25 +997,25 @@ queries:
         ```
   - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-all
     filters: |
-      asset.platform == "gcp" || asset.platform == "gcp-project"
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
         settings.databaseFlags['skip_show_database'] == 'on'
       )
   - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
-        blocks.where(type == "settings") { 
-          blocks.where(type == "database_flags").where(attributes["name"].value == 'skip_show_database') { 
-            arguments["value"] == "on" 
+        blocks.where(type == 'settings') { 
+          blocks.where(type == 'database_flags').where(attributes['name'].value == 'skip_show_database') { 
+            arguments['value'] == 'on'
           } 
         }
       }
   - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL')) {
         change.after['settings'].first['database_flags'].where(name == 'skip_show_database') {
@@ -1024,14 +1024,13 @@ queries:
       }
   - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) { 
         values['settings'].first['database_flags'].where(name == 'skip_show_database') {
          value == 'on' 
         } 
       }
-
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled
     title: Ensure the 'local_infile' Database Flag for Cloud SQL MySQL Instance is disabled
@@ -1116,25 +1115,25 @@ queries:
         ```
   - uid: gcp-cloud-sql-mysql-local-infile-disabled-all
     filters: |
-      asset.platform == "gcp" || asset.platform == "gcp-project"
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
         settings.databaseFlags['local_infile'] == 'off'
       )
   - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
-        blocks.where(type == "settings") { 
-          blocks.where(type == "database_flags").where(attributes["name"].value == 'local_infile') { 
-            arguments["value"] == "off" 
+        blocks.where(type == 'settings') { 
+          blocks.where(type == 'database_flags').where(attributes['name'].value == 'local_infile') { 
+            arguments['value'] == 'off' 
           } 
         }
       }
   - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL')) {
         change.after['settings'].first['database_flags'].where(name == 'local_infile') { 
@@ -1143,7 +1142,7 @@ queries:
       }
   - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) {
         values['settings'].first['database_flags'].where(name == 'local_infile') { 
@@ -1240,7 +1239,7 @@ queries:
         ```
   - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-all
     filters: |
-      asset.platform == "gcp" || asset.platform == "gcp-project"
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings {
@@ -1249,18 +1248,18 @@ queries:
       )
   - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
-        blocks.where(type == "settings") { 
-          blocks.where(type == "database_flags").where(attributes["name"].value == 'log_error_verbosity') { 
-            arguments["value"] == "verbose" 
+        blocks.where(type == 'settings') { 
+          blocks.where(type == 'database_flags').where(attributes['name'].value == 'log_error_verbosity') { 
+            arguments['value'] == 'verbose' 
           } 
         }
       }
   - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['database_flags'].where(name == 'log_error_verbosity') {
@@ -1269,7 +1268,7 @@ queries:
       }
   - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_error_verbosity') {
@@ -1360,25 +1359,25 @@ queries:
         ```
   - uid: gcp-cloud-sql-postgres-log-connections-enabled-all
     filters: |
-      asset.platform == "gcp" || asset.platform == "gcp-project"
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings.databaseFlags['log_connections'] == 'on'
       )
   - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
-        blocks.where(type == "settings") { 
-          blocks.where(type == "database_flags").where(attributes["name"].value == 'log_connections') { 
+        blocks.where(type == 'settings') { 
+          blocks.where(type == 'database_flags').where(attributes['name'].value == 'log_connections') { 
             arguments['value'] == 'on' 
           } 
         }
       }
   - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['database_flags'].where(name == 'log_connections') { 
@@ -1387,7 +1386,7 @@ queries:
       }
   - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_connections') { 
@@ -1482,25 +1481,25 @@ queries:
         ```
   - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-all
     filters: |
-      asset.platform == "gcp" || asset.platform == "gcp-project"
+      asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings.databaseFlags['log_disconnections'] == 'on'
       )
   - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
-        blocks.where(type == "settings") { 
-          blocks.where(type == "database_flags").where(attributes["name"].value == 'log_disconnections') { 
+        blocks.where(type == 'settings') { 
+          blocks.where(type == 'database_flags').where(attributes['name'].value == 'log_disconnections') { 
             arguments['value'] == 'on' 
           } 
         }
       }
   - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['database_flags'].where(name == 'log_disconnections') { 
@@ -1509,7 +1508,7 @@ queries:
       }
   - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_disconnections') { 
