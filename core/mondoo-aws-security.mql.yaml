@@ -856,13 +856,13 @@ queries:
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_iam_policy")
     mql: |
       terraform.resources.where(nameLabel == "aws_iam_policy").any(
-        arguments.policy {
-          _['Statement'] {
+        arguments.policy.any(
+          _['Statement'].any(
             _['Condition']['Bool']['aws:MultiFactorAuthPresent'] == false
-            _['Effect'] == "Deny"
-            _['Resource'] == "*"
-          }
-        }
+              && _['Effect'] == "Deny"
+              && _['Resource'] == "*"
+          )
+        )
       )
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-plan
     filters: asset.platform == "terraform-plan"
