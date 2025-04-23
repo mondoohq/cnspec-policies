@@ -3311,8 +3311,6 @@ queries:
       - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-state
     docs:
       desc: |
-        # Ensure that encryption in transit is enabled for all RDS Clusters via a cluster parameter group
-
         This check ensures that Amazon RDS database clusters have encryption in transit enforced through the appropriate cluster parameter group settings. Specifically, this verifies that the parameter`ssl` is set to "1" which mandates TLS/SSL connections for all database communications, preventing any unencrypted connections to the instances of the cluster.
 
         **Rationale:**
