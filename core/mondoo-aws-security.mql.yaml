@@ -2287,17 +2287,12 @@ queries:
 
   - uid: mondoo-aws-security-vpc-flow-logs-enabled
     title: Ensure VPC flow logging is enabled in all VPCs
-    filters: asset.platform == "aws-vpc"
     impact: 70
-    mql: |
-      aws.vpc.flowLogs.any(
-        status == "ACTIVE" &&
-        destination != empty &&
-        destinationType == "cloud-watch-logs" &&
-        deliverLogsStatus == "SUCCESS" &&
-        trafficType == "REJECT" ||
-        trafficType == "ALL"
-        )
+    variants:
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-single
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-hcl
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-plan
+      - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Virtual Private Cloud (VPC) flow logs are enabled for all VPCs to capture network traffic metadata. VPC Flow Logs provide visibility into network traffic patterns, allowing security teams to monitor, detect anomalies, and investigate incidents such as unauthorized access, data exfiltration, and security breaches.
@@ -2404,7 +2399,35 @@ queries:
         title: Terraform registry - Cloud Posse AWS Utils Provider
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+  - uid: mondoo-aws-security-vpc-flow-logs-enabled-single
+    filters: asset.platform == "aws-vpc"
+    mql: |
+      aws.vpc.flowLogs.any(
+        status == "ACTIVE" &&
+        destination != empty &&
+        destinationType == "cloud-watch-logs" &&
+        deliverLogsStatus == "SUCCESS" &&
+        (trafficType == "REJECT" || trafficType == "ALL")
+        )
+  - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_vpc")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_flow_log").any(
+        arguments.traffic_type == "ALL" || arguments.traffic_type == "REJECT" && arguments.log_destination_type == "cloud-watch-logs"
+      )
+  - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_vpc")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_flow_log").any(
+        change.after.traffic_type == "ALL" || change.after.traffic_type == "REJECT" && change.after.log_destination_type == "cloud-watch-logs"
+      )
 
+  - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_vpc")
+    mql: |
+      terraform.state.resources.where(type == "aws_flow_log").any(
+        values.traffic_type == "ALL" || values.traffic_type == "REJECT"
+      )
 
 
   - uid: mondoo-aws-security-dynamodb-table-encrypted-kms
