@@ -602,9 +602,9 @@ queries:
       - uid: mondooAWSSecurityMaxAccessKeyAge
         title: Define the maximum number of days an IAM key is allowed to exist before rotation
         mql: "90"
-    mql: |
-      aws.iam.credentialReport.where(accessKey1Active == true && time.now - userCreationTime > props.mondooAWSSecurityMaxAccessKeyAge * time.day).all(time.now - accessKey1LastRotated < props.mondooAWSSecurityMaxAccessKeyAge * time.day)
-      aws.iam.credentialReport.where(accessKey2Active == true && time.now - userCreationTime > props.mondooAWSSecurityMaxAccessKeyAge * time.day).all(time.now - accessKey2LastRotated < props.mondooAWSSecurityMaxAccessKeyAge * time.day)
+    variants:
+      - uid: mondoo-aws-security-access-keys-rotated-api
+      - uid: mondoo-aws-security-access-keys-rotated-state
     docs:
       desc: |
         This check ensures that AWS IAM user access keys are regularly rotated to reduce the risk of credential compromise. Access keys should be changed periodically to prevent long-term exposure and limit the impact of potential key leaks. AWS best practices recommend rotating IAM access keys every 90 days or less.
@@ -710,7 +710,16 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
         title: AWS Documentation - Manage access keys for IAM users
-
+  - uid: mondoo-aws-security-access-keys-rotated-api
+    filters: asset.platform == "aws"
+    mql: |
+      aws.iam.credentialReport.where(accessKey1Active == true && time.now - userCreationTime > props.mondooAWSSecurityMaxAccessKeyAge * time.day).all(time.now - accessKey1LastRotated < props.mondooAWSSecurityMaxAccessKeyAge * time.day)
+      aws.iam.credentialReport.where(accessKey2Active == true && time.now - userCreationTime > props.mondooAWSSecurityMaxAccessKeyAge * time.day).all(time.now - accessKey2LastRotated < props.mondooAWSSecurityMaxAccessKeyAge * time.day)
+  - uid: mondoo-aws-security-access-keys-rotated-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_iam_access_key")
+    mql: |
+      creationDate = parse.date(terraform.state.resources.where(type == "aws_iam_access_key").map(values.create_date).first)
+      time.now - creationDate
 
 
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access
