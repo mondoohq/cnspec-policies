@@ -853,9 +853,9 @@ queries:
     mql: |
       aws.iam.credentialReport.where(passwordEnabled == true).all(mfaActive == true)
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-hcl
-    filters: asset.platform == "terraform-hcl"
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_iam_policy")
     mql: |
-      terraform.resources.where(nameLabel == "aws_iam_policy") {
+      terraform.resources.where(nameLabel == "aws_iam_policy").any(
         arguments.policy {
           _['Statement'] {
             _['Condition']['Bool']['aws:MultiFactorAuthPresent'] == false
@@ -863,7 +863,7 @@ queries:
             _['Resource'] == "*"
           }
         }
-      }
+      )
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-plan
     filters: asset.platform == "terraform-plan"
     mql: |
