@@ -855,10 +855,15 @@ queries:
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-hcl
     filters: asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources.where(nameLabel == "aws_iam_policy").any(
-        arguments.policy.contains('Effect') && arguments.policy.contains('Deny') &&
-        arguments.policy.contains('aws:MultiFactorAuthPresent') && arguments.policy.contains('false')
-      )
+      terraform.resources.where(nameLabel == "aws_iam_policy") {
+        arguments.policy {
+          _['Statement'] {
+            _['Condition']['Bool']['aws:MultiFactorAuthPresent'] == false
+            _['Effect'] == "Deny"
+            _['Resource'] == "*"
+          }
+        }
+      }
   - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-plan
     filters: asset.platform == "terraform-plan"
     mql: |
