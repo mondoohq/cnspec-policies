@@ -2608,12 +2608,12 @@ queries:
 
   - uid: mondoo-aws-security-lambda-concurrency-check
     title: Ensure Lambda functions are configured with function-level concurrent execution limits
-    filters: |
-      asset.platform == "aws-lambda-function"
     impact: 60
-    mql: |
-      aws.lambda.function.concurrency > 0
-      aws.lambda.function.concurrency <= 100
+    variants:
+      - uid: mondoo-aws-security-lambda-concurrency-check-single
+      - uid: mondoo-aws-security-lambda-concurrency-check-terraform-hcl
+      - uid: mondoo-aws-security-lambda-concurrency-check-terraform-plan
+      - uid: mondoo-aws-security-lambda-concurrency-check-terraform-state
     docs:
       desc: |
         This check ensures that AWS Lambda functions are configured with function-level concurrent execution limits to prevent excessive resource consumption and throttle protection at the account level. By default, Lambda functions share the account-level concurrency limit, which can lead to resource exhaustion, affecting other critical workloads if a single function consumes too many concurrent executions.
@@ -2707,7 +2707,32 @@ queries:
                   FunctionName: !Ref SecureLambdaFunction
                   ReservedConcurrentExecutions: 10
             ```
-
+  - uid: mondoo-aws-security-lambda-concurrency-check-single
+    filters: asset.platform == "aws-lambda-function"
+    mql: |
+      aws.lambda.function.concurrency > 0
+      aws.lambda.function.concurrency <= 100
+  - uid: mondoo-aws-security-lambda-concurrency-check-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_lambda_function")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_lambda_function").all(
+        arguments.reserved_concurrent_executions > 0 &&
+        arguments.reserved_concurrent_executions <= 100
+      )
+  - uid: mondoo-aws-security-lambda-concurrency-check-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_lambda_function")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_lambda_function").all(
+        change.after.reserved_concurrent_executions > 0 &&
+        change.after.reserved_concurrent_executions <= 100
+      )
+  - uid: mondoo-aws-security-lambda-concurrency-check-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_lambda_function")
+    mql: |
+      terraform.state.resources.where(type == "aws_lambda_function").all(
+        values.reserved_concurrent_executions > 0 &&
+        values.reserved_concurrent_executions <= 100
+      )
 
 
   - uid: mondoo-aws-security-lambda-function-public-access-prohibited
