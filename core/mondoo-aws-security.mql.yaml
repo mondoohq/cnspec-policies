@@ -726,8 +726,11 @@ queries:
     title: Ensure multi-factor authentication is enabled for all IAM users with console access
     filters: asset.platform == "aws"
     impact: 90
-    mql: |
-      aws.iam.credentialReport.where(passwordEnabled == true).all(mfaActive == true)
+    variants:
+      - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-single
+      - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-hcl
+      - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-plan
+      - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-state
     docs:
       desc: |
         This check ensures that all AWS IAM users with console access have Multi-Factor Authentication (MFA) enabled. MFA provides an additional layer of security beyond just a username and password, reducing the risk of unauthorized account access in case credentials are compromised.
@@ -845,6 +848,33 @@ queries:
         title: Assign a virtual MFA device in the AWS Management Console
       - url: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
         title: Terraform Documentation - AWS Provider
+  - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-single
+    filters: asset.platform == "aws"
+    mql: |
+      aws.iam.credentialReport.where(passwordEnabled == true).all(mfaActive == true)
+  - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-hcl
+    filters: asset.platform == "terraform-hcl"
+    mql: |
+      terraform.resources.where(nameLabel == "aws_iam_policy").any(
+        arguments.policy.contains('Effect') && arguments.policy.contains('Deny') &&
+        arguments.policy.contains('aws:MultiFactorAuthPresent') && arguments.policy.contains('false')
+      )
+  - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-plan
+    filters: asset.platform == "terraform-plan"
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_iam_policy").any(
+        change.after.policy.contains('Deny') &&
+        change.after.policy.contains('aws:MultiFactorAuthPresent') &&
+        change.after.policy.contains('false')
+      )
+  - uid: mondoo-aws-security-mfa-enabled-for-iam-console-access-terraform-state
+    filters: asset.platform == "terraform-state"
+    mql: |
+      terraform.state.resources.where(type == "aws_iam_policy").any(
+        values.policy.contains('Deny') &&
+        values.policy.contains('aws:MultiFactorAuthPresent') &&
+        values.policy.contains('false')
+      )
 
 
 
