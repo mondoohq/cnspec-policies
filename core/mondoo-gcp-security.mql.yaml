@@ -367,7 +367,7 @@ queries:
       terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
         change.after['metadata'].first['block-project-ssh-keys'] == true 
       }
-  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
+  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-state
     filters: |
       asset.platform == 'terraform-state'
     mql: |
