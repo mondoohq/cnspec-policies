@@ -31,6 +31,24 @@ policies:
           - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account
           - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api
           - uid: mondoo-gcp-security-oslogin-enabled-project
+          - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed
+          - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls
+          - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled
+          - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled
+          - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose
+          - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled
+          - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled
+          - uid: mondoo-gcp-security-compute-instances-no-public-ip
+          - uid: mondoo-gcp-security-compute-instances-no-default-service-account
+          - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys
+          - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled
+          - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled
+          - uid: mondoo-gcp-security-compute-instances-vtpm-enabled
+          - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled
+          - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed
+          - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed
+          - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls
+          - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls 
     scoring_system: highest impact
 queries:
   - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account
