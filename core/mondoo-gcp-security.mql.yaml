@@ -322,7 +322,6 @@ queries:
       - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-hcl
       - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-plan
       - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-state
-      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     docs:
       desc: |
         Project-wide SSH keys can be used to login into all instances within a project. While using project-wide SSH keys eases SSH key management, if SSH keys are compromised, the potential security risk can impact all instances within a project.
@@ -411,9 +410,25 @@ queries:
     filters: asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance.metadata['block-project-ssh-keys'] == true
+  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-hcl
+    filters: asset.platform == 'terraform-hcl''
+    mql: |
+      terraform.resources.where(nameLabel == 'google_compute_instance') { 
+        blocks { 
+          blocks.where(attributes['metadata'] != null) { 
+            _.attributes['metadata'].value.contains('block-project-ssh-keys') 
+          } 
+        } 
+      }
+  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-plan
+    filters: asset.platform == 'terraform-plan'
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
+        change.after['metadata'].first['block-project-ssh-keys'] == true 
+      }
   - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.contains(type 'google_compute_instance')
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['block-project-ssh-keys'] == true 
@@ -530,7 +545,7 @@ queries:
       gcp.compute.instance.metadata['enable-oslogin'] == true
   - uid: gcp-compute-oslogin-enabled-project-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['enable-oslogin'] == true
@@ -1529,183 +1544,77 @@ queries:
       - uid: gcp-compute-instances-no-public-ip-terraform-state
     docs:
       desc: |
-        Compute instances should not be configured to have external IP addresses.
+        Virtual machine (VM) instances within Google Cloud Compute Engine should not be configured with public, external IP addresses.
 
         **Rationale:**
 
-        To reduce your attack surface, Compute instances should not have public IP addresses. Instead, instances should be configured behind load balancers, to minimize the instance's exposure to the internet.
+        Assigning public IP addresses directly to VM instances increases their exposure to potential attacks from the internet. To minimize this attack surface, instances should ideally be placed behind services like Google Cloud Load Balancing, which manage external access securely and efficiently, reducing direct exposure of the VM.
 
         **Impact:**
 
-        Removing the external IP address from your Compute instance may cause some applications to stop working.
+        Disabling the external IP address on a Compute instance might disrupt applications or services hosted on that instance if they rely on direct public internet connectivity. Careful planning is required before making this change.
       audit: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. For every VM, ensure that there is no `External IP` configured.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Review the list of VM instances. For each instance, verify that the `External IP` column shows `None`.
 
         **From Google Cloud CLI**
 
+        Execute the following command to list instances and their network configurations:
         ```
         gcloud compute instances list --format=json
         ```
 
-        1. The output should not contain an `accessConfigs` section under `networkInterfaces`. Note that the `natIP` value is present only for instances that are running or for instances that are stopped but have a static IP address. For instances that are stopped and are configured to have an ephemeral public IP address, the `natIP` field will not be present. Example output:
+        1. Examine the JSON output for each instance. Ensure that the `networkInterfaces` array does not contain an `accessConfigs` section. The presence of `accessConfigs` indicates an external IP configuration. Note that the `natIP` field within `accessConfigs` might only appear for running instances or stopped instances with a static external IP. Stopped instances configured for ephemeral IPs might not show `natIP`.
 
-        ```
-        networkInterfaces:
-        - accessConfigs:
-         - kind: compute#accessConfig
-         name: External NAT
-         networkTier: STANDARD
-         type: ONE_TO_ONE_NAT
+        Example indicating an external IP:
+        ```json
+        "networkInterfaces": [
+         {
+          "accessConfigs": [
+           {
+            "kind": "compute#accessConfig",
+            "name": "External NAT",
+            "networkTier": "PREMIUM",
+            "type": "ONE_TO_ONE_NAT"
+           }
+          ],
+          ...
+         }
+        ]
         ```
 
         **Exception:**
-        Instances created by GKE should be excluded because some of them have external IP addresses and cannot be changed by editing the instance settings. Instances created by GKE should be excluded. These instances have names that start with "gke-" and are labeled "goog-gke-node".
+        Instances managed by Google Kubernetes Engine (GKE) often require external IPs for node pools or specific services. These instances typically have names starting with `gke-` and possess the label `goog-gke-node`. They should be excluded from this check as their network configuration is managed by GKE.
       remediation: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to go the the `Instance detail page`.
-
-        3. Click `Edit`.
-
-        4. For each Network interface, ensure that `External IP` is set to `None`.
-
-        5. Click `Done` and then click `Save`.
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click the name of the target instance to open its details page.
+        3. Click the `Edit` button at the top.
+        4. Scroll down to the `Network interfaces` section.
+        5. For the relevant network interface, click the pencil icon to edit it.
+        6. Set the `External IP` dropdown menu to `None`.
+        7. Click `Done` to close the network interface settings.
+        8. Click `Save` at the bottom of the page to apply the changes.
 
         **From Google Cloud CLI**
 
-        1. Describe the instance properties:
+        1. First, identify the name of the access configuration associated with the external IP. Describe the instance:
         ```
-        gcloud compute instances describe <INSTANCE_NAME> --zone=<ZONE>
+        gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(networkInterfaces[].accessConfigs)'
         ```
+        Look for the `name` field within the `accessConfigs` array (e.g., `External NAT`).
 
-        2. Identify the access config name that contains the external IP address. This access config appears in the following format:
-
+        2. Delete the identified access configuration using its name:
         ```
-        networkInterfaces:
-        - accessConfigs:
-         - kind: compute#accessConfig
-         name: External NAT
-         natIP: 130.211.181.55
-         type: ONE_TO_ONE_NAT
+        gcloud compute instances delete-access-config INSTANCE_NAME --zone=ZONE --access-config-name="ACCESS_CONFIG_NAME"
         ```
-
-        3. Delete the access config.
-        ```
-        gcloud compute instances delete-access-config <INSTANCE_NAME> --zone=<ZONE> --access-config-name <ACCESS_CONFIG_NAME>
-        ```
-
-        In the above example, the `ACCESS_CONFIG_NAME` is `External NAT`. The name of your access config might be different.
+        Replace `INSTANCE_NAME`, `ZONE`, and `ACCESS_CONFIG_NAME` with the appropriate values.
 
         **Prevention:**
-        You can configure the `Define allowed external IPs for VM instances` Organization Policy to prevent VMs from being configured with public IP addresses. Learn more at: [https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess](https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess)
-  - uid: gcp-compute-instances-no-public-ip-single
-    filters: |
-      asset.platform == 'gcp-compute-instance'
-      gcp.compute.instance.name != /^gke-/
-    mql: |
-      gcp.compute.instance.networkInterfaces { accessConfigs == empty }
-  - uid: gcp-compute-instances-no-public-ip-terraform-hcl
-    filters: |
-      asset.platform == "terraform-hcl"
-    mql: |
-      terraform.resources { 
-        blocks.where(type == "network_interface") { 
-          blocks.where(type == "access_config") == null
-        } 
-      }
-  - uid: gcp-compute-instances-no-public-ip-terraform-plan
-    filters: |
-      asset.platform == "terraform-plan"
-    mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
-        change.after['network_interface'] {
-          _['access_config'] == empty
-        }
-      }
-  - uid: gcp-compute-instances-no-public-ip-terraform-state
-    filters: |
-      asset.platform == "terraform-state"
-    mql: |
-      terraform.state.resources.where(type == "google_compute_instance") {
-        values['network_interface'] {
-          _['access_config'] == empty
-        }
-      }
-
-  - uid: mondoo-gcp-security-compute-instances-confidential-vm-enabled
-    title: Ensure the Confidential VM service enabled for all VM instances
-    impact: 75
-    variants:
-      - uid: gcp-compute-instances-confidential-vm-enabled-single
-      - uid: gcp-compute-instances-confidential-vm-enabled-terraform-hcl
-      - uid: gcp-compute-instances-confidential-vm-enabled-terraform-plan
-      - uid: gcp-compute-instances-confidential-vm-enabled-terraform-state
-    docs:
-      desc: |
-        Google Cloud encrypts data at-rest and in-transit, but customer data must be decrypted for processing. Confidential Computing is a breakthrough technology which encrypts data in-use—while it is being processed. Confidential Computing environments keep data encrypted in memory and elsewhere outside the central processing unit (CPU).
-
-        Confidential VMs leverage the Secure Encrypted Virtualization (SEV) feature of AMD EPYC™ CPUs. Customer data will stay encrypted while it is used, indexed, queried, or trained on. Encryption keys are generated in hardware, per VM, and not exportable. Thanks to built-in hardware optimizations of both performance and security, there is no significant performance penalty to Confidential Computing workloads.
-
-        **Rationale:**
-
-        Confidential Computing enables customers' sensitive code and other data encrypted in memory during processing. Google does not have access to the encryption keys. Confidential VM can help alleviate concerns about risk related to either dependency on Google infrastructure or Google insiders' access to customer data in the clear.
-
-        **Impact:**
-
-        - Confidential Computing for Compute instances does not support live migration. Unlike regular Compute instances, Confidential VMs experience disruptions during maintenance events like a software or hardware update.
-        - Additional charges may be incurred when enabling this security feature. See [https://cloud.google.com/compute/confidential-vm/pricing](https://cloud.google.com/compute/confidential-vm/pricing) for more info.
-      audit: |
-        Note: Confidential Computing is currently only supported on N2D machines. To learn more about types of N2D machines, visit [https://cloud.google.com/compute/docs/machine-types#n2d_machine_types](https://cloud.google.com/compute/docs/machine-types#n2d_machine_types)
-
-        **From Google Cloud Console**
-
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its VM instance details page.
-
-        3. Ensure that `Confidential VM service` is `Enabled`.
-
-        **From Google Cloud CLI**
-
-        1. List the instances in your project and get details on each instance:
-
-        ```
-        gcloud compute instances list --format=json
-        ```
-        2. Ensure that `enableConfidentialCompute` is set to `true` for all instances with machine type starting with "n2d-".
-
-        ```
-        confidentialInstanceConfig:
-         enableConfidentialCompute: true
-        ```
-      remediation: |
-        Confidential Computing can only be enabled when an instance is created. You must delete the current instance and create a new one.
-
-        **From Google Cloud Console**
-
-        1. Go to the VM instances page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click `CREATE INSTANCE`.
-
-        3. Fill out the desired configuration for your instance.
-
-        4. Under the `Confidential VM service` section, check the option `Enable the Confidential Computing service on this VM instance`.
-
-        5. Click `Create`.
-
-        **From Google Cloud CLI**
-
-        Create a new instance with Confidential Compute enabled.
-
-        ```
-        gcloud compute instances create <INSTANCE_NAME> --zone <ZONE> --confidential-compute --maintenance-policy=TERMINATE
-        ```
+        Utilize the Organization Policy `constraints/compute.vmExternalIpAccess` to restrict or deny the assignment of external IP addresses to VMs across your organization or specific folders/projects. Configure this policy at: [https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess](https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess)
   - uid: gcp-compute-instances-confidential-vm-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -1717,8 +1626,8 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources { 
-        blocks.where(type == "confidential_instance_config") { 
+      terraform.resources {
+        blocks.where(type == "confidential_instance_config") {
           attributes['enable_confidential_compute'].value == true
         }
       }
@@ -1739,7 +1648,7 @@ queries:
         values['confidential_instance_config'] {
           _['enable_confidential_compute'] == true
         }
-      } 
+      }
 
   - uid: mondoo-gcp-security-compute-instances-no-default-service-account
     title: Ensure the default service account is not used on VM instances
@@ -1750,56 +1659,65 @@ queries:
       - uid: gcp-compute-instances-no-default-service-account-terraform-state
     docs:
       desc: |
-        It is recommended to configure your instance to not use the default Compute Engine service account because it has the Editor role on the project.
+        VM instances should be configured to use dedicated service accounts instead of the default Compute Engine service account.
 
         **Rationale:**
 
-        The default Compute Engine service account has the Editor role on the project, which allows read and write access to most Google Cloud Services. To defend against privilege escalations if your VM is compromised and prevent an attacker from gaining access to all of your project, it is recommended to not use the default Compute Engine service account. Instead, you should create a new service account and assigning only the permissions needed by your instance.
-
-        The default Compute Engine service account is named `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`.
+        The default Compute Engine service account (`[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`) is automatically granted the highly permissive `Editor` role at the project level. If a VM using this default account is compromised, an attacker could potentially gain broad access to modify resources across the project. To adhere to the principle of least privilege and limit the potential impact of a compromised instance, create and assign custom service accounts with only the necessary permissions required by the VM.
 
         **Impact:**
 
-        None.
+        Changing the service account associated with a VM requires stopping and starting the instance. Ensure applications running on the VM can tolerate this brief downtime. Using a custom service account with insufficient permissions might cause applications on the VM to fail if they rely on APIs they can no longer access.
       audit: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click on each instance name to go to its `VM instance details` page.
-        3. Under the section `API and identity management`, ensure that the default Compute Engine service account is not used. This account is named `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click on the name of an instance to view its details.
+        3. Locate the `API and identity management` section.
+        4. Verify that the `Service account` listed is **not** the default Compute Engine service account (which follows the pattern `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`). Repeat for all relevant instances.
 
         **From Google Cloud CLI**
 
-        1. List the instances in your project and get details on each instance:
+        1. List instances along with their associated service account emails:
         ```
-        gcloud compute instances list --format=json | jq -r '. | "SA: \(.[].serviceAccounts[].email) Name: \(.[].name)"'
+        gcloud compute instances list --format='value(name,serviceAccounts[0].email)'
         ```
-        2. Ensure that the service account section has an email that does not match the pattern `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`.
+        Alternatively, for more detailed JSON output:
+        ```
+        gcloud compute instances list --format=json
+        ```
+        Then inspect the `serviceAccounts` array for each instance.
+
+        2. For each instance, ensure the listed service account email does not match the default pattern `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`. You can find your project number using `gcloud projects describe $(gcloud config get-value project) --format='value(projectNumber)'`.
 
         **Exception:**
-        VMs created by GKE should be excluded. These VMs have names that start with `gke-` and are labeled `goog-gke-node`.
+        VMs managed by GKE (names starting with `gke-`, labeled `goog-gke-node`) often use specific service accounts managed by GKE itself, which might include the default service account in some configurations. These should typically be excluded from this check unless specific organizational policies dictate otherwise.
       remediation: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click on the instance name to go to its `VM instance details` page.
-        3. Click `STOP` and then click `EDIT`.
-        4. Under the section `API and identity management`, select a service account other than the default Compute Engine service account. You may first need to create a new service account.
-        5. Click `Save` and then click `START`.
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click the name of the instance you want to modify.
+        3. Click the `STOP` button at the top and confirm. Wait for the instance to stop completely.
+        4. Once stopped, click the `EDIT` button.
+        5. Scroll down to the `API and identity management` section.
+        6. In the `Service account` dropdown, select a suitable custom service account. If needed, create a new service account with appropriate permissions first via the `IAM & Admin` -> `Service Accounts` page.
+        7. Click `Save` at the bottom.
+        8. Click the `START / RESUME` button at the top to restart the instance.
 
         **From Google Cloud CLI**
 
-        1. Stop the instance:
+        1. Stop the target instance:
         ```
-        gcloud compute instances stop <INSTANCE_NAME>
+        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
         ```
-        2. Update the instance:
+        2. Assign the desired custom service account:
         ```
-        gcloud compute instances set-service-account <INSTANCE_NAME> --service-account=<SERVICE_ACCOUNT>
+        gcloud compute instances set-service-account INSTANCE_NAME --zone=ZONE --service-account=CUSTOM_SERVICE_ACCOUNT_EMAIL
         ```
-        3. Restart the instance:
+        Replace `INSTANCE_NAME`, `ZONE`, and `CUSTOM_SERVICE_ACCOUNT_EMAIL` with the correct values.
+        3. Start the instance again:
         ```
-        gcloud compute instances start <INSTANCE_NAME>
+        gcloud compute instances start INSTANCE_NAME --zone=ZONE
         ```
   - uid: gcp-compute-instances-no-default-service-account-single
     filters: |
@@ -1841,56 +1759,56 @@ queries:
       - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-state
     docs:
       desc: |
-        It is recommended to use Instance specific SSH key(s) instead of using common/shared project-wide SSH key(s) to access Instances.
+        Configure VM instances to block project-wide SSH keys, favoring instance-specific keys for access.
 
         **Rationale:**
 
-        Project-wide SSH keys are stored in Compute/Project-meta-data. Project wide SSH keys can be used to login into all the instances within project. Using project-wide SSH keys eases the SSH key management but if compromised, poses the security risk which can impact all the instances within project.
-        It is recommended to use Instance specific SSH keys which can limit the attack surface if the SSH keys are compromised.
+        Project-wide SSH keys, managed in the project's metadata, allow users associated with those keys to access *all* VM instances within that project by default. While convenient, this creates a significant security risk: if a project-wide key is compromised, all instances become vulnerable. Enabling the "Block Project-Wide SSH Keys" setting on an instance forces the use of instance-level SSH keys (stored in instance metadata), thereby limiting the scope of access and reducing the blast radius if a key is compromised.
 
         **Impact:**
 
-        Users already having Project-wide ssh key pairs and using third party SSH clients will lose access to the impacted Instances. For Project users using gcloud or GCP Console based SSH option, no manual key creation and distribution is required and will be handled by GCE (Google Compute Engine) itself. To access Instance using third party SSH clients Instance specific SSH key pairs need to be created and distributed to the required users.
+        Enabling this setting will prevent users from connecting to the instance using project-wide SSH keys via tools like standard SSH clients. Access using the `gcloud compute ssh` command or the SSH-in-browser feature usually remains unaffected, as these tools often manage temporary or instance-specific keys. Users needing direct SSH access with third-party clients will require instance-specific SSH keys to be added to the VM's metadata.
       audit: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances). It will list all the instances in your project.
-
-        2. For every instance, click on the name of the instance.
-
-        3. Under `SSH Keys`, ensure `Block project-wide SSH keys` is selected.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click on the name of the instance you want to check.
+        3. Scroll down to the `SSH Keys` section.
+        4. Verify that the checkbox labeled `Block project-wide SSH keys` is checked. Repeat for all relevant instances.
 
         **From Google Cloud CLI**
 
-        1. List the instances in your project and get details on each instance:
+        1. Retrieve the metadata for the instance, specifically looking for the `block-project-ssh-keys` key:
         ```
-        gcloud compute instances list --format=json
+        gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(metadata.items)'
         ```
-        2. Ensure `key: block-project-ssh-keys` is set to `value: 'true'`.
+        Replace `INSTANCE_NAME` and `ZONE` accordingly.
+
+        2. Examine the output. Ensure there is an item where `key` is `block-project-ssh-keys` and its corresponding `value` is `true`. If the key is missing or set to `false`, project-wide keys are not blocked.
+
+        Alternatively, list all instances and filter for the metadata key:
+        ```
+        gcloud compute instances list --format='table(name,zone,metadata.items.filter(key:block-project-ssh-keys).extract(value))'
+        ```
+        Instances showing `True` in the last column have the setting enabled.
       remediation: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances). It will list all the instances in your project.
-
-        2. Click on the name of the Impacted instance
-
-        3. Click `Edit` in the toolbar
-
-        4. Under SSH Keys, go to the `Block project-wide SSH keys` checkbox
-
-        5. To block users with project-wide SSH keys from connecting to this instance, select `Block project-wide SSH keys`
-
-        6. Click `Save` at the bottom of the page
-
-        7. Repeat steps for every impacted Instance
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click the name of the instance to modify.
+        3. Click the `Edit` button at the top.
+        4. Scroll down to the `SSH Keys` section (it might be under `Security and access` or a similar heading).
+        5. Check the box for `Block project-wide SSH keys`.
+        6. Click `Save` at the bottom of the page.
+        7. Repeat these steps for all instances where project-wide keys should be blocked.
 
         **From Google Cloud CLI**
 
-        To block project-wide public SSH keys, set the metadata value to `TRUE`:
-
+        Enable the setting by adding or updating the instance metadata:
         ```
-        gcloud compute instances add-metadata <INSTANCE_NAME> --metadata block-project-ssh-keys=TRUE
+        gcloud compute instances add-metadata INSTANCE_NAME --zone=ZONE --metadata block-project-ssh-keys=true
         ```
+        Replace `INSTANCE_NAME` and `ZONE` with the appropriate values. This command will either add the key if it doesn't exist or update its value to `true` if it does.
   - uid: gcp-compute-instances-block-project-wide-ssh-keys-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -1903,8 +1821,8 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources.where(attributes['metadata'] != null) { 
-        attributes['metadata'].value['block-project-ssh-keys'] == true 
+      terraform.resources.where(attributes['metadata'] != null) {
+        attributes['metadata'].value['block-project-ssh-keys'] == true
       }
   - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-plan
     filters: |
@@ -1933,79 +1851,85 @@ queries:
       - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-state
     docs:
       desc: |
-        Google Cloud encrypts data at-rest and in-transit, but customer data must be decrypted for processing. Confidential Computing is a breakthrough technology which encrypts data in-use—while it is being processed. Confidential Computing environments keep data encrypted in memory and elsewhere outside the central processing unit (CPU).
-
-        Confidential VMs leverage the Secure Encrypted Virtualization (SEV) feature of AMD EPYC™ CPUs. Customer data will stay encrypted while it is used, indexed, queried, or trained on. Encryption keys are generated in hardware, per VM, and not exportable. Thanks to built-in hardware optimizations of both performance and security, there is no significant performance penalty to Confidential Computing workloads.
+        Enable the Confidential VM service for applicable Compute Engine VM instances to enhance data security during processing.
 
         **Rationale:**
 
-        Confidential Computing enables customers' sensitive code and other data encrypted in memory during processing. Google does not have access to the encryption keys. Confidential VM can help alleviate concerns about risk related to either dependency on Google infrastructure or Google insiders' access to customer data in the clear.
+        While Google Cloud encrypts data at rest and in transit, Confidential Computing adds a layer of protection by encrypting data while it's actively being processed in memory (data-in-use). Confidential VMs utilize hardware-based security features (like AMD SEV) to create an isolated environment where data remains encrypted even during computation. This helps protect sensitive data from potential access by the cloud provider or vulnerabilities in the host system, using hardware-generated, instance-specific keys that are not exportable.
 
         **Impact:**
 
-        - Confidential Computing for Compute instances does not support live migration. Unlike regular Compute instances, Confidential VMs experience disruptions during maintenance events like a software or hardware update.
-        - Additional charges may be incurred when enabling this security feature. See [https://cloud.google.com/compute/confidential-vm/pricing](https://cloud.google.com/compute/confidential-vm/pricing) for more info.
+        - Confidential VMs currently support specific machine types (primarily N2D series) and may have limitations, such as the lack of support for live migration, meaning instances will be terminated during host maintenance events.
+        - Enabling this feature might incur additional costs compared to standard VMs. Refer to the official GCP pricing documentation for details: [https://cloud.google.com/compute/confidential-vm/pricing](https://cloud.google.com/compute/confidential-vm/pricing).
       audit: |
-        Note: Confidential Computing is currently only supported on N2D machines. To learn more about types of N2D machines, visit [https://cloud.google.com/compute/docs/machine-types#n2d_machine_types](https://cloud.google.com/compute/docs/machine-types#n2d_machine_types)
+        Note: Confidential Computing is primarily available on N2D machine types. Check current documentation for supported types: [https://cloud.google.com/compute/docs/machine-types#n2d_machine_types](https://cloud.google.com/compute/docs/machine-types#n2d_machine_types)
 
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its VM instance details page.
-
-        3. Ensure that `Confidential VM service` is `Enabled`.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click on the name of an N2D instance (or other supported type) to view its details.
+        3. Look for the `Confidential VM service` status indicator within the instance properties.
+        4. Ensure the status shows as `Enabled` or `On`.
 
         **From Google Cloud CLI**
 
-        1. List the instances in your project and get details on each instance:
+        1. List instances and check their confidential computing configuration:
+        ```
+        gcloud compute instances list --format='json(name,machineType,confidentialInstanceConfig)'
+        ```
+        2. For instances using a supported machine type (e.g., containing "n2d-"), verify that the `confidentialInstanceConfig` section exists and the `enableConfidentialCompute` field is set to `true`.
 
-        ```
-        gcloud compute instances list --format=json
-        ```
-        2. Ensure that `enableConfidentialCompute` is set to `true` for all instances with machine type starting with "n2d-".
-
-        ```
-        confidentialInstanceConfig:
-         enableConfidentialCompute: true
+        Example output for a configured instance:
+        ```json
+        {
+         "confidentialInstanceConfig": {
+          "enableConfidentialCompute": true
+         },
+         "machineType": "...",
+         "name": "..."
+        }
         ```
       remediation: |
-        Confidential Computing can only be enabled when an instance is created. You must delete the current instance and create a new one.
+        The Confidential VM service can only be activated when creating a new VM instance. It cannot be enabled on an existing instance.
 
         **From Google Cloud Console**
 
-        1. Go to the VM instances page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
         2. Click `CREATE INSTANCE`.
-
-        3. Fill out the desired configuration for your instance.
-
-        4. Under the `Confidential VM service` section, check the option `Enable the Confidential Computing service on this VM instance`.
-
-        5. Click `Create`.
+        3. Configure the instance settings (name, region, zone).
+        4. Select a supported machine type from the N2D series (or other applicable types) under `Machine configuration`.
+        5. Scroll down to the `Confidential VM service` section.
+        6. Check the box labeled `Enable the Confidential Computing service on this VM instance`. Note that this usually requires setting the `On host maintenance` policy to `Terminate VM instance`.
+        7. Configure other settings as needed (boot disk, networking, etc.).
+        8. Click `Create`.
 
         **From Google Cloud CLI**
 
-        Create a new instance with Confidential Compute enabled.
-
+        Use the `--confidential-compute` flag during instance creation. You must also set the maintenance policy to `TERMINATE`.
         ```
-        gcloud compute instances create <INSTANCE_NAME> --zone <ZONE> --confidential-compute --maintenance-policy=TERMINATE
+        gcloud compute instances create INSTANCE_NAME \
+         --zone=ZONE \
+         --machine-type=N2D_MACHINE_TYPE \
+         --confidential-compute \
+         --maintenance-policy=TERMINATE \
+         # Add other necessary flags like --image-project, --image, --network, etc.
         ```
+        Replace placeholders like `INSTANCE_NAME`, `ZONE`, and `N2D_MACHINE_TYPE` with appropriate values.
   - uid: gcp-compute-instances-confidential-vm-service-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
       gcp.compute.instance.machineType.name == /n2d-/
     mql: |
-      gcp.compute.instance { 
-        confidentialInstanceConfig['serviceEnabled'] == true 
+      gcp.compute.instance {
+        confidentialInstanceConfig['serviceEnabled'] == true
       }
   - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-hcl
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources { 
-        blocks.where(type == 'confidential_instance_config') { 
+      terraform.resources {
+        blocks.where(type == 'confidential_instance_config') {
           attributes['enable_confidential_compute'].value == true
         }
       }
@@ -2040,79 +1964,68 @@ queries:
       - uid: gcp-compute-instances-secure-boot-enabled-terraform-state
     docs:
       desc: |
-        To defend against advanced threats and ensure that the boot loader and firmware on your VMs are signed and untampered, it is recommended that Compute instances are launched with Shielded VM enabled, including Secure Boot.
+        Enable Secure Boot, a feature of Shielded VMs, on Compute Engine instances to enhance platform security and integrity.
 
         **Rationale:**
 
-        Shielded VMs are virtual machines (VMs) on Google Cloud Platform hardened by a set of security controls that help defend against rootkits and bootkits. Secure Boot is a component of Shielded VM.
-
-        Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails. Shielded VM instances run firmware which is signed and verified using Google's Certificate Authority, ensuring that the instance's firmware is unmodified and establishing the root of trust for Secure Boot.
+        Shielded VMs provide verifiable integrity for Compute Engine instances, offering protection against boot-level and kernel-level malware and rootkits. Secure Boot is a critical component of this protection. It ensures that the instance boots only with software (like the bootloader and OS kernel) that is digitally signed and trusted. By verifying these signatures against trusted certificates stored in the UEFI firmware, Secure Boot prevents malicious software from taking control during the boot process. Google manages the signing and verification of the firmware itself, establishing a strong root of trust.
 
         **Impact:**
 
-        Enabling Secure Boot might prevent custom or unsigned drivers from loading. Ensure all necessary drivers are signed before enabling this feature.
+        Secure Boot requires using a Shielded VM-compatible OS image. Enabling Secure Boot might prevent systems with custom, unsigned kernel drivers or boot components from booting successfully. Ensure all necessary components are properly signed before enabling this feature.
       audit: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its `VM instance details` page.
-
-        3. Under the section `Shielded VM`, ensure that `Secure Boot` is `on`.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click on the name of the instance you want to check.
+        3. In the `VM instance details` page, locate the `Shielded VM` section.
+        4. Verify that the `Secure Boot` toggle or status indicator shows `Enabled` or `On`.
 
         **From Google Cloud CLI**
 
-        1. For each instance in your project, get its metadata:
+        1. Describe the instance and check its Shielded VM configuration:
         ```
-        gcloud compute instances describe <INSTANCE_NAME> --zone=<ZONE> --format='json(name,shieldedInstanceConfig.enableSecureBoot)'
+        gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(shieldedInstanceConfig)'
         ```
+        Replace `INSTANCE_NAME` and `ZONE` accordingly.
 
-        2. Ensure that `enableSecureBoot` is set to `true`. If the VM is not a Shielded VM image, you will not see a `shieldedInstanceConfig` in the output.
+        2. Examine the output. Ensure the `shieldedInstanceConfig` object exists and the `enableSecureBoot` field is set to `true`. If `shieldedInstanceConfig` is absent or `enableSecureBoot` is `false`, the feature is not enabled.
       remediation: |
-        To be able turn on `Secure Boot` on an instance, your instance must use an image with Shielded VM support.
+        Secure Boot can only be enabled on instances using an OS image that supports Shielded VM features.
 
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its `VM instance details` page.
-
-        3. Click `STOP` to stop the instance.
-
-        4. When the instance has stopped, click `EDIT`.
-
-        5. In the Shielded VM section, select `Turn on Secure Boot`. Ensure `vTPM` and `Integrity Monitoring` are also enabled if desired.
-
-        6. Click the `Save` button to modify the instance and then click `START` to restart it.
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click the name of the instance to modify.
+        3. If the instance is running, click `STOP` and confirm. Wait for it to stop.
+        4. Click `EDIT`.
+        5. Scroll to the `Shielded VM` section.
+        6. Check the box or toggle the switch to enable `Secure Boot`. Enabling Secure Boot typically requires vTPM and Integrity Monitoring to also be enabled or automatically enabled alongside it.
+        7. Click `Save`.
+        8. Click `START / RESUME` to restart the instance.
 
         **From Google Cloud CLI**
 
-        You can only enable Shielded VM options on instances that have Shielded VM support. For a list of Shielded VM public images, run the gcloud compute images list command with the following flags:
-
+        Ensure the instance uses a compatible image. You can list public Shielded VM images:
         ```
-        gcloud compute images list --project gce-uefi-images --no-standard-images
-        ```
-
-        1. Stop the instance:
-        ```
-        gcloud compute instances stop <INSTANCE_NAME> --zone=<ZONE>
-        ```
-        2. Update the instance to enable Secure Boot (this also enables vTPM and Integrity Monitoring if not already enabled):
-
-        ```
-        gcloud compute instances update <INSTANCE_NAME> --zone=<ZONE> --shielded-vm-secure-boot
+        gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(SECURE_BOOT)"
         ```
 
-        3. Restart the instance:
-
+        1. Stop the instance if it is running:
         ```
-        gcloud compute instances start <INSTANCE_NAME> --zone=<ZONE>
+        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
+        ```
+        2. Update the instance to enable Secure Boot (this command implicitly enables vTPM and Integrity Monitoring as well):
+        ```
+        gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-secure-boot
+        ```
+        3. Start the instance:
+        ```
+        gcloud compute instances start INSTANCE_NAME --zone=ZONE
         ```
 
         **Prevention:**
-
-        You can ensure that all new VMs will be created with Shielded VM enabled by setting up an Organization Policy for `Shielded VM` at [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Learn more at:
-        [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
+        Enforce the use of Shielded VMs for all new instances by configuring the `constraints/compute.requireShieldedVm` Organization Policy. Manage this policy at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). See documentation for details: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
   - uid: gcp-compute-instances-secure-boot-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -2124,8 +2037,8 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources { 
-        blocks.where(type == 'shielded_instance_config') { 
+      terraform.resources {
+        blocks.where(type == 'shielded_instance_config') {
           attributes['enable_secure_boot'].value == true
         }
       }
@@ -2158,92 +2071,82 @@ queries:
       - uid: gcp-compute-instances-vtpm-enabled-terraform-state
     docs:
       desc: |
-        To defend against advanced threats and ensure the integrity of your VM's boot process, it is recommended that Compute instances are launched with Shielded VM enabled, including vTPM.
+        Enable the virtual Trusted Platform Module (vTPM), a feature of Shielded VMs, on Compute Engine instances to support Measured Boot and enhance integrity verification.
 
         **Rationale:**
 
-        Shielded VMs are virtual machines (VMs) on Google Cloud Platform hardened by a set of security controls that help defend against rootkits and bootkits. vTPM (virtual Trusted Platform Module) is a component of Shielded VM.
-
-        The Shielded VM vTPM enables Measured Boot by performing the measurements needed to create a known good boot baseline, called the integrity policy baseline. This baseline is used for comparison with measurements from subsequent VM boots to determine if anything has changed, providing verifiable integrity.
+        Shielded VMs leverage several security controls to harden instances against threats. The vTPM is a virtualized version of a hardware TPM, providing secure cryptographic functions and secure storage. Its primary role within Shielded VM is to enable Measured Boot. During Measured Boot, the vTPM securely records cryptographic measurements (hashes) of boot components (firmware, bootloader, kernel). This creates a verifiable record of the boot process, forming an integrity policy baseline essential for Integrity Monitoring.
 
         **Impact:**
 
-        Enabling vTPM is a prerequisite for Measured Boot and Integrity Monitoring features of Shielded VM. There is generally no negative impact on performance or compatibility.
+        Enabling vTPM is necessary for using Shielded VM's Measured Boot and Integrity Monitoring capabilities. It generally has negligible impact on instance performance and compatibility, but it requires using a Shielded VM-compatible OS image.
       audit: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its `VM instance details` page.
-
-        3. Under the section `Shielded VM`, ensure that `vTPM` is `on`.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click on the name of the instance you want to check.
+        3. In the `VM instance details` page, find the `Shielded VM` section.
+        4. Verify that the `vTPM` toggle or status indicator shows `Enabled` or `On`.
 
         **From Google Cloud CLI**
 
-        1. For each instance in your project, get its metadata:
+        1. Describe the instance and check its Shielded VM configuration:
         ```
-        gcloud compute instances describe <INSTANCE_NAME> --zone=<ZONE> --format='json(name,shieldedInstanceConfig.enableVtpm)'
+        gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(shieldedInstanceConfig)'
         ```
+        Replace `INSTANCE_NAME` and `ZONE` accordingly.
 
-        2. Ensure that `enableVtpm` is set to `true`. If the VM is not a Shielded VM image, you will not see a `shieldedInstanceConfig` in the output.
+        2. Look at the output. Ensure the `shieldedInstanceConfig` object is present and the `enableVtpm` field is set to `true`. If `shieldedInstanceConfig` is missing or `enableVtpm` is `false`, the feature is disabled.
       remediation: |
-        To be able turn on `vTPM` on an instance, your instance must use an image with Shielded VM support.
+        vTPM can only be enabled on instances using an OS image that supports Shielded VM features.
 
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its `VM instance details` page.
-
-        3. Click `STOP` to stop the instance.
-
-        4. When the instance has stopped, click `EDIT`.
-
-        5. In the Shielded VM section, select `Turn on vTPM`.
-
-        6. Click the `Save` button to modify the instance and then click `START` to restart it.
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click the name of the instance to modify.
+        3. If the instance is running, click `STOP` and confirm. Wait for it to stop completely.
+        4. Click `EDIT`.
+        5. Scroll down to the `Shielded VM` section.
+        6. Check the box or toggle the switch to enable `vTPM`.
+        7. Click `Save`.
+        8. Click `START / RESUME` to restart the instance.
 
         **From Google Cloud CLI**
 
-        You can only enable Shielded VM options on instances that have Shielded VM support. For a list of Shielded VM public images, run the gcloud compute images list command with the following flags:
+        Ensure the instance uses a compatible image. You can list public Shielded VM images:
+        ```
+        gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(VTPM)"
+        ```
 
+        1. Stop the instance if it is running:
         ```
-        gcloud compute images list --project gce-uefi-images --no-standard-images
-        ```
-
-        1. Stop the instance:
-        ```
-        gcloud compute instances stop <INSTANCE_NAME> --zone=<ZONE>
+        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
         ```
         2. Update the instance to enable vTPM:
-
         ```
-        gcloud compute instances update <INSTANCE_NAME> --zone=<ZONE> --shielded-vtpm
+        gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vtpm
         ```
-
-        3. Restart the instance:
-
+        Note: This command specifically targets vTPM. If Secure Boot or Integrity Monitoring are desired, they might need separate flags (`--shielded-vm-secure-boot`, `--shielded-vm-integrity-monitoring`) or enabling them might implicitly enable vTPM.
+        3. Start the instance:
         ```
-        gcloud compute instances start <INSTANCE_NAME> --zone=<ZONE>
+        gcloud compute instances start INSTANCE_NAME --zone=ZONE
         ```
 
         **Prevention:**
-
-        You can ensure that all new VMs will be created with Shielded VM enabled by setting up an Organization Policy for `Shielded VM` at [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Learn more at:
-        [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
+        Mandate the use of Shielded VMs (which includes vTPM) for new instances via the `constraints/compute.requireShieldedVm` Organization Policy. Configure it at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Refer to documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
   - uid: gcp-compute-instances-vtpm-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
     mql: |
-      gcp.compute.instance { 
-        enableVtpm == true 
+      gcp.compute.instance {
+        enableVtpm == true
       }
   - uid: gcp-compute-instances-vtpm-enabled-terraform-hcl
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources { 
-        blocks.where(type == 'shielded_instance_config') { 
+      terraform.resources {
+        blocks.where(type == 'shielded_instance_config') {
           attributes['enable_vtpm'].value == true
         }
       }
@@ -2276,79 +2179,69 @@ queries:
       - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-state
     docs:
       desc: |
-        To defend against advanced threats and verify the integrity of your VM's boot process, it is recommended that Compute instances are launched with Shielded VM enabled, including Integrity Monitoring.
+        Enable Integrity Monitoring, a feature of Shielded VMs, on Compute Engine instances to detect potentially malicious modifications to the boot sequence.
 
         **Rationale:**
 
-        Shielded VMs are virtual machines (VMs) on Google Cloud Platform hardened by a set of security controls that help defend against rootkits and bootkits. Integrity Monitoring is a component of Shielded VM that relies on vTPM and Measured Boot.
-
-        Integrity monitoring helps you understand and make decisions about the state of your VM instances. It uses the Measured Boot baseline created by the vTPM to compare against measurements from subsequent VM boots, determining if the boot sequence has been tampered with. This helps detect boot- or kernel-level malware or rootkits.
+        Shielded VMs provide enhanced security for instances. Integrity Monitoring, a key component, leverages the measurements taken by the vTPM during Measured Boot. It compares the boot measurements of the current boot process against a known good baseline established during a previous boot. If discrepancies are detected, it indicates that the bootloader, kernel, or other critical boot components may have been tampered with, potentially by rootkits or boot-level malware. This allows administrators to identify compromised instances and take appropriate action.
 
         **Impact:**
 
-        Enabling Integrity Monitoring requires vTPM to be enabled. It provides enhanced security visibility with minimal performance impact.
+        Integrity Monitoring requires both a Shielded VM-compatible OS image and vTPM to be enabled. It provides valuable security insights by logging integrity check results to Cloud Logging, with minimal overhead on instance performance.
       audit: |
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its `VM instance details` page.
-
-        3. Under the section `Shielded VM`, ensure that `Integrity Monitoring` is `on`.
+        1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click on the name of the instance you want to check.
+        3. In the `VM instance details` page, locate the `Shielded VM` section.
+        4. Verify that the `Integrity Monitoring` toggle or status indicator shows `Enabled` or `On`.
 
         **From Google Cloud CLI**
 
-        1. For each instance in your project, get its metadata:
+        1. Describe the instance and check its Shielded VM configuration:
         ```
-        gcloud compute instances describe <INSTANCE_NAME> --zone=<ZONE> --format='json(name,shieldedInstanceConfig.enableIntegrityMonitoring)'
+        gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(shieldedInstanceConfig)'
         ```
+        Replace `INSTANCE_NAME` and `ZONE` accordingly.
 
-        2. Ensure that `enableIntegrityMonitoring` is set to `true`. If the VM is not a Shielded VM image, you will not see a `shieldedInstanceConfig` in the output.
+        2. Examine the output. Ensure the `shieldedInstanceConfig` object exists and the `enableIntegrityMonitoring` field is set to `true`. If `shieldedInstanceConfig` is absent or `enableIntegrityMonitoring` is `false`, the feature is not enabled.
       remediation: |
-        To be able turn on `Integrity Monitoring` on an instance, your instance must use an image with Shielded VM support and have vTPM enabled.
+        Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
 
         **From Google Cloud Console**
 
-        1. Go to the `VM instances` page by visiting: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-
-        2. Click on the instance name to see its `VM instance details` page.
-
-        3. Click `STOP` to stop the instance.
-
-        4. When the instance has stopped, click `EDIT`.
-
-        5. In the Shielded VM section, select `Turn on Integrity Monitoring`. Ensure `Turn on vTPM` is also selected.
-
-        6. Click the `Save` button to modify the instance and then click `START` to restart it.
+        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+        2. Click the name of the instance to modify.
+        3. If the instance is running, click `STOP` and confirm. Wait for it to stop completely.
+        4. Click `EDIT`.
+        5. Scroll down to the `Shielded VM` section.
+        6. Ensure `vTPM` is enabled.
+        7. Check the box or toggle the switch to enable `Integrity Monitoring`.
+        8. Click `Save`.
+        9. Click `START / RESUME` to restart the instance.
 
         **From Google Cloud CLI**
 
-        You can only enable Shielded VM options on instances that have Shielded VM support. For a list of Shielded VM public images, run the gcloud compute images list command with the following flags:
-
+        Ensure the instance uses a compatible image and has vTPM enabled. You can list public Shielded VM images:
         ```
-        gcloud compute images list --project gce-uefi-images --no-standard-images
-        ```
-
-        1. Stop the instance:
-        ```
-        gcloud compute instances stop <INSTANCE_NAME> --zone=<ZONE>
-        ```
-        2. Update the instance to enable Integrity Monitoring (this also enables vTPM if not already enabled):
-
-        ```
-        gcloud compute instances update <INSTANCE_NAME> --zone=<ZONE> --shielded-vm-integrity-monitoring
+        gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(INTEGRITY_MONITORING)"
         ```
 
-        3. Restart the instance:
-
+        1. Stop the instance if it is running:
         ```
-        gcloud compute instances start <INSTANCE_NAME> --zone=<ZONE>
+        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
+        ```
+        2. Update the instance to enable Integrity Monitoring (this command implicitly enables vTPM as well):
+        ```
+        gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-integrity-monitoring
+        ```
+        3. Start the instance:
+        ```
+        gcloud compute instances start INSTANCE_NAME --zone=ZONE
         ```
 
         **Prevention:**
-
-        You can ensure that all new VMs will be created with Shielded VM enabled by setting up an Organization Policy for `Shielded VM` at [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Learn more at:
-        [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
+        Enforce the use of Shielded VMs (which includes Integrity Monitoring when enabled) for new instances using the `constraints/compute.requireShieldedVm` Organization Policy. Configure this at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). See documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
   - uid: gcp-compute-instances-integrity-monitoring-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -2360,8 +2253,8 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources { 
-        blocks.where(type == 'shielded_instance_config') { 
+      terraform.resources {
+        blocks.where(type == 'shielded_instance_config') {
           attributes['enable_integrity_monitoring'].value == true
         }
       }
