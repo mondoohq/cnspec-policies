@@ -2856,7 +2856,6 @@ queries:
   - uid: aws-lambda-function-public-access-prohibited-single
     filters: |
       asset.platform == "aws-lambda-function"
-      aws.lambda.function.policy != empty
     mql: |
       aws.lambda.function.policy.Statement.where(Effect == "Allow").all(Principal {AWS {_ != "*"}})
   - uid: aws-lambda-function-public-access-prohibited-terraform-hcl
