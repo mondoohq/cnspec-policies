@@ -160,6 +160,7 @@ Signin
 sntrup
 socketfilterfw
 softwareupdate
+SQLSERVER
 srv
 ssldir
 sudolog
@@ -169,6 +170,7 @@ tallylog
 timeval
 tinyssh
 tmpfiles
+uefi
 umac
 uniformbucketlevelaccess
 unlinkat
