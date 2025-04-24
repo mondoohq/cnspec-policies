@@ -1505,38 +1505,38 @@ queries:
 
         **Prevention:**
         Utilize the Organization Policy `constraints/compute.vmExternalIpAccess` to restrict or deny the assignment of external IP addresses to VMs across your organization or specific folders/projects. Configure this policy at: [https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess](https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess)
-  - uid: gcp-compute-instances-confidential-vm-enabled-single
+  - uid: gcp-compute-instances-no-public-ip-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
       gcp.compute.instance.machineType.name == /n2d-/
     mql: |
-      gcp.compute.instance.confidentialInstanceConfig['enabled'] == true
-  - uid: gcp-compute-instances-confidential-vm-enabled-terraform-hcl
+      gcp.compute.instance.networkInterfaces { accessConfigs == [] }
+  - uid: gcp-compute-instances-no-public-ip-terraform-hcl
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      terraform.resources {
-        blocks.where(type == "confidential_instance_config") {
-          attributes['enable_confidential_compute'].value == true
+      terraform.resources.where(nameLabel == 'google_compute_instance') {
+        blocks.where(type == 'network_interface') {
+          blocks.where(type == 'access_config') == empty
         }
       }
-  - uid: gcp-compute-instances-confidential-vm-enabled-terraform-plan
+  - uid: gcp-compute-instances-no-public-ip-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
       terraform.plan.resourceChanges.where(type == "google_compute_instance") {
-        change.after['confidential_instance_config'] {
-          enable_confidential_compute == true
+        change.after['network_interface'] {
+          _['access_config'] == empty
         }
       }
-  - uid: gcp-compute-instances-confidential-vm-enabled-terraform-state
+  - uid: gcp-compute-instances-no-public-ip-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
-        values['confidential_instance_config'] {
-          _['enable_confidential_compute'] == true
+        values['network_interface'] {
+          _['access_config'] == empty
         }
       }
 
