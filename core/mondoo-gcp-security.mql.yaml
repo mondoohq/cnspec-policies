@@ -1521,7 +1521,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-no-public-ip
     title: Ensure public IP addresses are not assigned to VM instances
-    impact: 100
+    impact: 75
     variants:
       - uid: gcp-compute-instances-no-public-ip-single
       - uid: gcp-compute-instances-no-public-ip-terraform-hcl
@@ -1640,7 +1640,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-enabled
     title: Ensure the Confidential VM service enabled for all VM instances
-    impact: 100
+    impact: 75
     variants:
       - uid: gcp-compute-instances-confidential-vm-enabled-single
       - uid: gcp-compute-instances-confidential-vm-enabled-terraform-hcl
@@ -1743,7 +1743,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-no-default-service-account
     title: Ensure the default service account is not used on VM instances
-    impact: 100
+    impact: 80
     variants:
       - uid: gcp-compute-instances-no-default-service-account-single
       - uid: gcp-compute-instances-no-default-service-account-terraform-plan
@@ -1833,7 +1833,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys
     title: Ensure “Block Project-Wide SSH Keys” Is Enabled for VM Instances
-    impact: 100
+    impact: 80
     variants:
       - uid: gcp-compute-instances-block-project-wide-ssh-keys-single
       - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-hcl
@@ -1925,7 +1925,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled
     title: Ensure Confidential VM Service is enabled for all VM instances
-    impact: 100
+    impact: 75
     variants:
       - uid: gcp-compute-instances-confidential-vm-service-enabled-single
       - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-hcl
@@ -2032,7 +2032,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled
     title: Ensure Secure Boot is enabled for all VM instances
-    impact: 100
+    impact: 90
     variants:
       - uid: gcp-compute-instances-secure-boot-enabled-single
       - uid: gcp-compute-instances-secure-boot-enabled-terraform-hcl
@@ -2150,7 +2150,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-vtpm-enabled
     title: Ensure vTPM is enabled for all VM instances
-    impact: 100
+    impact: 90
     variants:
       - uid: gcp-compute-instances-vtpm-enabled-single
       - uid: gcp-compute-instances-vtpm-enabled-terraform-hcl
@@ -2268,7 +2268,7 @@ queries:
 
   - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled
     title: Ensure Integrity Monitoring is enabled for all VM instances
-    impact: 100
+    impact: 90
     variants:
       - uid: gcp-compute-instances-integrity-monitoring-enabled-single
       - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-hcl
