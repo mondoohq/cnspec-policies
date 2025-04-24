@@ -266,7 +266,7 @@ queries:
       )
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.plan.resourceChanges.contains(type == 'google_compute_instance')
+      asset.platform == 'terraform-hcl'
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
         blocks.where(type == 'service_account') { 
@@ -275,17 +275,17 @@ queries:
       }
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.contains(type 'google_compute_instance')
+      asset.platform == 'terraform-plan'
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
         change.after.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
       }
   - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
+      asset.platform == 'terraform-state'
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
-        values.service_account.map(scopes).first.where(_ == 'https://www.googleapis.com/auth/cloud-platform') 
+        values.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
       }
 
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
