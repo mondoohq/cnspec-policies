@@ -319,6 +319,9 @@ queries:
     impact: 70
     variants:
       - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
+      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-hcl
+      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-plan
+      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-state
       - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     docs:
       desc: |
@@ -1606,22 +1609,34 @@ queries:
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
     mql: |
-      gcp.compute.instance.networkInterfaces { accessConfigs == [] }
+      gcp.compute.instance.networkInterfaces { accessConfigs == empty }
   - uid: gcp-compute-instances-no-public-ip-terraform-hcl
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources { 
+        blocks.where(type == "network_interface") { 
+          blocks.where(type == "access_config") == null
+        } 
+      }
   - uid: gcp-compute-instances-no-public-ip-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['network_interface'] {
+          _['access_config'] == empty
+        }
+      }
   - uid: gcp-compute-instances-no-public-ip-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['network_interface'] {
+          _['access_config'] == empty
+        }
+      }
 
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-enabled
     title: Ensure the Confidential VM service enabled for all VM instances
@@ -1702,24 +1717,35 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources { 
+        blocks.where(type == "confidential_instance_config") { 
+          attributes['enable_confidential_compute'].value == true
+        }
+      }
   - uid: gcp-compute-instances-confidential-vm-enabled-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['confidential_instance_config'] {
+          enable_confidential_compute == true
+        }
+      }
   - uid: gcp-compute-instances-confidential-vm-enabled-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['confidential_instance_config'] {
+          _['enable_confidential_compute'] == true
+        }
+      } 
 
   - uid: mondoo-gcp-security-compute-instances-no-default-service-account
     title: Ensure the default service account is not used on VM instances
     impact: 100
     variants:
       - uid: gcp-compute-instances-no-default-service-account-single
-      - uid: gcp-compute-instances-no-default-service-account-terraform-hcl
       - uid: gcp-compute-instances-no-default-service-account-terraform-plan
       - uid: gcp-compute-instances-no-default-service-account-terraform-state
     docs:
@@ -1786,21 +1812,24 @@ queries:
           email == compute_engine_default_service_account_email
         )
       }
-  - uid: gcp-compute-instances-no-default-service-account-terraform-hcl
-    filters: |
-      asset.platform == "terraform-hcl"
-    mql: |
-      # MQL to be added
   - uid: gcp-compute-instances-no-default-service-account-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['service_account'] {
+          email == /$-compute@developer.gserviceaccount.com/
+        }
+      }
   - uid: gcp-compute-instances-no-default-service-account-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['service_account'] {
+          _['email'] == /$-compute@developer.gserviceaccount.com/
+        }
+      }
 
   - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys
     title: Ensure “Block Project-Wide SSH Keys” Is Enabled for VM Instances
@@ -1874,17 +1903,25 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources.where(attributes['metadata'] != null) { 
+        attributes['metadata'].value['block-project-ssh-keys'] == true 
+      }
   - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['metadata']['block-project-ssh-keys'] == true
+      }
   - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state'
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['metadata'] {
+          _['block-project-ssh-keys'] == true
+        }
+      }
 
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled
     title: Ensure Confidential VM Service is enabled for all VM instances
@@ -1967,17 +2004,31 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources { 
+        blocks.where(type == 'confidential_instance_config') { 
+          attributes['enable_confidential_compute'].value == true
+        }
+      }
   - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['boot_disk'] {
+          _['initialize_params'].all(
+            _['enable_confidential_compute'] == true
+          )
+        }
+      }
   - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['confidential_instance_config'] {
+          _['enable_confidential_compute'] == true
+        }
+      }
 
   - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled
     title: Ensure Secure Boot is enabled for all VM instances
@@ -2073,17 +2124,29 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources { 
+        blocks.where(type == 'shielded_instance_config') { 
+          attributes['enable_secure_boot'].value == true
+        }
+      }
   - uid: gcp-compute-instances-secure-boot-enabled-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['shielded_instance_config'] {
+          _['enable_secure_boot'] == true
+        }
+      }
   - uid: gcp-compute-instances-secure-boot-enabled-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['shielded_instance_config'] {
+          _['enable_secure_boot'] == true
+        }
+      }
 
   - uid: mondoo-gcp-security-compute-instances-vtpm-enabled
     title: Ensure vTPM is enabled for all VM instances
@@ -2179,17 +2242,29 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources { 
+        blocks.where(type == 'shielded_instance_config') { 
+          attributes['enable_vtpm'].value == true
+        }
+      }
   - uid: gcp-compute-instances-vtpm-enabled-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['shielded_instance_config'] {
+          _['enable_vtpm'] == true
+        }
+      }
   - uid: gcp-compute-instances-vtpm-enabled-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['shielded_instance_config'] {
+          _['enable_vtpm'] == true
+        }
+      }
 
   - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled
     title: Ensure Integrity Monitoring is enabled for all VM instances
@@ -2285,14 +2360,26 @@ queries:
     filters: |
       asset.platform == "terraform-hcl"
     mql: |
-      # MQL to be added
+      terraform.resources { 
+        blocks.where(type == 'shielded_instance_config') { 
+          attributes['enable_integrity_monitoring'].value == true
+        }
+      }
   - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-plan
     filters: |
       asset.platform == "terraform-plan"
     mql: |
-      # MQL to be added
+      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+        change.after['shielded_instance_config'] {
+          _['enable_integrity_monitoring'] == true
+        }
+      }
   - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-state
     filters: |
       asset.platform == "terraform-state"
     mql: |
-      # MQL to be added
+      terraform.state.resources.where(type == "google_compute_instance") {
+        values['shielded_instance_config'] {
+          _['enable_integrity_monitoring'] == true
+        }
+      }
