@@ -63,6 +63,7 @@ etm
 exim
 faillock
 faillog
+FCr
 FEMI
 firstuser
 fmask
@@ -81,6 +82,7 @@ hmac
 Hostbased
 hostpath
 idpuser
+iis
 Jalr
 johnpaul
 jsonencode
