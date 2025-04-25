@@ -3703,6 +3703,9 @@ queries:
     impact: 100
     variants:
       - uid: mondoo-aws-security-rds-cluster-public-access-check-single
+      - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-hcl
+      - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-plan
+      - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Relational Database Service (RDS) clusters and cluster instances are not publicly accessible to prevent unauthorized access to sensitive databases. By default, RDS instances can be configured to allow public access, which exposes them to the internet, increasing the risk of security breaches, unauthorized data access, and potential data exfiltration.
@@ -3882,7 +3885,24 @@ queries:
           routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
         )
       )
-
+  - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_rds_cluster").all(
+        arguments.publicly_accessible != true
+      )
+  - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_rds_cluster").all(
+        change.after.publicly_accessible != true
+      )
+  - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_rds_cluster")
+    mql: |
+      terraform.state.resources.where(type == "aws_rds_cluster").all(
+        values.publicly_accessible != true
+      )
 
 
   - uid: mondoo-aws-security-rds-instance-public-access-check
