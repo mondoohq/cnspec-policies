@@ -1494,9 +1494,12 @@ queries:
 
   - uid: mondoo-aws-security-ec2-ebs-encryption-by-default
     title: Ensure EBS volume encryption is enabled by default
-    filters: asset.platform == "aws"
     impact: 90
-    mql: aws.ec2.ebsEncryptionByDefault.values.all(_ == true)
+    variants:
+      - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-api
+      - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-terraform-hcl
+      - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-terraform-plan
+      - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Elastic Block Store (EBS) volume encryption is enabled by default in an AWS account. Enabling default encryption ensures that all newly created EBS volumes are encrypted automatically using AWS Key Management Service (KMS) keys. This eliminates the risk of unencrypted volumes being created inadvertently.
@@ -1586,7 +1589,27 @@ queries:
     refs:
       - url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default
         title: AWS Documentation - Encryption by default
-
+  - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-api
+    filters: asset.platform == "aws"
+    mql: aws.ec2.ebsEncryptionByDefault.values.all(_ == true)
+  - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_ebs_encryption_by_default")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_ebs_encryption_by_default").all(
+        arguments.enabled == true
+      )
+  - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_ebs_encryption_by_default")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_ebs_encryption_by_default").all(
+        change.after.enabled == true
+      )
+  - uid: mondoo-aws-security-ec2-ebs-encryption-by-default-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_ebs_encryption_by_default")
+    mql: |
+      terraform.state.resources.where(type == "aws_ebs_encryption_by_default").all(
+        values.enabled == true
+      )
 
 
   - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
