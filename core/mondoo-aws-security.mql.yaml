@@ -3905,6 +3905,7 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-rds-instance-public-access-check
     title: Ensure all RDS instances are not publicly accessible
     impact: 100
