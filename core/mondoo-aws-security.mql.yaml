@@ -2947,7 +2947,7 @@ queries:
             **Using Terraform:**
 
             ```hcl
-            # Ensure auto minor version upgrades are enabled to reduce manual management
+            # You can use auto minor version upgrades to reduce manual management
             resource "aws_db_instance" "secure_rds" {
               identifier                  = "secure-rds-instance"
               engine                      = "mysql"
