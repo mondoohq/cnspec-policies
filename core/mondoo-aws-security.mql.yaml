@@ -3902,7 +3902,6 @@ queries:
     filters: |
       asset.platform == "aws-rds-dbcluster"
     mql: |
-      aws.rds.dbcluster.publiclyAccessible == false
       aws.rds.dbcluster.securityGroups.none(
         vpc.routeTables.where(
           routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
@@ -3911,20 +3910,42 @@ queries:
   - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster")
     mql: |
-      terraform.resources.where(nameLabel == "aws_rds_cluster").all(
-        arguments.publicly_accessible != true
+      # Check that subnet groups used by RDS clusters aren't in public subnets
+      clusterSubnetGroups = terraform.resources.where(nameLabel == "aws_rds_cluster").map(arguments.db_subnet_group_name)
+      clusterSubnetGroups = terraform.resources.where(nameLabel == "aws_rds_cluster").map(arguments.db_subnet_group_name).map(_.split(".")).flat
+      terraform.resources.where(nameLabel.in(clusterSubnetGroups))
+
+
+        arguments.subnet_ids.none(id =>
+          terraform.resources.where(nameLabel == "aws_route_table_association" && arguments.subnet_id == id).any(
+            related.where(nameLabel == "aws_route_table").any(
+              blocks.where(type == "route").any(
+                arguments.gateway_id == /^igw-/ && arguments.destination_cidr_block == "0.0.0.0/0"
+              )
+            )
+          )
+        )
       )
+
+
   - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster")
     mql: |
-      terraform.plan.resourceChanges.where(type == "aws_rds_cluster").all(
-        change.after.publicly_accessible != true
+      # In Terraform plan, check if any route table associations connect clusters to IGWs
+      terraform.plan.resourceChanges.where(type == "aws_route_table").none(
+        change.after.route.any(
+          gateway_id == /^igw-/ && destination_cidr_block == "0.0.0.0/0"
+        )
       )
+
   - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_rds_cluster")
     mql: |
-      terraform.state.resources.where(type == "aws_rds_cluster").all(
-        values.publicly_accessible != true
+      # In Terraform state, check routing tables to ensure clusters aren't in subnets with IGW routes
+      terraform.state.resources.where(type == "aws_route_table").none(
+        values.route.any(
+          gateway_id == /^igw-/ && destination_cidr_block == "0.0.0.0/0"
+        )
       )
 
 
