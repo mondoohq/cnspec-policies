@@ -2878,6 +2878,7 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-rds-instance-no-pending-os-upgrades
     title: Ensure no pending OS upgrades are available for RDS instances
     impact: 90
