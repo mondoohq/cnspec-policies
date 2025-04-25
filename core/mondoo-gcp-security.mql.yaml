@@ -22,7 +22,6 @@ policies:
     groups:
       - title: GCP Project
         filters: |
-          asset.family.contains('google')
           asset.runtime == 'gcp'
         checks:
           - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
