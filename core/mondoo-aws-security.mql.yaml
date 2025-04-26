@@ -4851,12 +4851,12 @@ queries:
 
   - uid: mondoo-aws-security-efs-encrypted-check
     title: Ensure EFS is configured to encrypt file data using KMS
-    filters: |
-      asset.platform == "aws-efs-filesystem"
     impact: 75
-    mql: |
-      aws.efs.filesystem.encrypted == true
-      aws.efs.filesystem.kmsKey != empty
+    variants:
+      - uid: mondoo-aws-security-efs-encrypted-check-single
+      - uid: mondoo-aws-security-efs-encrypted-check-terraform-hcl
+      - uid: mondoo-aws-security-efs-encrypted-check-terraform-plan
+      - uid: mondoo-aws-security-efs-encrypted-check-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Elastic File System (EFS) is configured to encrypt file data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that files are stored securely. AWS KMS provides centralized key management and integrates with EFS to automatically encrypt and decrypt data transparently.
@@ -4946,6 +4946,36 @@ queries:
         title: Terraform Registry - aws_efs_file_system resource
       - url: https://docs.aws.amazon.com/efs/latest/ug/creating-using-create-fs.html#creating-using-fs-part1-cli
         title: AWS Documentation - Creating a file system using the AWS CLI
+  - uid: mondoo-aws-security-efs-encrypted-check-single
+    filters: asset.platform == "aws-efs-filesystem"
+    mql: |
+      aws.efs.filesystem.encrypted == true
+      aws.efs.filesystem.kmsKey != empty
+  - uid: mondoo-aws-security-efs-encrypted-check-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_efs_file_system")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_efs_file_system").all(
+        arguments.encrypted == true
+          && arguments.kms_key_id != empty
+      )
+  - uid: mondoo-aws-security-efs-encrypted-check-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_efs_file_system")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_efs_file_system").all(
+        change.after.encrypted == true
+      )
+      terraform.plan.resourceChanges.where(type == "aws_efs_file_system").all(
+        change.after.kms_key_id != empty
+      )
+  - uid: mondoo-aws-security-efs-encrypted-check-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_efs_file_system")
+    mql: |
+      terraform.state.resources.where(type == "aws_efs_file_system").all(
+        values.encrypted == true
+      )
+      terraform.state.resources.where(type == "aws_efs_file_system").all(
+        values.kms_key_id != empty
+      )
 
 
 
