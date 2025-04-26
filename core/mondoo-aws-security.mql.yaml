@@ -4333,8 +4333,9 @@ queries:
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_instance")
     mql: |
       terraform.plan.resourceChanges.where(type == "aws_instance").all(
-        change.after.root_block_device[0].delete_on_termination == true &&
-        (change.after.ebs_block_device == empty || change.after.ebs_block_device[0].delete_on_termination == true)
+        change.after.root_block_device.any(
+          delete_on_termination == true
+        )
       )
   - uid: mondoo-aws-security-ec2-volume-inuse-check-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_instance")
