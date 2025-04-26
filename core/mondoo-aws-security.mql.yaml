@@ -4414,19 +4414,11 @@ queries:
           desc: |
             **Using Terraform:**
 
-            Ensure EBS snapshots are private:
+            Note: It's not possible to set this on snapshot level via terraform, but you can use a global setting:
 
             ```hcl
-            resource "aws_ebs_snapshot" "secure_snapshot" {
-              volume_id = aws_ebs_volume.example.id
-
-              tags = {
-                Name = "secure-snapshot"
-              }
-            }
-
-            resource "aws_ebs_snapshot_public_access_block" "secure_snapshot" {
-              snapshot_id = aws_ebs_snapshot.secure_snapshot.id
+            resource "aws_ebs_snapshot_block_public_access" "secure_snapshot" {
+              state = "block-all-sharing"
             }
             ```
         - id: cloudformation
@@ -4437,31 +4429,19 @@ queries:
 
             ```yaml
             Resources:
-              SecureEBSSnapshot:
-                Type: "AWS::EC2::Snapshot"
+              SecureSnapshot:
+                Type: AWS::EC2::SnapshotBlockPublicAccess
                 Properties:
-                  VolumeId: !Ref SecureEBSVolume
-                  Tags:
-                    - Key: "Name"
-                      Value: "Secure Snapshot"
-              SecureEBSVolume:
-                Type: "AWS::EC2::Volume"
-                Properties:
-                  Size: 20
-                  AvailabilityZone: "us-east-1a"
+                  State: block-all-sharing
             ```
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-single
     filters: asset.platform == "aws-ebs-snapshot"
     mql: |
       aws.ec2.snapshot.createVolumePermission.none(Group == "all")
-
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_ebs_snapshot")
     mql: |
-      terraform.resources.where(nameLabel == "aws_ebs_snapshot_public_access_block").any() ||
-      terraform.resources.where(nameLabel == "aws_ebs_snapshot").none(
-        related.where(labels.contains("aws_ebs_snapshot_public_permission"))
-      )
+      terraform.resources.any(nameLabel == "aws_ebs_snapshot_block_public_access" && arguments.state == "block-all-sharing")
 
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_ebs_snapshot")
