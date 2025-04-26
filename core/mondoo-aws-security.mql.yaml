@@ -4631,10 +4631,10 @@ queries:
     title: Attached EBS volumes are configured to be encrypted at-rest
     impact: 70
     variants:
-      - uid: mondoo-aws-ec2-encrypted-volumes-single
-      - uid: mondoo-aws-ec2-encrypted-volumes-terraform-hcl
-      - uid: mondoo-aws-ec2-encrypted-volumes-terraform-plan
-      - uid: mondoo-aws-ec2-encrypted-volumes-terraform-state
+      - uid: mondoo-aws-security-ec2-encrypted-volumes-single
+      - uid: mondoo-aws-security-ec2-encrypted-volumes-terraform-hcl
+      - uid: mondoo-aws-security-ec2-encrypted-volumes-terraform-plan
+      - uid: mondoo-aws-security-ec2-encrypted-volumes-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Elastic Block Store (EBS) volumes are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that volume contents are stored securely. AWS KMS provides centralized key management and integrates with EBS to automatically encrypt and decrypt data transparently.
@@ -4823,25 +4823,24 @@ queries:
                         Encrypted: true
                         KmsKeyId: !Ref "AWS::NoValue"  # Uses AWS-managed key by default
             ```
-  - uid: aws-ec2-encrypted-volumes-single
+  - uid: mondoo-aws-security-ec2-encrypted-volumes-single
     filters: |
       asset.platform == "aws-ebs-volume" &&
       aws.ec2.volume.state != /deleting|deleted|error/
     mql: aws.ec2.volume.encrypted == true
-
-  - uid: aws-ec2-encrypted-volumes-terraform-hcl
+  - uid: mondoo-aws-security-ec2-encrypted-volumes-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_ebs_volume")
     mql: |
       terraform.resources.where(nameLabel == "aws_ebs_volume").all(
         arguments.encrypted == true
       )
-  - uid: aws-ec2-encrypted-volumes-terraform-plan
+  - uid: mondoo-aws-security-ec2-encrypted-volumes-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_ebs_volume")
     mql: |
       terraform.plan.resourceChanges.where(type == "aws_ebs_volume").all(
         change.after.encrypted == true
       )
-  - uid: aws-ec2-encrypted-volumes-terraform-state
+  - uid: mondoo-aws-security-ec2-encrypted-volumes-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_ebs_volume")
     mql: |
       terraform.state.resources.where(type == "aws_ebs_volume").all(
