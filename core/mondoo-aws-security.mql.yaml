@@ -4337,13 +4337,25 @@ queries:
           delete_on_termination == true
         )
       )
+      terraform.plan.resourceChanges.where(type == "aws_instance").all(
+        change.after.ebs_block_device.any(
+          delete_on_termination == true
+        )
+      )
   - uid: mondoo-aws-security-ec2-volume-inuse-check-terraform-state
     filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_instance")
     mql: |
       terraform.state.resources.where(type == "aws_instance").all(
-        values.root_block_device[0].delete_on_termination == true &&
-        (values.ebs_block_device == empty || values.ebs_block_device[0].delete_on_termination == true)
+        values.root_block_device.any(
+          delete_on_termination == true
+        )
       )
+      terraform.state.resources.where(type == "aws_instance").all(
+        values.ebs_block_device.any(
+          delete_on_termination == false
+        )
+      )
+
 
 
   - uid: mondoo-aws-security-ebs-snapshot-public-restorable-check
