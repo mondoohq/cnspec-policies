@@ -4464,6 +4464,9 @@ queries:
     impact: 70
     variants:
       - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
+      - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-hcl
+      - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-plan
+      - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Elastic Block Store (EBS) snapshots are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption helps protect sensitive data from unauthorized access by ensuring that snapshot contents are stored securely. AWS KMS provides centralized key management and integrates with EBS snapshots to automatically encrypt and decrypt data transparently.
@@ -4609,6 +4612,18 @@ queries:
     filters: asset.platform == "aws-ebs-snapshot"
     mql: |
       aws.ec2.snapshot.encrypted == true
+  - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_ebs_snapshot")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_ebs_snapshot").all(
+        change.after.encrypted == true
+      )
+  - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_ebs_snapshot")
+    mql: |
+      terraform.state.resources.where(type == "aws_ebs_snapshot").all(
+        values.encrypted == true
+      )
 
 
 
