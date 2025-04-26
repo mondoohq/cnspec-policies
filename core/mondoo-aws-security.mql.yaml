@@ -4981,9 +4981,13 @@ queries:
 
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
     title: Ensure CloudWatch Logs are encrypted at rest using KMS CMKs
-    filters: asset.platform == "aws"
     impact: 70
     mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
+    variants:
+      - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-single
+      - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-hcl
+      - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-plan
+      - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-state
     docs:
       desc: |
         This check ensures that Amazon CloudWatch log groups are configured to encrypt log data at rest using AWS Key Management Service (KMS) Customer-Managed Keys (CMKs). CloudWatch Logs store critical operational and security data, and encrypting them using CMKs enhances security by providing better control over key management and access policies.
@@ -5069,6 +5073,27 @@ queries:
                   EnableKeyRotation: true
             ```
 
+  - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-single
+    filters: asset.platform == "aws"
+    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
+  - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_cloudwatch_log_group")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_cloudwatch_log_group").all(
+        arguments.kms_key_id != empty
+      )
+  - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_cloudwatch_log_group")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_cloudwatch_log_group").all(
+        change.after.kms_key_id != empty
+      )
+  - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_cloudwatch_log_group")
+    mql: |
+      terraform.state.resources.where(type == "aws_cloudwatch_log_group").all(
+        values.kms_key_id != empty
+      )
 
 
   - uid: mondoo-aws-security-elb-security-policy-enabled
