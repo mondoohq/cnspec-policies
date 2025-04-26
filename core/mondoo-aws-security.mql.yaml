@@ -1614,11 +1614,12 @@ queries:
 
   - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access
     title: Ensure public access to S3 buckets is blocked at the account level
-    filters: asset.platform == "aws"
     impact: 95
-    mql: |
-      aws.s3control.accountPublicAccessBlock != empty
-      aws.s3control.accountPublicAccessBlock.values.all(_ == true)
+    variants:
+      - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-single
+      - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-terraform-hcl
+      - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-terraform-plan
+      - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-terraform-state
     docs:
       desc: |
         This check ensures that Amazon S3 Public Access Block settings are enabled at the account level to prevent accidental or intentional exposure of data stored in S3 buckets. Enforcing this setting at the account level ensures that no S3 bucket or object can be made public, even if bucket policies or ACLs attempt to allow public access.
@@ -1708,6 +1709,38 @@ queries:
         title: Blocking public access to your Amazon S3 storage
       - url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/configuring-block-public-access-account.html
         title: Configuring block public access settings for your account
+  - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-single
+    filters: asset.platform == "aws"
+    mql: |
+      aws.s3control.accountPublicAccessBlock != empty
+      aws.s3control.accountPublicAccessBlock.values.all(_ == true)
+  - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_s3_account_public_access_block")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_s3_account_public_access_block").all(
+        arguments.block_public_acls == true &&
+        arguments.ignore_public_acls == true &&
+        arguments.block_public_policy == true &&
+        arguments.restrict_public_buckets == true
+      )
+  - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_s3_account_public_access_block")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_s3_account_public_access_block").all(
+        change.after.block_public_acls == true &&
+        change.after.ignore_public_acls == true &&
+        change.after.block_public_policy == true &&
+        change.after.restrict_public_buckets == true
+      )
+  - uid: mondoo-aws-security-s3-buckets-account-level-block-public-access-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_s3_account_public_access_block")
+    mql: |
+      terraform.state.resources.where(type == "aws_s3_account_public_access_block").all(
+        values.block_public_acls == true &&
+        values.ignore_public_acls == true &&
+        values.block_public_policy == true &&
+        values.restrict_public_buckets == true
+      )
 
 
 
