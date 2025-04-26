@@ -3726,9 +3726,6 @@ queries:
     impact: 100
     variants:
       - uid: mondoo-aws-security-rds-cluster-public-access-check-single
-      - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-hcl
-      - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-plan
-      - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-state
     docs:
       desc: |
         This check ensures that Amazon Relational Database Service (RDS) clusters and cluster instances are not publicly accessible to prevent unauthorized access to sensitive databases. By default, RDS instances can be configured to allow public access, which exposes them to the internet, increasing the risk of security breaches, unauthorized data access, and potential data exfiltration.
@@ -3822,7 +3819,6 @@ queries:
                 master_password         = "yourpassword"
                 vpc_security_group_ids  = [aws_security_group.private_sg.id]
                 db_subnet_group_name    = aws_db_subnet_group.private_db_subnet.name
-                publicly_accessible     = false  # Ensure the cluster is private
               }
 
               resource "aws_rds_cluster_instance" "secure_cluster_instances" {
@@ -3830,7 +3826,7 @@ queries:
                 identifier              = "secure-rds-cluster-instance-${count.index}"
                 cluster_identifier      = aws_rds_cluster.secure_cluster.id
                 instance_class          = "db.r5.large"
-                publicly_accessible     = false  # Also ensure individual instances are private
+                publicly_accessible     = false  # Can only be set on individual instances
                 db_subnet_group_name    = aws_db_subnet_group.private_db_subnet.name
                 engine                  = aws_rds_cluster.secure_cluster.engine
               }
@@ -3905,46 +3901,6 @@ queries:
       aws.rds.dbcluster.securityGroups.none(
         vpc.routeTables.where(
           routes.any(GatewayId == /igw-/ && DestinationCidrBlock == "0.0.0.0/0")
-        )
-      )
-  - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-hcl
-    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_rds_cluster")
-    mql: |
-      # Check that subnet groups used by RDS clusters aren't in public subnets
-      clusterSubnetGroups = terraform.resources.where(nameLabel == "aws_rds_cluster").map(arguments.db_subnet_group_name)
-      clusterSubnetGroups = terraform.resources.where(nameLabel == "aws_rds_cluster").map(arguments.db_subnet_group_name).map(_.split(".")).flat
-      terraform.resources.where(nameLabel.in(clusterSubnetGroups))
-
-
-        arguments.subnet_ids.none(id =>
-          terraform.resources.where(nameLabel == "aws_route_table_association" && arguments.subnet_id == id).any(
-            related.where(nameLabel == "aws_route_table").any(
-              blocks.where(type == "route").any(
-                arguments.gateway_id == /^igw-/ && arguments.destination_cidr_block == "0.0.0.0/0"
-              )
-            )
-          )
-        )
-      )
-
-
-  - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-plan
-    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_rds_cluster")
-    mql: |
-      # In Terraform plan, check if any route table associations connect clusters to IGWs
-      terraform.plan.resourceChanges.where(type == "aws_route_table").none(
-        change.after.route.any(
-          gateway_id == /^igw-/ && destination_cidr_block == "0.0.0.0/0"
-        )
-      )
-
-  - uid: mondoo-aws-security-rds-cluster-public-access-check-terraform-state
-    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_rds_cluster")
-    mql: |
-      # In Terraform state, check routing tables to ensure clusters aren't in subnets with IGW routes
-      terraform.state.resources.where(type == "aws_route_table").none(
-        values.route.any(
-          gateway_id == /^igw-/ && destination_cidr_block == "0.0.0.0/0"
         )
       )
 
