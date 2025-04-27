@@ -165,6 +165,7 @@ socketfilterfw
 softwareupdate
 srv
 ssldir
+SSLv
 sudolog
 sugroup
 syncookies
