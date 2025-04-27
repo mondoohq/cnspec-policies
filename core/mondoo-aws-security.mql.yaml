@@ -340,6 +340,7 @@ queries:
         - id: cloudformation
           desc: |
             **Using AWS CloudFormation:**
+            
             ```yaml
             Resources:
               RequireRootMFAPolicy:
