@@ -2089,7 +2089,7 @@ queries:
     title: Ensure EC2 instances use IMDSv2 for metadata access
     impact: 90
     variants:
-      - uid: mondoo-aws-security-ec2-imdsv2-check-single
+      - uid: mondoo-aws-security-ec2-imdsv2-check-api
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-hcl
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-plan
       - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-state
@@ -2183,12 +2183,16 @@ queries:
                     HttpPutResponseHopLimit: 1
                     HttpEndpoint: "enabled"
             ```
-  - uid: mondoo-aws-security-ec2-imdsv2-check-single
+  - uid: mondoo-aws-security-ec2-imdsv2-check-api
     filters: |
-      asset.platform == "aws-ec2-instance"
-      aws.ec2.instance.state != /terminated|shutting-down/
-      aws.ec2.instance.httpEndpoint == "enabled"
-    mql: aws.ec2.instance.httpTokens == "required"
+      asset.platform == "aws"
+    mql: |
+      aws.ec2.instances.where(
+        state != /terminated|shutting-down/
+          && httpEndpoint == "enabled"
+        ).all(
+          httpTokens == "required"
+        )
   - uid: mondoo-aws-security-ec2-imdsv2-check-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains( nameLabel == "aws_instance")
     mql: terraform.resources.where( nameLabel == "aws_instance" ).all( blocks.where( type == "metadata_options" ) { arguments.http_endpoint == "disabled" || arguments.http_tokens == "required" } )
