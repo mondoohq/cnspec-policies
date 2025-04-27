@@ -5453,6 +5453,7 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-elb-logging-enabled
     title: Ensure Application Load Balancers have logging enabled
     impact: 70
@@ -5786,8 +5787,11 @@ queries:
   - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest
     title: Ensure Amazon OpenSearch Service domains are configured with encryption-at-rest
     impact: 70
-    filters: asset.platform == "aws"
-    mql: aws.es.domains.all(encryptionAtRestEnabled == true)
+    variants:
+      - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-api
+      - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-terraform-hcl
+      - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-terraform-plan
+      - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-terraform-state
     docs:
       desc: |
         This check ensures that Amazon OpenSearch Service domains are configured to encrypt data at rest using AWS Key Management Service (KMS). Encryption at rest protects sensitive search and analytics data from unauthorized access, ensuring that stored data is automatically encrypted before being written to disk.
@@ -5854,9 +5858,9 @@ queries:
             resource "aws_opensearch_domain" "secure_opensearch" {
               domain_name = "secure-opensearch-domain"
 
-              encryption_at_rest {
+              encrypt_at_rest {
                 enabled    = true
-                kms_key_id = aws_kms_key.opensearch_kms_key.arn
+
               }
             }
             ```
@@ -5882,6 +5886,33 @@ queries:
                   Description: "KMS key for OpenSearch encryption"
                   EnableKeyRotation: true
             ```
+  - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-api
+    filters: asset.platform == "aws"
+    mql: aws.es.domains.all(encryptionAtRestEnabled == true)
+  - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_opensearch_domain")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_opensearch_domain").one(
+        blocks.where(type == "encrypt_at_rest" ).contains(
+          arguments.enabled == true
+        )
+      )
+  - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_opensearch_domain")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_opensearch_domain").any(
+        change.after.encrypt_at_rest.contains(
+          enabled == true
+        )
+      )
+  - uid: mondoo-aws-security-elasticsearch-encrypted-at-rest-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_opensearch_domain")
+    mql: |
+      terraform.state.resources.where(type == "aws_opensearch_domain").any(
+        values.encrypt_at_rest.contains(
+          enabled == true
+        )
+      )
 
 
 
