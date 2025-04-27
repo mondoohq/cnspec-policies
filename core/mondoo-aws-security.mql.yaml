@@ -4463,7 +4463,6 @@ queries:
     impact: 70
     variants:
       - uid: mondoo-aws-security-ebs-snapshot-encrypted-single
-      - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-hcl
       - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-plan
       - uid: mondoo-aws-security-ebs-snapshot-encrypted-terraform-state
     docs:
