@@ -3222,9 +3222,9 @@ queries:
     impact: 90
     variants:
       - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-single
-      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-hcl
-      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-plan
-      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-state
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-hcl
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-plan
+      - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-terraform-state
     docs:
       desc: |
         This check ensures that Amazon RDS database clusters have encryption in transit enforced through the appropriate cluster parameter group settings. Specifically, this verifies that the parameter`ssl` is set to "1" which mandates TLS/SSL connections for all database communications, preventing any unencrypted connections to the instances of the cluster.
