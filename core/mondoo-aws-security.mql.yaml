@@ -2236,7 +2236,7 @@ queries:
         **Important caveats:**
 
         - VPC BPA will block all new public access, which may disrupt legitimate public-facing workloads like web applications unless exceptions are properly configured.
-        - Enabling BPA does not retroactively remove existing public access; pre-existing Internet Gateways and public routes remain functional.
+        - Enabling BPA does not retroactively remove existing public access; existing Internet Gateways and public routes remain functional.
         - Service-linked resources managed by AWS (such as those for ELB or NAT Gateways) require explicit exemptions to continue functioning properly.
         - There may be organizational impacts requiring coordination across teams before implementation to avoid disrupting business operations.
       remediation:
