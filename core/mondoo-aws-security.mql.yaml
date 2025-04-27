@@ -3248,133 +3248,132 @@ queries:
         **Note:**
 
         In general cluster parameter groups can be overriden by instance parameter groups, but there is no equivalent setting on instance group level to `ssl`.
-      # Completed Remediation for RDS Cluster Parameter Group SSL
-    remediation:
-      - id: console
-        desc: |
-          **Using AWS Console:**
+      remediation:
+        - id: console
+          desc: |
+            **Using AWS Console:**
 
-          1. Navigate to the AWS RDS Console.
-          2. In the left navigation panel, select Parameter groups.
-          3. Identify the cluster parameter group associated with your RDS cluster.
-          4. Select the parameter group and choose Edit parameters.
-          5. In the parameter search field, search for "ssl".
-          6. Change the value of the ssl parameter from "0" to "1" to enforce SSL connections.
-          7. Select Save changes to apply the modified parameter.
-          8. If this is a new parameter group, you need to associate it with your RDS cluster:
-             - Navigate to Databases in the left panel.
-             - Select your RDS cluster.
-             - Select Modify.
-             - Under Additional configuration, select the parameter group with SSL enabled.
-             - Select Continue and Apply immediately to apply the changes.
-          9. After applying the changes, monitor the cluster status until it shows "Available" again.
-          10. Note that the cluster may require a reboot to apply the parameter change.
-      - id: cli
-        desc: |
-          **Using AWS CLI:**
+            1. Navigate to the AWS RDS Console.
+            2. In the left navigation panel, select Parameter groups.
+            3. Identify the cluster parameter group associated with your RDS cluster.
+            4. Select the parameter group and choose Edit parameters.
+            5. In the parameter search field, search for "ssl".
+            6. Change the value of the ssl parameter from "0" to "1" to enforce SSL connections.
+            7. Select Save changes to apply the modified parameter.
+            8. If this is a new parameter group, you need to associate it with your RDS cluster:
+               - Navigate to Databases in the left panel.
+               - Select your RDS cluster.
+               - Select Modify.
+               - Under Additional configuration, select the parameter group with SSL enabled.
+               - Select Continue and Apply immediately to apply the changes.
+            9. After applying the changes, monitor the cluster status until it shows "Available" again.
+            10. Note that the cluster may require a reboot to apply the parameter change.
+        - id: cli
+          desc: |
+            **Using AWS CLI:**
 
-          First, check if the cluster parameter group has SSL enabled:
+            First, check if the cluster parameter group has SSL enabled:
 
-          ```bash
-          aws rds describe-db-cluster-parameters \
-            --db-cluster-parameter-group-name <parameter-group-name> \
-            --query "Parameters[?ParameterName=='ssl']"
-          ```
+            ```bash
+            aws rds describe-db-cluster-parameters \
+              --db-cluster-parameter-group-name <parameter-group-name> \
+              --query "Parameters[?ParameterName=='ssl']"
+            ```
 
-          If SSL is not enabled (value is "0"), create a modified parameter group:
+            If SSL is not enabled (value is "0"), create a modified parameter group:
 
-          ```bash
-          # First, create a new parameter group (if needed)
-          aws rds create-db-cluster-parameter-group \
-            --db-cluster-parameter-group-name secure-cluster-params \
-            --db-parameter-group-family aurora-mysql5.7 \
-            --description "Cluster parameter group with SSL enabled"
+            ```bash
+            # First, create a new parameter group (if needed)
+            aws rds create-db-cluster-parameter-group \
+              --db-cluster-parameter-group-name secure-cluster-params \
+              --db-parameter-group-family aurora-mysql5.7 \
+              --description "Cluster parameter group with SSL enabled"
 
-          # Modify the SSL parameter to enforce SSL connections
-          aws rds modify-db-cluster-parameter-group \
-            --db-cluster-parameter-group-name secure-cluster-params \
-            --parameters "ParameterName=ssl,ParameterValue=1,ApplyMethod=immediate"
-          ```
+            # Modify the SSL parameter to enforce SSL connections
+            aws rds modify-db-cluster-parameter-group \
+              --db-cluster-parameter-group-name secure-cluster-params \
+              --parameters "ParameterName=ssl,ParameterValue=1,ApplyMethod=immediate"
+            ```
 
-          Apply the parameter group to your RDS cluster:
+            Apply the parameter group to your RDS cluster:
 
-          ```bash
-          aws rds modify-db-cluster \
-            --db-cluster-identifier <cluster-identifier> \
-            --db-cluster-parameter-group-name secure-cluster-params \
-            --apply-immediately
-          ```
+            ```bash
+            aws rds modify-db-cluster \
+              --db-cluster-identifier <cluster-identifier> \
+              --db-cluster-parameter-group-name secure-cluster-params \
+              --apply-immediately
+            ```
 
-          Verify the parameter group is associated and the SSL parameter is set correctly:
+            Verify the parameter group is associated and the SSL parameter is set correctly:
 
-          ```bash
-          aws rds describe-db-clusters \
-            --db-cluster-identifier <cluster-identifier> \
-            --query "DBClusters[*].DBClusterParameterGroup"
+            ```bash
+            aws rds describe-db-clusters \
+              --db-cluster-identifier <cluster-identifier> \
+              --query "DBClusters[*].DBClusterParameterGroup"
 
-          aws rds describe-db-cluster-parameters \
-            --db-cluster-parameter-group-name secure-cluster-params \
-            --query "Parameters[?ParameterName=='ssl']"
-          ```
-      - id: terraform
-        desc: |
-          **Using Terraform:**
+            aws rds describe-db-cluster-parameters \
+              --db-cluster-parameter-group-name secure-cluster-params \
+              --query "Parameters[?ParameterName=='ssl']"
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform:**
 
-          ```hcl
-          # Create a MySQL cluster parameter group with SSL enabled
-          resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
-            name        = "secure-cluster-params-mysql5.7"
-            family      = "aurora-mysql5.7"
-            description = "Cluster parameter group with SSL enabled"
+            ```hcl
+            # Create a MySQL cluster parameter group with SSL enabled
+            resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
+              name        = "secure-cluster-params-mysql5.7"
+              family      = "aurora-mysql5.7"
+              description = "Cluster parameter group with SSL enabled"
 
-            parameter {
-              name  = "require_secure_transport"
-              value = "ON"
+              parameter {
+                name  = "require_secure_transport"
+                value = "ON"
+              }
             }
-          }
 
-          # Create a Postgresql cluster parameter group with SSL enabled
-          resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
-            name        = "secure-cluster-params-pg10"
-            family      = "aurora-postgresql10"
-            description = "Cluster parameter group with SSL enabled"
+            # Create a Postgresql cluster parameter group with SSL enabled
+            resource "aws_rds_cluster_parameter_group" "secure_cluster_params" {
+              name        = "secure-cluster-params-pg10"
+              family      = "aurora-postgresql10"
+              description = "Cluster parameter group with SSL enabled"
 
-            parameter {
-              name  = "ssl"
-              value = "1"
+              parameter {
+                name  = "ssl"
+                value = "1"
+              }
             }
-          }
-          ```
-      - id: cloudformation
-        desc: |
-          **Using AWS CloudFormation:**
+            ```
+        - id: cloudformation
+          desc: |
+            **Using AWS CloudFormation:**
 
-          ```yaml
-          Resources:
-            # Create a cluster parameter group with SSL enabled
-            SecureClusterParameterGroupMysql57:
-              Type: "AWS::RDS::DBClusterParameterGroup"
-              Properties:
-                Description: "Cluster parameter group with SSL enabled"
-                Family: "aurora-mysql5.7"
-                Parameters:
-                  require_secure_transport: "ON"
-                Tags:
-                  - Key: "Name"
-                    Value: "secure-cluster-params"
+            ```yaml
+            Resources:
+              # Create a cluster parameter group with SSL enabled
+              SecureClusterParameterGroupMysql57:
+                Type: "AWS::RDS::DBClusterParameterGroup"
+                Properties:
+                  Description: "Cluster parameter group with SSL enabled"
+                  Family: "aurora-mysql5.7"
+                  Parameters:
+                    require_secure_transport: "ON"
+                  Tags:
+                    - Key: "Name"
+                      Value: "secure-cluster-params"
 
-            # Create a cluster parameter group with SSL enabled
-            SecureClusterParameterGroupPG10:
-              Type: "AWS::RDS::DBClusterParameterGroup"
-              Properties:
-                Description: "Cluster parameter group with SSL enabled"
-                Family: "aurora-postgresql10"
-                Parameters:
-                  ssl: 1
-                Tags:
-                  - Key: "Name"
-                    Value: "secure-cluster-params-pg10"
-          ```
+              # Create a cluster parameter group with SSL enabled
+              SecureClusterParameterGroupPG10:
+                Type: "AWS::RDS::DBClusterParameterGroup"
+                Properties:
+                  Description: "Cluster parameter group with SSL enabled"
+                  Family: "aurora-postgresql10"
+                  Parameters:
+                    ssl: 1
+                  Tags:
+                    - Key: "Name"
+                      Value: "secure-cluster-params-pg10"
+            ```
   - uid: mondoo-aws-security-rds-cluster-parameter-group-ssl-single
     filters: asset.platform == "aws-rds-dbcluster"
     mql: |
