@@ -6,6 +6,7 @@ adml
 admx
 AGPASSOFBMF
 AKIAIOSFODNN
+amz
 ANVA
 apigatewayv
 apparmor
@@ -18,6 +19,7 @@ bigfish
 bigquery
 bonzo
 bootkits
+bpa
 Bpcy
 bqowner
 btmp
@@ -48,6 +50,7 @@ DNSKEY
 driveletter
 dss
 dumpable
+EBSKMS
 ecdhe
 EDE
 edr
@@ -102,6 +105,7 @@ MLE
 mpim
 MRx
 Mvc
+mydb
 nameid
 natd
 nft

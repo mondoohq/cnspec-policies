@@ -3246,7 +3246,7 @@ queries:
 
         **Note:**
 
-        In general cluster parameter groups can be overriden by instance parameter groups, but there is no equivalent setting on instance group level to `ssl`.
+        In general cluster parameter groups can be overridden by instance parameter groups, but there is no equivalent setting on instance group level to `ssl`.
       remediation:
         - id: console
           desc: |
