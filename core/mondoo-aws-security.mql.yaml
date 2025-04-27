@@ -4979,7 +4979,6 @@ queries:
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted
     title: Ensure CloudWatch Logs are encrypted at rest using KMS CMKs
     impact: 70
-    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
     variants:
       - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-api
       - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-hcl
