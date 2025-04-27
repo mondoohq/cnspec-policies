@@ -4982,7 +4982,7 @@ queries:
     impact: 70
     mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
     variants:
-      - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-single
+      - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-api
       - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-hcl
       - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-plan
       - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-state
@@ -5070,9 +5070,10 @@ queries:
                   Description: "KMS key for CloudWatch Log encryption"
                   EnableKeyRotation: true
             ```
-  - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-single
+  - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-api
     filters: asset.platform == "aws"
-    mql: aws.cloudwatch.logGroups.all(kmsKey != empty)
+    mql: |
+      aws.cloudwatch.logGroups.all(kmsKey != empty)
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_cloudwatch_log_group")
     mql: |
