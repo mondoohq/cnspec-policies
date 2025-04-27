@@ -6022,12 +6022,15 @@ queries:
       )
 
 
+
   - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured
     title: Ensure SageMaker notebook instances are configured to use KMS
     impact: 50
-    filters: asset.platform == "aws"
-    mql: |
-      aws.sagemaker.notebookInstances.all(details.kmsKey != empty)
+    variants:
+      - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-single
+      - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-terraform-hcl
+      - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-terraform-plan
+      - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-terraform-state
     docs:
       desc: |
         This check ensures that Amazon SageMaker notebook instances are configured to encrypt data at rest using AWS Key Management Service (KMS). Enabling KMS encryption enhances security by protecting sensitive machine learning (ML) data stored in SageMaker notebook instances from unauthorized access.
@@ -6117,7 +6120,29 @@ queries:
                   Description: "KMS key for SageMaker encryption"
                   EnableKeyRotation: true
             ```
-
+  - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-single
+    filters: asset.platform == "aws-sagemaker-notebookinstance"
+    mql: |
+      aws.sagemaker.notebookinstance.details.kmsKey != empty
+  - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-terraform-hcl
+    filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_sagemaker_notebook_instance")
+    mql: |
+      terraform.resources.where(nameLabel == "aws_sagemaker_notebook_instance").all(
+        arguments.kms_key_id != empty
+      )
+  - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-terraform-plan
+    filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_sagemaker_notebook_instance")
+    mql: |
+      terraform.plan.resourceChanges.where(type == "aws_sagemaker_notebook_instance").all(
+        change.after.kms_key_id != empty ||
+        change.afterUnknown.kms_key_id == true
+      )
+  - uid: mondoo-aws-security-sagemaker-notebook-instance-kms-key-configured-terraform-state
+    filters: asset.platform == "terraform-state" && terraform.state.resources.contains(type == "aws_sagemaker_notebook_instance")
+    mql: |
+      terraform.state.resources.where(type == "aws_sagemaker_notebook_instance").all(
+        values.kms_key_id != empty
+      )
 
 
   - uid: mondoo-aws-security-cloud-trail-log-file-validation-enabled
