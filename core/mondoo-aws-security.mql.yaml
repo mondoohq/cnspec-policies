@@ -423,7 +423,7 @@ queries:
         title: Denotes whether uppercase characters are required for passwords
         mql: "true"
     variants:
-      - uid: mondoo-aws-security-iam-password-policy-single
+      - uid: mondoo-aws-security-iam-password-policy-api
       - uid: mondoo-aws-security-iam-password-policy-terraform-hcl
       - uid: mondoo-aws-security-iam-password-policy-terraform-plan
       - uid: mondoo-aws-security-iam-password-policy-terraform-state
@@ -533,7 +533,7 @@ queries:
         title: User passwords in AWS
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html
         title: Set an account password policy for IAM users
-  - uid: mondoo-aws-security-iam-password-policy-single
+  - uid: mondoo-aws-security-iam-password-policy-api
     filters: asset.platform == "aws"
     mql: |
       // Ensure properties do exist.
@@ -596,7 +596,6 @@ queries:
 
   - uid: mondoo-aws-security-access-keys-rotated
     title: Ensure IAM user access keys are rotated
-    filters: asset.platform == "aws"
     impact: 70
     props:
       - uid: mondooAWSSecurityMaxAccessKeyAge
@@ -1142,10 +1141,10 @@ queries:
                           NumericGreaterThan:
                             "iam:ActiveAccessKeys": "1"
             ```
-  - uid: mondoo-aws-security-iam-users-only-one-access-key-api
-    filters: asset.platform == "aws"
+  - uid: mondoo-aws-security-iam-users-only-one-access-key-single
+    filters: asset.platform == "aws-iam-user"
     mql: |
-      aws.iam.users.where(accessKeys.flat.where(Status == "Active")).all(accessKeys[0].length <= 1)
+      aws.iam.user.accessKeys.flat.where(Status == "Active").length <= 1
   - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_iam_policy")
     mql: |
@@ -5069,9 +5068,9 @@ queries:
                   EnableKeyRotation: true
             ```
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-api
-    filters: asset.platform == "aws"
+    filters: asset.platform == "aws-cloudwatch-loggroup"
     mql: |
-      aws.cloudwatch.logGroups.all(kmsKey != empty)
+      aws.cloudwatch.loggroup.kmsKey != empty
   - uid: mondoo-aws-security-cloudwatch-log-group-encrypted-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_cloudwatch_log_group")
     mql: |
