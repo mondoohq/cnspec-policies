@@ -200,6 +200,7 @@ queries:
         - id: cloudformation
           desc: |
             **Using AWS CloudFormation:**
+            
             AWS does not allow direct management of the root user's access keys via CloudFormation. However, you can create a stack that implements preventative controls:
             ```yaml
             Resources:
