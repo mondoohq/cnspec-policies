@@ -2463,8 +2463,8 @@ queries:
         destination != empty &&
         destinationType == "cloud-watch-logs" &&
         deliverLogsStatus == "SUCCESS" &&
-        (trafficType == "REJECT" || trafficType == "ALL")
-        )
+        trafficType == "REJECT" || trafficType == "ALL"
+      )
   - uid: mondoo-aws-security-vpc-flow-logs-enabled-terraform-hcl
     filters: asset.platform == "terraform-hcl" && terraform.resources.contains(nameLabel == "aws_vpc")
     mql: |
