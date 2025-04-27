@@ -3887,7 +3887,6 @@ queries:
                     VpcSecurityGroupIds:
                       - !Ref PrivateSecurityGroup
                     DBSubnetGroupName: !Ref PrivateDBSubnetGroup
-                    PubliclyAccessible: false  # Ensure the cluster is private
 
                 SecureRDSClusterInstance1:
                   Type: "AWS::RDS::DBInstance"
