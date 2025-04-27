@@ -122,7 +122,7 @@ queries:
     title: Ensure no root user account access key exists
     impact: 85
     variants:
-      - uid: mondoo-aws-security-iam-root-access-key-check-single
+      - uid: mondoo-aws-security-iam-root-access-key-check-api
       - uid: mondoo-aws-security-iam-root-access-key-check-terraform-hcl
       - uid: mondoo-aws-security-iam-root-access-key-check-terraform-plan
       - uid: mondoo-aws-security-iam-root-access-key-check-terraform-state
@@ -221,7 +221,7 @@ queries:
         title: AWS Documentation - AWS account root user
       - url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_delete-key.html
         title: AWS Documentation - Delete access keys for the root user
-  - uid: mondoo-aws-security-iam-root-access-key-check-single
+  - uid: mondoo-aws-security-iam-root-access-key-check-api
     filters: asset.platform == "aws"
     mql: |
       aws.iam.credentialReport.where(properties.user == "<root_account>").all(accessKey1Active == false)
@@ -1032,7 +1032,7 @@ queries:
     title: Ensure there is only one active access key available for any single IAM user
     impact: 70
     variants:
-      - uid: mondoo-aws-security-iam-users-only-one-access-key-api
+      - uid: mondoo-aws-security-iam-users-only-one-access-key-single
       - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-hcl
       - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-plan
       - uid: mondoo-aws-security-iam-users-only-one-access-key-terraform-state
