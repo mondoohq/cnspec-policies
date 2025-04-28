@@ -415,6 +415,8 @@ queries:
     impact: 70
     variants:
       - uid: mondoo-gcp-security-oslogin-enabled-project-single
+      - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-hcl
+      - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-plan
       - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-state
     docs:
       desc: |
@@ -470,7 +472,7 @@ queries:
               tags = ['terraform']
 
               metadata = {
-                enable-oslogin = true
+                "enable-oslogin" = "true"
               }
             }
             ```
@@ -510,13 +512,45 @@ queries:
   - uid: mondoo-gcp-security-oslogin-enabled-project-single
     filters: asset.platform == 'gcp-compute-instance'
     mql: gcp.compute.instance.metadata['enable-oslogin'] == true
+  - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-hcl
+    filters: |
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance' || nameLabel == 'google_compute_project_metadata')
+    mql: |
+      # Check instance metadata
+      terraform.resources.where(nameLabel == 'google_compute_instance').all(
+        arguments.metadata['enable-oslogin'] == true
+      )
+
+      # Check project metadata
+      terraform.resources.where(nameLabel == 'google_compute_project_metadata').all(
+        arguments.metadata['enable-oslogin'] == 'TRUE'
+      )
+  - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-plan
+    filters: |
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.contains(type == 'google_compute_instance' || type == 'google_compute_project_metadata')
+    mql: |
+      # Check instance metadata
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance').all(
+        change.after.metadata['enable-oslogin'] == true
+      )
+
+      # Check project metadata
+      terraform.plan.resourceChanges.where(type == 'google_compute_project_metadata').all(
+        change.after.metadata['enable-oslogin'] == 'TRUE'
+      )
   - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance' || type == 'google_compute_project_metadata')
     mql: |
-      terraform.state.resources.where(type == 'google_compute_instance') { 
+      # Check instance metadata
+      terraform.state.resources.where(type == 'google_compute_instance').all(
         values.metadata['enable-oslogin'] == true
-      }
+      )
+
+      # Check project metadata
+      terraform.state.resources.where(type == 'google_compute_project_metadata').all(
+        values.metadata['enable-oslogin'] == "TRUE"
+      )
 
 
 
