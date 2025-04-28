@@ -295,10 +295,10 @@ queries:
     title: Ensure "Block Project-wide SSH keys" is enabled for VM instances
     impact: 70
     variants:
-      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
-      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
-      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
-      - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
+      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
+      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
+      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
+      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Platform (GCP) projects are configured to use instance-specific SSH keys rather than project-wide SSH keys. This approach limits the impact of credential compromise and supports strong access control at the individual virtual machine level.
@@ -327,52 +327,56 @@ queries:
           •	Enforce organizational policies to prohibit the use of project-wide SSH keys across GCP environments.
 
         Using instance-specific SSH keys improves access control, reduces the blast radius of credential compromise, and aligns with cloud security best practices that emphasize isolation, auditability, and least privilege.
-      remediation: |
-        ### Terraform
+      remediation: 
+        - id: terraform
+          desc: |
+            **Terraform**
 
-        To provision or update a compute instance with Terraform:
+            To provision or update a compute instance with Terraform:
 
-        ```hcl
-        resource "google_compute_instance" "default" {
-          name         = "secure-instance"
-          machine_type = var.machine_type
-          zone         = var.zone
-          tags = ['terraform']
+            ```hcl
+            resource "google_compute_instance" "default" {
+              name         = "secure-instance"
+              machine_type = var.machine_type
+              zone         = var.zone
+              tags = ['terraform']
 
-          metadata = {
-            block-project-ssh-keys = true
-          }
-        }
-        ```
+              metadata = {
+                block-project-ssh-keys = true
+              }
+            }
+            ```
+        - id: console
+          desc: |
+            **Google Cloud Console**
 
-        ### Google Cloud Console
+            To change the policy using the GCP Console:
 
-        To change the policy using the GCP Console:
+            1. Log in to the GCP Console at https://console.cloud.google.com.
+            2. Select the organization/project where the instance(s) you want to update are running.
+            3. Navigate to **Compute Engine**.
+            4. Select the instance you want to update.
+            5. Select **EDIT** in the toolbar.
+            6. Under the **Security and access** section, select the **Block project-wide SSH keys** option.
+            7. Select **SAVE**.
 
-        1. Log in to the GCP Console at https://console.cloud.google.com.
-        2. Select the organization/project where the instance(s) you want to update are running.
-        3. Navigate to **Compute Engine**.
-        4. Select the instance you want to update.
-        5. Select **EDIT** in the toolbar.
-        6. Under the **Security and access** section, select the **Block project-wide SSH keys** option.
-        7. Select **SAVE**.
+            Repeat these steps for each impacted Instance.
+        - id: cli
+          desc: |
+            **Using CLI** `gcloud cli`
 
-        Repeat these steps for each impacted Instance.
+            To update an instance using the `gcloud` cli:
 
-        ### gcloud cli
+            1. Update the instance:
 
-        To update an instance using the `gcloud` cli:
-
-        1. Update the instance:
-
-          ```bash
-          gcloud compute instances add-metadata INSTANCE_NAME --metadata block-projectssh-keys=TRUE
-          ```
-  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
+            ```bash
+            gcloud compute instances add-metadata INSTANCE_NAME --metadata block-projectssh-keys=true
+            ```
+  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
     filters: asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance.metadata['block-project-ssh-keys'] == true
-  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
+  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
     filters: asset.platform == 'terraform-hcl''
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
@@ -382,19 +386,21 @@ queries:
           } 
         } 
       }
-  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
-    filters: asset.platform == 'terraform-plan'
+  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
+    filters: asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
         change.after['metadata'].first['block-project-ssh-keys'] == true 
       }
-  - uid: gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
+  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['block-project-ssh-keys'] == true 
       }
+
+
 
   - uid: mondoo-gcp-security-oslogin-enabled-project
     title: Ensure oslogin is enabled for compute instances
