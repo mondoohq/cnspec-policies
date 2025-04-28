@@ -82,61 +82,65 @@ queries:
           •	Leverage IAM Conditions and organization policies to prevent the use of default service accounts in new deployments.
 
         By avoiding the use of the default Compute Engine service account, organizations can enforce better identity isolation, minimize unnecessary permissions, and enhance the overall security posture of their Google Cloud environment.
-      remediation: |
-        ### Terraform
+      remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
 
-        To provision or update a compute instance with a custom service account:
+            To provision or update a compute instance with a custom service account:
 
-        ```hcl
-        resource "google_compute_instance" "default" {
-          name         = "secure-instance"
-          machine_type = var.machine_type
-          zone         = var.zone
-          tags = ['terraform']
+            ```hcl
+            resource "google_compute_instance" "default" {
+              name         = "secure-instance"
+              machine_type = var.machine_type
+              zone         = var.zone
+              tags = ["terraform"]
 
-          service_account {
-            email  = "example@example.com"
-            scopes = ['user-email", "compute-ro", "storage-ro']
-          }
-        }
-        ```
+              service_account {
+                email  = "example@example.com"
+                scopes = ["user-email", "compute-ro", "storage-ro"]
+              }
+            }
+            ```
+        - id: console
+          desc: |
+            **Google Cloud Console**
 
-        ### Google Cloud Console
+            To change the policy using the GCP Console, follow these steps:
 
-        To change the policy using the GCP Console, follow these steps:
+            1. Log in to the GCP Console at https://console.cloud.google.com.
+            2. Select the Organization and Project where the instance you want to update is running.
+            3. Navigate to **Compute Engine**.
+            4. Select the compute instance that you want to update.
+            5. If the instance is not stopped, select **Stop**. Wait for the instance to stop.
+            6. Select **Edit**.
+            7. Scroll down to the Service Account section.
+            8. Select a different service account.
+            9. Select **Save**.
+            10. Select **START**.
+        - id: cli
+          desc: |
+            **gcloud cli**
 
-        1. Log in to the GCP Console at https://console.cloud.google.com.
-        2. Select the Organization and Project where the instance you want to update is running.
-        3. Navigate to **Compute Engine**.
-        4. Select the compute instance that you want to update.
-        5. If the instance is not stopped, select **Stop**. Wait for the instance to stop.
-        6. Select **Edit**.
-        7. Scroll down to the Service Account section.
-        8. Select a different service account.
-        9. Select **Save**.
-        10. Select **START**.
+            To update the service account using the `gcloud` cli:
 
-        ### gcloud cli
+            1. Stop the instance:
 
-        To update the service account using the `gcloud` cli:
+              ```bash
+              gcloud compute instances stop INSTANCE_NAME
+              ```
 
-        1. Stop the instance:
+            2. Update the instance:
 
-          ```bash
-          gcloud compute instances stop INSTANCE_NAME
-          ```
+              ```bash
+              gcloud compute instances set-service-account INSTANCE_NAME --service-account=SERVICE_ACCOUNT --scopes [SCOPE1,SCOPE2...]
+              ```
 
-        2. Update the instance:
+            3. Restart the instance:
 
-          ```bash
-          gcloud compute instances set-service-account INSTANCE_NAME --serviceaccount=SERVICE_ACCOUNT --scopes [SCOPE1, SCOPE2...]
-          ```
-
-        3. Restart the instance:
-
-          ```bash
-          gcloud compute instances start INSTANCE_NAME
-          ```
+              ```bash
+              gcloud compute instances start INSTANCE_NAME
+              ```
   - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -201,62 +205,66 @@ queries:
           •	Continuously review service account permissions and API scopes as part of your identity and access governance strategy.
 
         Restricting Compute Engine instances to minimal necessary API access helps contain the impact of security incidents, improves visibility and control, and supports a robust and compliant cloud security posture.
-      remediation: |
-        ### Terraform
+      remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
 
-        To provision or update a compute instance with Terraform:
+            To provision or update a compute instance with Terraform:
 
-        ```hcl
-        resource "google_compute_instance" "default" {
-          name         = "secure-instance"
-          machine_type = var.machine_type
-          zone         = var.zone
-          tags = ['terraform']
+            ```hcl
+            resource "google_compute_instance" "default" {
+              name         = "secure-instance"
+              machine_type = var.machine_type
+              zone         = var.zone
+              tags = ['terraform']
 
-          service_account {
-            # Google recommends custom service accounts with cloud-platform scope and permissions granted via IAM Roles.
-            email  = google_service_account.default.email
-            scopes = ['cloud-platform']
-          }
-        }
-        ```
+              service_account {
+                # Google recommends custom service accounts with cloud-platform scope and permissions granted via IAM Roles.
+                email  = google_service_account.default.email
+                scopes = ["cloud-platform"]
+              }
+            }
+            ```
+        - id: console
+          desc: |
+            **Google Cloud Console**
 
-        ### Google Cloud Console
+            To change the policy using the Google Cloud Console:
 
-        To change the policy using the Google Cloud Console:
+            1. Log in to the GCP Console at https://console.cloud.google.com.
+            2. Select the Organization and Project where the instance you want to update is running.
+            3. Navigate to **Compute Engine**.
+            4. Select the compute instance that you want to update.
+            5. If the instance is not stopped, select **Stop**. Wait for the instance to stop.
+            6. Select **Edit**.
+            7. Scroll down to the Service Account section.
+            8. Select a different service account or ensure Allow full access to all Cloud APIs is not selected.
+            9. Select **Save**.
+            10. Select **START**.
+        - id: cli
+          desc: |
+            **gcloud cli**
 
-        1. Log in to the GCP Console at https://console.cloud.google.com.
-        2. Select the Organization and Project where the instance you want to update is running.
-        3. Navigate to **Compute Engine**.
-        4. Select the compute instance that you want to update.
-        5. If the instance is not stopped, select **Stop**. Wait for the instance to stop.
-        6. Select **Edit**.
-        7. Scroll down to the Service Account section.
-        8. Select a different service account or ensure Allow full access to all Cloud APIs is not selected.
-        9. Select **Save**.
-        10. Select **START**.
+            To update the service account using the `gcloud` cli:
 
-        ### gcloud cli
+            1. Stop the instance:
 
-        To update the service account using the `gcloud` cli:
+              ```bash
+              gcloud compute instances stop INSTANCE_NAME
+              ```
 
-        1. Stop the instance:
+            2. Update the instance:
 
-          ```bash
-          gcloud compute instances stop INSTANCE_NAME
-          ```
+              ```bash
+              gcloud compute instances set-service-account INSTANCE_NAME --service-account=SERVICE_ACCOUNT --scopes [SCOPE1,SCOPE2...]
+              ```
 
-        2. Update the instance:
+            3. Restart the instance:
 
-          ```bash
-          gcloud compute instances set-service-account INSTANCE_NAME --serviceaccount=SERVICE_ACCOUNT --scopes [SCOPE1, SCOPE2...]
-          ```
-
-        3. Restart the instance:
-
-          ```bash
-          gcloud compute instances start INSTANCE_NAME
-          ```
+              ```bash
+              gcloud compute instances start INSTANCE_NAME
+              ```
   - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -377,7 +385,7 @@ queries:
     mql: |
       gcp.compute.instance.metadata['block-project-ssh-keys'] == true
   - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
-    filters: asset.platform == 'terraform-hcl''
+    filters: asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
         blocks { 
@@ -406,8 +414,8 @@ queries:
     title: Ensure oslogin is enabled for compute instances
     impact: 70
     variants:
-      - uid: gcp-compute-oslogin-enabled-project-single
-      - uid: gcp-compute-oslogin-enabled-project-terraform-state
+      - uid: mondoo-gcp-compute-oslogin-enabled-project-single
+      - uid: mondoo-gcp-compute-oslogin-enabled-project-terraform-state
     docs:
       desc: |
         This check ensures that OS Login is enabled on Google Cloud Platform (GCP) Compute Engine instances to manage SSH access through IAM roles rather than relying on SSH keys stored in project or instance metadata. OS Login improves access control, auditability, and security by centralizing identity-based SSH authentication.
@@ -437,75 +445,81 @@ queries:
           •	Regularly review IAM policies and login activity to ensure appropriate access and detect anomalies.
 
         Enabling OS Login provides a secure, scalable, and manageable way to control SSH access to Compute Engine instances, aligning with best practices for identity-based access control and centralized policy enforcement in GCP environments.
-      remediation: |
-        ### Terraform
+      remediation: 
+        - id: terraform
+          desc: |
+            **Terraform**
 
-        To configure OS Login for a project:
+            To configure OS Login for a project:
 
-        ```hcl
-        resource "google_compute_project_metadata" "default" {
-          metadata = {
-            enable-oslogin = "TRUE"
-          }
-        }
-        ```
+            ```hcl
+            resource "google_compute_project_metadata" "default" {
+              metadata = {
+                enable-oslogin = "TRUE"
+              }
+            }
+            ```
 
-        To provision or update a compute instance with Terraform:
+            To provision or update a compute instance with Terraform:
 
-        ```hcl
-        resource "google_compute_instance" "default" {
-          name         = "secure-instance"
-          machine_type = var.machine_type
-          zone         = var.zone
-          tags = ['terraform']
+            ```hcl
+            resource "google_compute_instance" "default" {
+              name         = "secure-instance"
+              machine_type = var.machine_type
+              zone         = var.zone
+              tags = ['terraform']
 
-          metadata = {
-            enable-oslogin = true
-          }
-        }
-        ```
+              metadata = {
+                enable-oslogin = true
+              }
+            }
+            ```
+        - id: console
+          desc: |
+            **Google Cloud Console**
 
-        ### Google Cloud Console
+            To configure OS Login for a project via Google Cloud Console:
 
-        To configure OS Login for a project via Google Cloud Console:
+            1. In the Google Cloud console, go to the **Metadata** page.
+            2. Select **EDIT**.
+            3. Add a metadata entry, setting the key to `enable-oslogin` and the value to `TRUE`.
+            4. Select **SAVE** to apply the changes.
 
-        1. In the Google Cloud console, go to the **Metadata** page.
-        2. Select **EDIT**.
-        3. Add a metadata entry, setting the key to `enable-oslogin` and the value to `TRUE`.
-        4. Select **SAVE** to apply the changes.
+            To configure OS Login for an existing instance:
 
-        To configure OS Login for an existing instance:
+            1. In the Google Cloud console, go to the **Compute Engine**.
+            2. Select the name of the instance that you want to enable OS Login on.
+            3. On the instance details page, select **EDIT**.
+            4. Under **Custom metadata**, add a metadata entry, setting the key to `enable-oslogin` and the value to `TRUE`.
+            5. Select **SAVE**.
+        - id: console
+          desc: |
+            **gcloud cli**
 
-        1. In the Google Cloud console, go to the **Compute Engine**.
-        2. Select the name of the instance that you want to enable OS Login on.
-        3. On the instance details page, select **EDIT**.
-        4. Under **Custom metadata**, add a metadata entry, setting the key to `enable-oslogin` and the value to `TRUE`.
-        5. Select **SAVE**.
+            To update OS Login for a project using the `gcloud` cli:
 
-        ### gcloud cli
+            ```bash
+            gcloud compute project-info add-metadata --metadata enable-oslogin=TRUE
+            ```
 
-        To update OS Login for a project using the `gcloud` cli:
+            To update OS Login for an existing instance using the `gcloud` cli:
 
-          ```bash
-          gcloud compute project-info add-metadata --metadata enable-oslogin=TRUE
-          ```
-
-        To update OS Login for an existing instance using the `gcloud` cli:
-
-          ```bash
-          gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
-          ```
-  - uid: gcp-compute-oslogin-enabled-project-single
+            ```bash
+            gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
+            ```
+  - uid: mondoo-gcp-compute-oslogin-enabled-project-single
     filters: asset.platform 'gcp-compute-instance'
     mql:
       gcp.compute.instance.metadata['enable-oslogin'] == true
-  - uid: gcp-compute-oslogin-enabled-project-terraform-state
+  - uid: mondoo-gcp-compute-oslogin-enabled-project-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['enable-oslogin'] == true
       }
+
+
 
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
@@ -533,97 +547,116 @@ queries:
           •	Enforce organization policies that restrict or deny the use of these principals across your projects.
 
         Eliminating access for allUsers and allAuthenticatedUsers on Cloud Storage buckets is a critical step in protecting cloud-resident data, enforcing least privilege access, and ensuring compliance with modern cloud security and privacy standards.
-      remediation: |
-        ### Terraform
+      remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
 
-        To update public access configuration using Terraform, ensure `allUsers` and `allAuthenticatedUsers` are not set:
+            To update public access configuration using Terraform, ensure `allUsers` and `allAuthenticatedUsers` are not set:
 
-        ```hcl
-        resource "google_storage_bucket_iam_binding" "binding" {
-          bucket = google_storage_bucket.default.name
-          role = "roles/storage.admin"
-          members = [
-            "user:jane@example.com",
-          ]
-        }
-        ```
+            ```hcl
+            resource "google_storage_bucket_iam_binding" "binding" {
+              bucket = google_storage_bucket.default.name
+              role   = "roles/storage.admin"
+              members = [
+                "user:jane@example.com",
+              ]
+            }
+            ```
 
-        ```hcl
-        resource "google_storage_bucket_iam_member" "member" {
-          bucket = google_storage_bucket.default.name
-          role = "roles/storage.admin"
-          member = "user:jane@example.com"
-        }
-        ```
+            ```hcl
+            resource "google_storage_bucket_iam_member" "member" {
+              bucket = google_storage_bucket.default.name
+              role   = "roles/storage.admin"
+              member = "user:jane@example.com"
+            }
+            ```
+        - id: console
+          desc: |
+            **Google Cloud Console**
 
-        ### Google Cloud Console
-        1. In the Google Cloud console, go to the **Cloud Storage Bucket** page.
-        2. For the bucket you want to enforce public access prevention on, select the more actions menu.
-        3. Select **Edit access** from the drop-down menu.
-        4. In the Public access card, select **Prevent public access** to enforce public access prevention.
-        5. Select **Confirm**.
+            1. In the Google Cloud console, go to the **Cloud Storage Bucket** page.
+            2. For the bucket you want to enforce public access prevention on, select the more actions menu.
+            3. Select **Edit access** from the drop-down menu.
+            4. In the Public access card, select **Prevent public access** to enforce public access prevention.
+            5. Select **Confirm**.
+        - id: cli
+          desc: |
+            **gcloud cli**
 
-        ### gcloud cli
+            To update public access configuration using the `gcloud` cli, ensure `allUsers` and `allAuthenticatedUsers` are not set by removing them:
 
-        To update public access configuration using the `gcloud` cli, ensure `allUsers` and `allAuthenticatedUsers` are not set:
+            ```bash
+            # Example: Remove allUsers binding for objectViewer role
+            gcloud storage buckets remove-iam-policy-binding gs://BUCKET_NAME --member=allUsers --role=roles/storage.objectViewer
 
-        ```bash
-        gcloud storage buckets add-iam-policy-binding gs://BUCKET_NAME --member=allUsers --role=roles/storage.objectViewer
-        gcloud storage buckets remove-iam-policy-binding gs://BUCKET_NAME --member=allAuthenticatedUsers --role=roles/storage.objectViewer
-        ```
+            # Example: Remove allAuthenticatedUsers binding for objectViewer role
+            gcloud storage buckets remove-iam-policy-binding gs://BUCKET_NAME --member=allAuthenticatedUsers --role=roles/storage.objectViewer
+            ```
   - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
     filters: asset.platform == 'gcp-storage-bucket'
     mql: |
       gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allUsers'))
       gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allAuthenticatedUsers'))
 
+
+
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
     title: Ensure that Cloud Storage buckets have uniform bucket-level access enabled
     impact: 60
     variants:
-      - uid: gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
+      - uid: mondoo-gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
     docs:
       desc: |
         Cloud Storage offers two systems for granting users permission to access your buckets and objects: IAM and Access Control Lists (ACLs). These systems act in parallel - in order for a user to access a Cloud Storage resource, only one of the systems needs to grant the user permission. IAM is used throughout Google Cloud and allows you to grant a variety of permissions at the bucket and project levels. ACLs are used only by Cloud Storage and have limited permission options, but they allow you to grant permissions on a per-object basis.
 
         It is recommended to enable uniform bucket-level access on Cloud Storage buckets. Uniform bucket-level access is used to unify and simplify how you grant access to your Cloud Storage resources. Cloud Storage offers two systems that act in parallel to grant users permission to access buckets and objects:
-      remediation: |
-        ### Terraform
+      remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
 
-        ```hcl
-        resource "google_storage_bucket" "example" {
-          name     = "test-bucket"
-          bucket_policy_only = true
-          uniform_bucket_level_access = true
-        }
-        ```
+            ```hcl
+            resource "google_storage_bucket" "example" {
+              name                        = "test-bucket"
+              # Enable uniform bucket-level access
+              uniform_bucket_level_access = true
+            }
+            ```
+        - id: console
+          desc: |
+            **Google Cloud Console**
 
-        ### Google Cloud Console
+            1. In the Google Cloud console, go to the **Cloud Storage Buckets** page.
+            2. In the list of buckets, select the name of the desired bucket.
+            3. Select the **Permissions** tab near the top of the page.
+            4. In the **Access control** model section, select **Uniform**.
+            5. In the pop-up menu that appears, select **Save**.
+        - id: cli
+          desc: |
+            **gcloud cli**
 
-        1. In the Google Cloud console, go to the **Cloud Storage Buckets** page.
-        2. In the list of buckets, select the name of the desired bucket.
-        3. Select the **Permissions** tab near the top of the page.
-        4. In the text box named **Access Control**, select the **Switch to** link. Note that the text box disappears 90 days after you enable uniform bucket-level access.
-        5. In the pop-up menu that appears, select **Fine-grained**.
-        6. Select **Save**.
+            ```bash
+            # Enable uniform bucket-level access
+            gcloud storage buckets update gs://BUCKET_NAME --uniform-bucket-level-access
 
-        ### gcloud cli
-
-        ```bash
-        gsutil uniformbucketlevelaccess set STATE gs://BUCKET_NAME
-        ```
-  - uid: gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
+            # Alternatively using gsutil
+            gsutil uniformbucketlevelaccess set on gs://BUCKET_NAME
+            ```
+  - uid: mondoo-gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
     filters: asset.platform 'gcp-storage-bucket'
     mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
+
+
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed
     title: Ensure Cloud SQL MySQL instances are not publicly exposed
     impact: 100
     variants:
-      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
-      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
-      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
-      - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
+      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
+      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
+      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
+      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     docs:
       desc: |
         Assigning public IP addresses to Cloud SQL MySQL instances expands the potential attack surface, making databases accessible from the public internet and increasing security risks.
@@ -650,32 +683,35 @@ queries:
             ```
 
           3. Inspect the `ipAddresses` section in the output for the instance. Verify that an entry exists with `type: PRIVATE`. Crucially, ensure there is no entry with `type: PRIMARY`, as this indicates a public IP address. While an instance can technically possess both during transitions, the secure state is having only the `PRIVATE` type assigned.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
-        2.  Click on the name of the target instance to view its configuration details.
-        3.  Navigate to the **Connections** settings tab.
-        4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
-        5.  Confirm the modification by clicking the **Save** button.
+            1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
+            2.  Click on the name of the target instance to view its configuration details.
+            3.  Navigate to the **Connections** settings tab.
+            4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
+            5.  Confirm the modification by clicking the **Save** button.
 
-        **Using the Google Cloud CLI**
+            **Prevention:**
 
-        1.  Modify the target instance to remove its public IP address and ensure it's associated with a VPC network for private IP access. Replace `INSTANCE_NAME` with the actual instance name and `VPC_NETWORK_NAME` with the desired VPC network name:
-            ```bash
-            gcloud sql instances patch INSTANCE_NAME --network=VPC_NETWORK_NAME --no-assign-ip
-            ```
-            *Note: If the instance is already associated with the correct VPC network for private IP, you might only need the `--no-assign-ip` flag.*
-        2.  Verify that the public IP address has been removed by inspecting the instance's configuration:
-            ```bash
-            gcloud sql instances describe INSTANCE_NAME
-            ```
-            Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
+            To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Prevention:**
-
-        To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
-  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
+            1.  Modify the target instance to remove its public IP address and ensure it's associated with a VPC network for private IP access. Replace `INSTANCE_NAME` with the actual instance name and `VPC_NETWORK_NAME` with the desired VPC network name:
+                ```bash
+                gcloud sql instances patch INSTANCE_NAME --network=VPC_NETWORK_NAME --no-assign-ip
+                ```
+                *Note: If the instance is already associated with the correct VPC network for private IP, you might only need the `--no-assign-ip` flag.*
+            2.  Verify that the public IP address has been removed by inspecting the instance's configuration:
+                ```bash
+                gcloud sql instances describe INSTANCE_NAME
+                ```
+                Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
+  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -684,9 +720,9 @@ queries:
           _.type != "PRIMARY"
         )
       }
-  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
+  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
         blocks { 
@@ -695,20 +731,22 @@ queries:
           } 
         } 
       }
-  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
+  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') { 
         change.after['settings'].first['ip_configuration'].first['ipv4_enabled'] == true 
       }
-  - uid: gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
+  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance')
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance') { 
         values['ip_address'].none(type == 'PRIMARY') 
       }
+
+
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls
     title: Ensure Cloud SQL MySQL connections require SSL/TLS
