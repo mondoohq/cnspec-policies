@@ -960,7 +960,7 @@ queries:
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') {
         change.after['settings'] {
           _['ip_configuration'] {
-            ['ssl_mode'] == 'ENCRYPTED_ONLY'
+            _['ssl_mode'] == 'ENCRYPTED_ONLY'
           }
         }
       }
