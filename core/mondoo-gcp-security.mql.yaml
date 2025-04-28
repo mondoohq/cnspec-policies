@@ -768,6 +768,27 @@ queries:
 
           3. Inspect the `ipAddresses` section in the output for the instance. Verify that an entry exists with `type: PRIVATE`. Crucially, ensure there is no entry with `type: PRIMARY`, as this indicates a public IP address. While an instance can technically possess both during transitions, the secure state is having only the `PRIVATE` type assigned.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_sql_database_instance" "example" {
+              name             = "example-instance"
+              database_version = "MYSQL_8_0"  # Or your preferred version
+              region           = "us-central1"  # Replace with your region
+
+              settings {
+                tier = "db-f1-micro"
+
+                # Remove public IP by setting ip_configuration.ipv4_enabled to false
+                ip_configuration {
+                  ipv4_enabled    = false
+                  private_network = "projects/PROJECT_ID/global/networks/VPC_NETWORK_NAME"
+                }
+              }
+            }
+            ```
         - id: console
           desc: |
             **Using the Google Cloud Console**
