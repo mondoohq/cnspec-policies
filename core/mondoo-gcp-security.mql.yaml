@@ -525,6 +525,9 @@ queries:
     impact: 90
     variants:
       - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-single
+      - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-plan
+      - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Storage buckets do not have IAM bindings or ACLs that grant access to the allUsers or allAuthenticatedUsers principals. These principals represent unauthenticated and broadly authenticated public access, which significantly increases the risk of unintentional data exposure.
@@ -597,7 +600,16 @@ queries:
     mql: |
       gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allUsers'))
       gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allAuthenticatedUsers'))
-
+  - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-hcl
+    filters: |
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_storage_bucket_iam_binding' || nameLabel == 'google_storage_bucket_iam_member')
+    mql: |
+      terraform.resources.where(nameLabel == 'google_storage_bucket_iam_binding').all(
+        arguments.members.none(_ == 'allUsers' || _ == 'allAuthenticatedUsers')
+      )
+      terraform.resources.where(nameLabel == 'google_storage_bucket_iam_member').all(
+        arguments.member != 'allUsers' && arguments.member != 'allAuthenticatedUsers'
+      )
 
 
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
