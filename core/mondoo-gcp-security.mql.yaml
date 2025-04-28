@@ -712,7 +712,7 @@ queries:
             gsutil uniformbucketlevelaccess set on gs://BUCKET_NAME
             ```
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-single
-    filters: asset.platform 'gcp-storage-bucket'
+    filters: asset.platform == 'gcp-storage-bucket'
     mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-hcl
     filters: |
