@@ -165,7 +165,7 @@ queries:
       )
   - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.service_account.contains(/^.*compute@developer\.gserviceaccount\.com$/) 
@@ -291,7 +291,7 @@ queries:
       }
   - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
@@ -402,7 +402,7 @@ queries:
       }
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.metadata['block-project-ssh-keys'] == true 
@@ -656,7 +656,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_storage_bucket_iam_binding' || type == 'google_storage_bucket_iam_member')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_storage_bucket_iam_binding' || type == 'google_storage_bucket_iam_member')
     mql: |
       terraform.state.resources.where(type == 'google_storage_bucket_iam_binding').all(
         values.members.none(_ == 'allUsers' || _ == 'allAuthenticatedUsers')
@@ -730,7 +730,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_storage_bucket')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_storage_bucket')
     mql: |
       terraform.state.resources.where(type == 'google_storage_bucket').all(
         values.uniform_bucket_level_access == true
@@ -828,7 +828,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance')
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance') { 
         values['ip_address'].none(type == 'PRIMARY') 
@@ -1087,7 +1087,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) { 
         values['settings'].first['database_flags'].where(name == 'skip_show_database') {
@@ -1211,7 +1211,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) {
         values['settings'].first['database_flags'].where(name == 'local_infile') { 
@@ -1343,7 +1343,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_error_verbosity') {
@@ -1467,7 +1467,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_connections') { 
@@ -1595,7 +1595,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_disconnections') { 
@@ -1917,7 +1917,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == "google_compute_instance")
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == "google_compute_instance")
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
         values['metadata'] {
@@ -2037,7 +2037,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
         values['confidential_instance_config'] {
@@ -2151,7 +2151,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') {
         values['shielded_instance_config'] {
@@ -2266,7 +2266,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') {
         values['shielded_instance_config'] {
@@ -2381,7 +2381,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') {
         values['shielded_instance_config'] {
@@ -2505,7 +2505,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['ip_configuration'].first['ipv4_enabled'] == false
@@ -2627,7 +2627,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER')) {
         values['settings'].first['ip_configuration'].first['ipv4_enabled'] == false
@@ -2760,7 +2760,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['ip_configuration'].first['require_ssl'] == true
@@ -2892,7 +2892,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-state
     filters: |
-      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER'))
+      asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER')) {
         values['settings'].first['ip_configuration'].first['require_ssl'] == true
