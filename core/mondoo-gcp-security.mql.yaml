@@ -1990,6 +1990,34 @@ queries:
         ```
         Instances showing `True` in the last column have the setting enabled.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_compute_instance" "example" {
+              name         = "example-instance"
+              machine_type = "e2-medium"
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  image = "debian-cloud/debian-11"
+                }
+              }
+
+              network_interface {
+                network = "default"
+              }
+
+              # Block project-wide SSH keys
+              metadata = {
+                block-project-ssh-keys = "true"
+              }
+
+              # Other configuration parameters...
+            }
+            ```
         - id: console
           desc: |
             **From Google Cloud Console**
