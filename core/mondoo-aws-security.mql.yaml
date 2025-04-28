@@ -5095,7 +5095,7 @@ queries:
 
         Without secure TLS policies on Application Load Balancers:
 
-        - Outdated or vulnerable cryptographic protocols (such as TLS 1.0, TLS 1.1, or SSLv3) may be used, exposing communications to known security vulnerabilities.
+        - Outdated or vulnerable cryptographic protocols (such as TLS 1.0, TLS 1.1, or SSL 3.0) may be used, exposing communications to known security vulnerabilities.
         - Weak cipher suites might be enabled, reducing the strength of encryption and potentially allowing attackers to decrypt intercepted traffic.
         - Compliance requirements for data protection in transit, including PCI DSS, HIPAA, GDPR, and SOC 2, may not be satisfied.
 
