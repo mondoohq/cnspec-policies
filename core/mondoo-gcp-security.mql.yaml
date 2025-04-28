@@ -508,7 +508,7 @@ queries:
             gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
             ```
   - uid: mondoo-gcp-security-oslogin-enabled-project-single
-    filters: asset.platform 'gcp-compute-instance'
+    filters: asset.platform == 'gcp-compute-instance'
     mql: gcp.compute.instance.metadata['enable-oslogin'] == true
   - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-state
     filters: |
@@ -712,7 +712,7 @@ queries:
                 Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('MYSQL')) {
         ipAddresses.all(
@@ -848,7 +848,7 @@ queries:
             Always configure new Cloud SQL MySQL instances with `require_ssl = true` during creation via Terraform. Regularly audit instances to ensure compliance.
   - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('MYSQL')) { 
         settings.ipConfiguration { 
@@ -970,7 +970,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/)
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
@@ -1095,7 +1095,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
         settings.databaseFlags['local_infile'] == 'off'
@@ -1225,7 +1225,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings {
@@ -1351,7 +1351,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings.databaseFlags['log_connections'] == 'on'
@@ -1479,7 +1479,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings.databaseFlags['log_disconnections'] == 'on'
@@ -2389,7 +2389,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('POSTGRES')) {
         ipAddresses.all(
@@ -2511,7 +2511,7 @@ queries:
             ```
   - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('SQLSERVER')) {
         ipAddresses.all(
@@ -2644,7 +2644,7 @@ queries:
             Always configure new Cloud SQL PostgreSQL instances with `require_ssl = true` during creation via Terraform. Regularly audit instances to ensure compliance.
   - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('POSTGRES')) {
         settings.ipConfiguration {
@@ -2776,7 +2776,7 @@ queries:
             Always configure new Cloud SQL for SQL Server instances with `require_ssl = true` during creation via Terraform. Regularly audit instances to ensure compliance.
   - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-all
     filters: |
-      asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(maintenanceVersion.contains('SQLSERVER')) {
         settings.ipConfiguration {
