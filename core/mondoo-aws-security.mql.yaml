@@ -3059,23 +3059,11 @@ queries:
       - uid: mondoo-aws-security-rds-instance-encryption-at-rest-terraform-state
     docs:
       desc: |
-        This check ensures that Amazon Relational Database Service (RDS) instances are not configured to be publicly accessible via the internet. When an RDS instance is publicly accessible, it means it can potentially be reached by any host on the internet, significantly expanding the attack surface and increasing the risk of unauthorized access attempts.
+        Amazon RDS utilizes the widely adopted AES-256 encryption algorithm, a standard in the industry, to safeguard the data stored within your DB instances. This encryption secures your information directly on the server infrastructure where your Amazon RDS DB instance resides. After encryption is enabled, Amazon RDS automatically manages access authentication and data decryption without requiring manual intervention, ensuring a minimal effect on database performance.
 
         **Rationale:**
 
-        Without proper access restrictions on RDS instances:
-
-        - Database systems become exposed to internet-wide scanning and brute-force attacks.
-        - Unauthorized users may attempt to exploit database vulnerabilities or weak credentials to gain access to sensitive data.
-        - Compliance frameworks such as PCI DSS, HIPAA, GDPR, and SOC 2 requirements for protected database environments may be violated.
-
-        RDS instances should typically be deployed in private subnets with access restricted to specific applications or services through security groups and network ACLs, following the principle of least privilege.
-
-        **Risk mitigation:**
-
-        - **Attack Surface Reduction:** Prevents database exposure to internet-based threats and unauthorized access attempts.
-        - **Defense in Depth:** Ensures databases are only accessible through controlled network paths and authorized applications.
-        - **Data Protection:** Helps safeguard sensitive information stored in databases from external threats.
+        Since databases frequently contain confidential and essential data, enabling encryption is a crucial security measure. It acts as a vital layer of defense against unauthorized access or exposure of sensitive information. By activating RDS encryption, you ensure comprehensive protection, as the encryption covers the data on the instance's underlying storage, along with its automated backups, any read replicas, and all created snapshots.
       remediation:
         - id: console
           desc: |
