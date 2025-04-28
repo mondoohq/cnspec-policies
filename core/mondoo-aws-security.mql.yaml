@@ -3545,23 +3545,11 @@ queries:
       - uid: mondoo-aws-security-rds-cluster-encryption-at-rest-terraform-state
     docs:
       desc: |
-        This check ensures that Amazon RDS database clusters, including Aurora clusters, are not configured to be publicly accessible via the internet. When an RDS cluster is publicly accessible, it can potentially be reached by any host on the internet, significantly expanding the attack surface and increasing the risk of unauthorized access attempts to your database infrastructure.
+        Amazon RDS utilizes the industry-standard AES-256 encryption algorithm to safeguard the data stored within your DB clusters. This encryption secures your information directly across the cluster's underlying storage volume. Once encryption is enabled for the cluster, Amazon RDS automatically manages access authentication and data decryption transparently, designed to ensure a minimal impact on overall cluster performance.
 
         **Rationale:**
 
-        Without proper access restrictions on RDS clusters:
-
-        - Entire database clusters become exposed to internet-wide scanning and brute-force attacks.
-        - Unauthorized users may attempt to exploit database vulnerabilities or weak credentials to gain access to sensitive data across multiple database instances.
-        - Compliance frameworks such as PCI DSS, HIPAA, GDPR, and SOC 2 requirements for protected database environments may be violated.
-
-        RDS clusters should be deployed in private subnets with access restricted to specific applications or services through security groups and network ACLs, following the principle of least privilege and defense-in-depth security practices.
-
-        **Risk mitigation:**
-
-        - **Attack Surface Reduction:** Prevents database cluster exposure to internet-based threats and unauthorized access attempts.
-        - **Defense in Depth:** Ensures database clusters are only accessible through controlled network paths and authorized applications.
-        - **Data Protection:** Helps safeguard sensitive information stored across database clusters from external threats.
+        Database clusters often consolidate significant amounts of sensitive or critical data. Implementing encryption is therefore a highly recommended security practice to protect this data against unauthorized access or potential disclosure. By activating RDS encryption on your cluster, you ensure comprehensive data-at-rest protection, covering the data within the shared cluster storage, as well as associated components like automated backups, cluster snapshots, and any read replicas within the cluster environment.
       remediation:
         - id: console
           desc: |
