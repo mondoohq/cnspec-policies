@@ -385,25 +385,20 @@ queries:
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
     filters: asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
-      terraform.resources.where(nameLabel == 'google_compute_instance') { 
-        blocks { 
-          blocks.where(attributes['metadata'] != null) { 
-            _.attributes['metadata'].value.contains('block-project-ssh-keys') 
-          } 
-        } 
-      }
+      terraform.resources.where(nameLabel == 'google_compute_instance').all(arguments.metadata['block-project-ssh-keys'] == true)
+      terraform.resources.where(nameLabel == 'google_compute_instance').any(arguments.metadata['block-project-ssh-keys'] == true)
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
     filters: asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.contains(type == 'google_compute_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
-        change.after['metadata'].first['block-project-ssh-keys'] == true 
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') {
+        change.after['metadata'].first['block-project-ssh-keys'] == true
       }
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_compute_instance')
     mql: |
-      terraform.state.resources.where(type == 'google_compute_instance') { 
-        values.metadata['block-project-ssh-keys'] == true 
+      terraform.state.resources.where(type == 'google_compute_instance') {
+        values.metadata['block-project-ssh-keys'] == true
       }
 
 
