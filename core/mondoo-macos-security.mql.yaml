@@ -1485,9 +1485,10 @@ queries:
         _Graphical Method:_
 
         1. Open **System Preferences**
-        2. Select **Software Update**
-        3. Select **Advanced**
-        4. Select **Check for updates**
+        2. Select **General**
+        3. Select **Software Update**
+        4. Select **Advanced**
+        5. Select **Check for updates**
 
         _Terminal Method:_
 
@@ -1538,9 +1539,10 @@ queries:
         _Graphical Method:_
 
         1. Open **System Preferences**
-        2. Select **Software Update**
-        3. Select **Advanced**
-        4. Select **Download new updates when available**
+        2. Select **General**
+        3. Select **Software Update**
+        4. Select **Advanced**
+        5. Select **Download new updates when available**
 
         _Terminal Method:_
 
@@ -1595,9 +1597,10 @@ queries:
           _Graphical Method:_
 
           1. Open **System Preferences**
-          2. Select **Software Update**
-          3. Select **Advanced**
-          4. Select **Install system data files and security updates**
+          2. Select **General**
+          3. Select **Software Update**
+          4. Select **Advanced**
+          5. Select **Install system data files and security updates**
 
           _Terminal Method:_
 
@@ -1635,8 +1638,9 @@ queries:
         _Graphical Method:_
 
         1. Open **System Preferences**
-        2. Select **Software Update**
-        3. Click **Update Now**
+        2. Select **General**
+        3. Select **Software Update**
+        4. Select **Update Now**
 
         _Terminal Method:_
 
