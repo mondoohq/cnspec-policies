@@ -24,12 +24,12 @@ policies:
         filters: |
           asset.runtime == 'gcp'
         checks:
-          - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
-          - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
-          - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
           - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account
           - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api
+          - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
           - uid: mondoo-gcp-security-oslogin-enabled-project
+          - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible
+          - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
           - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed
           - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls
           - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled
@@ -47,17 +47,17 @@ policies:
           - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed
           - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed
           - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls
-          - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls 
+          - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls
     scoring_system: highest impact
 queries:
   - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account
     title: Ensure that instances are not configured to use the default service account
     impact: 95
     variants:
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-single
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-hcl
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-plan
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-state
+      - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-single
+      - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-hcl
+      - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-plan
+      - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Compute Engine instances are not configured to use the default service account (-compute@developer.gserviceaccount.com). Instead, instances should use custom service accounts with only the permissions required for their specific function, adhering to the principle of least privilege.
@@ -141,7 +141,7 @@ queries:
               ```bash
               gcloud compute instances start INSTANCE_NAME
               ```
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-single
+  - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -149,21 +149,21 @@ queries:
         gcp.compute.instance.serviceAccounts.none(
           email == /^.*compute@developer\.gserviceaccount\.com$/
         )
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-hcl
+  - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-hcl
     filters: |
       asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance').any(
         blocks.where(type == 'service_account').one(type == 'service_account')
       )
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-plan
+  - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-plan
     filters: |
       asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance').none(
         change.after.contains(/^.*compute@developer\.gserviceaccount\.com$/)
       )
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-state
+  - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
@@ -177,10 +177,10 @@ queries:
     title: Ensure instances are not configured to use the default service account with full access to all Cloud APIs
     impact: 90
     variants:
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
-      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
+      - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-single
+      - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-hcl
+      - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-plan
+      - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Compute Engine instances are not provisioned with full access to all Google Cloud APIs. Instead, instances should be assigned custom service accounts with narrowly scoped permissions, adhering to the principle of least privilege.
@@ -265,7 +265,7 @@ queries:
               ```bash
               gcloud compute instances start INSTANCE_NAME
               ```
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
+  - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -273,7 +273,7 @@ queries:
       gcp.compute.instance.serviceAccounts.none(
         scopes == 'https://www.googleapis.com/auth/cloud-platform'
       )
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
+  - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-hcl
     filters: |
       asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
@@ -282,14 +282,14 @@ queries:
           arguments.scopes.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
         } 
       }
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
+  - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-plan
     filters: |
       asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
         change.after.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
       }
-  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
+  - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
@@ -303,10 +303,10 @@ queries:
     title: Ensure "Block Project-wide SSH keys" is enabled for VM instances
     impact: 70
     variants:
-      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
-      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
-      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
-      - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
+      - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-single
+      - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
+      - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
+      - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Platform (GCP) projects are configured to use instance-specific SSH keys rather than project-wide SSH keys. This approach limits the impact of credential compromise and supports strong access control at the individual virtual machine level.
@@ -380,11 +380,11 @@ queries:
             ```bash
             gcloud compute instances add-metadata INSTANCE_NAME --metadata block-projectssh-keys=true
             ```
-  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-single
+  - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-single
     filters: asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance.metadata['block-project-ssh-keys'] == true
-  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
+  - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
     filters: asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
@@ -394,13 +394,13 @@ queries:
           } 
         } 
       }
-  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
+  - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-plan
     filters: asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
         change.after['metadata'].first['block-project-ssh-keys'] == true 
       }
-  - uid: mondoo-gcp-compute-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
+  - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
@@ -414,8 +414,8 @@ queries:
     title: Ensure oslogin is enabled for compute instances
     impact: 70
     variants:
-      - uid: mondoo-gcp-compute-oslogin-enabled-project-single
-      - uid: mondoo-gcp-compute-oslogin-enabled-project-terraform-state
+      - uid: mondoo-gcp-security-oslogin-enabled-project-single
+      - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-state
     docs:
       desc: |
         This check ensures that OS Login is enabled on Google Cloud Platform (GCP) Compute Engine instances to manage SSH access through IAM roles rather than relying on SSH keys stored in project or instance metadata. OS Login improves access control, auditability, and security by centralizing identity-based SSH authentication.
@@ -507,11 +507,10 @@ queries:
             ```bash
             gcloud compute instances add-metadata INSTANCE_NAME --metadata enable-oslogin=TRUE
             ```
-  - uid: mondoo-gcp-compute-oslogin-enabled-project-single
+  - uid: mondoo-gcp-security-oslogin-enabled-project-single
     filters: asset.platform 'gcp-compute-instance'
-    mql:
-      gcp.compute.instance.metadata['enable-oslogin'] == true
-  - uid: mondoo-gcp-compute-oslogin-enabled-project-terraform-state
+    mql: gcp.compute.instance.metadata['enable-oslogin'] == true
+  - uid: mondoo-gcp-security-oslogin-enabled-project-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
@@ -525,7 +524,7 @@ queries:
     title: Ensure that Cloud Storage buckets are not anonymously or publicly accessible
     impact: 90
     variants:
-      - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
+      - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-single
     docs:
       desc: |
         This check ensures that Google Cloud Storage buckets do not have IAM bindings or ACLs that grant access to the allUsers or allAuthenticatedUsers principals. These principals represent unauthenticated and broadly authenticated public access, which significantly increases the risk of unintentional data exposure.
@@ -593,7 +592,7 @@ queries:
             # Example: Remove allAuthenticatedUsers binding for objectViewer role
             gcloud storage buckets remove-iam-policy-binding gs://BUCKET_NAME --member=allAuthenticatedUsers --role=roles/storage.objectViewer
             ```
-  - uid: gcp-storage-cloud-storage-bucket-anonymously-publicly-accessible-single
+  - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-single
     filters: asset.platform == 'gcp-storage-bucket'
     mql: |
       gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allUsers'))
@@ -605,7 +604,7 @@ queries:
     title: Ensure that Cloud Storage buckets have uniform bucket-level access enabled
     impact: 60
     variants:
-      - uid: mondoo-gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
+      - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-single
     docs:
       desc: |
         Cloud Storage offers two systems for granting users permission to access your buckets and objects: IAM and Access Control Lists (ACLs). These systems act in parallel - in order for a user to access a Cloud Storage resource, only one of the systems needs to grant the user permission. IAM is used throughout Google Cloud and allows you to grant a variety of permissions at the bucket and project levels. ACLs are used only by Cloud Storage and have limited permission options, but they allow you to grant permissions on a per-object basis.
@@ -643,7 +642,7 @@ queries:
             # Alternatively using gsutil
             gsutil uniformbucketlevelaccess set on gs://BUCKET_NAME
             ```
-  - uid: mondoo-gcp-storage-cloud-storage-buckets-uniform-bucket-level-access-enabled-single
+  - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-single
     filters: asset.platform 'gcp-storage-bucket'
     mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
 
@@ -653,10 +652,10 @@ queries:
     title: Ensure Cloud SQL MySQL instances are not publicly exposed
     impact: 100
     variants:
-      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
-      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
-      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
-      - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-all
+      - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     docs:
       desc: |
         Assigning public IP addresses to Cloud SQL MySQL instances expands the potential attack surface, making databases accessible from the public internet and increasing security risks.
@@ -711,7 +710,7 @@ queries:
                 gcloud sql instances describe INSTANCE_NAME
                 ```
                 Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
-  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-all
+  - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -720,7 +719,7 @@ queries:
           _.type != "PRIMARY"
         )
       }
-  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
     filters: |
       asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance')
     mql: |
@@ -731,14 +730,14 @@ queries:
           } 
         } 
       }
-  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-plan
     filters: |
       asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') { 
         change.after['settings'].first['ip_configuration'].first['ipv4_enabled'] == true 
       }
-  - uid: mondoo-gcp-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance')
     mql: |
@@ -752,10 +751,10 @@ queries:
     title: Ensure Cloud SQL MySQL connections require SSL/TLS
     impact: 100
     variants:
-      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-all
-      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-hcl
-      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-plan
-      - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-all
+      - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-state
     docs:
       desc: |
         Requiring SSL/TLS for connections to Cloud SQL MySQL instances encrypts data in transit between the client and the database server. This prevents potential eavesdropping and man-in-the-middle attacks, protecting sensitive data from unauthorized access during transmission.
@@ -787,54 +786,67 @@ queries:
                 requireSsl: true
                 # ... other ipConfiguration settings
             ```
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
-        2.  Click the name of the target MySQL instance.
-        3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
-        4.  Check the box labeled **Allow only SSL connections**.
-        5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
+            1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
+            2.  Click the name of the target MySQL instance.
+            3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
+            4.  Check the box labeled **Allow only SSL connections**.
+            5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
 
-        **Using the Google Cloud CLI**
+            **Prevention:**
 
-        1.  Enable the "Require SSL" setting for the instance:
-            ```bash
-            gcloud sql instances patch INSTANCE_NAME --require-ssl
-            ```
-            *Note: This command may cause the instance to restart.*
-        2.  Confirm the change:
-            ```bash
-            gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
-            ```
-            The output should be `True`.
+            Always configure new Cloud SQL MySQL instances with the "Allow only SSL connections" option enabled during creation via the Console. Regularly audit instances to ensure compliance.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using Terraform**
+            1.  Enable the "Require SSL" setting for the instance:
+                ```bash
+                gcloud sql instances patch INSTANCE_NAME --require-ssl
+                ```
+                *Note: This command may cause the instance to restart.*
+            2.  Confirm the change:
+                ```bash
+                gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
+                ```
+                The output should be `True`.
 
-        Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+            **Prevention:**
 
-        ```hcl
-        resource "google_sql_database_instance" "default" {
-          name             = "my-mysql-instance"
-          database_version = "MYSQL_8_0"
-          region           = "us-central1"
+            Always configure new Cloud SQL MySQL instances with the `--require-ssl` flag during creation via the CLI. Regularly audit instances to ensure compliance.
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-          settings {
-            tier = "db-f1-micro"
-            ip_configuration {
-              ipv4_enabled = true
-              # Set require_ssl to true
-              require_ssl  = true
-              ssl_mode     = "ENCRYPTED_ONLY"
+            Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+
+            ```hcl
+            resource "google_sql_database_instance" "default" {
+              name             = "my-mysql-instance"
+              database_version = "MYSQL_8_0"
+              region           = "us-central1"
+
+              settings {
+                tier = "db-f1-micro"
+                ip_configuration {
+                  ipv4_enabled = true
+                  # Set require_ssl to true
+                  require_ssl  = true
+                  # Optional: Set ssl_mode if needed, e.g., ENCRYPTED_ONLY
+                  # ssl_mode     = "ENCRYPTED_ONLY"
+                }
+              }
             }
-          }
-        }
-        ```
+            ```
 
-        **Prevention:**
+            **Prevention:**
 
-        Always configure new Cloud SQL MySQL instances with the "Allow only SSL connections" option enabled during creation via the Console, CLI (`--require-ssl` flag), or Terraform (`require_ssl = true`). Regularly audit instances to ensure compliance.
-  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-all
+            Always configure new Cloud SQL MySQL instances with `require_ssl = true` during creation via Terraform. Regularly audit instances to ensure compliance.
+  - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -843,9 +855,9 @@ queries:
           sslMode == 'ENCRYPTED_ONLY'
         } 
       }
-  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
         blocks { 
@@ -854,29 +866,31 @@ queries:
           } 
         } 
       }
-  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') { 
         change.after['settings'].first['ip_configuration'].first['ssl_mode'] == 'ENCRYPTED_ONLY'
       }
-  - uid: gcp-cloud-sql-mysql-instances-require-ssl-tls-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' &&  terraform.state.resources.where(type == 'google_sql_database_instance')
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance') { 
         values['settings'].first['ip_configuration'].first['ssl_mode'] == 'ENCRYPTED_ONLY' 
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled
     title: Ensure 'skip_show_database' Database Flag for Cloud SQL MySQL Instances is enabled
     impact: 70
     variants:
-      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-all
-      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
-      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
-      - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-all
+      - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-state
     docs:
       desc: |
         **Rationale:**
@@ -913,53 +927,58 @@ queries:
            cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(settings.databaseFlags['skip_show_database'] == 'on')"
            ```
            Verify the flag value is `on` for all relevant instances.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
-        2.  Select the target MySQL instance.
-        3.  Click **Edit**.
-        4.  Scroll down to the **Flags** section.
-        5.  If the flag isn't present, click **Add item**.
-        6.  Choose `skip_show_database` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
-        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            2.  Select the target MySQL instance.
+            3.  Click **Edit**.
+            4.  Scroll down to the **Flags** section.
+            5.  If the flag isn't present, click **Add item**.
+            6.  Choose `skip_show_database` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
+            7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using the Google Cloud CLI**
+            Update the flag for a specific MySQL instance:
+            ```bash
+            gcloud sql instances patch INSTANCE_NAME --database-flags skip_show_database=on
+            ```
+            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags skip_show_database=on,other_flag=value`).*
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        Update the flag for a specific MySQL instance:
-        ```bash
-        gcloud sql instances patch INSTANCE_NAME --database-flags skip_show_database=on
-        ```
-        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags skip_show_database=on,other_flag=value`).*
-
-        **Using Terraform**
-
-        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
-        ```hcl
-        resource "google_sql_database_instance" "mysql_instance" {
-          name             = "my-mysql-instance"
-          database_version = "MYSQL_8_0"
-          region           = "us-central1"
-          settings {
-            tier = "db-f1-micro"
-            database_flags {
-              name  = "skip_show_database"
-              value = "on"
+            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+            ```hcl
+            resource "google_sql_database_instance" "mysql_instance" {
+              name             = "my-mysql-instance"
+              database_version = "MYSQL_8_0"
+              region           = "us-central1"
+              settings {
+                tier = "db-f1-micro"
+                database_flags {
+                  name  = "skip_show_database"
+                  value = "on"
+                }
+                # Include other settings and flags as needed
+              }
             }
-            # Include other settings and flags as needed
-          }
-        }
-        ```
-  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
+      gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/)
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
         settings.databaseFlags['skip_show_database'] == 'on'
       )
-  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
         blocks.where(type == 'settings') { 
@@ -968,18 +987,18 @@ queries:
           } 
         }
       }
-  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL')) {
         change.after['settings'].first['database_flags'].where(name == 'skip_show_database') {
           value == 'on'
         }
       }
-  - uid: gcp-cloud-sql-mysql-skip-show-database-enabled-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) { 
         values['settings'].first['database_flags'].where(name == 'skip_show_database') {
@@ -987,14 +1006,16 @@ queries:
         } 
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled
     title: Ensure the 'local_infile' Database Flag for Cloud SQL MySQL Instance is disabled
     impact: 70
     variants:
-      - uid: gcp-cloud-sql-mysql-local-infile-disabled-all
-      - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-hcl
-      - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-plan
-      - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-all
+      - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-state
     docs:
       desc: |
         **Rationale:**
@@ -1031,53 +1052,57 @@ queries:
            cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(settings.databaseFlags['local_infile'] == 'off')"
            ```
            Verify the flag value is `off` for all relevant instances.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
-        2.  Select the target MySQL instance.
-        3.  Click **Edit**.
-        4.  Scroll down to the **Flags** section.
-        5.  If the flag isn't present, click **Add item**.
-        6.  Choose `local_infile` from the dropdown and set its value to `off`. If the flag exists but is `on`, change its value to `off`.
-        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            2.  Select the target MySQL instance.
+            3.  Click **Edit**.
+            4.  Scroll down to the **Flags** section.
+            5.  If the flag isn't present, click **Add item**.
+            6.  Choose `local_infile` from the dropdown and set its value to `off`. If the flag exists but is `on`, change its value to `off`.
+            7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using the Google Cloud CLI**
+            Update the flag for a specific MySQL instance:
+            ```bash
+            gcloud sql instances patch INSTANCE_NAME --database-flags local_infile=off
+            ```
+            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags local_infile=off,other_flag=value`).*
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        Update the flag for a specific MySQL instance:
-        ```bash
-        gcloud sql instances patch INSTANCE_NAME --database-flags local_infile=off
-        ```
-        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags local_infile=off,other_flag=value`).*
-
-        **Using Terraform**
-
-        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
-        ```hcl
-        resource "google_sql_database_instance" "mysql_instance" {
-          name             = "my-mysql-instance"
-          database_version = "MYSQL_8_0"
-          region           = "us-central1"
-          settings {
-            tier = "db-f1-micro"
-            database_flags {
-              name  = "local_infile"
-              value = "off"
+            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+            ```hcl
+            resource "google_sql_database_instance" "mysql_instance" {
+              name             = "my-mysql-instance"
+              database_version = "MYSQL_8_0"
+              region           = "us-central1"
+              settings {
+                tier = "db-f1-micro"
+                database_flags {
+                  name  = "local_infile"
+                  value = "off"
+                }
+                # Include other settings and flags as needed
+              }
             }
-            # Include other settings and flags as needed
-          }
-        }
-        ```
-  - uid: gcp-cloud-sql-mysql-local-infile-disabled-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^MYSQL_/).all(
         settings.databaseFlags['local_infile'] == 'off'
       )
-  - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
         blocks.where(type == 'settings') { 
@@ -1086,18 +1111,18 @@ queries:
           } 
         }
       }
-  - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('MYSQL')) {
         change.after['settings'].first['database_flags'].where(name == 'local_infile') { 
           value == 'off'
         }
       }
-  - uid: gcp-cloud-sql-mysql-local-infile-disabled-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('MYSQL')) {
         values['settings'].first['database_flags'].where(name == 'local_infile') { 
@@ -1105,14 +1130,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose
     title: Ensure the 'log_error_verbosity' Database Flag for Cloud SQL PostgreSQL Instance Is Set to 'DEFAULT' or 'verbose'
     impact: 70
     variants:
-      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-all
-      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
-      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
-      - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-all
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
     docs:
       desc: |
         **Rationale:**
@@ -1150,49 +1177,53 @@ queries:
            cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings { databaseFlags['log_error_verbosity'] == 'verbose' })"
            ```
            Verify the flag value is `DEFAULT` or `VERBOSE` for all relevant instances.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
-        2.  Select the target PostgreSQL instance.
-        3.  Click **Edit**.
-        4.  Scroll down to the **Flags** section.
-        5.  If the flag isn't present, click **Add item**.
-        6.  Choose `log_error_verbosity` from the dropdown and set its value to `DEFAULT` or `VERBOSE`. If the flag exists but is set to `TERSE`, change its value.
-        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            2.  Select the target PostgreSQL instance.
+            3.  Click **Edit**.
+            4.  Scroll down to the **Flags** section.
+            5.  If the flag isn't present, click **Add item**.
+            6.  Choose `log_error_verbosity` from the dropdown and set its value to `DEFAULT` or `VERBOSE`. If the flag exists but is set to `TERSE`, change its value.
+            7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using the Google Cloud CLI**
+            Update the flag for a specific PostgreSQL instance (choose `DEFAULT` or `VERBOSE`):
+            ```bash
+            # Example using DEFAULT
+            gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=DEFAULT
 
-        Update the flag for a specific PostgreSQL instance (choose `DEFAULT` or `VERBOSE`):
-        ```bash
-        # Example using DEFAULT
-        gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=DEFAULT
+            # Example using VERBOSE
+            gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=VERBOSE
+            ```
+            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_error_verbosity=DEFAULT,other_flag=value`).*
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        # Example using VERBOSE
-        gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=VERBOSE
-        ```
-        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_error_verbosity=DEFAULT,other_flag=value`).*
-
-        **Using Terraform**
-
-        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting (choose `DEFAULT` or `VERBOSE`):
-        ```hcl
-        resource "google_sql_database_instance" "postgres_instance" {
-          name             = "my-postgres-instance"
-          database_version = "POSTGRES_15"
-          region           = "us-central1"
-          settings {
-            tier = "db-f1-micro"
-            database_flags {
-              name  = "log_error_verbosity"
-              # Choose either "DEFAULT" or "VERBOSE"
-              value = "DEFAULT"
+            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting (choose `DEFAULT` or `VERBOSE`):
+            ```hcl
+            resource "google_sql_database_instance" "postgres_instance" {
+              name             = "my-postgres-instance"
+              database_version = "POSTGRES_15"
+              region           = "us-central1"
+              settings {
+                tier = "db-f1-micro"
+                database_flags {
+                  name  = "log_error_verbosity"
+                  # Choose either "DEFAULT" or "VERBOSE"
+                  value = "DEFAULT"
+                }
+                # Include other settings and flags as needed
+              }
             }
-            # Include other settings and flags as needed
-          }
-        }
-        ```
-  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -1201,9 +1232,9 @@ queries:
           databaseFlags['log_error_verbosity'] == 'verbose'
         }
       )
-  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
         blocks.where(type == 'settings') { 
@@ -1212,7 +1243,7 @@ queries:
           } 
         }
       }
-  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-plan
     filters: |
       asset.platform == 'terraform-plan'
     mql: |
@@ -1221,9 +1252,9 @@ queries:
           value.upcase == 'verbose'
         }
       }
-  - uid: gcp-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_error_verbosity') {
@@ -1231,14 +1262,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled
     title: Ensure 'log_connections' Database Flag for Cloud SQL PostgreSQL Instances is enabled
     impact: 70
     variants:
-      - uid: gcp-cloud-sql-postgres-log-connections-enabled-all
-      - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-hcl
-      - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-plan
-      - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-all
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-state
     docs:
       desc: |
         **Rationale:**
@@ -1275,53 +1308,57 @@ queries:
            cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings.databaseFlags['log_connections'] == 'on')"
            ```
            Verify the flag value is `on` for all relevant instances.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
-        2.  Select the target PostgreSQL instance.
-        3.  Click **Edit**.
-        4.  Scroll down to the **Flags** section.
-        5.  If the flag isn't present, click **Add item**.
-        6.  Choose `log_connections` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
-        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            2.  Select the target PostgreSQL instance.
+            3.  Click **Edit**.
+            4.  Scroll down to the **Flags** section.
+            5.  If the flag isn't present, click **Add item**.
+            6.  Choose `log_connections` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
+            7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using the Google Cloud CLI**
+            Update the flag for a specific PostgreSQL instance:
+            ```bash
+            gcloud sql instances patch INSTANCE_NAME --database-flags log_connections=on
+            ```
+            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_connections=on,other_flag=value`).*
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        Update the flag for a specific PostgreSQL instance:
-        ```bash
-        gcloud sql instances patch INSTANCE_NAME --database-flags log_connections=on
-        ```
-        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_connections=on,other_flag=value`).*
-
-        **Using Terraform**
-
-        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
-        ```hcl
-        resource "google_sql_database_instance" "postgres_instance" {
-          name             = "my-postgres-instance"
-          database_version = "POSTGRES_15"
-          region           = "us-central1"
-          settings {
-            tier = "db-f1-micro"
-            database_flags {
-              name  = "log_connections"
-              value = "on"
+            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+            ```hcl
+            resource "google_sql_database_instance" "postgres_instance" {
+              name             = "my-postgres-instance"
+              database_version = "POSTGRES_15"
+              region           = "us-central1"
+              settings {
+                tier = "db-f1-micro"
+                database_flags {
+                  name  = "log_connections"
+                  value = "on"
+                }
+                # Include other settings and flags as needed
+              }
             }
-            # Include other settings and flags as needed
-          }
-        }
-        ```
-  - uid: gcp-cloud-sql-postgres-log-connections-enabled-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings.databaseFlags['log_connections'] == 'on'
       )
-  - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
         blocks.where(type == 'settings') { 
@@ -1330,18 +1367,18 @@ queries:
           } 
         }
       }
-  - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['database_flags'].where(name == 'log_connections') { 
           value == 'on'
         }
       }
-  - uid: gcp-cloud-sql-postgres-log-connections-enabled-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_connections') { 
@@ -1349,14 +1386,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled
     title: Ensure 'log_disconnections' Database Flag for Cloud SQL PostgreSQL Instances is enabled
     impact: 70
     variants:
-      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-all
-      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
-      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
-      - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-all
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-state
     docs:
       desc: |
         **Rationale:**
@@ -1393,57 +1432,61 @@ queries:
            cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings.databaseFlags['log_disconnections'] == 'on')"
            ```
            Verify the flag value is `on` for all relevant instances.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
-        2.  Select the target PostgreSQL instance.
-        3.  Click **Edit**.
-        4.  Scroll down to the **Flags** section.
-        5.  If the flag isn't present, click **Add item**.
-        6.  Choose `log_disconnections` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
-        7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            2.  Select the target PostgreSQL instance.
+            3.  Click **Edit**.
+            4.  Scroll down to the **Flags** section.
+            5.  If the flag isn't present, click **Add item**.
+            6.  Choose `log_disconnections` from the dropdown and set its value to `on`. If the flag exists but is `off`, change its value to `on`.
+            7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using the Google Cloud CLI**
+            Update the flag for a specific PostgreSQL instance:
+            ```bash
+            gcloud sql instances patch INSTANCE_NAME --database-flags log_disconnections=on
+            ```
+            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_disconnections=on,other_flag=value`).*
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        Update the flag for a specific PostgreSQL instance:
-        ```bash
-        gcloud sql instances patch INSTANCE_NAME --database-flags log_disconnections=on
-        ```
-        *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_disconnections=on,other_flag=value`).*
-
-        **Using Terraform**
-
-        Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
-        ```hcl
-        resource "google_sql_database_instance" "postgres_instance" {
-          name             = "my-postgres-instance"
-          database_version = "POSTGRES_15"
-          region           = "us-central1"
-          settings {
-            tier = "db-f1-micro"
-            database_flags {
-              name  = "log_disconnections"
-              value = "on"
+            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting:
+            ```hcl
+            resource "google_sql_database_instance" "postgres_instance" {
+              name             = "my-postgres-instance"
+              database_version = "POSTGRES_15"
+              region           = "us-central1"
+              settings {
+                tier = "db-f1-micro"
+                database_flags {
+                  name  = "log_disconnections"
+                  value = "on"
+                }
+                # Include other settings and flags as needed, e.g., log_connections
+                database_flags {
+                  name  = "log_connections"
+                  value = "on"
+                }
+              }
             }
-            # Include other settings and flags as needed, e.g., log_connections
-            database_flags {
-              name  = "log_connections"
-              value = "on"
-            }
-          }
-        }
-        ```
-  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings.databaseFlags['log_disconnections'] == 'on'
       )
-  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
         blocks.where(type == 'settings') { 
@@ -1452,18 +1495,18 @@ queries:
           } 
         }
       }
-  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['database_flags'].where(name == 'log_disconnections') { 
           value == 'on' 
         }
       }
-  - uid: gcp-cloud-sql-postgres-log-disconnections-enabled-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['database_flags'].where(name == 'log_disconnections') { 
@@ -1471,14 +1514,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-no-public-ip
     title: Ensure public IP addresses are not assigned to VM instances
     impact: 75
     variants:
-      - uid: gcp-compute-instances-no-public-ip-single
-      - uid: gcp-compute-instances-no-public-ip-terraform-hcl
-      - uid: gcp-compute-instances-no-public-ip-terraform-plan
-      - uid: gcp-compute-instances-no-public-ip-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-no-public-ip-single
+      - uid: mondoo-gcp-security-compute-instances-no-public-ip-terraform-hcl
+      - uid: mondoo-gcp-security-compute-instances-no-public-ip-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-no-public-ip-terraform-state
     docs:
       desc: |
         Virtual machine (VM) instances within Google Cloud Compute Engine should not be configured with public, external IP addresses.
@@ -1524,62 +1569,65 @@ queries:
 
         **Exception:**
         Instances managed by Google Kubernetes Engine (GKE) often require external IPs for node pools or specific services. These instances typically have names starting with `gke-` and possess the label `goog-gke-node`. They should be excluded from this check as their network configuration is managed by GKE.
-      remediation: |
-        **From Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click the name of the target instance to open its details page.
-        3. Click the `Edit` button at the top.
-        4. Scroll down to the `Network interfaces` section.
-        5. For the relevant network interface, click the pencil icon to edit it.
-        6. Set the `External IP` dropdown menu to `None`.
-        7. Click `Done` to close the network interface settings.
-        8. Click `Save` at the bottom of the page to apply the changes.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click the name of the target instance to open its details page.
+            3. Click the `Edit` button at the top.
+            4. Scroll down to the `Network interfaces` section.
+            5. For the relevant network interface, click the pencil icon to edit it.
+            6. Set the `External IP` dropdown menu to `None`.
+            7. Click `Done` to close the network interface settings.
+            8. Click `Save` at the bottom of the page to apply the changes.
 
-        **From Google Cloud CLI**
+            **Prevention:**
+            Utilize the Organization Policy `constraints/compute.vmExternalIpAccess` to restrict or deny the assignment of external IP addresses to VMs across your organization or specific folders/projects. Configure this policy at: [https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess](https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess)
+        - id: cli
+          desc: |
+            **From Google Cloud CLI**
 
-        1. First, identify the name of the access configuration associated with the external IP. Describe the instance:
-        ```
-        gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(networkInterfaces[].accessConfigs)'
-        ```
-        Look for the `name` field within the `accessConfigs` array (e.g., `External NAT`).
+            1. First, identify the name of the access configuration associated with the external IP. Describe the instance:
+            ```bash
+            gcloud compute instances describe INSTANCE_NAME --zone=ZONE --format='json(networkInterfaces[].accessConfigs)'
+            ```
+            Look for the `name` field within the `accessConfigs` array (e.g., `External NAT`).
 
-        2. Delete the identified access configuration using its name:
-        ```
-        gcloud compute instances delete-access-config INSTANCE_NAME --zone=ZONE --access-config-name="ACCESS_CONFIG_NAME"
-        ```
-        Replace `INSTANCE_NAME`, `ZONE`, and `ACCESS_CONFIG_NAME` with the appropriate values.
-
-        **Prevention:**
-        Utilize the Organization Policy `constraints/compute.vmExternalIpAccess` to restrict or deny the assignment of external IP addresses to VMs across your organization or specific folders/projects. Configure this policy at: [https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess](https://console.cloud.google.com/orgpolicies/compute-vmExternalIpAccess)
-  - uid: gcp-compute-instances-no-public-ip-single
+            2. Delete the identified access configuration using its name:
+            ```bash
+            gcloud compute instances delete-access-config INSTANCE_NAME --zone=ZONE --access-config-name="ACCESS_CONFIG_NAME"
+            ```
+            Replace `INSTANCE_NAME`, `ZONE`, and `ACCESS_CONFIG_NAME` with the appropriate values.
+  - uid: mondoo-gcp-security-compute-instances-no-public-ip-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
       gcp.compute.instance.machineType.name == /n2d-/
     mql: |
       gcp.compute.instance.networkInterfaces { accessConfigs == [] }
-  - uid: gcp-compute-instances-no-public-ip-terraform-hcl
+  - uid: mondoo-gcp-security-compute-instances-no-public-ip-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == "terraform-hcl" && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'network_interface') {
           blocks.where(type == 'access_config') == empty
         }
       }
-  - uid: gcp-compute-instances-no-public-ip-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-no-public-ip-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == "terraform-plan" && terraform.plan.resourceChanges.where(type == "google_compute_instance")
     mql: |
       terraform.plan.resourceChanges.where(type == "google_compute_instance") {
         change.after['network_interface'] {
           _['access_config'] == empty
         }
       }
-  - uid: gcp-compute-instances-no-public-ip-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-no-public-ip-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == "terraform-state" && terraform.state.resources.where(type == "google_compute_instance")
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
         values['network_interface'] {
@@ -1587,13 +1635,15 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-no-default-service-account
     title: Ensure the default service account is not used on VM instances
     impact: 80
     variants:
-      - uid: gcp-compute-instances-no-default-service-account-single
-      - uid: gcp-compute-instances-no-default-service-account-terraform-plan
-      - uid: gcp-compute-instances-no-default-service-account-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-no-default-service-account-single
+      - uid: mondoo-gcp-security-compute-instances-no-default-service-account-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-no-default-service-account-terraform-state
     docs:
       desc: |
         VM instances should be configured to use dedicated service accounts instead of the default Compute Engine service account.
@@ -1629,34 +1679,37 @@ queries:
 
         **Exception:**
         VMs managed by GKE (names starting with `gke-`, labeled `goog-gke-node`) often use specific service accounts managed by GKE itself, which might include the default service account in some configurations. These should typically be excluded from this check unless specific organizational policies dictate otherwise.
-      remediation: |
-        **From Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click the name of the instance you want to modify.
-        3. Click the `STOP` button at the top and confirm. Wait for the instance to stop completely.
-        4. Once stopped, click the `EDIT` button.
-        5. Scroll down to the `API and identity management` section.
-        6. In the `Service account` dropdown, select a suitable custom service account. If needed, create a new service account with appropriate permissions first via the `IAM & Admin` -> `Service Accounts` page.
-        7. Click `Save` at the bottom.
-        8. Click the `START / RESUME` button at the top to restart the instance.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click the name of the instance you want to modify.
+            3. Click the `STOP` button at the top and confirm. Wait for the instance to stop completely.
+            4. Once stopped, click the `EDIT` button.
+            5. Scroll down to the `API and identity management` section.
+            6. In the `Service account` dropdown, select a suitable custom service account. If needed, create a new service account with appropriate permissions first via the `IAM & Admin` -> `Service Accounts` page.
+            7. Click `Save` at the bottom.
+            8. Click the `START / RESUME` button at the top to restart the instance.
+        - id: cli
+          desc: |
+            **From Google Cloud CLI**
 
-        **From Google Cloud CLI**
-
-        1. Stop the target instance:
-        ```
-        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
-        ```
-        2. Assign the desired custom service account:
-        ```
-        gcloud compute instances set-service-account INSTANCE_NAME --zone=ZONE --service-account=CUSTOM_SERVICE_ACCOUNT_EMAIL
-        ```
-        Replace `INSTANCE_NAME`, `ZONE`, and `CUSTOM_SERVICE_ACCOUNT_EMAIL` with the correct values.
-        3. Start the instance again:
-        ```
-        gcloud compute instances start INSTANCE_NAME --zone=ZONE
-        ```
-  - uid: gcp-compute-instances-no-default-service-account-single
+            1. Stop the target instance:
+            ```bash
+            gcloud compute instances stop INSTANCE_NAME --zone=ZONE
+            ```
+            2. Assign the desired custom service account:
+            ```bash
+            gcloud compute instances set-service-account INSTANCE_NAME --zone=ZONE --service-account=CUSTOM_SERVICE_ACCOUNT_EMAIL
+            ```
+            Replace `INSTANCE_NAME`, `ZONE`, and `CUSTOM_SERVICE_ACCOUNT_EMAIL` with the correct values.
+            3. Start the instance again:
+            ```bash
+            gcloud compute instances start INSTANCE_NAME --zone=ZONE
+            ```
+  - uid: mondoo-gcp-security-compute-instances-no-default-service-account-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -1667,18 +1720,18 @@ queries:
           email == compute_engine_default_service_account_email
         )
       }
-  - uid: gcp-compute-instances-no-default-service-account-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-no-default-service-account-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == "terraform-plan" && terraform.plan.resourceChanges.where(type == "google_compute_instance")
     mql: |
       terraform.plan.resourceChanges.where(type == "google_compute_instance") {
         change.after['service_account'] {
           email == /$-compute@developer.gserviceaccount.com/
         }
       }
-  - uid: gcp-compute-instances-no-default-service-account-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-no-default-service-account-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == "terraform-state" && terraform.state.resources.where(type == "google_compute_instance")
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
         values['service_account'] {
@@ -1686,14 +1739,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys
     title: Ensure “Block Project-Wide SSH Keys” Is Enabled for VM Instances
     impact: 80
     variants:
-      - uid: gcp-compute-instances-block-project-wide-ssh-keys-single
-      - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-hcl
-      - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-plan
-      - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-single
+      - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-hcl
+      - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-state
     docs:
       desc: |
         Configure VM instances to block project-wide SSH keys, favoring instance-specific keys for access.
@@ -1728,25 +1783,28 @@ queries:
         gcloud compute instances list --format='table(name,zone,metadata.items.filter(key:block-project-ssh-keys).extract(value))'
         ```
         Instances showing `True` in the last column have the setting enabled.
-      remediation: |
-        **From Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click the name of the instance to modify.
-        3. Click the `Edit` button at the top.
-        4. Scroll down to the `SSH Keys` section (it might be under `Security and access` or a similar heading).
-        5. Check the box for `Block project-wide SSH keys`.
-        6. Click `Save` at the bottom of the page.
-        7. Repeat these steps for all instances where project-wide keys should be blocked.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click the name of the instance to modify.
+            3. Click the `Edit` button at the top.
+            4. Scroll down to the `SSH Keys` section (it might be under `Security and access` or a similar heading).
+            5. Check the box for `Block project-wide SSH keys`.
+            6. Click `Save` at the bottom of the page.
+            7. Repeat these steps for all instances where project-wide keys should be blocked.
+        - id: cli
+          desc: |
+            **From Google Cloud CLI**
 
-        **From Google Cloud CLI**
-
-        Enable the setting by adding or updating the instance metadata:
-        ```
-        gcloud compute instances add-metadata INSTANCE_NAME --zone=ZONE --metadata block-project-ssh-keys=true
-        ```
-        Replace `INSTANCE_NAME` and `ZONE` with the appropriate values. This command will either add the key if it doesn't exist or update its value to `true` if it does.
-  - uid: gcp-compute-instances-block-project-wide-ssh-keys-single
+            Enable the setting by adding or updating the instance metadata:
+            ```bash
+            gcloud compute instances add-metadata INSTANCE_NAME --zone=ZONE --metadata block-project-ssh-keys=true
+            ```
+            Replace `INSTANCE_NAME` and `ZONE` with the appropriate values. This command will either add the key if it doesn't exist or update its value to `true` if it does.
+  - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -1754,23 +1812,23 @@ queries:
       gcp.compute.instance {
         metadata['block-project-ssh-keys'] == true
       }
-  - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-hcl
+  - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance' && attributes['metadata'] != null)
     mql: |
-      terraform.resources.where(attributes['metadata'] != null) {
+      terraform.resources.where(nameLabel == 'google_compute_instance' && attributes['metadata'] != null) {
         attributes['metadata'].value['block-project-ssh-keys'] == true
       }
-  - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == "google_compute_instance")
     mql: |
       terraform.plan.resourceChanges.where(type == "google_compute_instance") {
         change.after['metadata']['block-project-ssh-keys'] == true
       }
-  - uid: gcp-compute-instances-block-project-wide-ssh-keys-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == "google_compute_instance")
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
         values['metadata'] {
@@ -1778,14 +1836,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled
     title: Ensure Confidential VM Service is enabled for all VM instances
     impact: 75
     variants:
-      - uid: gcp-compute-instances-confidential-vm-service-enabled-single
-      - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-hcl
-      - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-plan
-      - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-single
+      - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-state
     docs:
       desc: |
         Enable the Confidential VM service for applicable Compute Engine VM instances to enhance data security during processing.
@@ -1826,33 +1886,38 @@ queries:
          "name": "..."
         }
         ```
-      remediation: |
-        The Confidential VM service can only be activated when creating a new VM instance. It cannot be enabled on an existing instance.
+      remediation:
+        - id: console
+          desc: |
+            The Confidential VM service can only be activated when creating a new VM instance. It cannot be enabled on an existing instance.
 
-        **From Google Cloud Console**
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click `CREATE INSTANCE`.
-        3. Configure the instance settings (name, region, zone).
-        4. Select a supported machine type from the N2D series (or other applicable types) under `Machine configuration`.
-        5. Scroll down to the `Confidential VM service` section.
-        6. Check the box labeled `Enable the Confidential Computing service on this VM instance`. Note that this usually requires setting the `On host maintenance` policy to `Terminate VM instance`.
-        7. Configure other settings as needed (boot disk, networking, etc.).
-        8. Click `Create`.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click `CREATE INSTANCE`.
+            3. Configure the instance settings (name, region, zone).
+            4. Select a supported machine type from the N2D series (or other applicable types) under `Machine configuration`.
+            5. Scroll down to the `Confidential VM service` section.
+            6. Check the box labeled `Enable the Confidential Computing service on this VM instance`. Note that this usually requires setting the `On host maintenance` policy to `Terminate VM instance`.
+            7. Configure other settings as needed (boot disk, networking, etc.).
+            8. Click `Create`.
+        - id: cli
+          desc: |
+            The Confidential VM service can only be activated when creating a new VM instance. It cannot be enabled on an existing instance.
 
-        **From Google Cloud CLI**
+            **From Google Cloud CLI**
 
-        Use the `--confidential-compute` flag during instance creation. You must also set the maintenance policy to `TERMINATE`.
-        ```
-        gcloud compute instances create INSTANCE_NAME \
-         --zone=ZONE \
-         --machine-type=N2D_MACHINE_TYPE \
-         --confidential-compute \
-         --maintenance-policy=TERMINATE \
-         # Add other necessary flags like --image-project, --image, --network, etc.
-        ```
-        Replace placeholders like `INSTANCE_NAME`, `ZONE`, and `N2D_MACHINE_TYPE` with appropriate values.
-  - uid: gcp-compute-instances-confidential-vm-service-enabled-single
+            Use the `--confidential-compute` flag during instance creation. You must also set the maintenance policy to `TERMINATE`.
+            ```bash
+            gcloud compute instances create INSTANCE_NAME \
+             --zone=ZONE \
+             --machine-type=N2D_MACHINE_TYPE \
+             --confidential-compute \
+             --maintenance-policy=TERMINATE \
+             # Add other necessary flags like --image-project, --image, --network, etc.
+            ```
+            Replace placeholders like `INSTANCE_NAME`, `ZONE`, and `N2D_MACHINE_TYPE` with appropriate values.
+  - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -1861,29 +1926,29 @@ queries:
       gcp.compute.instance {
         confidentialInstanceConfig['serviceEnabled'] == true
       }
-  - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
-      terraform.resources {
+      terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'confidential_instance_config') {
           attributes['enable_confidential_compute'].value == true
         }
       }
-  - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') {
         change.after['boot_disk'] {
           _['initialize_params'].all(
             _['enable_confidential_compute'] == true
           )
         }
       }
-  - uid: gcp-compute-instances-confidential-vm-service-enabled-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == "google_compute_instance") {
         values['confidential_instance_config'] {
@@ -1891,14 +1956,16 @@ queries:
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled
     title: Ensure Secure Boot is enabled for all VM instances
     impact: 90
     variants:
-      - uid: gcp-compute-instances-secure-boot-enabled-single
-      - uid: gcp-compute-instances-secure-boot-enabled-terraform-hcl
-      - uid: gcp-compute-instances-secure-boot-enabled-terraform-plan
-      - uid: gcp-compute-instances-secure-boot-enabled-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-single
+      - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-state
     docs:
       desc: |
         Enable Secure Boot, a feature of Shielded VMs, on Compute Engine instances to enhance platform security and integrity.
@@ -1927,85 +1994,92 @@ queries:
         Replace `INSTANCE_NAME` and `ZONE` accordingly.
 
         2. Examine the output. Ensure the `shieldedInstanceConfig` object exists and the `enableSecureBoot` field is set to `true`. If `shieldedInstanceConfig` is absent or `enableSecureBoot` is `false`, the feature is not enabled.
-      remediation: |
-        Secure Boot can only be enabled on instances using an OS image that supports Shielded VM features.
+      remediation:
+        - id: console
+          desc: |
+            Secure Boot can only be enabled on instances using an OS image that supports Shielded VM features.
 
-        **From Google Cloud Console**
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click the name of the instance to modify.
-        3. If the instance is running, click `STOP` and confirm. Wait for it to stop.
-        4. Click `EDIT`.
-        5. Scroll to the `Shielded VM` section.
-        6. Check the box or toggle the switch to enable `Secure Boot`. Enabling Secure Boot typically requires vTPM and Integrity Monitoring to also be enabled or automatically enabled alongside it.
-        7. Click `Save`.
-        8. Click `START / RESUME` to restart the instance.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click the name of the instance to modify.
+            3. If the instance is running, click `STOP` and confirm. Wait for it to stop.
+            4. Click `EDIT`.
+            5. Scroll to the `Shielded VM` section.
+            6. Check the box or toggle the switch to enable `Secure Boot`. Enabling Secure Boot typically requires vTPM and Integrity Monitoring to also be enabled or automatically enabled alongside it.
+            7. Click `Save`.
+            8. Click `START / RESUME` to restart the instance.
 
-        **From Google Cloud CLI**
+            **Prevention:**
+            Enforce the use of Shielded VMs for all new instances by configuring the `constraints/compute.requireShieldedVm` Organization Policy. Manage this policy at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). See documentation for details: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
+        - id: cli
+          desc: |
+            Secure Boot can only be enabled on instances using an OS image that supports Shielded VM features.
 
-        Ensure the instance uses a compatible image. You can list public Shielded VM images:
-        ```
-        gcloud compute images list --project gce-UEFI-images --no-standard-images --filter="shieldedVmFeatures:(SECURE_BOOT)"
-        ```
+            **From Google Cloud CLI**
 
-        1. Stop the instance if it is running:
-        ```
-        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
-        ```
-        2. Update the instance to enable Secure Boot (this command implicitly enables vTPM and Integrity Monitoring as well):
-        ```
-        gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-secure-boot
-        ```
-        3. Start the instance:
-        ```
-        gcloud compute instances start INSTANCE_NAME --zone=ZONE
-        ```
+            Ensure the instance uses a compatible image. You can list public Shielded VM images:
+            ```bash
+            gcloud compute images list --project gce-UEFI-images --no-standard-images --filter="shieldedVmFeatures:(SECURE_BOOT)"
+            ```
 
-        **Prevention:**
-        Enforce the use of Shielded VMs for all new instances by configuring the `constraints/compute.requireShieldedVm` Organization Policy. Manage this policy at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). See documentation for details: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
-  - uid: gcp-compute-instances-secure-boot-enabled-single
+            1. Stop the instance if it is running:
+            ```bash
+            gcloud compute instances stop INSTANCE_NAME --zone=ZONE
+            ```
+            2. Update the instance to enable Secure Boot (this command implicitly enables vTPM and Integrity Monitoring as well):
+            ```bash
+            gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-secure-boot
+            ```
+            3. Start the instance:
+            ```bash
+            gcloud compute instances start INSTANCE_NAME --zone=ZONE
+            ```
+  - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance {
         enableSecureBoot == true
       }
-  - uid: gcp-compute-instances-secure-boot-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
-      terraform.resources {
+      terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'shielded_instance_config') {
           attributes['enable_secure_boot'].value == true
         }
       }
-  - uid: gcp-compute-instances-secure-boot-enabled-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') {
         change.after['shielded_instance_config'] {
           _['enable_secure_boot'] == true
         }
       }
-  - uid: gcp-compute-instances-secure-boot-enabled-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
-      terraform.state.resources.where(type == "google_compute_instance") {
+      terraform.state.resources.where(type == 'google_compute_instance') {
         values['shielded_instance_config'] {
           _['enable_secure_boot'] == true
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-vtpm-enabled
     title: Ensure vTPM is enabled for all VM instances
     impact: 90
     variants:
-      - uid: gcp-compute-instances-vtpm-enabled-single
-      - uid: gcp-compute-instances-vtpm-enabled-terraform-hcl
-      - uid: gcp-compute-instances-vtpm-enabled-terraform-plan
-      - uid: gcp-compute-instances-vtpm-enabled-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-single
+      - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-state
     docs:
       desc: |
         Enable the virtual Trusted Platform Module (vTPM), a feature of Shielded VMs, on Compute Engine instances to support Measured Boot and enhance integrity verification.
@@ -2034,86 +2108,93 @@ queries:
         Replace `INSTANCE_NAME` and `ZONE` accordingly.
 
         2. Look at the output. Ensure the `shieldedInstanceConfig` object is present and the `enableVtpm` field is set to `true`. If `shieldedInstanceConfig` is missing or `enableVtpm` is `false`, the feature is disabled.
-      remediation: |
-        vTPM can only be enabled on instances using an OS image that supports Shielded VM features.
+      remediation:
+        - id: console
+          desc: |
+            vTPM can only be enabled on instances using an OS image that supports Shielded VM features.
 
-        **From Google Cloud Console**
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click the name of the instance to modify.
-        3. If the instance is running, click `STOP` and confirm. Wait for it to stop completely.
-        4. Click `EDIT`.
-        5. Scroll down to the `Shielded VM` section.
-        6. Check the box or toggle the switch to enable `vTPM`.
-        7. Click `Save`.
-        8. Click `START / RESUME` to restart the instance.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click the name of the instance to modify.
+            3. If the instance is running, click `STOP` and confirm. Wait for it to stop completely.
+            4. Click `EDIT`.
+            5. Scroll down to the `Shielded VM` section.
+            6. Check the box or toggle the switch to enable `vTPM`.
+            7. Click `Save`.
+            8. Click `START / RESUME` to restart the instance.
 
-        **From Google Cloud CLI**
+            **Prevention:**
+            Mandate the use of Shielded VMs (which includes vTPM) for new instances via the `constraints/compute.requireShieldedVm` Organization Policy. Configure it at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Refer to documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
+        - id: cli
+          desc: |
+            vTPM can only be enabled on instances using an OS image that supports Shielded VM features.
 
-        Ensure the instance uses a compatible image. You can list public Shielded VM images:
-        ```
-        gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(VTPM)"
-        ```
+            **From Google Cloud CLI**
 
-        1. Stop the instance if it is running:
-        ```
-        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
-        ```
-        2. Update the instance to enable vTPM:
-        ```
-        gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vtpm
-        ```
-        Note: This command specifically targets vTPM. If Secure Boot or Integrity Monitoring are desired, they might need separate flags (`--shielded-vm-secure-boot`, `--shielded-vm-integrity-monitoring`) or enabling them might implicitly enable vTPM.
-        3. Start the instance:
-        ```
-        gcloud compute instances start INSTANCE_NAME --zone=ZONE
-        ```
+            Ensure the instance uses a compatible image. You can list public Shielded VM images:
+            ```bash
+            gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(VTPM)"
+            ```
 
-        **Prevention:**
-        Mandate the use of Shielded VMs (which includes vTPM) for new instances via the `constraints/compute.requireShieldedVm` Organization Policy. Configure it at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Refer to documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
-  - uid: gcp-compute-instances-vtpm-enabled-single
+            1. Stop the instance if it is running:
+            ```bash
+            gcloud compute instances stop INSTANCE_NAME --zone=ZONE
+            ```
+            2. Update the instance to enable vTPM:
+            ```bash
+            gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vtpm
+            ```
+            Note: This command specifically targets vTPM. If Secure Boot or Integrity Monitoring are desired, they might need separate flags (`--shielded-vm-secure-boot`, `--shielded-vm-integrity-monitoring`) or enabling them might implicitly enable vTPM.
+            3. Start the instance:
+            ```bash
+            gcloud compute instances start INSTANCE_NAME --zone=ZONE
+            ```
+  - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance {
         enableVtpm == true
       }
-  - uid: gcp-compute-instances-vtpm-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
-      terraform.resources {
+      terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'shielded_instance_config') {
           attributes['enable_vtpm'].value == true
         }
       }
-  - uid: gcp-compute-instances-vtpm-enabled-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') {
         change.after['shielded_instance_config'] {
           _['enable_vtpm'] == true
         }
       }
-  - uid: gcp-compute-instances-vtpm-enabled-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
-      terraform.state.resources.where(type == "google_compute_instance") {
+      terraform.state.resources.where(type == 'google_compute_instance') {
         values['shielded_instance_config'] {
           _['enable_vtpm'] == true
         }
       }
 
+
+
   - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled
     title: Ensure Integrity Monitoring is enabled for all VM instances
     impact: 90
     variants:
-      - uid: gcp-compute-instances-integrity-monitoring-enabled-single
-      - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-hcl
-      - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-plan
-      - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-state
+      - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-single
+      - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-plan
+      - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-state
     docs:
       desc: |
         Enable Integrity Monitoring, a feature of Shielded VMs, on Compute Engine instances to detect potentially malicious modifications to the boot sequence.
@@ -2142,86 +2223,93 @@ queries:
         Replace `INSTANCE_NAME` and `ZONE` accordingly.
 
         2. Examine the output. Ensure the `shieldedInstanceConfig` object exists and the `enableIntegrityMonitoring` field is set to `true`. If `shieldedInstanceConfig` is absent or `enableIntegrityMonitoring` is `false`, the feature is not enabled.
-      remediation: |
-        Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
+      remediation:
+        - id: console
+          desc: |
+            Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
 
-        **From Google Cloud Console**
+            **From Google Cloud Console**
 
-        1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-        2. Click the name of the instance to modify.
-        3. If the instance is running, click `STOP` and confirm. Wait for it to stop completely.
-        4. Click `EDIT`.
-        5. Scroll down to the `Shielded VM` section.
-        6. Ensure `vTPM` is enabled.
-        7. Check the box or toggle the switch to enable `Integrity Monitoring`.
-        8. Click `Save`.
-        9. Click `START / RESUME` to restart the instance.
+            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Click the name of the instance to modify.
+            3. If the instance is running, click `STOP` and confirm. Wait for it to stop completely.
+            4. Click `EDIT`.
+            5. Scroll down to the `Shielded VM` section.
+            6. Ensure `vTPM` is enabled.
+            7. Check the box or toggle the switch to enable `Integrity Monitoring`.
+            8. Click `Save`.
+            9. Click `START / RESUME` to restart the instance.
 
-        **From Google Cloud CLI**
+            **Prevention:**
+            Enforce the use of Shielded VMs (which includes Integrity Monitoring when enabled) for new instances using the `constraints/compute.requireShieldedVm` Organization Policy. Configure this at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). See documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
+        - id: cli
+          desc: |
+            Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
 
-        Ensure the instance uses a compatible image and has vTPM enabled. You can list public Shielded VM images:
-        ```
-        gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(INTEGRITY_MONITORING)"
-        ```
+            **From Google Cloud CLI**
 
-        1. Stop the instance if it is running:
-        ```
-        gcloud compute instances stop INSTANCE_NAME --zone=ZONE
-        ```
-        2. Update the instance to enable Integrity Monitoring (this command implicitly enables vTPM as well):
-        ```
-        gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-integrity-monitoring
-        ```
-        3. Start the instance:
-        ```
-        gcloud compute instances start INSTANCE_NAME --zone=ZONE
-        ```
+            Ensure the instance uses a compatible image and has vTPM enabled. You can list public Shielded VM images:
+            ```bash
+            gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(INTEGRITY_MONITORING)"
+            ```
 
-        **Prevention:**
-        Enforce the use of Shielded VMs (which includes Integrity Monitoring when enabled) for new instances using the `constraints/compute.requireShieldedVm` Organization Policy. Configure this at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). See documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
-  - uid: gcp-compute-instances-integrity-monitoring-enabled-single
+            1. Stop the instance if it is running:
+            ```bash
+            gcloud compute instances stop INSTANCE_NAME --zone=ZONE
+            ```
+            2. Update the instance to enable Integrity Monitoring (this command implicitly enables vTPM as well):
+            ```bash
+            gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-integrity-monitoring
+            ```
+            3. Start the instance:
+            ```bash
+            gcloud compute instances start INSTANCE_NAME --zone=ZONE
+            ```
+  - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
     mql: |
       gcp.compute.instance {
         enableIntegrityMonitoring == true
       }
-  - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-hcl
+  - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-hcl
     filters: |
-      asset.platform == "terraform-hcl"
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
-      terraform.resources {
+      terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'shielded_instance_config') {
           attributes['enable_integrity_monitoring'].value == true
         }
       }
-  - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-plan
+  - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-plan
     filters: |
-      asset.platform == "terraform-plan"
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == "google_compute_instance") {
+      terraform.plan.resourceChanges.where(type == 'google_compute_instance') {
         change.after['shielded_instance_config'] {
           _['enable_integrity_monitoring'] == true
         }
       }
-  - uid: gcp-compute-instances-integrity-monitoring-enabled-terraform-state
+  - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-state
     filters: |
-      asset.platform == "terraform-state"
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
-      terraform.state.resources.where(type == "google_compute_instance") {
+      terraform.state.resources.where(type == 'google_compute_instance') {
         values['shielded_instance_config'] {
           _['enable_integrity_monitoring'] == true
         }
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed
     title: Ensure Cloud SQL PostgreSQL instances are not publicly exposed
     impact: 100
     variants:
-      - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-all
-      - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-terraform-hcl
-      - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-terraform-plan
-      - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-all
+      - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-state
     docs:
       desc: |
         Assigning public IP addresses to Cloud SQL PostgreSQL instances expands the potential attack surface, making databases accessible from the public internet and increasing security risks.
@@ -2248,54 +2336,58 @@ queries:
             ```
 
           3. Inspect the `ipAddresses` section in the output for the instance. Verify that an entry exists with `type: PRIVATE`. Crucially, ensure there is no entry with `type: PRIMARY`, as this indicates a public IP address. While an instance can technically possess both during transitions, the secure state is having only the `PRIVATE` type assigned.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
-        2.  Click on the name of the target PostgreSQL instance to view its configuration details.
-        3.  Navigate to the **Connections** settings tab.
-        4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
-        5.  Confirm the modification by clicking the **Save** button.
+            1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
+            2.  Click on the name of the target PostgreSQL instance to view its configuration details.
+            3.  Navigate to the **Connections** settings tab.
+            4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
+            5.  Confirm the modification by clicking the **Save** button.
 
-        **Using the Google Cloud CLI**
+            **Prevention:**
 
-        1.  Modify the target instance to remove its public IP address and ensure it's associated with a VPC network for private IP access. Replace `INSTANCE_NAME` with the actual instance name and `VPC_NETWORK_NAME` with the desired VPC network name:
-            ```bash
-            gcloud sql instances patch INSTANCE_NAME --network=VPC_NETWORK_NAME --no-assign-ip
-            ```
-            *Note: If the instance is already associated with the correct VPC network for private IP, you might only need the `--no-assign-ip` flag.*
-        2.  Verify that the public IP address has been removed by inspecting the instance's configuration:
-            ```bash
-            gcloud sql instances describe INSTANCE_NAME
-            ```
-            Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
+            To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using Terraform**
+            1.  Modify the target instance to remove its public IP address and ensure it's associated with a VPC network for private IP access. Replace `INSTANCE_NAME` with the actual instance name and `VPC_NETWORK_NAME` with the desired VPC network name:
+                ```bash
+                gcloud sql instances patch INSTANCE_NAME --network=VPC_NETWORK_NAME --no-assign-ip
+                ```
+                *Note: If the instance is already associated with the correct VPC network for private IP, you might only need the `--no-assign-ip` flag.*
+            2.  Verify that the public IP address has been removed by inspecting the instance's configuration:
+                ```bash
+                gcloud sql instances describe INSTANCE_NAME
+                ```
+                Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        Ensure the `ipv4_enabled` attribute within the `ip_configuration` block is set to `false` or omitted (defaults to false if private network is configured):
+            Ensure the `ipv4_enabled` attribute within the `ip_configuration` block is set to `false` or omitted (defaults to false if private network is configured):
 
-        ```hcl
-        resource "google_sql_database_instance" "default" {
-          name             = "my-postgres-instance"
-          database_version = "POSTGRES_15"
-          region           = "us-central1"
+            ```hcl
+            resource "google_sql_database_instance" "default" {
+              name             = "my-postgres-instance"
+              database_version = "POSTGRES_15"
+              region           = "us-central1"
 
-          settings {
-            tier = "db-f1-micro"
-            ip_configuration {
-              # Ensure private network is configured
-              private_network = "projects/my-project/global/networks/my-vpc"
-              # Set ipv4_enabled to false or omit it
-              ipv4_enabled    = false
+              settings {
+                tier = "db-f1-micro"
+                ip_configuration {
+                  # Ensure private network is configured
+                  private_network = "projects/my-project/global/networks/my-vpc"
+                  # Set ipv4_enabled to false or omit it
+                  ipv4_enabled    = false
+                }
+              }
             }
-          }
-        }
-        ```
-
-        **Prevention:**
-
-        To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
-  - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -2304,9 +2396,9 @@ queries:
           _.type != "PRIMARY"
         )
       }
-  - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) {
         blocks.where(type == 'settings') {
@@ -2315,29 +2407,31 @@ queries:
           }
         }
       }
-  - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['ip_configuration'].first['ipv4_enabled'] == false
       }
-  - uid: gcp-cloud-sql-postgres-instances-not-publicly-exposed-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['ip_configuration'].first['ipv4_enabled'] == false
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed
     title: Ensure Cloud SQL for SQL Server instances are not publicly exposed
     impact: 100
     variants:
-      - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-all
-      - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-hcl
-      - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-plan
-      - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-all
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-state
     docs:
       desc: |
         Assigning public IP addresses to Cloud SQL for SQL Server instances expands the potential attack surface, making databases accessible from the public internet and increasing security risks.
@@ -2364,54 +2458,58 @@ queries:
             ```
 
           3. Inspect the `ipAddresses` section in the output for the instance. Verify that an entry exists with `type: PRIVATE`. Crucially, ensure there is no entry with `type: PRIMARY`, as this indicates a public IP address. While an instance can technically possess both during transitions, the secure state is having only the `PRIVATE` type assigned.
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
-        2.  Click on the name of the target SQL Server instance to view its configuration details.
-        3.  Navigate to the **Connections** settings tab.
-        4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
-        5.  Confirm the modification by clicking the **Save** button.
+            1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
+            2.  Click on the name of the target SQL Server instance to view its configuration details.
+            3.  Navigate to the **Connections** settings tab.
+            4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
+            5.  Confirm the modification by clicking the **Save** button.
 
-        **Using the Google Cloud CLI**
+            **Prevention:**
 
-        1.  Modify the target instance to remove its public IP address and ensure it's associated with a VPC network for private IP access. Replace `INSTANCE_NAME` with the actual instance name and `VPC_NETWORK_NAME` with the desired VPC network name:
-            ```bash
-            gcloud sql instances patch INSTANCE_NAME --network=VPC_NETWORK_NAME --no-assign-ip
-            ```
-            *Note: If the instance is already associated with the correct VPC network for private IP, you might only need the `--no-assign-ip` flag.*
-        2.  Verify that the public IP address has been removed by inspecting the instance's configuration:
-            ```bash
-            gcloud sql instances describe INSTANCE_NAME
-            ```
-            Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
+            To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using Terraform**
+            1.  Modify the target instance to remove its public IP address and ensure it's associated with a VPC network for private IP access. Replace `INSTANCE_NAME` with the actual instance name and `VPC_NETWORK_NAME` with the desired VPC network name:
+                ```bash
+                gcloud sql instances patch INSTANCE_NAME --network=VPC_NETWORK_NAME --no-assign-ip
+                ```
+                *Note: If the instance is already associated with the correct VPC network for private IP, you might only need the `--no-assign-ip` flag.*
+            2.  Verify that the public IP address has been removed by inspecting the instance's configuration:
+                ```bash
+                gcloud sql instances describe INSTANCE_NAME
+                ```
+                Check the `ipAddresses` section in the output to confirm the absence of an entry with `type: PRIMARY`.
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        Ensure the `ipv4_enabled` attribute within the `ip_configuration` block is set to `false` or omitted (defaults to false if private network is configured):
+            Ensure the `ipv4_enabled` attribute within the `ip_configuration` block is set to `false` or omitted (defaults to false if private network is configured):
 
-        ```hcl
-        resource "google_sql_database_instance" "default" {
-          name             = "my-sql-server-instance"
-          database_version = "SQLSERVER_2019_STANDARD"
-          region           = "us-central1"
+            ```hcl
+            resource "google_sql_database_instance" "default" {
+              name             = "my-sql-server-instance"
+              database_version = "SQLSERVER_2019_STANDARD"
+              region           = "us-central1"
 
-          settings {
-            tier = "db-custom-2-7680" # Example tier
-            ip_configuration {
-              # Ensure private network is configured
-              private_network = "projects/my-project/global/networks/my-vpc"
-              # Set ipv4_enabled to false or omit it
-              ipv4_enabled    = false
+              settings {
+                tier = "db-custom-2-7680" # Example tier
+                ip_configuration {
+                  # Ensure private network is configured
+                  private_network = "projects/my-project/global/networks/my-vpc"
+                  # Set ipv4_enabled to false or omit it
+                  ipv4_enabled    = false
+                }
+              }
             }
-          }
-        }
-        ```
-
-        **Prevention:**
-
-        To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
-  - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-all
+            ```
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -2420,9 +2518,9 @@ queries:
           _.type != "PRIMARY"
         )
       }
-  - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER')) {
         blocks.where(type == 'settings') {
@@ -2431,29 +2529,31 @@ queries:
           }
         }
       }
-  - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('SQLSERVER'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('SQLSERVER')) {
         change.after['settings'].first['ip_configuration'].first['ipv4_enabled'] == false
       }
-  - uid: gcp-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER')) {
         values['settings'].first['ip_configuration'].first['ipv4_enabled'] == false
       }
 
+
+
   - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls
     title: Ensure Cloud SQL PostgreSQL connections require SSL/TLS
     impact: 90
     variants:
-      - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-all
-      - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-terraform-hcl
-      - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-terraform-plan
-      - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-all
+      - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-state
     docs:
       desc: |
         Requiring SSL/TLS for connections to Cloud SQL PostgreSQL instances encrypts data in transit between the client and the database server. This prevents potential eavesdropping and man-in-the-middle attacks, protecting sensitive data from unauthorized access during transmission.
@@ -2484,53 +2584,65 @@ queries:
                 requireSsl: true
                 # ... other ipConfiguration settings
             ```
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
-        2.  Click the name of the target PostgreSQL instance.
-        3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
-        4.  Check the box labeled **Allow only SSL connections**.
-        5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
+            1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
+            2.  Click the name of the target PostgreSQL instance.
+            3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
+            4.  Check the box labeled **Allow only SSL connections**.
+            5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
 
-        **Using the Google Cloud CLI**
+            **Prevention:**
 
-        1.  Enable the "Require SSL" setting for the instance:
-            ```bash
-            gcloud sql instances patch INSTANCE_NAME --require-ssl
-            ```
-            *Note: This command may cause the instance to restart.*
-        2.  Confirm the change:
-            ```bash
-            gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
-            ```
-            The output should be `True`.
+            Always configure new Cloud SQL PostgreSQL instances with the "Allow only SSL connections" option enabled during creation via the Console. Regularly audit instances to ensure compliance.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using Terraform**
+            1.  Enable the "Require SSL" setting for the instance:
+                ```bash
+                gcloud sql instances patch INSTANCE_NAME --require-ssl
+                ```
+                *Note: This command may cause the instance to restart.*
+            2.  Confirm the change:
+                ```bash
+                gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
+                ```
+                The output should be `True`.
 
-        Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+            **Prevention:**
 
-        ```hcl
-        resource "google_sql_database_instance" "default" {
-          name             = "my-postgres-instance"
-          database_version = "POSTGRES_15"
-          region           = "us-central1"
+            Always configure new Cloud SQL PostgreSQL instances with the `--require-ssl` flag during creation via the CLI. Regularly audit instances to ensure compliance.
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-          settings {
-            tier = "db-f1-micro"
-            ip_configuration {
-              ipv4_enabled = true # Or false if using private IP only
-              # Set require_ssl to true
-              require_ssl  = true
+            Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+
+            ```hcl
+            resource "google_sql_database_instance" "default" {
+              name             = "my-postgres-instance"
+              database_version = "POSTGRES_15"
+              region           = "us-central1"
+
+              settings {
+                tier = "db-f1-micro"
+                ip_configuration {
+                  ipv4_enabled = true # Or false if using private IP only
+                  # Set require_ssl to true
+                  require_ssl  = true
+                }
+              }
             }
-          }
-        }
-        ```
+            ```
 
-        **Prevention:**
+            **Prevention:**
 
-        Always configure new Cloud SQL PostgreSQL instances with the "Allow only SSL connections" option enabled during creation via the Console, CLI (`--require-ssl` flag), or Terraform (`require_ssl = true`). Regularly audit instances to ensure compliance.
-  - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-all
+            Always configure new Cloud SQL PostgreSQL instances with `require_ssl = true` during creation via Terraform. Regularly audit instances to ensure compliance.
+  - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -2539,9 +2651,9 @@ queries:
           requireSsl == true
         }
       }
-  - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) {
         blocks.where(type == 'settings') {
@@ -2550,29 +2662,30 @@ queries:
           }
         }
       }
-  - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'].first['ip_configuration'].first['require_ssl'] == true
       }
-  - uid: gcp-cloud-sql-postgres-instances-require-ssl-tls-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'].first['ip_configuration'].first['require_ssl'] == true
       }
 
+
   - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls
     title: Ensure Cloud SQL for SQL Server connections require SSL/TLS
     impact: 90
     variants:
-      - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-all
-      - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-terraform-hcl
-      - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-terraform-plan
-      - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-terraform-state
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-all
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-plan
+      - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-state
     docs:
       desc: |
         Requiring SSL/TLS for connections to Cloud SQL for SQL Server instances encrypts data in transit between the client and the database server. This prevents potential eavesdropping and man-in-the-middle attacks, protecting sensitive data from unauthorized access during transmission.
@@ -2603,53 +2716,65 @@ queries:
                 requireSsl: true
                 # ... other ipConfiguration settings
             ```
-      remediation: |
-        **Using the Google Cloud Console**
+      remediation:
+        - id: console
+          desc: |
+            **Using the Google Cloud Console**
 
-        1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
-        2.  Click the name of the target SQL Server instance.
-        3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
-        4.  Check the box labeled **Allow only SSL connections**.
-        5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
+            1.  Access the Cloud SQL Instances overview page: https://console.cloud.google.com/sql/instances
+            2.  Click the name of the target SQL Server instance.
+            3.  Navigate to the **Connections** tab, then the **Security** sub-tab.
+            4.  Check the box labeled **Allow only SSL connections**.
+            5.  Click **Save** to apply the change. *Note: This may trigger an instance restart.*
 
-        **Using the Google Cloud CLI**
+            **Prevention:**
 
-        1.  Enable the "Require SSL" setting for the instance:
-            ```bash
-            gcloud sql instances patch INSTANCE_NAME --require-ssl
-            ```
-            *Note: This command may cause the instance to restart.*
-        2.  Confirm the change:
-            ```bash
-            gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
-            ```
-            The output should be `True`.
+            Always configure new Cloud SQL for SQL Server instances with the "Allow only SSL connections" option enabled during creation via the Console. Regularly audit instances to ensure compliance.
+        - id: cli
+          desc: |
+            **Using the Google Cloud CLI**
 
-        **Using Terraform**
+            1.  Enable the "Require SSL" setting for the instance:
+                ```bash
+                gcloud sql instances patch INSTANCE_NAME --require-ssl
+                ```
+                *Note: This command may cause the instance to restart.*
+            2.  Confirm the change:
+                ```bash
+                gcloud sql instances describe INSTANCE_NAME --format='value(settings.ipConfiguration.requireSsl)'
+                ```
+                The output should be `True`.
 
-        Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+            **Prevention:**
 
-        ```hcl
-        resource "google_sql_database_instance" "default" {
-          name             = "my-sql-server-instance"
-          database_version = "SQLSERVER_2019_STANDARD"
-          region           = "us-central1"
+            Always configure new Cloud SQL for SQL Server instances with the `--require-ssl` flag during creation via the CLI. Regularly audit instances to ensure compliance.
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-          settings {
-            tier = "db-custom-2-7680" # Example tier
-            ip_configuration {
-              ipv4_enabled = true # Or false if using private IP only
-              # Set require_ssl to true
-              require_ssl  = true
+            Ensure the `require_ssl` attribute within the `ip_configuration` block is set to `true`:
+
+            ```hcl
+            resource "google_sql_database_instance" "default" {
+              name             = "my-sql-server-instance"
+              database_version = "SQLSERVER_2019_STANDARD"
+              region           = "us-central1"
+
+              settings {
+                tier = "db-custom-2-7680" # Example tier
+                ip_configuration {
+                  ipv4_enabled = true # Or false if using private IP only
+                  # Set require_ssl to true
+                  require_ssl  = true
+                }
+              }
             }
-          }
-        }
-        ```
+            ```
 
-        **Prevention:**
+            **Prevention:**
 
-        Always configure new Cloud SQL for SQL Server instances with the "Allow only SSL connections" option enabled during creation via the Console, CLI (`--require-ssl` flag), or Terraform (`require_ssl = true`). Regularly audit instances to ensure compliance.
-  - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-all
+            Always configure new Cloud SQL for SQL Server instances with `require_ssl = true` during creation via Terraform. Regularly audit instances to ensure compliance.
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-all
     filters: |
       asset.platform == 'gcp' || asset.platform == 'gcp-project'
     mql: |
@@ -2658,9 +2783,9 @@ queries:
           requireSsl == true
         }
       }
-  - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-terraform-hcl
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER')) {
         blocks.where(type == 'settings') {
@@ -2669,16 +2794,16 @@ queries:
           }
         }
       }
-  - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-terraform-plan
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('SQLSERVER'))
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('SQLSERVER')) {
         change.after['settings'].first['ip_configuration'].first['require_ssl'] == true
       }
-  - uid: gcp-cloud-sql-sql-server-instances-require-ssl-tls-terraform-state
+  - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER'))
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('SQLSERVER')) {
         values['settings'].first['ip_configuration'].first['require_ssl'] == true
