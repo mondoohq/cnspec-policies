@@ -1644,7 +1644,7 @@ queries:
     mql: |
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'] {
-          _['database_flags'].where(name == 'log_disconnections') { 
+          _['database_flags'].where(name == 'log_disconnections') {
             value == 'on'
           }
         }
@@ -1706,6 +1706,31 @@ queries:
         **Exception:**
         Instances managed by Google Kubernetes Engine (GKE) often require external IPs for node pools or specific services. These instances typically have names starting with `gke-` and possess the label `goog-gke-node`. They should be excluded from this check as their network configuration is managed by GKE.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_compute_instance" "example" {
+              name         = "example-instance"
+              machine_type = "e2-medium"
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  image = "debian-cloud/debian-11"
+                }
+              }
+
+              // Configure the network interface without an access_config block
+              // This ensures no external IP is assigned
+              network_interface {
+                network = "default"
+                // No access_config block means no external IP
+              }
+            }
+            ```
+
         - id: console
           desc: |
             **From Google Cloud Console**
