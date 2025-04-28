@@ -637,6 +637,9 @@ queries:
     impact: 60
     variants:
       - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-single
+      - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-hcl
+      - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-plan
+      - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-state
     docs:
       desc: |
         Cloud Storage offers two systems for granting users permission to access your buckets and objects: IAM and Access Control Lists (ACLs). These systems act in parallel - in order for a user to access a Cloud Storage resource, only one of the systems needs to grant the user permission. IAM is used throughout Google Cloud and allows you to grant a variety of permissions at the bucket and project levels. ACLs are used only by Cloud Storage and have limited permission options, but they allow you to grant permissions on a per-object basis.
@@ -677,7 +680,27 @@ queries:
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-single
     filters: asset.platform 'gcp-storage-bucket'
     mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
-
+  - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-hcl
+    filters: |
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_storage_bucket')
+    mql: |
+      terraform.resources.where(nameLabel == 'google_storage_bucket').all(
+        arguments.uniform_bucket_level_access == true
+      )
+  - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-plan
+    filters: |
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_storage_bucket')
+    mql: |
+      terraform.plan.resourceChanges.where(type == 'google_storage_bucket').all(
+        change.after.uniform_bucket_level_access == true
+      )
+  - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-state
+    filters: |
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_storage_bucket')
+    mql: |
+      terraform.state.resources.where(type == 'google_storage_bucket').all(
+        values.uniform_bucket_level_access == true
+      )
 
 
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed
