@@ -4601,7 +4601,7 @@ queries:
 
 
   - uid: mondoo-aws-security-ec2-encrypted-volumes
-    title: Attached EBS volumes are configured to be encrypted at-rest
+    title: Ensure attached EBS volumes are configured to be encrypted at-rest
     impact: 70
     variants:
       - uid: mondoo-aws-security-ec2-encrypted-volumes-single
