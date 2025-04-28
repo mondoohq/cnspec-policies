@@ -2121,6 +2121,39 @@ queries:
         }
         ```
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_compute_instance" "confidential_vm" {
+              name         = "confidential-vm-instance"
+              machine_type = "n2d-standard-2"  # Must use an N2D series or other supported machine type
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  image = "debian-cloud/debian-11"
+                }
+              }
+
+              network_interface {
+                network = "default"
+              }
+
+              # Enable Confidential Computing
+              confidential_instance_config {
+                enable_confidential_compute = true
+              }
+
+              # Required setting for Confidential VMs
+              scheduling {
+                on_host_maintenance = "TERMINATE"
+              }
+
+              # Other configuration parameters as needed...
+            }
+            ```
         - id: console
           desc: |
             The Confidential VM service can only be activated when creating a new VM instance. It cannot be enabled on an existing instance.
