@@ -2417,6 +2417,47 @@ queries:
 
         2. Look at the output. Ensure the `shieldedInstanceConfig` object is present and the `enableVtpm` field is set to `true`. If `shieldedInstanceConfig` is missing or `enableVtpm` is `false`, the feature is disabled.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_compute_instance" "vtpm_enabled_vm" {
+              name         = "vtpm-enabled-instance"
+              machine_type = "e2-medium"
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  # Use a compatible Shielded VM image that supports vTPM
+                  image = "gce-uefi-images/ubuntu-2004-focal-v20220419"
+                }
+              }
+
+              network_interface {
+                network = "default"
+              }
+
+              # Enable vTPM as part of Shielded VM features
+              shielded_instance_config {
+                enable_vtpm                 = true
+                enable_integrity_monitoring = true  # Optional but recommended
+                enable_secure_boot          = false # Optional, set to true if needed
+              }
+
+              # Other configuration parameters as needed...
+            }
+
+            # Optional: Enforce Shielded VM at organization level using organization policy
+            resource "google_organization_policy" "require_shielded_vm" {
+              org_id     = "YOUR_ORGANIZATION_ID"  # Replace with your organization ID
+              constraint = "constraints/compute.requireShieldedVm"
+
+              boolean_policy {
+                enforced = true
+              }
+            }
+            ```
         - id: console
           desc: |
             vTPM can only be enabled on instances using an OS image that supports Shielded VM features.
