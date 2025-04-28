@@ -815,9 +815,9 @@ queries:
     filters: |
       asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.contains(type == 'google_sql_database_instance')
     mql: |
-      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance') {
-        change.after['settings'].first['ip_configuration'].first['ipv4_enabled'] == true
-      }
+      terraform.plan.resourceChanges.where(type == 'google_sql_database_instance').all(
+        change.after['settings'].first['ip_configuration'].any(_['ipv4_enabled'] == true)
+      )
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-state
     filters: |
       asset.platform == 'terraform-state' && terraform.state.resources.contains(type == 'google_sql_database_instance')
