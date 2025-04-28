@@ -620,7 +620,16 @@ queries:
       terraform.plan.resourceChanges.where(type == 'google_storage_bucket_iam_member').all(
         change.after.member != 'allUsers' && change.after.member != 'allAuthenticatedUsers'
       )
-
+  - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-state
+    filters: |
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_storage_bucket_iam_binding' || type == 'google_storage_bucket_iam_member')
+    mql: |
+      terraform.state.resources.where(type == 'google_storage_bucket_iam_binding').all(
+        values.members.none(_ == 'allUsers' || _ == 'allAuthenticatedUsers')
+      )
+      terraform.state.resources.where(type == 'google_storage_bucket_iam_member').all(
+        values.member != 'allUsers' && values.member != 'allAuthenticatedUsers'
+      )
 
 
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled
