@@ -2573,6 +2573,47 @@ queries:
 
         2. Examine the output. Ensure the `shieldedInstanceConfig` object exists and the `enableIntegrityMonitoring` field is set to `true`. If `shieldedInstanceConfig` is absent or `enableIntegrityMonitoring` is `false`, the feature is not enabled.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_compute_instance" "integrity_monitoring_vm" {
+              name         = "integrity-monitoring-instance"
+              machine_type = "e2-medium"
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  # Use a compatible Shielded VM image that supports Integrity Monitoring
+                  image = "gce-uefi-images/ubuntu-2004-focal-v20220419"
+                }
+              }
+
+              network_interface {
+                network = "default"
+              }
+
+              # Enable Integrity Monitoring and vTPM (required) as part of Shielded VM features
+              shielded_instance_config {
+                enable_integrity_monitoring = true
+                enable_vtpm                 = true  # Required for Integrity Monitoring
+                enable_secure_boot          = false # Optional, set to true if needed
+              }
+
+              # Other configuration parameters as needed...
+            }
+
+            # Optional: Enforce Shielded VM at organization level using organization policy
+            resource "google_organization_policy" "require_shielded_vm" {
+              org_id     = "YOUR_ORGANIZATION_ID"  # Replace with your organization ID
+              constraint = "constraints/compute.requireShieldedVm"
+
+              boolean_policy {
+                enforced = true
+              }
+            }
+            ```
         - id: console
           desc: |
             Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
