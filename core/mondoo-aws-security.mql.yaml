@@ -2752,20 +2752,16 @@ queries:
             ```yaml
             Resources:
               SecureLambdaFunction:
-                Type: "AWS::Lambda::Function"
+                Type: AWS::Lambda::Function
                 Properties:
-                  FunctionName: "SecureLambda"
-                  Handler: "index.handler"
-                  Runtime: "python3.8"
-                  Role: !GetAtt LambdaExecutionRole.Arn
+                  FunctionName: SecureLambda
+                  Description: Example Lambda function with reserved concurrency.
+                  Role: arn:aws:iam::123456789012:role/YourLambdaExecutionRole
+                  Handler: index.handler
+                  Runtime: python3.8
                   Code:
-                    S3Bucket: "my-lambda-bucket"
-                    S3Key: "lambda.zip"
-
-              SecureLambdaConcurrency:
-                Type: "AWS::Lambda::Concurrency"
-                Properties:
-                  FunctionName: !Ref SecureLambdaFunction
+                    S3Bucket: your-s3-bucket-name
+                    S3Key: lambda.zip
                   ReservedConcurrentExecutions: 10
             ```
   - uid: mondoo-aws-security-lambda-concurrency-check-single
@@ -5862,7 +5858,6 @@ queries:
 
               encrypt_at_rest {
                 enabled    = true
-
               }
             }
             ```
