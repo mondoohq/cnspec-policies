@@ -54,10 +54,10 @@ queries:
     title: Ensure that instances are not configured to use the default service account
     impact: 95
     variants:
-      - uid: gcp-compute-instances-configured-use-default-service-account-single
-      - uid: gcp-compute-instances-configured-use-default-service-account-terraform-hcl
-      - uid: gcp-compute-instances-configured-use-default-service-account-terraform-plan
-      - uid: gcp-compute-instances-configured-use-default-service-account-terraform-state
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-single
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-hcl
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-plan
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Compute Engine instances are not configured to use the default service account (-compute@developer.gserviceaccount.com). Instead, instances should use custom service accounts with only the permissions required for their specific function, adhering to the principle of least privilege.
@@ -137,7 +137,7 @@ queries:
           ```bash
           gcloud compute instances start INSTANCE_NAME
           ```
-  - uid: gcp-compute-instances-configured-use-default-service-account-single
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -145,36 +145,38 @@ queries:
         gcp.compute.instance.serviceAccounts.none(
           email == /^.*compute@developer\.gserviceaccount\.com$/
         )
-  - uid: gcp-compute-instances-configured-use-default-service-account-terraform-hcl
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance').any(
         blocks.where(type == 'service_account').one(type == 'service_account')
       )
-  - uid: gcp-compute-instances-configured-use-default-service-account-terraform-plan
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance').none(
         change.after.contains(/^.*compute@developer\.gserviceaccount\.com$/)
       )
-  - uid: gcp-compute-instances-configured-use-default-service-account-terraform-state
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
-      terraform.state.resources.where(type == 'google_compute_instance'){ 
+      terraform.state.resources.where(type == 'google_compute_instance') { 
         values.service_account.contains(/^.*compute@developer\.gserviceaccount\.com$/) 
       }
+
+
 
   - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api
     title: Ensure instances are not configured to use the default service account with full access to all Cloud APIs
     impact: 90
     variants:
-      - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
-      - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
-      - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
-      - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
+      - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
     docs:
       desc: |
         This check ensures that Google Cloud Compute Engine instances are not provisioned with full access to all Google Cloud APIs. Instead, instances should be assigned custom service accounts with narrowly scoped permissions, adhering to the principle of least privilege.
@@ -255,7 +257,7 @@ queries:
           ```bash
           gcloud compute instances start INSTANCE_NAME
           ```
-  - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-single
     filters: |
       asset.platform == 'gcp-compute-instance'
       gcp.compute.instance.name != /^gke-/
@@ -263,29 +265,31 @@ queries:
       gcp.compute.instance.serviceAccounts.none(
         scopes == 'https://www.googleapis.com/auth/cloud-platform'
       )
-  - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl'
+      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
         blocks.where(type == 'service_account') { 
           arguments.scopes.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
         } 
       }
-  - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-plan
     filters: |
-      asset.platform == 'terraform-plan'
+      asset.platform == 'terraform-plan' && terraform.plan.resourceChanges.where(type == 'google_compute_instance')
     mql: |
       terraform.plan.resourceChanges.where(type == 'google_compute_instance') { 
         change.after.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
       }
-  - uid: gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
+  - uid: mondoo-gcp-compute-instances-configured-use-default-service-account-full-access-all-cloud-terraform-state
     filters: |
-      asset.platform == 'terraform-state'
+      asset.platform == 'terraform-state' && terraform.state.resources.where(type == 'google_compute_instance')
     mql: |
       terraform.state.resources.where(type == 'google_compute_instance') { 
         values.service_account.map(scopes).first.none(_ == 'https://www.googleapis.com/auth/cloud-platform') 
       }
+
+
 
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances
     title: Ensure "Block Project-wide SSH keys" is enabled for VM instances
