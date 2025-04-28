@@ -1730,7 +1730,6 @@ queries:
               }
             }
             ```
-
         - id: console
           desc: |
             **From Google Cloud Console**
@@ -1841,6 +1840,52 @@ queries:
         **Exception:**
         VMs managed by GKE (names starting with `gke-`, labeled `goog-gke-node`) often use specific service accounts managed by GKE itself, which might include the default service account in some configurations. These should typically be excluded from this check unless specific organizational policies dictate otherwise.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            # Create a custom service account with appropriate permissions
+            resource "google_service_account" "custom_sa" {
+              account_id   = "custom-service-account"
+              display_name = "Custom Service Account"
+            }
+
+            # Grant necessary roles to the service account
+            resource "google_project_iam_member" "service_account_roles" {
+              project = "your-project-id"
+              role    = "roles/compute.instanceAdmin.v1"
+              member  = "serviceAccount:${google_service_account.custom_sa.email}"
+              # Add additional role bindings as needed
+            }
+
+            # Configure the VM instance to use the custom service account
+            resource "google_compute_instance" "example" {
+              name         = "example-instance"
+              machine_type = "e2-medium"
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  image = "debian-cloud/debian-11"
+                }
+              }
+
+              network_interface {
+                network = "default"
+              }
+
+              # Assign the custom service account to the instance
+              service_account {
+                email  = google_service_account.custom_sa.email
+                scopes = [
+                  "https://www.googleapis.com/auth/compute"
+                  # Alternatively, you can use more restrictive scopes:
+                  # "https://www.googleapis.com/auth/devstorage.read_only",
+                  # etc.
+                ]
+              }
+            }
         - id: console
           desc: |
             **From Google Cloud Console**
