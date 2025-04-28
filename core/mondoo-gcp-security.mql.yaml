@@ -2262,6 +2262,47 @@ queries:
 
         2. Examine the output. Ensure the `shieldedInstanceConfig` object exists and the `enableSecureBoot` field is set to `true`. If `shieldedInstanceConfig` is absent or `enableSecureBoot` is `false`, the feature is not enabled.
       remediation:
+        - id: terraform
+          desc: |
+            **Terraform**
+
+            ```hcl
+            resource "google_compute_instance" "shielded_vm" {
+              name         = "shielded-vm-instance"
+              machine_type = "e2-medium"
+              zone         = "us-central1-a"
+
+              boot_disk {
+                initialize_params {
+                  # Use a compatible Shielded VM image
+                  image = "gce-uefi-images/ubuntu-2004-focal-v20220419"
+                }
+              }
+
+              network_interface {
+                network = "default"
+              }
+
+              # Enable Shielded VM features including Secure Boot
+              shielded_instance_config {
+                enable_secure_boot          = true
+                enable_vtpm                 = true        # Required for Secure Boot
+                enable_integrity_monitoring = true        # Recommended with Secure Boot
+              }
+
+              # Other configuration parameters as needed...
+            }
+
+            # Optional: Enforce Shielded VM at organization level using organization policy
+            resource "google_organization_policy" "require_shielded_vm" {
+              org_id     = "YOUR_ORGANIZATION_ID"          # Replace with your organization ID
+              constraint = "constraints/compute.requireShieldedVm"
+
+              boolean_policy {
+                enforced = true
+              }
+            }
+            ```
         - id: console
           desc: |
             Secure Boot can only be enabled on instances using an OS image that supports Shielded VM features.
