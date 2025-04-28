@@ -151,7 +151,7 @@ queries:
         )
   - uid: mondoo-gcp-security-instances-are-not-configured-use-default-service-account-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance').any(
         blocks.where(type == 'service_account').one(type == 'service_account')
@@ -275,7 +275,7 @@ queries:
       )
   - uid: mondoo-gcp-security-instances-not-configured-with-default-service-account-full-access-cloud-api-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
         blocks.where(type == 'service_account') { 
@@ -385,7 +385,7 @@ queries:
     mql: |
       gcp.compute.instance.metadata['block-project-ssh-keys'] == true
   - uid: mondoo-gcp-security-block-project-wide-ssh-keys-enabled-vm-instances-terraform-hcl
-    filters: asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+    filters: asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') { 
         blocks { 
@@ -636,7 +636,7 @@ queries:
       gcp.storage.bucket.iamPolicy.all(members.none(_ == 'allAuthenticatedUsers'))
   - uid: mondoo-gcp-security-cloud-storage-bucket-not-anonymously-publicly-accessible-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_storage_bucket_iam_binding' || nameLabel == 'google_storage_bucket_iam_member')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_storage_bucket_iam_binding' || nameLabel == 'google_storage_bucket_iam_member')
     mql: |
       terraform.resources.where(nameLabel == 'google_storage_bucket_iam_binding').all(
         arguments.members.none(_ == 'allUsers' || _ == 'allAuthenticatedUsers')
@@ -716,7 +716,7 @@ queries:
     mql: gcp.storage.bucket.iamConfiguration.UniformBucketLevelAccess.enabled == true
   - uid: mondoo-gcp-security-cloud-storage-buckets-have-uniform-bucket-level-access-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_storage_bucket')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_storage_bucket')
     mql: |
       terraform.resources.where(nameLabel == 'google_storage_bucket').all(
         arguments.uniform_bucket_level_access == true
@@ -810,7 +810,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-mysql-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
         blocks { 
@@ -946,7 +946,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-mysql-connections-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance') { 
         blocks { 
@@ -1067,7 +1067,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-sql-mysql-skip-show-database-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
         blocks.where(type == 'settings') { 
@@ -1191,7 +1191,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-sql-mysql-local-infile-disabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('MYSQL')) { 
         blocks.where(type == 'settings') { 
@@ -1323,7 +1323,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
         blocks.where(type == 'settings') { 
@@ -1447,7 +1447,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-connections-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
         blocks.where(type == 'settings') { 
@@ -1575,7 +1575,7 @@ queries:
       )
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-disconnections-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) { 
         blocks.where(type == 'settings') { 
@@ -1903,7 +1903,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-block-project-wide-ssh-keys-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance' && attributes['metadata'] != null)
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance' && attributes['metadata'] != null)
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance' && attributes['metadata'] != null) {
         attributes['metadata'].value['block-project-ssh-keys'] == true
@@ -2017,7 +2017,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-confidential-vm-service-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'confidential_instance_config') {
@@ -2133,7 +2133,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-secure-boot-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'shielded_instance_config') {
@@ -2248,7 +2248,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-vtpm-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'shielded_instance_config') {
@@ -2363,7 +2363,7 @@ queries:
       }
   - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_compute_instance')
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_compute_instance')
     mql: |
       terraform.resources.where(nameLabel == 'google_compute_instance') {
         blocks.where(type == 'shielded_instance_config') {
@@ -2487,7 +2487,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) {
         blocks.where(type == 'settings') {
@@ -2609,7 +2609,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-sql-server-instances-not-publicly-exposed-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER')) {
         blocks.where(type == 'settings') {
@@ -2742,7 +2742,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-postgres-connections-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) {
         blocks.where(type == 'settings') {
@@ -2874,7 +2874,7 @@ queries:
       }
   - uid: mondoo-gcp-security-cloud-sql-sql-server-connections-require-ssl-tls-terraform-hcl
     filters: |
-      asset.platform == 'terraform-hcl' && terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER'))
+      asset.platform == 'terraform-hcl' && terraform.resources.contains(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER'))
     mql: |
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('SQLSERVER')) {
         blocks.where(type == 'settings') {
