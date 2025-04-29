@@ -1259,14 +1259,14 @@ queries:
       desc: |
         **Rationale:**
 
-        The `log_error_verbosity` flag in PostgreSQL controls the level of detail included in server log messages for errors. Possible settings include `TERSE` (minimal details), `DEFAULT` (standard details), and `VERBOSE` (includes SQL state codes, source file, function name, and line number). Logging provides essential information for troubleshooting and security analysis. Setting this flag to `DEFAULT` or `VERBOSE` ensures sufficient detail is captured without being overly sparse. Setting it to `TERSE` might omit crucial context needed for effective analysis. This recommendation applies specifically to Cloud SQL for PostgreSQL instances.
+        The `log_error_verbosity` flag in PostgreSQL controls the level of detail included in server log messages for errors. Possible settings include `terse` (minimal details), `default` (standard details), and `verbose` (includes SQL state codes, source file, function name, and line number). Logging provides essential information for troubleshooting and security analysis. Setting this flag to `default` or `verbose` ensures sufficient detail is captured without being overly sparse. Setting it to `terse` might omit crucial context needed for effective analysis. This recommendation applies specifically to Cloud SQL for PostgreSQL instances.
       audit: |
         **Using the Google Cloud Console**
 
         1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
         2.  Select a PostgreSQL instance to view its details.
         3.  In the **Configuration** section, find the **Database flags** area.
-        4.  Verify that the `log_error_verbosity` flag is listed and its value is set to `DEFAULT` or `VERBOSE`.
+        4.  Verify that the `log_error_verbosity` flag is listed and its value is set to `default` or `verbose`.
 
         **Using the Google Cloud CLI**
 
@@ -1276,10 +1276,10 @@ queries:
             ```
         2.  For each PostgreSQL instance, check the flag's value:
             ```bash
-            # This command shows the value, verify it's "DEFAULT" or "VERBOSE"
+            # This command shows the value, verify it's "default" or "verbose"
             gcloud sql instances describe INSTANCE_NAME --format=json | jq '.settings.databaseFlags[] | select(.name=="log_error_verbosity")|.value'
             ```
-            Ensure the output for each PostgreSQL instance is `"DEFAULT"` or `"VERBOSE"`.
+            Ensure the output for each PostgreSQL instance is `"default"` or `"verbose"`.
 
         **Using cnquery**
 
@@ -1291,7 +1291,7 @@ queries:
            ```mql
            cnquery run gcp project <project-id> -c "gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(settings { databaseFlags['log_error_verbosity'] == 'verbose' })"
            ```
-           Verify the flag value is `DEFAULT` or `VERBOSE` for all relevant instances.
+           Verify the flag value is `default` or `verbose` for all relevant instances.
       remediation:
         - id: console
           desc: |
@@ -1302,26 +1302,26 @@ queries:
             3.  Click **Edit**.
             4.  Scroll down to the **Flags** section.
             5.  If the flag isn't present, click **Add item**.
-            6.  Choose `log_error_verbosity` from the dropdown and set its value to `DEFAULT` or `VERBOSE`. If the flag exists but is set to `TERSE`, change its value.
+            6.  Choose `log_error_verbosity` from the dropdown and set its value to `default` or `verbose`. If the flag exists but is set to `terse`, change its value.
             7.  Click **Save**. Review the **Flags** section on the instance overview page to confirm.
         - id: cli
           desc: |
             **Using the Google Cloud CLI**
 
-            Update the flag for a specific PostgreSQL instance (choose `DEFAULT` or `VERBOSE`):
+            Update the flag for a specific PostgreSQL instance (choose `default` or `verbose`):
             ```bash
-            # Example using DEFAULT
-            gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=DEFAULT
+            # Example using default
+            gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=default
 
             # Example using VERBOSE
-            gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=VERBOSE
+            gcloud sql instances patch INSTANCE_NAME --database-flags log_error_verbosity=verbose
             ```
-            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_error_verbosity=DEFAULT,other_flag=value`).*
+            *Note: This command overwrites all existing flags. To preserve other flags, you must include them in the `--database-flags` argument (e.g., `--database-flags log_error_verbosity=default,other_flag=value`).*
         - id: terraform
           desc: |
             **Using Terraform**
 
-            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting (choose `DEFAULT` or `VERBOSE`):
+            Ensure the `database_flags` block within your `google_sql_database_instance` resource includes the setting (choose `default` or `verbose`):
             ```hcl
             resource "google_sql_database_instance" "postgres_instance" {
               name             = "my-postgres-instance"
@@ -1331,8 +1331,8 @@ queries:
                 tier = "db-f1-micro"
                 database_flags {
                   name  = "log_error_verbosity"
-                  # Choose either "DEFAULT" or "VERBOSE"
-                  value = "DEFAULT"
+                  # Choose either "default" or "verbose"
+                  value = "default"
                 }
                 # Include other settings and flags as needed
               }
@@ -1344,7 +1344,7 @@ queries:
     mql: |
       gcp.project.sql.instances.where(databaseInstalledVersion == /^POSTGRES_/).all(
         settings {
-          databaseFlags['log_error_verbosity'] == 'verbose'
+          databaseFlags['log_error_verbosity'] == 'verbose' || databaseFlags['log_error_verbosity'] == 'default'
         }
       )
   - uid: mondoo-gcp-security-cloud-sql-postgres-log-error-verbosity-default-verbose-terraform-hcl
@@ -1354,7 +1354,7 @@ queries:
       terraform.resources.where(nameLabel == 'google_sql_database_instance' && arguments['database_version'].contains('POSTGRES')) {
         blocks.where(type == 'settings') {
           blocks.where(type == 'database_flags').where(attributes['name'].value == 'log_error_verbosity') {
-            arguments['value'] == 'verbose'
+            arguments['value'] == 'verbose' || arguments['value'] == 'default'
           }
         }
       }
@@ -1365,7 +1365,7 @@ queries:
       terraform.plan.resourceChanges.where(type == 'google_sql_database_instance' && change.after.database_version.contains('POSTGRES')) {
         change.after['settings'] {
           _['database_flags'].where(name == 'log_error_verbosity') {
-            value.upcase == 'verbose'
+            value == 'verbose' || value == 'default'
           }
         }
       }
@@ -1376,7 +1376,7 @@ queries:
       terraform.state.resources.where(type == 'google_sql_database_instance' && values.database_version.contains('POSTGRES')) {
         values['settings'] {
           _['database_flags'].where(name == 'log_error_verbosity') {
-            value == 'verbose'
+            value == 'verbose' || value == 'default'
           }
         }
       }
