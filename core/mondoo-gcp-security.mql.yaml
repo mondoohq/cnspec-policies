@@ -1043,7 +1043,7 @@ queries:
           desc: |
             **Using the Google Cloud Console**
 
-            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
             2.  Select the target MySQL instance.
             3.  Select **Edit**.
             4.  Scroll down to the **Flags** section.
@@ -1172,7 +1172,7 @@ queries:
           desc: |
             **Using the Google Cloud Console**
 
-            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
             2.  Select the target MySQL instance.
             3.  Select **Edit**.
             4.  Scroll down to the **Flags** section.
@@ -1301,7 +1301,7 @@ queries:
           desc: |
             **Using the Google Cloud Console**
 
-            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
             2.  Select the target PostgreSQL instance.
             3.  Select **Edit**.
             4.  Scroll down to the **Flags** section.
@@ -1436,7 +1436,7 @@ queries:
           desc: |
             **Using the Google Cloud Console**
 
-            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
             2.  Select the target PostgreSQL instance.
             3.  Select **Edit**.
             4.  Scroll down to the **Flags** section.
@@ -1564,7 +1564,7 @@ queries:
           desc: |
             **Using the Google Cloud Console**
 
-            1.  Go to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+            1.  Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
             2.  Select the target PostgreSQL instance.
             3.  Select **Edit**.
             4.  Scroll down to the **Flags** section.
@@ -1727,7 +1727,7 @@ queries:
             ```
         - id: console
           desc: |
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
             1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
             2. Select the name of the target instance to open its details page.
@@ -1883,7 +1883,7 @@ queries:
             }
         - id: console
           desc: |
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
             1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
             2. Select the name of the instance you want to modify.
@@ -2015,7 +2015,7 @@ queries:
             ```
         - id: console
           desc: |
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
             1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
             2. Select the name of the instance to modify.
@@ -2153,7 +2153,7 @@ queries:
           desc: |
             The Confidential VM service can only be activated when creating a new VM instance. It cannot be enabled on an existing instance.
 
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
             1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
             2. Select `CREATE INSTANCE`.
@@ -2302,7 +2302,7 @@ queries:
           desc: |
             Secure Boot can only be enabled on instances using an OS image that supports Shielded VM features.
 
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
             1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
             2. Select the name of the instance to modify.
@@ -2457,16 +2457,16 @@ queries:
           desc: |
             vTPM can only be enabled on instances using an OS image that supports Shielded VM features.
 
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
-            1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
-            2. Select the name of the instance to modify.
-            3. If the instance is running, select `STOP` and confirm. Wait for it to stop completely.
-            4. Click `EDIT`.
-            5. Scroll down to the `Shielded VM` section.
-            6. Check the box or toggle the switch to enable `vTPM`.
-            7. Click `Save`.
-            8. Click `START / RESUME` to restart the instance.
+            1. Navigate to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
+            2. Locate and select the instance you want to modify.
+            3. If the instance is running, click `STOP` and confirm. Wait until the instance is fully stopped.
+            4. Click `EDIT` to modify the instance settings.
+            5. Scroll to the `Shielded VM` section.
+            6. Enable the `vTPM` option by checking the corresponding box or toggling the switch.
+            7. Click `Save` to apply the changes.
+            8. Restart the instance by clicking `START / RESUME`.
 
             **Prevention:**
             Mandate the use of Shielded VMs (which includes vTPM) for new instances via the `constraints/compute.requireShieldedVm` Organization Policy. Configure it at: [https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm](https://console.cloud.google.com/iam-admin/orgpolicies/compute-requireShieldedVm). Refer to documentation: [https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint](https://cloud.google.com/security/shielded-cloud/shielded-vm#organization-policy-constraint).
@@ -2613,7 +2613,7 @@ queries:
           desc: |
             Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
 
-            **From Google Cloud Console**
+            **Using Google Cloud Console**
 
             1. Go to the `VM instances` page: [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances).
             2. Select the name of the instance to modify.
@@ -2631,25 +2631,29 @@ queries:
           desc: |
             Integrity Monitoring requires an instance using an OS image that supports Shielded VM features, and vTPM must also be enabled.
 
-            **From Google Cloud CLI**
+            **Using Google Cloud CLI**
 
-            Ensure the instance uses a compatible image and has vTPM enabled. You can list public Shielded VM images:
+            1. Verify that the instance uses a compatible Shielded VM image. You can list public Shielded VM images that support Integrity Monitoring:
             ```bash
             gcloud compute images list --project gce-uefi-images --no-standard-images --filter="shieldedVmFeatures:(INTEGRITY_MONITORING)"
             ```
 
-            1. Stop the instance if it is running:
+            2. Stop the instance if it is currently running:
             ```bash
             gcloud compute instances stop INSTANCE_NAME --zone=ZONE
             ```
-            2. Update the instance to enable Integrity Monitoring (this command implicitly enables vTPM as well):
+
+            3. Update the instance to enable Integrity Monitoring. This command will also enable vTPM if it is not already enabled:
             ```bash
             gcloud compute instances update INSTANCE_NAME --zone=ZONE --shielded-vm-integrity-monitoring
             ```
-            3. Start the instance:
+
+            4. Start the instance after the update:
             ```bash
             gcloud compute instances start INSTANCE_NAME --zone=ZONE
             ```
+
+            Replace `INSTANCE_NAME` and `ZONE` with the appropriate values for your instance.
   - uid: mondoo-gcp-security-compute-instances-integrity-monitoring-enabled-single
     filters: |
       asset.platform == 'gcp-compute-instance'
@@ -2703,38 +2707,43 @@ queries:
       audit: |
         **Using the Google Cloud Console**
 
-          1. Navigate to the Cloud SQL Instances page within the Google Cloud Console: https://console.cloud.google.com/sql/instances
-          2. Review each PostgreSQL instance listed. For every primary (non-replica) Second Generation instance, examine its networking details to confirm that a Private IP address is assigned and that no Public IP address (type: PRIMARY) is present.
+          1. Navigate to the Cloud SQL Instances page: [https://console.cloud.google.com/sql/instances](https://console.cloud.google.com/sql/instances).
+          2. Review the list of PostgreSQL instances. For each primary (non-replica) Second Generation instance:
+             - Select the instance name to view its details.
+             - Navigate to the **Connections** tab.
+             - Confirm that a **Private IP** address is assigned and that no **Public IP** address (type: PRIMARY) is present.
 
-        ** Using the Google Cloud CLI **
+        **Using the Google Cloud CLI**
 
-          1. Obtain a list of all your Cloud SQL instances:
-
+          1. List all Cloud SQL instances in your project:
             ```bash
             gcloud sql instances list
             ```
 
-          2. For each PostgreSQL instance identified as `backendType: SECOND_GEN` and `instanceType: CLOUD_SQL_INSTANCE` (primary instance), retrieve its full configuration details. Read replicas (`instanceType: READ_REPLICA_INSTANCE`) inherit network settings, and First Generation instances do not support private IPs, so they can be skipped for this check.
-
+          2. For each PostgreSQL instance identified as `backendType: SECOND_GEN` and `instanceType: CLOUD_SQL_INSTANCE` (primary instance), retrieve its configuration details:
             ```bash
             gcloud sql instances describe INSTANCE_NAME
             ```
 
-          3. Inspect the `ipAddresses` section in the output for the instance. Verify that an entry exists with `type: PRIVATE`. Crucially, ensure there is no entry with `type: PRIMARY`, as this indicates a public IP address. While an instance can technically possess both during transitions, the secure state is having only the `PRIVATE` type assigned.
+          3. Inspect the `ipAddresses` section in the output:
+             - Ensure there is an entry with `type: PRIVATE`.
+             - Verify that no entry exists with `type: PRIMARY`, as this indicates a public IP address.
+
+          **Note:** Instances can temporarily have both private and public IPs during transitions. The secure state is when only the **PRIVATE** type is assigned.
       remediation:
         - id: console
           desc: |
             **Using the Google Cloud Console**
 
-            1.  Access the Cloud SQL Instances overview page in the Google Cloud Console: https://console.cloud.google.com/sql/instances
-            2.  Select the name of the target PostgreSQL instance to view its configuration details.
-            3.  Navigate to the **Connections** settings tab.
-            4.  Under the **Networking** section, locate and uncheck the box labeled **Public IP**.
-            5.  Confirm the modification by selecting the **Save** button.
+            1.  Navigate to the Cloud SQL Instances page in the Google Cloud Console: https://console.cloud.google.com/sql/instances.
+            2.  Select the name of the target PostgreSQL instance to open its configuration details.
+            3.  Navigate to the **Connections** tab.
+            4.  In the **Networking** section, uncheck the box labeled **Public IP** to disable public access.
+            5.  Click **Save** to apply the changes.
 
             **Prevention:**
 
-            To proactively enforce that new Cloud SQL instances are not created with public IP addresses, implement the `Restrict Public IP access on Cloud SQL instances` Organization Policy. You can configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp
+            To ensure new Cloud SQL instances are not created with public IP addresses, enforce the `Restrict Public IP access on Cloud SQL instances` Organization Policy. Configure this policy at: https://console.cloud.google.com/iam-admin/orgpolicies/sql-restrictPublicIp.
         - id: cli
           desc: |
             **Using the Google Cloud CLI**
