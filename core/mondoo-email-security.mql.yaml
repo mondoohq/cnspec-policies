@@ -61,17 +61,18 @@ queries:
       dns(reverseDNSDomain).params.PTR.rData.any(_.contains(domainName.fqdn))
     docs:
       desc: |
-        Reverse DNS queries for IPv4 addresses use the special domain in-addr.arpa. In this domain, the IPv4 address is represented as a concatenated sequence of four decimal numbers separated by periods, to which is added the second-level domain suffix .in-addr.arpa. The four decimal numbers are obtained by splitting the 32-bit IPv4 address into four octets and converting each octet to a decimal number. These decimal numbers are then arranged in the following order: the smallest octet is first (leftmost) and the most significant octet is last (rightmost). It is important to note that this is the reverse order of the usual convention for writing IPv4 addresses in text form.
+        This check ensures that reverse DNS (rDNS) records are properly configured for IPv4 addresses.
 
-        For example, to query the IP address 8.8.4.4 in reverse order, the PTR record for the domain name 4.4.8.8.in-addr.arpa is queried, which points to dns.google.
+        **Why this matters**
 
-        If the A record for dns.google in turn points back to 8.8.4.4, it means that the domain is in a [forward-confirmed reverse DNS](https://en.wikipedia.org/wiki/Forward-confirmed_reverse_DNS) state.
+        Reverse DNS queries are used to map an IP address to its corresponding domain name. Properly configured rDNS records are essential for several reasons:
 
-        This creates a form of authentication, which is strong enough to be used for whitelisting purposes of email servers.
-        According to Google's latest guidelines:
+        - **Email deliverability**: Many email servers perform reverse DNS lookups to verify the authenticity of the sending server. Without a valid rDNS record, emails may be flagged as spam or rejected.
+        - **Authentication**: Reverse DNS combined with forward DNS (FCrDNS) creates a form of authentication, ensuring that the IP address maps to a domain name and vice versa.
+        - **Compliance with best practices**: Major email providers, such as Google, require valid rDNS records for sending IP addresses to ensure proper email handling.
+        - **Improved diagnostics**: Proper rDNS records make it easier to identify and troubleshoot issues related to network traffic and server configurations.
 
-        "Your sending IP address must have a PTR record. PTR records verify that the sending hostname is associated with the sending IP address.
-        Every IP address must map to a hostname in the PTR record. The hostname specified in the PTR record must have a forward DNS that refers to the sending IP address."
+        By ensuring that rDNS records are correctly configured, organizations can improve email deliverability, enhance security, and comply with industry best practices for DNS configuration.
       audit: Run the `dig -t PTR <special-reverse-domain>` command and verify that the it points to your mail domain.
       remediation: |
         Set up valid reverse DNS (rDNS) records for the IP addresses of your outbound mail servers. Reverse DNS ensures that when a receiving mail server performs a lookup on the sending IP, it resolves to a fully qualified domain name (FQDN) associated with your organization’s domain—this helps validate the authenticity of your emails and reduces the likelihood of your messages being marked as spam.
@@ -108,7 +109,17 @@ queries:
     mql: dns.records.where(type == "TXT") != empty
     docs:
       desc: |
-        A TXT record is a type of resource record in the Domain Name System (DNS) used to provide the ability to associate arbitrary text with a host or other name, such as human readable information about a server, network, data center, or other accounting information.
+        This check ensures that a domain's apex has a TXT record configured.
+
+        **Why this matters**
+
+        TXT records are versatile DNS records used to store text-based information about a domain. They are commonly used for purposes such as email authentication (e.g., SPF, DKIM, DMARC), domain verification, and other metadata.
+
+        - **Email authentication**: TXT records are essential for implementing SPF, DKIM, and DMARC protocols, which help prevent email spoofing and phishing attacks.
+        - **Domain verification**: Many services, such as Google Workspace or Microsoft 365, require TXT records to verify domain ownership.
+        - **Security and compliance**: Properly configured TXT records contribute to a secure and compliant DNS setup.
+
+        By ensuring that a TXT record exists at the domain apex, organizations can leverage these benefits to enhance email security, verify domain ownership, and comply with best practices for DNS configuration.
       audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set.
       remediation: |
         Add a TXT record to your DNS zone file.
@@ -128,8 +139,25 @@ queries:
     mql: dns.records.where(type == "A") != empty
     docs:
       desc: |
-        A domain's apex anchor record should be set to something, even if it's a redirect.
-      audit: Run the `dig -t A <domain>` command and verify that there is an A record
+        This check ensures that a domain's apex anchor (A) record is properly configured.
+
+        **Why this matters**
+
+        A records are essential for mapping a domain name to an IP address, enabling users to access websites and services hosted on the domain. Properly configured A records provide several benefits:
+
+        - **Improved accessibility**: Ensures that users can reliably access your website or service using the domain name.
+        - **Compliance with DNS standards**: Properly configured A records align with DNS best practices, reducing the risk of resolution issues.
+        - **Enhanced flexibility**: Allows for easier management of server changes, such as migrations or load balancing.
+        - **Security and reliability**: Ensures that the domain resolves to a trusted and intended IP address, reducing the risk of misconfigurations or malicious redirections.
+
+        By ensuring that a domain's apex A record is set, organizations can maintain a reliable and secure DNS configuration.
+      audit: |
+        Run the `dig -t A <domain>` command and verify that there is an A record.
+
+        Example output:
+        ```
+        lunalectric.com.  300 IN A 123.123.123.123
+        ```
       remediation: |
         Add an A record to your DNS zone file. If you're not hosting a dedicated service on the root domain, consider pointing the A record to a web server that redirects visitors to your main corporate website.
 
@@ -149,8 +177,25 @@ queries:
       dns.params['TXT']['rData'].one(/v=spf1/)
     docs:
       desc: |
-        Sender Policy Framework (SPF) is a method of preventing email spoofing by allowing the owner of a domain to publish a list of mail servers that are authorized to send email from that domain.
-      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set
+        This check ensures that a domain's Sender Policy Framework (SPF) record is properly configured.
+
+        **Why this matters**
+
+        Sender Policy Framework (SPF) is a method of preventing email spoofing by allowing the owner of a domain to publish a list of mail servers that are authorized to send email from that domain. Properly configured SPF records provide several benefits:
+
+        - **Email authentication**: Ensures that only authorized mail servers can send emails on behalf of your domain, reducing the risk of spoofing and phishing attacks.
+        - **Improved deliverability**: Helps email providers identify legitimate emails, reducing the likelihood of your messages being marked as spam.
+        - **Compliance with best practices**: Aligns with industry standards for email security, enhancing trust in your domain's communications.
+        - **Enhanced security**: Protects your domain's reputation by preventing unauthorized use for malicious purposes.
+
+        By ensuring that SPF records are correctly configured, organizations can improve email security, enhance deliverability, and comply with email authentication best practices.
+      audit: |
+        Run the `dig -t TXT <domain>` command and verify that the SPF record is set.
+
+        Example output:
+        ```
+        lunalectric.com.  300 IN TXT "v=spf1 include:_spf.google.com ~all"
+        ```
       remediation: |
         Add a TXT record to your DNS zone file with the following format:
 
