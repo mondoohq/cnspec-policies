@@ -103,7 +103,6 @@ queries:
         title: Forward-confirmed reverse DNS
       - url: https://support.google.com/a/answer/81126?hl=en#ip
         title: Google Email sender guidelines - IP Addresses
-
   - uid: mondoo-email-security-txt-record
     title: Domain Apex should have a TXT record
     mql: dns.records.where(type == "TXT") != empty
@@ -120,7 +119,15 @@ queries:
         - **Security and compliance**: Properly configured TXT records contribute to a secure and compliant DNS setup.
 
         By ensuring that a TXT record exists at the domain apex, organizations can leverage these benefits to enhance email security, verify domain ownership, and comply with best practices for DNS configuration.
-      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set.
+      audit: |
+        Run the `dig +short TXT <domain>` command and verify that the SPF record is set.
+
+        Example output:
+
+        ```
+        "atlassian-domain-verification=12345"
+        "google-site-verification=678910"
+        ```
       remediation: |
         Add a TXT record to your DNS zone file.
 
@@ -130,7 +137,12 @@ queries:
         dig +short TXT lunalectric.com
         ```
 
-        The output should show the TXT record you added.
+        Example output:
+
+        ```
+        "atlassian-domain-verification=12345"
+        "google-site-verification=678910"
+        ```
     refs:
       - url: https://en.wikipedia.org/wiki/TXT_record
         title: TXT Record
@@ -216,8 +228,10 @@ queries:
     title: Ensure there are not multiple SPF records
     mql: dns.params['TXT']['rData'].where(/v=spf1/).length <= 1
     docs:
-      desc: A domain should have only one Sender Policy Framework (SPF) record.
-      audit: Run the `dig -t TXT <domain>` command and verify that there is only one SPF record
+      desc: |
+        A domain should have only one Sender Policy Framework (SPF) record.
+      audit: |
+        Run the `dig -t TXT <domain>` command and verify that there is only one SPF record
       remediation: |
         Remove all but one SPF record from your DNS zone file.
 
@@ -304,8 +318,16 @@ queries:
     title: Ensure DMARC DNS entry exists
     mql: dns("_dmarc."+domainName.fqdn).records != empty
     docs:
-      desc: DMARC is a scalable mechanism by which a mail-originating organization can express domain-level policies and preferences for message validation, disposition, and reporting that a mail-receiving organization can use to improve mail handling.
-      audit: Run the `dig _dmarc.<domain>` command and verify that the DMARC DNS entry exists
+      desc: |
+        DMARC is a scalable mechanism by which a mail-originating organization can express domain-level policies and preferences for message validation, disposition, and reporting that a mail-receiving organization can use to improve mail handling.
+      audit: |
+        Run the `dig _dmarc.<domain>` command and verify that the DMARC DNS entry exists.
+
+        Example output:
+
+        ```
+        _dmarc.lunalectric.com.  300 IN TXT "v=DMARC1; p=reject; pct=100; rua=mailto:lunalectric.com; ruf=mailto:lunalectric.com; fo=1;"
+        ```
       remediation: |
         Add the _dmarc entry to you DNS zone file.
     refs:
@@ -318,7 +340,14 @@ queries:
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/v=DMARC1/)
     docs:
       desc: Set the DMARC version in the TXT record to 1.
-      audit: Run the `dig _dmarc.<domain>` command and verify that the DMARC TXT record contains `v=DMARC1`.
+      audit: |
+        Run the `dig TXT _dmarc.<domain>` command and verify that the DMARC version is set to 1.
+
+        Example output:
+
+        ```
+        _dmarc.lunalectric.com.  300 IN TXT "v=DMARC1; p=reject; pct=100; rua=mailto:lunalectric.com; ruf=mailto:lunalectric.com; fo=1;"
+        ```
       remediation: |
         Add a TXT record to your DNS zone file with the following format:
 
