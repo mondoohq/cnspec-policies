@@ -102,6 +102,7 @@ Lsass
 lsetxattr
 lsws
 marcellus
+MIGf
 MLE
 mpim
 MRx
