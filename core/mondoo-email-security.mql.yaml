@@ -14,7 +14,7 @@ policies:
         email: hello@mondoo.com
     docs:
       desc: |
-        This policy bundle verifies best practices for authenticating email messages using security protocols such as Sender Policy Framework (SPF), Domain Keys Identified Mail (DKIM), and Domain-based Message Authentication, Reporting & Conformance (DMARC).
+        This policy verifies best practices for authenticating email messages using security protocols such as Sender Policy Framework (SPF), Domain Keys Identified Mail (DKIM), and Domain-based Message Authentication, Reporting & Conformance (DMARC).
 
         ### Running the Policy
 
@@ -22,7 +22,7 @@ policies:
         cnspec scan host mondoo.com -f mondoo-email-security.mql.yaml
         ```
 
-         ## Join the community!
+        ## Join the community!
 
         Our goal is to build policies that are simple to deploy, accurate, and actionable.
 
@@ -84,7 +84,7 @@ queries:
         Every IP address must map to a hostname in the PTR record. The hostname specified in the PTR record must have a forward DNS that refers to the sending IP address."
       audit: Run the `dig -t PTR <special-reverse-domain>` command and verify that the it points to your mail domain.
       remediation: |
-        Set up valid reverse DNS (rDNS) records for the IP addresses of your outbound mail servers. Reverse DNS ensures that when a receiving mail server performs a lookup on the sending IP, it resolves to a fully qualified domain name (FQDN) associated with your organization’s domain—this helps validate the authenticity of your emails and reduces the likelihood of your messages being marked as spam.
+        Set up valid reverse DNS (rDNS) records for the IP addresses of your outbound mail servers. Reverse DNS ensures that when a receiving mail server performs a lookup on the sending IP, it resolves to a fully qualified domain name (FQDN) associated with your organization's domain—this helps validate the authenticity of your emails and reduces the likelihood of your messages being marked as spam.
 
         For example, if mail.lunalectric.com sends email from the IP address 123.123.123.123, the reverse DNS for that IP should resolve to a name within your domain, such as mail.lunalectric.com.
 
@@ -117,7 +117,7 @@ queries:
     mql: dns.records.where(type == "TXT") != empty
     docs:
       desc: |
-        Confirms the presence of a TXT record, which provides additional domain ownership verification and policy information.
+        This check confirms the presence of a TXT record, which provides additional domain ownership verification and policy information.
 
         **Why this matters**
         - Supports authentication protocols like SPF and domain verification.
@@ -437,7 +437,7 @@ queries:
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/reject|quarantine/)
     docs:
       desc: |
-        Confirms the policy mode is either quarantine or reject. This setting determines how receiving mail servers treat messages that fail DMARC evaluation.
+        This check confirms the policy mode is either quarantine or reject. This setting determines how receiving mail servers treat messages that fail DMARC evaluation.
 
         **Why this matters**
         - Specifies what to do when email fails authentication.
@@ -517,8 +517,8 @@ queries:
         - Provides visibility into specific failed messages.
         - Helps identify targeted spoofing attempts and misconfigurations in near real-time.
 
-        If you don’t fix this:
-        - You’ll miss real-time insights into attack attempts or authentication failures.
+        If you don't fix this:
+        - You'll miss real-time insights into attack attempts or authentication failures.
 
         Example:
         `ruf=mailto:security@example.com`
@@ -560,7 +560,7 @@ queries:
       props.mondooEmailSecurityDkimSelectors.contains(dns(_+"._domainkey."+domainName.fqdn).params['TXT']['rData'].first == /k=rsa/)
     docs:
       desc: |
-        Confirms DKIM records exist and correctly provide public keys to validate email authenticity.
+        This check confirms DKIM records exist and correctly provide public keys to validate email authenticity.
 
         **Why this matters**
         - Ensures email content integrity.
