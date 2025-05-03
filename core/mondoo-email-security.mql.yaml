@@ -311,6 +311,8 @@ queries:
     refs:
       - url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
         title: M3AAWG Email Authentication Recommended Best Practices (2020)
+      - url: https://en.wikipedia.org/wiki/DMARC
+        title: DMARC
   - uid: mondoo-email-security-dmarc-version
     title: Ensure DMARC version 1
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/v=DMARC1/)
@@ -334,6 +336,8 @@ queries:
     refs:
       - url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
         title: M3AAWG Email Authentication Recommended Best Practices (2020)
+      - url: https://en.wikipedia.org/wiki/DMARC
+        title: DMARC
   - uid: mondoo-email-security-dmarc-policy
     title: Ensure DMARC policy is set to quarantine or reject
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/reject|quarantine/)
@@ -356,6 +360,8 @@ queries:
     refs:
       - url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
         title: M3AAWG Email Authentication Recommended Best Practices (2020)
+      - url: https://en.wikipedia.org/wiki/DMARC
+        title: DMARC
   - uid: mondoo-email-security-dmarc-rua
     title: Ensure DMARC RUA tag
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/rua=mailto/)
@@ -379,6 +385,8 @@ queries:
     refs:
       - url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
         title: M3AAWG Email Authentication Recommended Best Practices (2020)
+      - url: https://en.wikipedia.org/wiki/DMARC
+        title: DMARC
   - uid: mondoo-email-security-dmarc-ruf
     title: Ensure DMARC RUF tag
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/ruf=mailto/)
@@ -441,3 +449,5 @@ queries:
     refs:
       - url: https://www.m3aawg.org/sites/default/files/m3aawg-email-authentication-recommended-best-practices-09-2020.pdf
         title: M3AAWG Email Authentication Recommended Best Practices (2020)
+      - url: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
+        title: DomainKeys Identified Mail
