@@ -51,35 +51,6 @@ policies:
         checks:
           - uid: mondoo-windows-security-always-prompt-for-password-upon-connection-is-set-to-enabled
           - uid: mondoo-windows-security-apply-uac-restrictions-to-local-accounts-on-network-logons-is-set-to-enabled
-          - uid: mondoo-windows-security-audit-account-lockout-is-set-to-include-failure
-          - uid: mondoo-windows-security-audit-application-group-management-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-audit-policy-change-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-authentication-policy-change-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-authorization-policy-change-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-credential-validation-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-detailed-file-share-is-set-to-include-failure
-          - uid: mondoo-windows-security-audit-file-share-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-force-audit-policy-subcategory-settings-windows-vista-or-later-to-override
-          - uid: mondoo-windows-security-audit-group-membership-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-ipsec-driver-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-logoff-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-logon-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-mpssvc-rule-level-policy-change-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-other-logonlogoff-events-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-other-object-access-events-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-other-policy-change-events-is-set-to-include-failure
-          - uid: mondoo-windows-security-audit-other-system-events-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-pnp-activity-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-process-creation-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-removable-storage-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-security-group-management-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-security-state-change-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-security-system-extension-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-sensitive-privilege-use-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-shut-down-system-immediately-if-unable-to-log-security-audits
-          - uid: mondoo-windows-security-audit-special-logon-is-set-to-include-success
-          - uid: mondoo-windows-security-audit-system-integrity-is-set-to-success-and-failure
-          - uid: mondoo-windows-security-audit-user-account-management-is-set-to-success-and-failure
           - uid: mondoo-windows-security-configure-smb-v1-client-driver-is-set-to-enabled-disable-driver-recommended
           - uid: mondoo-windows-security-configure-smb-v1-server-is-set-to-disabled
           - uid: mondoo-windows-security-do-not-allow-com-port-redirection-is-set-to-enabled
@@ -125,6 +96,39 @@ policies:
           - uid: mondoo-windows-security-turn-off-multicast-name-resolution-is-set-to-enabled
           - uid: mondoo-windows-security-wdigest-authentication-is-set-to-disabled
           - uid: mondoo-windows-security-additional-LSA-protection
+      - title: Auditing
+        filters: |
+          asset.family.contains('windows')
+        checks:
+          - uid: mondoo-windows-security-audit-account-lockout-is-set-to-include-failure
+          - uid: mondoo-windows-security-audit-application-group-management-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-audit-policy-change-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-authentication-policy-change-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-authorization-policy-change-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-credential-validation-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-detailed-file-share-is-set-to-include-failure
+          - uid: mondoo-windows-security-audit-file-share-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-force-audit-policy-subcategory-settings-windows-vista-or-later-to-override
+          - uid: mondoo-windows-security-audit-group-membership-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-ipsec-driver-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-logoff-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-logon-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-mpssvc-rule-level-policy-change-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-other-logonlogoff-events-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-other-object-access-events-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-other-policy-change-events-is-set-to-include-failure
+          - uid: mondoo-windows-security-audit-other-system-events-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-pnp-activity-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-process-creation-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-removable-storage-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-security-group-management-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-security-state-change-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-security-system-extension-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-sensitive-privilege-use-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-shut-down-system-immediately-if-unable-to-log-security-audits
+          - uid: mondoo-windows-security-audit-special-logon-is-set-to-include-success
+          - uid: mondoo-windows-security-audit-system-integrity-is-set-to-success-and-failure
+          - uid: mondoo-windows-security-audit-user-account-management-is-set-to-success-and-failure
       - title: Logging
         filters: |
           asset.family.contains('windows')
@@ -150,11 +154,21 @@ queries:
       secpol.privilegerights['SeDebugPrivilege'] == empty
     docs:
       desc: |
-        This policy setting determines which user accounts will have the right to attach a debugger to any process or to the kernel, which provides complete access to sensitive and critical operating system components. Developers who are debugging their own applications do not need to be assigned this user right; however, developers who are debugging new system components will need it.
+        This check ensures that the 'Debug programs' privilege is not assigned to any user or group. This privilege allows attaching a debugger to any process or the kernel, providing complete access to sensitive and critical operating system components.
 
-        The recommended state for this setting is empty.
+        **Why this matters**
 
-        > Note: This user right is considered a "sensitive privilege" for the purposes of auditing.
+        The 'Debug programs' privilege is highly sensitive and should only be granted in exceptional cases:
+          •	It allows unrestricted access to all processes, including those running as SYSTEM, which can lead to privilege escalation.
+          •	Developers debugging their own applications do not require this privilege; it is only needed for debugging system-level components.
+          •	Assigning this privilege unnecessarily increases the attack surface and violates the principle of least privilege.
+
+        If this privilege is assigned, it can lead to:
+          •	Unauthorized access to critical system processes and data.
+          •	Privilege escalation attacks, where a compromised account can gain full control of the system.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that the 'Debug programs' privilege is not assigned, organizations can reduce the risk of privilege escalation, enhance system security, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
@@ -189,33 +203,40 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa', name: 'RunAsPPL' ).value == 1
     docs:
       desc: |
-        Local Security Authority (LSA) protection is a security feature in Microsoft Windows operating systems that helps to prevent credential theft and other types of attacks that can compromise system security.
+        This check ensures that additional LSA protection is enabled. This feature restricts access to the Local Security Authority (LSA) subsystem, safeguarding sensitive information such as passwords, user account details, and security tokens.
 
-        The LSA is responsible for enforcing security policies and managing various security-related tasks, such as authentication and authorization, on a local system. It stores sensitive information such as passwords, user account information, and security tokens.
+        **Why this matters**
 
-        LSA protection enhances the security of these sensitive information by restricting access to the LSA subsystem to authorized processes only. It prevents malicious software from accessing or manipulating the LSA, thereby reducing the risk of credential theft and other types of attacks.
+        Enabling LSA protection is critical for maintaining system security:
+          •	It prevents unauthorized processes from accessing or manipulating the LSA, reducing the risk of credential theft.
+          •	It enforces access controls and code integrity checks, ensuring only trusted processes can interact with the LSA subsystem.
+          •	It mitigates the risk of attacks that target sensitive system components.
 
-        LSA protection is implemented through the use of several techniques such as code integrity checks, access controls, and system call filtering. These techniques work together to prevent unauthorized access and ensure that only trusted processes can interact with the LSA subsystem.
+        If LSA protection is not enabled, it can lead to:
+          •	Unauthorized access to sensitive credentials and security tokens.
+          •	Increased vulnerability to credential theft and privilege escalation attacks.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
 
-        Overall, LSA protection is an important security feature that helps to secure Windows systems and protect against various types of attacks that can compromise system security.
+        By enabling LSA protection, organizations can enhance system security, reduce the attack surface, and protect against credential theft and other security threats.
       remediation:
         - id: default
-          desc: |-
+          desc: |
             #### Using Group Policy
 
-            Enable LSA protection via GPO:
+            To enable LSA protection via Group Policy:
 
-            - Open the Group Policy Management Console (GPMC).
-            - Create a new GPO that is linked at the domain level or that is linked to the organizational unit that contains your computer accounts. Or you can select a GPO that is already deployed.
-            - Right-click the GPO, and then select Edit to open the Group Policy Management Editor.
-            - Expand Computer Configuration, expand Preferences, and then expand Windows Settings.
-            - Right-click Registry, point to New, and then select Registry Item. The New Registry Properties dialog box appears.
-            - In the Hive list, select HKEY_LOCAL_MACHINE.
-            - In the Key Path list, browse to SYSTEM\CurrentControlSet\Control\Lsa.
-            - In the Value name box, type RunAsPPL.
-            - In the Value type box, select the REG_DWORD.
-            - In the Value data box, type 00000001.
-            - Select OK.
+            1. Open the Group Policy Management Console (GPMC).
+            2. Create a new GPO linked at the domain level or to the organizational unit containing your computer accounts, or select an existing GPO.
+            3. Right-click the GPO and select "Edit" to open the Group Policy Management Editor.
+            4. Navigate to `Computer Configuration > Preferences > Windows Settings`.
+            5. Right-click "Registry," point to "New," and select "Registry Item."
+            6. In the "New Registry Properties" dialog:
+                - Set "Hive" to `HKEY_LOCAL_MACHINE`.
+                - Set "Key Path" to `SYSTEM\CurrentControlSet\Control\Lsa`.
+                - Set "Value name" to `RunAsPPL`.
+                - Set "Value type" to `REG_DWORD`.
+                - Set "Value data" to `1`.
+            7. Select "OK" to save the configuration.
         - id: powershell
           desc: |
             #### Using PowerShell
@@ -242,9 +263,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'fPromptForPassword' ).value == 1
     docs:
       desc: |-
-        This policy setting specifies whether Remote Desktop Services always prompts the client computer for a password upon connection. You can use this policy setting to enforce a password prompt for users who log on to Remote Desktop Services, even if they already provided the password in the Remote Desktop Connection client.
+        This check ensures that Remote Desktop Services always prompts the client computer for a password upon connection. This setting enforces a password prompt for users logging on to Remote Desktop Services, even if they have already provided the password in the Remote Desktop Connection client.
 
-        The recommended state for this setting is: `Enabled`.
+        **Why this matters**
+
+        Enforcing a password prompt enhances security by:
+          • Preventing unauthorized access to Remote Desktop Services sessions.
+          • Ensuring that credentials are verified at the time of connection, reducing the risk of credential theft or misuse.
+          • Aligning with security best practices and compliance requirements.
+
+        If this setting is not enabled, it can lead to:
+          • Increased risk of unauthorized access to sensitive systems.
+          • Potential exploitation of saved credentials in the Remote Desktop Connection client.
+          • Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By enabling this setting, organizations can strengthen access controls, reduce the attack surface, and maintain compliance with security standards.
       remediation:
         - id: default
           desc: |-
@@ -292,13 +325,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Application', name: 'Retention' ).value == '0'
     docs:
       desc: |-
-        This policy setting controls Event Log behavior when the log file reaches its maximum size.
+        This check ensures that the 'Control Event Log behavior when the log file reaches its maximum size' policy is set to 'Disabled'. This setting determines how the Event Log behaves when it reaches its maximum size.
 
-        The recommended state for this setting is: `Disabled`.
+        **Why this matters**
 
-        **Note:**
-        Old events may or may not be retained according to the _Backup log automatically when full_
-        policy setting.
+        Proper configuration of Event Log behavior is critical for maintaining system security and ensuring the availability of audit logs:
+          •	When the log file reaches its maximum size, retaining old events or overwriting them can impact the ability to analyze historical data.
+          •	Incorrect configuration may result in the loss of critical security events, hindering forensic investigations.
+          •	Ensuring this setting is disabled aligns with security best practices and compliance requirements.
+
+        If this setting is not configured correctly, it can lead to:
+          •	Loss of important security events due to overwriting or improper retention.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+          •	Reduced ability to detect and respond to security incidents effectively.
+
+        By ensuring this policy is set to 'Disabled', organizations can maintain the integrity of their audit logs, enhance security monitoring, and comply with industry standards.
       remediation:
         - id: default
           desc: |-
@@ -346,9 +387,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Application', name: 'MaxSize' ).value >= 32768
     docs:
       desc: |-
-        This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments.
+        This check ensures that the maximum size of the log file is configured to at least 32,768 kilobytes. This setting determines the maximum size of the log file in kilobytes, which can range from 1 megabyte (1,024 kilobytes) to 4 terabytes (4,194,240 kilobytes).
 
-        The recommended state for this setting is: `Enabled: 32,768 or greater`.
+        **Why this matters**
+
+        Proper configuration of log file size is critical for maintaining system security and ensuring the availability of audit logs:
+          •	It prevents the loss of critical security events due to insufficient log space.
+          •	It ensures that sufficient historical data is available for forensic investigations and compliance audits.
+          •	It aligns with security best practices and compliance requirements.
+
+        If the log file size is not configured appropriately, it can lead to:
+          •	Loss of important security events due to log overwrites or truncation.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+          •	Reduced ability to detect and respond to security incidents effectively.
+
+        By ensuring that the maximum log file size is set to at least 32,768 kilobytes, organizations can maintain the integrity of their audit logs, enhance security monitoring, and comply with industry standards.
       remediation:
         - id: default
           desc: |-
@@ -400,19 +453,24 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', name: 'LocalAccountTokenFilterPolicy' ).value == 0
     docs:
       desc: |-
-        This setting controls whether local accounts can be used for remote administration via network logon (e.g., NET USE, connecting to C$, etc.). Local accounts are at high risk for credential theft when the same account and password is configured on multiple systems. Enabling this policy significantly reduces that risk.
+        This check ensures that local accounts are restricted from being used for remote administration via network logon. This setting applies UAC token-filtering to local accounts on network logons, disabling membership in powerful groups such as Administrators and removing powerful privileges from the resulting access token.
 
-        **Enabled:**
-        Applies UAC token-filtering to local accounts on network logons. Membership in powerful group such as Administrators is disabled and powerful privileges are removed from the resulting access token. This configures the `LocalAccountTokenFilterPolicy` registry value to `0`. This is the default behavior for Windows.
+        **Why this matters**
 
-        **Disabled:**
-        Allows local accounts to have full administrative rights when authenticating via network logon, by configuring the `LocalAccountTokenFilterPolicy` registry value to `1`.
+        Allowing local accounts to have full administrative rights during network logons poses significant security risks:
+          •	It increases the risk of credential theft, especially when the same account and password are configured on multiple systems.
+          •	It enables attackers to use compromised local accounts to escalate privileges and gain unauthorized access to sensitive resources.
+          •	It violates the principle of least privilege, exposing systems to potential exploitation.
 
-        For more information about local accounts and credential theft, review the [Mitigating Pass-the-Hash (PtH) Attacks and Other Credential Theft Techniques](https://www.microsoft.com/en-us/download/details.aspx?id=36036) documents.
+        If this setting is disabled, it can lead to:
+          •	Unauthorized access to administrative resources via local accounts.
+          •	Increased vulnerability to Pass-the-Hash (PtH) attacks and other credential theft techniques.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
 
-        For more information about `LocalAccountTokenFilterPolicy`, see Microsoft Knowledge Base article 951016: [Description of User Account Control and remote restrictions in Windows Vista](https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/user-account-control-and-remote-restriction).
-
-        The recommended state for this setting is: `Enabled`.
+        By enabling this setting, organizations can mitigate the risks associated with local account misuse, enhance system security, and maintain compliance with security best practices.
+      refs:
+        - url: https://www.microsoft.com/en-us/download/details.aspx?id=36036
+          title: Mitigating Pass-the-Hash (PtH) Attacks and Other Credential Theft Techniques
       remediation:
         - id: default
           desc: |-
@@ -485,11 +543,21 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9217-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolFailure || inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure1)
     docs:
       desc: |-
-        This subcategory reports when a user's account is locked out as a result of too many failed logon attempts. Events for this subcategory include:
+        This check ensures that account lockout events are audited. This setting tracks when a user's account is locked out due to multiple failed logon attempts, providing visibility into potential unauthorized access attempts.
 
-        - 4625: An account failed to log on.
+        **Why this matters**
 
-        The recommended state for this setting is to include: `Failure`.
+        Auditing account lockout events is essential for maintaining system security:
+          •	It helps identify potential brute force attacks or unauthorized access attempts.
+          •	It provides critical information for forensic investigations and incident response.
+          •	It ensures compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        If account lockout events are not audited, it can lead to:
+          •	Undetected unauthorized access attempts or brute force attacks.
+          •	Limited visibility into account-related security incidents.
+          •	Non-compliance with security best practices and regulatory requirements.
+
+        By auditing account lockout events, organizations can enhance security monitoring, detect potential threats, and maintain compliance with industry standards.
       remediation:
         - id: default
           desc: |-
@@ -548,14 +616,25 @@ queries:
       auditpol.where(subcategoryguid == "0CCE9239-69AE-11D9-BED3-505054503030").all(inclusionsetting == props.mondooWindowsSecurityAuditpolSuccessFailure2)
     docs:
       desc: |-
-        This policy setting allows you to audit events generated by changes to application groups such as the following:
+        This check ensures that changes to application groups are audited, specifically looking for both success and failure events. Application groups are used by Windows Authorization Manager to implement role-based access control (RBAC) in applications.
 
-        - Application group is created, changed, or deleted.
-        - Member is added or removed from an application group.
+        **Why this matters**
 
-        Application groups are utilized by Windows Authorization Manager, which is a flexible framework created by Microsoft for integrating role-based access control (RBAC) into applications. More information on Windows Authorization Manager is available at [MSDN - Windows Authorization Manager](https://msdn.microsoft.com/en-us/library/bb897401.aspx).
+        Auditing both success and failure events for changes to application groups is essential for maintaining system security:
+          •	It helps track the creation, modification, or deletion of application groups, ensuring accountability.
+          •	It provides visibility into membership changes, such as adding or removing members from application groups.
+          •	It ensures that failed attempts to modify application groups are also logged, which can help detect potential unauthorized access attempts.
+          •	It supports compliance with security benchmarks and regulatory requirements.
 
-        The recommended state for this setting is: `Success and Failure`.
+        If changes to application groups are not audited for both success and failure events, it can lead to:
+          •	Undetected unauthorized modifications to application groups.
+          •	Reduced ability to investigate security incidents involving application group misuse.
+          •	Non-compliance with security best practices and standards.
+
+        By auditing both success and failure events for changes to application groups, organizations can enhance security monitoring, maintain accountability, and ensure compliance with industry standards.
+      refs:
+        - url: https://learn.microsoft.com/en-us/windows/win32/secauthz/authorization-manager-model
+          title: Authorization Manager Model
       remediation:
         - id: default
           desc: |-
