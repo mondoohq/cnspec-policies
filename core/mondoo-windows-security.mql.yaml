@@ -290,8 +290,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In the Microsoft Windows Vista Administrative Templates, this setting was named _Always prompt client for password upon connection_, but it was renamed starting with the Windows Server 2008 (non-R2) Administrative Templates.
@@ -352,8 +351,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Retain old events_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -414,8 +412,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Maximum Log Size (KB)_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -2618,8 +2615,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -2670,8 +2666,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -2717,8 +2712,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -2767,8 +2761,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -2814,8 +2807,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -2861,8 +2853,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was named _Do not delete temp folder upon exit_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -4259,8 +4250,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -4309,8 +4299,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -4362,8 +4351,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In the Microsoft Windows Vista Administrative Templates, this setting was initially named _Require user authentication using RDP 6.0 for remote connections_, but it was renamed starting with the Windows Server 2008 (non-R2) Administrative Templates.
@@ -4468,8 +4456,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Maximum Log Size (KB)_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -4522,8 +4509,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -4576,8 +4562,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was named _Set time limit for active but idle Terminal Services sessions_, but it was renamed starting with the Windows 7 & Server 2008 R2 Administrative Templates.
@@ -4626,8 +4611,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `TerminalServer.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Impact:**
 
@@ -4677,8 +4661,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Retain old events_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -4727,8 +4710,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Maximum Log Size (KB)_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -4818,8 +4800,7 @@ queries:
         The recommended state for this setting is: `Disabled`.
 
         **Note:**
-        Old events may or may not be retained according to the _Backup log automatically when full_
-        policy setting.
+        Old events may or may not be retained according to the _Backup log automatically when full_ policy setting.
       remediation:
         - id: default
           desc: |-
@@ -4832,8 +4813,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Retain old events_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -4882,8 +4862,7 @@ queries:
             ```
 
             **Note:**
-            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml`
-            that is included with all versions of the Microsoft Windows Administrative Templates.
+            This Group Policy path is provided by the Group Policy template `EventLog.admx/adml` that is included with all versions of the Microsoft Windows Administrative Templates.
 
             **Note #2:**
             In older Microsoft Windows Administrative Templates, this setting was initially named _Maximum Log Size (KB)_, but it was renamed starting with the Windows 8.0 & Server 2012 (non-R2) Administrative Templates.
@@ -4970,7 +4949,7 @@ queries:
       desc: |-
         When WDigest authentication is enabled, Lsass.exe retains a copy of the user's plaintext password in memory, where it can be at risk of theft. If this setting is not configured, WDigest authentication is disabled in Windows 8.1 and in Windows Server 2012 R2; it is enabled by default in earlier versions of Windows and Windows Server.
 
-        For more information about local accounts and credential theft, review the " [Mitigating Pass-the-Hash (PtH) Attacks and Other Credential Theft Techniques](https://www.microsoft.com/en-us/download/details.aspx?id=36036)" documents.
+        For more information about local accounts and credential theft, review the [Mitigating Pass-the-Hash (PtH) Attacks and Other Credential Theft Techniques](https://www.microsoft.com/en-us/download/details.aspx?id=36036).
 
         For more information about `UseLogonCredential`, see Microsoft Knowledge Base article 2871997: [Microsoft Security Advisory Update to improve credentials protection and management May 13, 2014](https://support.microsoft.com/en-us/topic/microsoft-security-advisory-update-to-improve-credentials-protection-and-management-may-13-2014-93434251-04ac-b7f3-52aa-9f951c14b649)
 
