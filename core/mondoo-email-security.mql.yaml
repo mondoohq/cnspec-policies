@@ -62,15 +62,15 @@ queries:
     docs:
       desc: |
         Reverse DNS queries for IPv4 addresses use the special domain in-addr.arpa. In this domain, the IPv4 address is represented as a concatenated sequence of four decimal numbers separated by periods, to which is added the second-level domain suffix .in-addr.arpa. The four decimal numbers are obtained by splitting the 32-bit IPv4 address into four octets and converting each octet to a decimal number. These decimal numbers are then arranged in the following order: the smallest octet is first (leftmost) and the most significant octet is last (rightmost). It is important to note that this is the reverse order of the usual convention for writing IPv4 addresses in text form.
-        
+
         Why this is important:
         * Validates sender identity and prevents spam classification.
         * Reduces phishing and spoofing by verifying legitimate email servers.
-        
+
         If you don't fix this:
         * Major providers like Gmail and Outlook may reject or silently drop your emails.
-        
-        Example: 
+
+        Example:
         IP `123.123.123.123` should have a PTR record pointing to `mail.example.com`, and a forward lookup of `mail.example.com` should resolve back to `123.123.123.123`.
 
         For example, to query the IP address 8.8.4.4 in reverse order, the PTR record for the domain name 4.4.8.8.in-addr.arpa is queried, which points to dns.google.
@@ -126,11 +126,17 @@ queries:
         If you don't fix this:
         * Email services may fail to verify domain ownership, impacting deliverability.
 
-        Example: 
+        Example:
         TXT record: `v=spf1 include:_spf.google.com ~all`
+      audit: |
+        Run the `dig +short TXT <domain>` command and verify that the SPF record is set.
 
+        Example output:
 
-      audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is set.
+        ```
+        "atlassian-domain-verification=12345"
+        "google-site-verification=678910"
+        ```
       remediation: |
         Add a TXT record to your DNS zone file.
 
@@ -140,7 +146,12 @@ queries:
         dig +short TXT lunalectric.com
         ```
 
-        The output should show the TXT record you added.
+        Example output:
+
+        ```
+        "atlassian-domain-verification=12345"
+        "google-site-verification=678910"
+        ```
     refs:
       - url: https://en.wikipedia.org/wiki/TXT_record
         title: TXT Record
@@ -158,7 +169,7 @@ queries:
         If you don't fix this:
         * Your domain may appear unreachable, causing website and service access failures.
 
-        Example: 
+        Example:
         A record for `example.com` resolves to `93.184.216.34`.
 
       audit: Run the `dig -t A <domain>` command and verify that there is an A record
@@ -190,7 +201,7 @@ queries:
         If you don't fix this:
         * Attackers can spoof your domain to send phishing emails.
 
-        Example: 
+        Example:
         SPF record: `v=spf1 ip4:192.168.0.1 include:_spf.example.com -all`
 
 
@@ -215,7 +226,7 @@ queries:
     title: Ensure there are not multiple SPF records
     mql: dns.params['TXT']['rData'].where(/v=spf1/).length <= 1
     docs:
-      desc: 
+      desc: |
         Validates that only one SPF record is set per domain, avoiding conflicts and ensuring proper email validation.
 
         Why this is important:
@@ -225,7 +236,7 @@ queries:
         If you don't fix this:
         * Mail servers may skip SPF checks entirely, weakening your domain protection.
 
-        Example: 
+        Example:
         Only one TXT record with `v=spf1` exists for `example.com`.
       audit: Run the `dig -t TXT <domain>` command and verify that there is only one SPF record
       remediation: |
@@ -245,7 +256,7 @@ queries:
     title: Ensure SPF record is not too long
     mql: dns.params['TXT']['rData'].where(/v=spf1/).all(_.length <= 255)
     docs:
-      desc: 
+      desc: |
         Checks SPF records for proper length.
 
         Why this is important:
@@ -255,7 +266,7 @@ queries:
         If you don't fix this:
         * Broken SPF records could cause legitimate emails to fail authentication.
 
-        Example: 
+        Example:
         SPF record should be under 255 characters: `v=spf1 include:_spf.example.com ~all`
       audit: Run the `dig -t TXT <domain>` command and verify that the SPF record is not longer than 255 characters
       remediation: |
@@ -273,7 +284,8 @@ queries:
     title: Ensure SPF record does not contain any excess whitespace
     mql: dns.params['TXT']['rData'].where(/v=spf1/).where(/\s{2,}/) == empty
     docs:
-      desc: Checks SPF records for absence of unnecessary whitespace.
+      desc: |
+        Checks SPF records for absence of unnecessary whitespace.
 
         Why this is important:
         * Ensures compliance with DNS standards, preventing truncation or parsing errors.
@@ -282,7 +294,7 @@ queries:
         If you don't fix this:
         * Broken SPF records could cause legitimate emails to fail authentication.
 
-        Example: 
+        Example:
         SPF record should not contain multiple spaces: `v=spf1 include:_spf.example.com ~all`
       audit: Run the `dig -t TXT <domain>` command and verify that the SPF record does not contain any whitespace
       remediation: |
@@ -301,7 +313,7 @@ queries:
     mql: |
       dns.params['TXT']['rData'].where(/v=spf1/).all(/all/)
     docs:
-      desc: 
+      desc: |
         Verifies that the SPF record ends in either ~all (soft fail) or -all (hard fail), ensuring that mail from unauthorized servers is rejected or flagged.
 
         Why this is important:
@@ -326,7 +338,7 @@ queries:
     title: Do not use deprecated SPF DNS Record Type
     mql: dns.records.where(type == "SPF") == empty
     docs:
-      desc: 
+      desc: |
         Ensures deprecated SPF DNS record types are not used, maintaining current standards compliance.
 
         Why this is important:
@@ -336,7 +348,7 @@ queries:
         If you don't fix this:
         * Mail servers may ignore your SPF configuration, exposing your domain to abuse.
 
-        Example: 
+        Example:
         Use only TXT records for SPF. Do not use deprecated SPF record types.
       audit: Run the `dig SPF <domain>` command and verify that the SPF record does not use the deprecated SPF DNS Record Type
       remediation: |
@@ -354,7 +366,7 @@ queries:
     title: Ensure DMARC DNS entry exists
     mql: dns("_dmarc."+domainName.fqdn).records != empty
     docs:
-      desc: 
+      desc: |
         Verifies DMARC is configured to specify handling policies for emails failing authentication.
 
         Why this is important:
@@ -364,9 +376,16 @@ queries:
         If you don't fix this:
         * Attackers can spoof your domain without detection.
 
-        Example: 
+        Example:
         DMARC record: `v=DMARC1; p=reject; rua=mailto:dmarc-reports@example.com`
-      audit: Run the `dig _dmarc.<domain>` command and verify that the DMARC DNS entry exists
+      audit: |
+        Run the `dig _dmarc.<domain>` command and verify that the DMARC DNS entry exists.
+
+        Example output:
+
+        ```
+        _dmarc.lunalectric.com.  300 IN TXT "v=DMARC1; p=reject; pct=100; rua=mailto:lunalectric.com; ruf=mailto:lunalectric.com; fo=1;"
+        ```
       remediation: |
         Add the _dmarc entry to you DNS zone file.
     refs:
@@ -376,7 +395,7 @@ queries:
     title: Ensure DMARC version 1
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/v=DMARC1/)
     docs:
-      desc: 
+      desc: |
         Ensures the version tag in the DMARC record is v=DMARC1.
 
         Why this is important:
@@ -387,7 +406,14 @@ queries:
 
         Example:
         `v=DMARC1; p=reject;`
-      audit: Run the `dig _dmarc.<domain>` command and verify that the DMARC TXT record contains `v=DMARC1`.
+      audit: |
+        Run the `dig TXT _dmarc.<domain>` command and verify that the DMARC version is set to 1.
+
+        Example output:
+
+        ```
+        _dmarc.lunalectric.com.  300 IN TXT "v=DMARC1; p=reject; pct=100; rua=mailto:lunalectric.com; ruf=mailto:lunalectric.com; fo=1;"
+        ```
       remediation: |
         Add a TXT record to your DNS zone file with the following format:
 
@@ -409,7 +435,7 @@ queries:
     title: Ensure DMARC policy is set to quarantine or reject
     mql: dns("_dmarc."+domainName.fqdn).params['TXT']['rData'].all(/reject|quarantine/)
     docs:
-      desc: 
+      desc: |
         Confirms the policy mode is either quarantine or reject. This setting determines how receiving mail servers treat messages that fail DMARC evaluation.
 
         Why this is important:
@@ -479,16 +505,16 @@ queries:
     docs:
       desc: |
         The RUF (or DMARC Failure or Forensic Report) tag was designed to inform domain administrators when emails fail SPF, DKIM, and DMARC authentication checks. The report includes sensitive details about the email, such as the header, subject, URLs, and attachments. However, many organizations prefer not to request RUF reports due to privacy and compliance concerns. The main goal is to comply with privacy laws and prevent data breaches.
-        
+
         Ensures a ruf tag exists for receiving failure (forensic) reports.
 
         Why this is important:
         * Provides visibility into specific failed messages.
         * Helps identify targeted spoofing attempts and misconfigurations in near real-time.
-        
+
         If you don’t fix this:
         * You’ll miss real-time insights into attack attempts or authentication failures.
-        
+
         Example:
         `ruf=mailto:security@example.com`
       audit: Run the `dig TXT _dmarc.<domain>` command and verify that the DMARC RUF tag is configured.
