@@ -286,6 +286,10 @@
 # Microsoft Products
 #
 
+# s.b. WinRM
+\bwinRM\b
+\bWin RM\b
+
 # s.b. Microsoft
 \bMicroSoft\b
 
