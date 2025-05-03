@@ -4281,7 +4281,7 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'SecurityLayer' ).value == 2
     docs:
       desc: |-
-        This policy setting specifies whether to require the use of a specific security layer to secure communications between clients and RD Session Host servers during Remote Desktop Protocol (RDP) connections.
+        This check ensures that the 'Require use of specific security layer for remote (RDP) connections' setting is configured to 'Enabled: SSL'. This setting enforces the use of Transport Layer Security (TLS) version 1.0 to secure communications between clients and RD Session Host servers during Remote Desktop Protocol (RDP) connections.
 
         The recommended state for this setting is: `Enabled: SSL`.
 
@@ -4336,9 +4336,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'UserAuthentication' ).value == 1
     docs:
       desc: |-
-        This policy setting allows you to specify whether to require user authentication for remote connections to the RD Session Host server by using Network Level Authentication.
+        This check ensures that the 'Require user authentication for remote connections by using Network Level Authentication' setting is configured to 'Enabled'. This setting enforces the use of Network Level Authentication (NLA) for remote connections to the RD Session Host server.
 
-        The recommended state for this setting is: `Enabled`.
+        **Why this matters**
+
+        Enabling NLA for remote connections is critical for the following reasons:
+          •	It ensures that users are authenticated before a remote desktop session is established, reducing the risk of unauthorized access.
+          •	It protects the RD Session Host server from denial-of-service attacks by unauthenticated users.
+          •	It aligns with security best practices and compliance requirements for secure remote access.
+
+        If NLA is not enabled, it can lead to:
+          •	Unauthorized access to the RD Session Host server.
+          •	Increased exposure to brute-force attacks on the RDP login interface.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that NLA is enabled, organizations can enhance the security of remote desktop connections, mitigate the risk of unauthorized access, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
@@ -4388,7 +4400,7 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Security', name: 'Retention' ).value == '0'
     docs:
       desc: |-
-        This policy setting controls Event Log behavior when the log file reaches its maximum size.
+        This check ensures that the 'Control Event Log behavior when the log file reaches its maximum size' setting is configured to 'Disabled'. This setting determines how the system handles event logs when they reach their maximum size.
 
         The recommended state for this setting is: `Disabled`.
 
@@ -4494,9 +4506,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MinEncryptionLevel' ).value == 3
     docs:
       desc: |-
-        This policy setting specifies whether to require the use of a specific encryption level to secure communications between client computers and RD Session Host servers during Remote Desktop Protocol (RDP) connections. This policy only applies when you are using native RDP encryption. However, native RDP encryption (as opposed to SSL encryption) is not recommended. This policy does not apply to SSL encryption.
+        This check ensures that the 'Set client connection encryption level' setting is configured to 'Enabled: High Level'. This setting ensures that communications between client computers and RD Session Host servers during Remote Desktop Protocol (RDP) connections are secured using a high encryption level.
 
-        The recommended state for this setting is: `Enabled: High Level`.
+        **Why this matters**
+
+        Configuring a high encryption level for RDP connections is important for the following reasons:
+          •	It ensures that data transmitted during RDP sessions is encrypted, protecting it from interception and unauthorized access.
+          •	It aligns with security best practices and compliance requirements for secure remote access.
+          •	It reduces the risk of sensitive information being exposed during remote sessions.
+
+        If a high encryption level is not enforced, it can lead to:
+          •	Interception of sensitive data during RDP sessions.
+          •	Unauthorized access to remote systems.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that the 'Set client connection encryption level' is configured to 'Enabled: High Level', organizations can enhance the security of remote connections, protect sensitive data, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
@@ -4547,9 +4571,21 @@ queries:
       registrykey.property(path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxIdleTime').value != 0
     docs:
       desc: |-
-        This policy setting allows you to specify the maximum amount of time that an active Remote Desktop Services session can be idle (without user input) before it is automatically disconnected.
+        This check ensures that the 'Set time limit for active but idle Remote Desktop Services sessions' setting is configured to 'Enabled: 15 minutes or less, but not Never (0)'. This setting ensures that idle Remote Desktop sessions are automatically disconnected after a specified period of inactivity.
 
-        The recommended state for this setting is: `Enabled: 15 minutes or less, but not Never (0)`.
+        **Why this matters**
+
+        Configuring a time limit for idle Remote Desktop sessions is important for the following reasons:
+          •	It prevents idle sessions from consuming system resources indefinitely.
+          •	It reduces the risk of unauthorized access to unattended sessions.
+          •	It aligns with security best practices and compliance requirements.
+
+        If idle sessions are not disconnected promptly, it can lead to:
+          •	Excessive resource consumption, impacting system performance.
+          •	Increased risk of unauthorized access to idle sessions.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that idle sessions are disconnected after 15 minutes or less, organizations can enhance system performance, improve security, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
@@ -4596,9 +4632,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services', name: 'MaxDisconnectionTime' ).value == 60000
     docs:
       desc: |-
-        This policy setting allows you to configure a time limit for disconnected Remote Desktop Services sessions.
+        This check ensures that a time limit of 1 minute is configured for disconnected Remote Desktop Services sessions. This setting ensures that disconnected sessions are promptly terminated, freeing up system resources and reducing potential security risks.
 
-        The recommended state for this setting is: `Enabled: 1 minute`.
+        **Why this matters**
+
+        Configuring a time limit for disconnected sessions is important for the following reasons:
+          •	It prevents disconnected sessions from consuming system resources indefinitely.
+          •	It reduces the risk of unauthorized access to idle sessions.
+          •	It aligns with security best practices and compliance requirements.
+
+        If disconnected sessions are not terminated promptly, it can lead to:
+          •	Excessive resource consumption, impacting system performance.
+          •	Increased risk of unauthorized access to unattended sessions.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that disconnected sessions are terminated after 1 minute, organizations can enhance system performance, improve security, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
@@ -4642,7 +4690,7 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\Setup', name: 'Retention' ).value == '0'
     docs:
       desc: |-
-        This policy setting controls Event Log behavior when the log file reaches its maximum size.
+        This check ensures that the 'Setup: Control Event Log behavior when the log file reaches its maximum size' setting is configured to 'Disabled'. This setting determines how the system handles event logs when they reach their maximum size.
 
         The recommended state for this setting is: `Disabled`.
 
@@ -4795,7 +4843,7 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\System', name: 'Retention' ).value == '0'
     docs:
       desc: |-
-        This policy setting controls Event Log behavior when the log file reaches its maximum size.
+        This check ensures that the 'System: Control Event Log behavior when the log file reaches its maximum size' setting is configured to 'Disabled'. This setting determines how the system handles event logs when they reach their maximum size.
 
         The recommended state for this setting is: `Disabled`.
 
@@ -4847,9 +4895,21 @@ queries:
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\System', name: 'MaxSize' ).value >= 32768
     docs:
       desc: |-
-        This policy setting specifies the maximum size of the log file in kilobytes. The maximum log file size can be configured between 1 megabyte (1,024 kilobytes) and 4 terabytes (4,194,240 kilobytes) in kilobyte increments.
+        This check ensures that the maximum size of the 'System' event log file is configured to at least 32,768 kilobytes. This setting ensures sufficient space for logging critical system events without frequent overwrites.
 
-        The recommended state for this setting is: `Enabled: 32,768 or greater`.
+        **Why this matters**
+
+        Configuring an adequate maximum log file size is essential for the following reasons:
+          •	It ensures that critical system events are retained for a longer period, aiding in troubleshooting and forensic analysis.
+          •	Prevents frequent overwriting of logs, which can lead to the loss of important event data.
+          •	Aligns with security benchmarks and best practices for event log management.
+
+        If the maximum log file size is set too low, it can lead to:
+          •	Loss of critical event data due to frequent overwrites.
+          •	Difficulty in diagnosing system issues or investigating security incidents.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that the maximum log file size is set to 32,768 kilobytes or greater, organizations can enhance event log retention, improve system monitoring, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
@@ -4899,10 +4959,22 @@ queries:
     mql: |
       registrykey.property( path: 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient', name: 'EnableMulticast' ).value == 0
     docs:
-      desc: |-
-        LLMNR is a secondary name resolution protocol. With LLMNR, queries are sent using multicast over a local network link on a single subnet from a client computer to another client computer on the same subnet that also has LLMNR enabled. LLMNR does not require a DNS server or DNS client configuration, and provides name resolution in scenarios in which conventional DNS name resolution is not possible.
+      desc: |
+        This check ensures that the 'Turn off multicast name resolution' setting is enabled. This setting disables the Link-Local Multicast Name Resolution (LLMNR) protocol, which is used for name resolution on local networks.
 
-        The recommended state for this setting is: `Enabled`
+        **Why this matters**
+
+        Disabling LLMNR is important for the following reasons:
+          •	It prevents attackers from exploiting LLMNR to perform man-in-the-middle (MITM) attacks or capture sensitive information.
+          •	LLMNR is often unnecessary in environments where DNS is properly configured, and its use can introduce security vulnerabilities.
+          •	Disabling LLMNR reduces the attack surface and aligns with security best practices.
+
+        If LLMNR is enabled, it can lead to:
+          •	Unauthorized interception of network traffic and sensitive data.
+          •	Exploitation of name resolution vulnerabilities by attackers.
+          •	Non-compliance with security benchmarks such as CIS Windows Benchmarks and NIST 800-53.
+
+        By ensuring that LLMNR is disabled, organizations can enhance network security, mitigate the risk of MITM attacks, and maintain compliance with security best practices.
       remediation:
         - id: default
           desc: |-
