@@ -61,7 +61,7 @@ queries:
       dns(reverseDNSDomain).params.PTR.rData.any(_.contains(domainName.fqdn))
     docs:
       desc: |
-        Reverse DNS queries for IPv4 addresses use the special domain in-addr.arpa. In this domain, the IPv4 address is represented as a concatenated sequence of four decimal numbers separated by periods, to which is added the second-level domain suffix .in-addr.arpa. The four decimal numbers are obtained by splitting the 32-bit IPv4 address into four octets and converting each octet to a decimal number. These decimal numbers are then arranged in the following order: the smallest octet is first (leftmost) and the most significant octet is last (rightmost). It is important to note that this is the reverse order of the usual convention for writing IPv4 addresses in text form.
+        This check ensures that a Reverse IP Lookup PTR record is properly configured. Reverse DNS queries for IPv4 addresses utilize the special domain `in-addr.arpa`. In this domain, the IPv4 address is represented in reverse order as a sequence of four decimal numbers separated by periods, followed by the suffix `.in-addr.arpa`. Each decimal number corresponds to an octet of the 32-bit IPv4 address, arranged from least significant (leftmost) to most significant (rightmost). This reverse ordering is the opposite of the standard IPv4 address notation. Properly configured PTR records are essential for verifying the authenticity of email servers and ensuring compliance with email delivery best practices.
 
         **Why this matters**
         - Validates sender identity and prevents spam classification.
@@ -81,8 +81,16 @@ queries:
         According to Google's latest guidelines:
 
         "Your sending IP address must have a PTR record. PTR records verify that the sending hostname is associated with the sending IP address.
-        Every IP address must map to a hostname in the PTR record. The hostname specified in the PTR record must have a forward DNS that refers to the sending IP address."
-      audit: Run the `dig -t PTR <special-reverse-domain>` command and verify that the it points to your mail domain.
+
+      audit: |
+        Run the `dig -t PTR <special-reverse-domain>` command and verify that it points to your mail domain.
+
+        Example:
+        For the IP address `123.123.123.123`, the reverse domain would be `123.123.123.123.in-addr.arpa`. The output should show:
+
+        ```
+        123.123.123.123.in-addr.arpa	name = mail.example.com.
+        ```
       remediation: |
         Set up valid reverse DNS (rDNS) records for the IP addresses of your outbound mail servers. Reverse DNS ensures that when a receiving mail server performs a lookup on the sending IP, it resolves to a fully qualified domain name (FQDN) associated with your organization's domain—this helps validate the authenticity of your emails and reduces the likelihood of your messages being marked as spam.
 
@@ -160,7 +168,7 @@ queries:
     mql: dns.records.where(type == "A") != empty
     docs:
       desc: |
-        Verifies the existence of an anchor (A) record at the domain apex, crucial for reliable domain resolution.
+        This check ensures the existence of an anchor (A) record at the domain apex, which maps a domain name to an IPv4 address.
 
         **Why this matters**
         - Ensures users and mail systems can reliably access domain resources.
