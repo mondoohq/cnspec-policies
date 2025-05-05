@@ -13,6 +13,7 @@ apparmor
 appspot
 armv
 asl
+atlassian
 auid
 benbi
 bigfish
