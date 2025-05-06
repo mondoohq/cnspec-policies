@@ -128,7 +128,7 @@ queries:
 
         Without these protections, legacy MX records could undermine email reliability and security, exposing the organization to unnecessary risks.
       remediation: |
-        Replace all legacy MX records with the correct Microsoft 365 MX records provided in the Microsoft 365 Admin Center. Regularly audit DNS settings to ensure all MX records align with Office 365 requirements.
+        Replace all legacy MX records with the correct Microsoft 365 MX records provided in the Microsoft 365 Admin Center.
 
         Steps to remediate:
           1. Log in to your DNS hosting provider's control panel.

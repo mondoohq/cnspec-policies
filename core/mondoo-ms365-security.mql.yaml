@@ -51,7 +51,7 @@ policies:
           - uid: mondoo-m365-security-ensure-that-between-two-and-four-global-admins-are-designated
           - uid: mondoo-m365-security-ensure-that-mobile-device-encryption-is-enabled-to-prevent-unauthorized-access-to-mobile-data
           - uid: mondoo-m365-security-ensure-that-mobile-devices-require-a-minimum-password-length-to-prevent-brute-force-attacks
-          - uid: mondoo-m365-security-ensure-that-office-365-passwords-are-not-set-to-expire
+          - uid: mondoo-m365-security-ensure-that-ms-365-passwords-are-not-set-to-expire
           - uid: mondoo-m365-security-ensure-that-spf-records-are-published-for-all-exchange-domains
           - uid: mondoo-m365-security-ensure-third-party-integrated-applications-are-not-allowed
     scoring_system: highest impact
@@ -140,7 +140,7 @@ queries:
       microsoft.security.latestSecureScores.controlScores.where(controlName == 'BlockLegacyAuthentication').all(_['score'] == 8)
     docs:
       desc: |
-        This check ensures that legacy authentication protocols are disabled in Office 365.
+        This check ensures that legacy authentication protocols are disabled in Microsoft 365.
 
         **Why this matters**
 
@@ -155,7 +155,7 @@ queries:
           - NIST 800-53 (AC-7: Unsuccessful Login Attempts)
           - CIS Controls (CIS Control 16: Account Monitoring and Control)
 
-        Disabling legacy authentication is a critical step in implementing a modern, secure authentication framework for Office 365.
+        Disabling legacy authentication is a critical step in implementing a modern, secure authentication framework for Microsoft 365.
       remediation: |
         **To setup a conditional access policy to block legacy authentication, use the following steps:**
 
@@ -389,14 +389,14 @@ queries:
          2. Endpoint Manager --> Devices --> Policy --> Configuration profiles
          3. Ensure that a profile exists for each Platform with following conditions:
             * Password section --> Device restrictions --> Minimum password length is set to 8
-  - uid: mondoo-m365-security-ensure-that-office-365-passwords-are-not-set-to-expire
+  - uid: mondoo-m365-security-ensure-that-ms-365-passwords-are-not-set-to-expire
     title: Ensure the 'Password expiration policy' is set to 'Set passwords to never expire (recommended)'
     impact: 60
     mql: |
       microsoft.domains.all(passwordValidityPeriodInDays == 2147483647)
     docs:
       desc: |
-        This check ensures that Office 365 passwords are set to never expire. Based on new research from several organizations, it has been confirmed that forcing users to change their passwords frequently can lead to weaker password practices and reduced security.
+        This check ensures that Microsoft 365 passwords are set to never expire. Based on new research from several organizations, it has been confirmed that forcing users to change their passwords frequently can lead to weaker password practices and reduced security.
 
         **Why this matters**
 
@@ -409,7 +409,7 @@ queries:
 
         Ensuring that passwords do not expire unnecessarily strengthens the organization's security posture while reducing the burden on users.
       remediation: |
-        **To set Office 365 passwords to never expire:**
+        **To set Microsoft 365 passwords to never expire:**
 
         1. Navigate to the `Microsoft 365 admin center` at https://admin.microsoft.com.
         2. Go to `Settings` > `Org settings`.
@@ -417,7 +417,7 @@ queries:
         4. Check the box for `Set passwords to never expire (recommended)`.
         5. Select `Save changes`.
 
-        **To set Office 365 passwords to never expire using the Microsoft Graph PowerShell module:**
+        **To set Microsoft 365 passwords to never expire using the Microsoft Graph PowerShell module:**
 
         1. Connect to the Microsoft Graph service using `Connect-MgGraph -Scopes "Domain.ReadWrite.All"`.
         2. Run the following Microsoft Graph PowerShell command:
