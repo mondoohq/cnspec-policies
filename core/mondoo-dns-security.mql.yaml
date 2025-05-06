@@ -38,7 +38,7 @@ policies:
           - uid: mondoo-dns-security-google-workspaces-mx-records
           - uid: mondoo-dns-security-no-cname-for-root-domain
           - uid: mondoo-dns-security-no-ip-for-ns-mx-records
-          - uid: mondoo-dns-security-no-legacy-office-365-mx-records
+          - uid: mondoo-dns-security-no-legacy-ms-365-mx-records
           - uid: mondoo-dns-security-dnssec-enabled
           - uid: mondoo-dns-security-no-wildcard
 queries:
