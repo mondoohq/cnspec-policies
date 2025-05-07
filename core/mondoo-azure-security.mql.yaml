@@ -93,74 +93,78 @@ queries:
         ```
 
         Ensure the EncryptionType is set to EncryptionAtRestWithCustomerKey for OS disks.
-      remediation: |
-        ### Microsoft Azure Portal
+      remediation:
+        - id: portal
+          desc: |
+            **Using Azure Portal**
 
-        To update using Microsoft Azure Portal:
+            To update using Microsoft Azure Portal:
 
-        1. Log into the Azure Portal and navigate to **Disks**.
-        2. Select the OS disk you wish to encrypt.
-        3. In the **Encryption** section, set **Encryption type** to **Customer-managed keys**.
-        4. Specify the Azure Key Vault and select the appropriate key.
-        5. Save the changes.
+            1. Log into the Azure Portal and navigate to **Disks**.
+            2. Select the OS disk you wish to encrypt.
+            3. In the **Encryption** section, set **Encryption type** to **Customer-managed keys**.
+            4. Specify the Azure Key Vault and select the appropriate key.
+            5. Save the changes.
+        - id: cli
+          desc: |
+            **Azure CLI**
 
-        ### Azure CLI
+            ```bash
+            az vm encryption enable --resource-group <ResourceGroupName> --name <VMName> --disk-encryption-keyvault <KeyVaultName> --key-encryption-key <KeyName> --volume-type OS
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        ```bash
-        az vm encryption enable --resource-group <ResourceGroupName> --name <VMName> --disk-encryption-keyvault <KeyVaultName> --key-encryption-key <KeyName> --volume-type OS
-        ```
+            __Encrypt disks Linux VM__
 
-        ### Terraform
+            ```hcl
+            # Encrypt Linux OS disk with Terraform
+            resource "azure_linux_virtual_machine" "example" {
+              name                = "example-linux-machine"
+              resource_group_name = azure_resource_group.example.name
+              location            = azure_resource_group.example.location
 
-        __Encrypt disks Linux VM__
+              ...
 
-        ```hcl
-        # Encrypt Linux OS disk with Terraform
-        resource "azure_linux_virtual_machine" "example" {
-          name                = "example-linux-machine"
-          resource_group_name = azure_resource_group.example.name
-          location            = azure_resource_group.example.location
+              encryption_at_host_enabled = true
 
-          ...
+              ...
+            }
+            ```
 
-          encryption_at_host_enabled = true
+            __Encrypt disks Windows VM__
 
-          ...
-        }
-        ```
+            ```hcl
+            resource "azure_windows_virtual_machine" "example" {
+              name                = "example-windows-machine"
+              resource_group_name = azure_resource_group.example.name
+              location            = azure_resource_group.example.location
 
-        __Encrypt disks Windows VM__
+              ...
 
-        ```hcl
-        resource "azure_windows_virtual_machine" "example" {
-          name                = "example-windows-machine"
-          resource_group_name = azure_resource_group.example.name
-          location            = azure_resource_group.example.location
+              encryption_at_host_enabled = true
 
-          ...
+              ...
+            }
+            ```
 
-          encryption_at_host_enabled = true
+            __Encrypt disks managed disks__
 
-          ...
-        }
-        ```
+            ```hcl
+            resource "azure_managed_disk" "example" {
+              name                 = var.disk_name
+              location             = var.location
+              resource_group_name  = var.resource_group_name
+              ...
 
-        __Encrypt disks managed disks__
+              encryption_settings {
+                enabled = true
+              }
 
-        ```hcl
-        resource "azure_managed_disk" "example" {
-          name                 = var.disk_name
-          location             = var.location
-          resource_group_name  = var.resource_group_name
-          ...
-
-          encryption_settings {
-            enabled = true
-          }
-
-          ...
-        }
-        ```
+              ...
+            }
+            ```
     refs:
       - url: https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption-overview
         title: Overview of managed disk encryption options
@@ -226,45 +230,49 @@ queries:
         ```bash
         az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='22' || destinationPortRanges.contains('22')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
         ```
-      remediation: |
-        ### Configuring Network Security via Azure Portal:
+      remediation:
+        - id: portal
+          desc: |
+            **Azure Portal**
 
-        1. In the Azure Portal, navigate to **Network Security Groups (NSG)** associated with your VMs.
-        2. Review or modify the inbound security rules:
-          - Set `source_address_prefix` to a specific IP range or a VPN gateway rather than 'Any' or 'Internet'.
-          - Ensure that the `destination_port_range` does not include TCP port 22 unless absolutely necessary and from a secure source.
+            1. In the Azure Portal, navigate to **Network Security Groups (NSG)** associated with your VMs.
+            2. Review or modify the inbound security rules:
+              - Set `source_address_prefix` to a specific IP range or a VPN gateway rather than 'Any' or 'Internet'.
+              - Ensure that the `destination_port_range` does not include TCP port 22 unless absolutely necessary and from a secure source.
+        - id: cli
+          desc: |
+            **Azure CLI**
 
-        ### Using Azure CLI:
+            Update or create a new NSG rule to restrict SSH access:
 
-        Update or create a new NSG rule to restrict SSH access:
+            ```bash
+            az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictSSH --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 22
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        ```bash
-        az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictSSH --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 22
-        ```
+            ```hcl
+            # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
 
-        ### Terraform
+            resource "azure_network_security_group" "my_terraform_nsg" {
+              name                = "myNetworkSecurityGroup"
+              location            = azure_resource_group.rg.location
+              resource_group_name = azure_resource_group.rg.name
 
-        ```hcl
-        # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
-
-        resource "azure_network_security_group" "my_terraform_nsg" {
-          name                = "myNetworkSecurityGroup"
-          location            = azure_resource_group.rg.location
-          resource_group_name = azure_resource_group.rg.name
-
-          security_rule {
-            name                       = "SSH"
-            priority                   = 1001
-            direction                  = "Inbound"
-            access                     = "Allow"
-            protocol                   = "Tcp"
-            source_port_range          = "*"
-            destination_port_range     = "22"
-            source_address_prefix      = "192.168.22.5/24"
-            destination_address_prefix = "*"
-          }
-        }
-        ```
+              security_rule {
+                name                       = "SSH"
+                priority                   = 1001
+                direction                  = "Inbound"
+                access                     = "Allow"
+                protocol                   = "Tcp"
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefix      = "192.168.22.5/24"
+                destination_address_prefix = "*"
+              }
+            }
+            ```
   - uid: mondoo-azure-security-ssh-access-restricted-from-internet-single
     filters: |
       asset.platform == "azure-network-security-group"
@@ -351,45 +359,49 @@ queries:
         ```bash
         az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='3389' || destinationPortRanges.contains('3389')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
         ```
-      remediation: |
-        ### Azure Portal Method:
+      remediation:
+        - id: portal
+          desc: |
+            **Using Azure Portal**
 
-        1. Log into the Azure Portal and navigate to **Network Security Groups**.
-        2. Select the NSG associated with your VM.
-        3. Review the **Inbound security rules** and modify or delete any rules that allow internet access to port 3389.
-        4. Preferably, change the `source_address_prefix` to more restrictive settings, such as a specific IP range or a secure VPN gateway.
+            1. Log into the Azure Portal and navigate to **Network Security Groups**.
+            2. Select the NSG associated with your VM.
+            3. Review the **Inbound security rules** and modify or delete any rules that allow internet access to port 3389.
+            4. Preferably, change the `source_address_prefix` to more restrictive settings, such as a specific IP range or a secure VPN gateway.
+        - id: cli
+          desc: |
+            **Azure CLI**
 
-        ### Using Azure CLI:
+            Update or create a new NSG rule to restrict RDP access:
 
-        Update or create NSG rules to securely restrict RDP access:
+            ```bash
+            az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictRDP --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 3389
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        ```bash
-        az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictRDP --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 3389
-        ```
+            ```hcl
+            # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
 
-        ### Terraform
+            resource "azure_network_security_group" "example" {
+              name                = "example-rdp-security"
+              location            = azure_resource_group.rg.location
+              resource_group_name = azure_resource_group.rg.name
 
-        ```hcl
-        # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
-
-        resource "azure_network_security_group" "example" {
-          name                = "example-rdp-security"
-          location            = azure_resource_group.rg.location
-          resource_group_name = azure_resource_group.rg.name
-
-          security_rule {
-            name                       = "RDP"
-            priority                   = 1001
-            direction                  = "Inbound"
-            access                     = "Allow"
-            protocol                   = "Tcp"
-            source_port_range          = "*"
-            destination_port_range     = "3389"
-            source_address_prefix      = "192.168.22.5/24"
-            destination_address_prefix = "*"
-          }
-        }
-        ```
+              security_rule {
+                name                       = "RDP"
+                priority                   = 1001
+                direction                  = "Inbound"
+                access                     = "Allow"
+                protocol                   = "Tcp"
+                source_port_range          = "*"
+                destination_port_range     = "3389"
+                source_address_prefix      = "192.168.22.5/24"
+                destination_address_prefix = "*"
+              }
+            }
+            ```
   - uid: mondoo-azure-security-rdp-access-restricted-from-internet-single
     filters: |
       asset.platform == "azure-network-security-group"
@@ -459,31 +471,35 @@ queries:
         ```bash
         az storage account list --query "[].{AccountName:name, SecureTransferEnabled: enableHttpsTrafficOnly}" -o table
         ```
-      remediation: |
-        ### Enforcing Secure Transfer via Azure Portal:
+      remediation:
+        - id: portal
+          desc: |
+            **Using Azure Portal**
 
-        1. Access the Azure Portal and go to **Storage Accounts**.
-        2. Select each storage account individually.
-        3. Navigate to **Configuration** under the settings menu.
-        4. Set the **Secure transfer required** option to **Enabled**.
-        5. Save the changes to enforce HTTPS for all incoming and outgoing data transactions.
+            1. Navigate to **Storage Accounts** in the Azure portal.
+            2. Select the storage account you want to configure.
+            3. In the settings menu, select **Configuration**.
+            4. Set the **Secure transfer required** option to **Enabled**.
+            5. Save the changes.
+        - id: cli
+          desc: |
+            **Azure CLI**
 
-        ### Using Azure CLI:
+            Enable 'Secure transfer required' for an individual storage account in a resource group:
 
-        Enable 'Secure transfer required' for an individual storage account using the following command:
+            ```bash
+            az storage account update --name <StorageAccountName> --resource-group <ResourceGroupName> --https-only true
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-        ```bash
-        az storage account update --name <StorageAccountName> --resource-group <ResourceGroupName> --https-only true
-        ```
-
-        ### Terraform
-
-        ```hcl
-        resource "azure_storage_account" "example_storage_account" {
-          ...
-          enable_https_traffic_only = true
-        }
-        ```
+            ```hcl
+            resource "azure_storage_account" "example_storage_account" {
+              ...
+              enable_https_traffic_only = true
+            }
+            ```
   - uid: mondoo-azure-security-secure-transfer-required-enabled-api
     filters: |
       asset.platform == "azure"
@@ -536,38 +552,52 @@ queries:
         az storage account show --name <yourStorageAccountName> --query allowBlobPublicAccess
         ```
 
-      remediation: |
-        ### Terraform
+      remediation:
+        - id: portal
+          desc: |
+            **Using Azure Portal**
 
-        ```hcl
-        resource "azure_storage_container" "example_storage_container" {
-            ...
-          container_access_type = "private"
-        }
-        ```
+            1. Go to Storage Accounts.
+            2. For each storage account, go to Networking in Security + networking.
+            3. Set 'Public Network Access' to 'Disabled'.
+            4. Select a Storage Account and in the settings pane, select 'Configuration'.
+            5. Under 'Allow Blob Anonymous Access', select 'Disabled'.
+            6. For each container, change the access level to 'Private (no anonymous access)'.
+        - id: cli
+          desc: |
+            **Azure CLI**
 
-        ### Microsoft Azure Portal
+            - Disable public network access:
 
-        1. Go to Storage Accounts.
-        2. For each storage account, go to Networking in Security + networking.
-        3. Set 'Public Network Access' to 'Disabled'.
-        4. Select a Storage Account and in the settings pane, select 'Configuration'.
-        5. Under 'Allow Blob Anonymous Access', select 'Disabled'.
-        6. For each container, change the access level to 'Private (no anonymous access)'.
+              ```bash
+              az storage account update --name <storage-account> --resource-group <resource-group> --public-network-access Disabled
+              ```
 
-        ### Azure CLI
+            - Set blob containers to private access:
 
-        - Disable public network access:
+              ```bash
+              az storage container set-permission --name <container_name> --public-access off --account-name <account_name> --account-key <account_key>
+              ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
 
-          ```bash
-          az storage account update --name <storage-account> --resource-group <resource-group> --public-network-access Disabled
-          ```
+            ```hcl
+            # Ensure the `allow_blob_public_access` is set to `false`
 
-        - Set blob containers to private access:
+            resource "azure_storage_account" "example_storage_account" {
+              ...
+              allow_blob_public_access = false
+            }
+            ```
 
-          ```bash
-          az storage container set-permission --name <container_name> --public-access off --account-name <account_name> --account-key <account_key>
-          ```
+            ```hcl
+            # Ensure the `container_access_type` is set to `private`
+            resource "azure_storage_container" "example_container" {
+              ...
+              container_access_type = "private"
+            }
+            ```
   - uid: mondoo-azure-security-public-access-level-private-blob-containers-api
     filters: |
       asset.platform == "azure"
@@ -627,7 +657,7 @@ queries:
         5. Set the **Default action** to **Deny**.
         6. Save your changes to enforce that all unrecognized network traffic is blocked by default.
 
-        ### Using Azure CLI:
+        **Azure CLI**
 
         To set the default network access rule to "Deny" for an existing storage account, use the following Azure CLI command:
 
@@ -637,7 +667,7 @@ queries:
 
         This command updates the storage account to deny all traffic by default, significantly enhancing the security posture by limiting access to only configured exceptions.
 
-        ### Terraform
+        **Using Terraform**
 
         ```hcl
         # Ensure the `default_action` is set to `Deny`
@@ -717,7 +747,7 @@ queries:
             4. Check the box for `Allow Azure services on the trusted services list to access this storage account` to enable it.
             5. Save the changes.
 
-        **From Azure CLI:**
+        **Using Azure CLI**
 
         Enable the trusted Microsoft services for a storage account:
 
@@ -725,7 +755,7 @@ queries:
         az storage account update --name <StorageAccountName> --resource-group <resourceGroupName> --bypass AzureServices
         ```
 
-        ### Terraform
+        **Using Terraform**
 
         ```hcl
         resource "azure_storage_account" "example" {
@@ -801,7 +831,7 @@ queries:
         az sql server audit-policy update --name <ServerName> --resource-group <ResourceGroupName> --retention-days 30
         ```
 
-        ### Terraform
+        **Using Terraform**
 
         ```hcl
         resource "azure_sql_server" "example" {
@@ -893,7 +923,7 @@ queries:
         az mariadb server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
         ```
 
-        ### Terraform
+        **Using Terraform**
 
         __mySQL__
 
@@ -1019,7 +1049,7 @@ queries:
         ```
         If the command returns a non-null principal ID, it indicates that the managed identity is enabled. If it returns null, the managed identity is not enabled.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To update using Microsoft Azure Portal:
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
@@ -1037,7 +1067,7 @@ queries:
         az webapp identity assign --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME>
         ```
 
-        ### Terraform
+        **Using Terraform**
         resource "azurerm_app_service" "example" {
           name                = "example-app-service"
           location            = azurerm_resource_group.example.location
@@ -1085,7 +1115,7 @@ queries:
         ```
         Check the output for each Key Vault, ensuring that PurgeProtection is set to true.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         1. Log in to the Azure Portal at https://portal.azure.com.
         2. Navigate to **Key Vaults**.
@@ -1151,7 +1181,7 @@ queries:
           Get-AzWebApp -ResourceGroupName $_.ResourceGroup -Name $_.Name | Select-Object Name, ResourceGroup, @{Name="TLS Version"; Expression={$_.SiteConfig.MinTlsVersion}}
         }
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To update using Microsoft Azure Portal:
         1. Log into Microsoft Azure Portal at https://portal.azure.com
@@ -1176,7 +1206,7 @@ queries:
           Set-AzWebApp -ResourceGroupName $_.ResourceGroup -Name $_.Name -MinTlsVersion "1.2"
         }
 
-        ### Terraform
+        **Using Terraform**
 
         resource "azurerm_app_service" "example" {
           name                = "example-app-service"
@@ -1243,7 +1273,7 @@ queries:
           Get-AzKeyVaultSecret -VaultName <VaultName> | Where-Object {$_.Enabled -eq $true -and $_.Expires -ne $null}
           ```
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To update using Microsoft Azure Portal:
 
@@ -1254,7 +1284,7 @@ queries:
            b. Select **Keys** or **Secrets**.
            c. Make sure that the key/secret in the key vault has an expiration date.
 
-        **From Azure CLI:**
+        **Using Azure CLI**
 
         - For keys:
 
@@ -1268,7 +1298,7 @@ queries:
           az keyvault secret set-attributes --vault-name <VaultName> --name <SecretName> --expires <DateTime-in-ISO8601>
           ```
 
-        **From PowerShell:**
+        **Using PowerShell**
 
         - For keys:
 
@@ -1286,7 +1316,7 @@ queries:
           Update-AzKeyVaultSecret -VaultName <VaultName> -Secret $secret
           ```
 
-        ### Terraform Example:
+        **Using Terraform**
 
         ```hcl
         resource "azurerm_key_vault_key" "example" {
@@ -1372,7 +1402,7 @@ queries:
         ```
         Verify that each Key Vault has audit and allLogs enabled and is logging to the designated destinations.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         1. Log into Microsoft Azure Portal at https://portal.azure.com.
         2. Visit `Key vaults` and select a vault.
@@ -1381,7 +1411,7 @@ queries:
         5. Set the appropriate destination for logs, such as an Azure storage account or Log Analytics workspace.
         6. Save the configuration.
 
-        **From Azure CLI:**
+        **Using Azure CLI**
 
         To create or update diagnostic settings for a Key Vault:
 
@@ -1389,7 +1419,7 @@ queries:
         az monitor diagnostic-settings create --name "defaultLogs" --resource <Key Vault Resource ID> --logs '[{"category": "audit", "enabled": true}, {"category": "allLogs", "enabled": true}]' --storage-account <Storage Account ID> | --workspace <Log Analytics Workspace ID> | --event-hub <Event Hub Name>
         ```
 
-        **From PowerShell:**
+        **Using PowerShell**
 
         ```powershell
         $logs = @(
@@ -1399,7 +1429,7 @@ queries:
         Set-AzDiagnosticSetting -ResourceId <Key Vault Resource ID> -Log $logs -StorageAccountId <Storage Account ID> | -WorkspaceId <Log Analytics Workspace ID> | -EventHubAuthorizationRuleId <Event Hub Authorization Rule ID> | -EventHubName <Event Hub Name>
         ```
 
-        ### Terraform Example:
+        **Using Terraform** Example:
 
         ```hcl
         resource "azurerm_monitor_diagnostic_setting" "example" {
@@ -1496,7 +1526,7 @@ queries:
 
         Check for the presence of conditions targeting the `Microsoft.Network/networkSecurityGroups/write` and `Microsoft.Network/networkSecurityGroups/delete` operation names in the output.
 
-        **From PowerShell:**
+        **Using PowerShell**
 
         Utilize the following PowerShell commands to inspect the alert rules:
 
@@ -1506,7 +1536,7 @@ queries:
         Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/delete"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
         ```
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To update using Microsoft Azure Portal:
 
@@ -1568,7 +1598,7 @@ queries:
           ```
 
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To configure alert notifications in Microsoft Azure Portal:
 
@@ -1579,7 +1609,7 @@ queries:
           5. Ensure the `Notify about alerts with the following severity (or higher):` option is enabled and set to `High`.
           6. Select `Save` to apply the changes.
 
-        **From Azure CLI:**
+        **Using Azure CLI**
 
         Use the following command to update the security contact settings to enable high severity alert notifications. Replace `<Your_Subscription_Id>` and `<validEmailAddress>` with the appropriate values.
 
@@ -1640,7 +1670,7 @@ queries:
 
         This command provides a clear, tabulated output indicating which servers have SSL enforced and which do not, enabling quick identification of non-compliant resources.
 
-        **From PowerShell:**
+        **Using PowerShell**
 
         PowerShell can also be used for a detailed audit. The command should return `Enabled` for each server checked:
 
@@ -1650,7 +1680,7 @@ queries:
 
         This command lists all PostgreSQL servers in the specified resource group along with their SSL enforcement status, providing a comprehensive overview.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To enforce SSL connections:
 
@@ -1662,7 +1692,7 @@ queries:
 
         Consistency in enforcement is key. Verify that all PostgreSQL servers within your Azure environment have this setting enabled to maintain a high security standard.
 
-        **From Azure CLI:**
+        **Using Azure CLI**
 
         For a batch update or to automate the enforcement across multiple servers, use the Azure CLI:
 
@@ -1672,7 +1702,7 @@ queries:
 
         Automate this process using scripts to iterate over all PostgreSQL servers in a subscription or resource group, ensuring no server is left without SSL enforcement.
 
-        **From PowerShell:**
+        **Using PowerShell**
 
         PowerShell provides a similar capability for batch processing:
 
@@ -1753,7 +1783,7 @@ queries:
 
         Regular reviews and updates of these settings are recommended to adapt to new TLS versions as they become available, ensuring that the security configurations remain up-to-date.
 
-        **From Azure CLI:**
+        **Using Azure CLI**
 
         To batch update MySQL servers for SSL enforcement and TLS version settings, use the following Azure CLI command:
 
@@ -1831,7 +1861,7 @@ queries:
 
         This command lists all SQL servers along with their public network access settings. Ensure that none of the servers are listed as having unrestricted public network access unless specific rules are applied.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To Restrict Public Network Access in Azure Portal:
 
@@ -1904,7 +1934,7 @@ queries:
 
         This command outputs the public network access settings for each key vault, allowing you to quickly identify configurations that do not align with best practices.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         To update using Microsoft Azure Portal:
 
@@ -1973,7 +2003,7 @@ queries:
 
         This script iterates over all SQL servers, displaying their audit policy status, ensuring that auditing is enabled and correctly configured.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         1. In the Azure Portal, go to **SQL servers** and select the server you want to configure.
         2. Under **Security**, select **Auditing**.
@@ -2045,14 +2075,14 @@ queries:
 
         Ensure the TDE status is `Enabled` for each database.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         1. Access **SQL databases** in the Azure Portal.
         2. Select a database under your SQL Server instance.
         3. Go to **Transparent data encryption** under the **Security** section.
         4. Switch `Data encryption` to `On`.
 
-        ### Using Azure CLI:
+        **Azure CLI**
 
         To enable TDE on a specific database:
 
@@ -2120,7 +2150,7 @@ queries:
 
         Verify that the output includes diagnostic settings with the necessary categories enabled.
         remediation: |
-          ### Microsoft Azure Portal
+          **Using Azure Portal**
 
           ### Configuring Diagnostic Settings in Azure Portal:
 
@@ -2131,7 +2161,7 @@ queries:
           5. Choose the destination for the logs, such as an Azure Storage account, a Log Analytics workspace, or an Event Hub, based on your organizational needs.
           6. Save the configuration to ensure continuous monitoring.
 
-          ### Using Azure CLI:
+          **Azure CLI**
 
           Create a new diagnostic setting using the Azure CLI:
 
@@ -2197,7 +2227,7 @@ queries:
 
         Review the settings to confirm that the essential categories are enabled.
       remediation: |
-        ### Microsoft Azure Portal
+        **Using Azure Portal**
 
         1. Visit **Azure Monitor** > **Activity log** in the Azure Portal.
         2. Go to **Diagnostic settings** and either add a new setting or edit an existing one.
