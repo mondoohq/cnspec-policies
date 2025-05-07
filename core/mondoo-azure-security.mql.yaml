@@ -107,7 +107,7 @@ queries:
             5. Save the changes.
         - id: cli
           desc: |
-            **Azure CLI**
+            **Using Azure CLI**
 
             ```bash
             az vm encryption enable --resource-group <ResourceGroupName> --name <VMName> --disk-encryption-keyvault <KeyVaultName> --key-encryption-key <KeyName> --volume-type OS
@@ -241,7 +241,7 @@ queries:
               - Ensure that the `destination_port_range` does not include TCP port 22 unless absolutely necessary and from a secure source.
         - id: cli
           desc: |
-            **Azure CLI**
+            **Using Azure CLI**
 
             Update or create a new NSG rule to restrict SSH access:
 
@@ -370,7 +370,7 @@ queries:
             4. Preferably, change the `source_address_prefix` to more restrictive settings, such as a specific IP range or a secure VPN gateway.
         - id: cli
           desc: |
-            **Azure CLI**
+            **Using Azure CLI**
 
             Update or create a new NSG rule to restrict RDP access:
 
@@ -483,7 +483,7 @@ queries:
             5. Save the changes.
         - id: cli
           desc: |
-            **Azure CLI**
+            **Using Azure CLI**
 
             Enable 'Secure transfer required' for an individual storage account in a resource group:
 
@@ -565,7 +565,7 @@ queries:
             6. For each container, change the access level to 'Private (no anonymous access)'.
         - id: cli
           desc: |
-            **Azure CLI**
+            **Using Azure CLI**
 
             - Disable public network access:
 
@@ -657,7 +657,7 @@ queries:
         5. Set the **Default action** to **Deny**.
         6. Save your changes to enforce that all unrecognized network traffic is blocked by default.
 
-        **Azure CLI**
+        **Using Azure CLI**
 
         To set the default network access rule to "Deny" for an existing storage account, use the following Azure CLI command:
 
@@ -2082,7 +2082,7 @@ queries:
         3. Go to **Transparent data encryption** under the **Security** section.
         4. Switch `Data encryption` to `On`.
 
-        **Azure CLI**
+        **Using Azure CLI**
 
         To enable TDE on a specific database:
 
@@ -2161,7 +2161,7 @@ queries:
           5. Choose the destination for the logs, such as an Azure Storage account, a Log Analytics workspace, or an Event Hub, based on your organizational needs.
           6. Save the configuration to ensure continuous monitoring.
 
-          **Azure CLI**
+          **Using Azure CLI**
 
           Create a new diagnostic setting using the Azure CLI:
 
