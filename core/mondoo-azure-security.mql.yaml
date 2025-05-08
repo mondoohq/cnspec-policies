@@ -46,22 +46,26 @@ policies:
           - uid: mondoo-azure-security-ensure-the-kv-is-recoverable
           - uid: mondoo-azure-security-ensure-logging-enabled-kv
           - uid: mondoo-azure-security-keyvault-public-access-disabled
+      - title: Azure Compute
+        filters: |
+          asset.runtime == "azure"
+        checks:
+          - uid: mondoo-azure-security-rdp-access-restricted-from-internet
+          - uid: mondoo-azure-security-ssh-access-restricted-from-internet
+          - uid: mondoo-azure-security-vnc-access-restricted-from-internet
+          - uid: mondoo-azure-security-disable-udp-virtualmachines
+          - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
+          - uid: mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group
       - title: Azure Core
         filters: |
           asset.runtime == "azure"
         checks:
           - uid: mondoo-azure-security-diagnostic-settings-essential-categories
           - uid: mondoo-azure-security-diagnostic-settings-exist
-          - uid: mondoo-azure-security-disable-udp-virtualmachines
-          - uid: mondoo-azure-security-ensure-activity-log-alert-exists-for-create-update-delete-network-security-group
           - uid: mondoo-azure-security-ensure-auditing-retention-greater-than-30-days
-          - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
           - uid: mondoo-azure-security-ensure-register-with-ad-is-enabled-on-app-service
           - uid: mondoo-azure-security-ensure-that-notify-about-alerts-with-high-severity-is-on
           - uid: mondoo-azure-security-ensure-web-app-is-using-the-latest-tls
-          - uid: mondoo-azure-security-rdp-access-restricted-from-internet
-          - uid: mondoo-azure-security-ssh-access-restricted-from-internet
-          - uid: mondoo-azure-security-vnc-access-restricted-from-internet
     scoring_system: highest impact
 queries:
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
