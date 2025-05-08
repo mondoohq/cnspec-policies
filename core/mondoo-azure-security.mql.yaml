@@ -61,6 +61,7 @@ policies:
           - uid: mondoo-azure-security-ensure-web-app-is-using-the-latest-tls
           - uid: mondoo-azure-security-rdp-access-restricted-from-internet
           - uid: mondoo-azure-security-ssh-access-restricted-from-internet
+          - uid: mondoo-azure-security-vnc-access-restricted-from-internet
     scoring_system: highest impact
 queries:
   - uid: mondoo-azure-security-ensure-os-disk-are-encrypted
@@ -391,6 +392,113 @@ queries:
                 protocol                   = "Tcp"
                 source_port_range          = "*"
                 destination_port_range     = "3389"
+                source_address_prefix      = "192.168.22.5/24"
+                destination_address_prefix = "*"
+              }
+            }
+            ```
+  - uid: mondoo-azure-security-vnc-access-restricted-from-internet
+    title: Ensure that VNC access is restricted from the internet
+    impact: 80
+    props:
+      - uid: mondooAzureSecurityDisallowedPortsVNC
+        title: a list of disallowed TCP ports, by default VNC listens only on TCP port 5900, add more ports as needed
+        mql: |
+          return [
+            5900,
+          ]
+    filters: |
+      asset.platform == "azure-network-security-group"
+    mql: |
+      allNsgTCP = azure.subscription.network.securityGroup.securityRules
+        .where(
+          properties.access == 'Allow'
+            && direction == 'Inbound'
+            && properties.protocol == /TCP|\*/i
+            && properties.sourceAddressPrefix == /\*|0\.0\.0\.0|<nw>\/0|\/0|internet|any/
+        )
+      allNsgTCP.all(properties.destinationPortRange != "*")
+      props.mondooAzureSecurityDisallowedPortsVNC {
+        disallowedPortVNC = _
+        disallowedPortVNC
+        allNsgTCP.none(destinationPortRange.any(fromPort <= disallowedPortVNC && toPort >= disallowedPortVNC))
+      }
+    docs:
+      desc: |
+        This check ensures that VNC access (port 5900) is restricted from the internet to minimize security risks.
+
+        **Why this matters**
+
+        Exposing VNC access to the internet can lead to significant security risks:
+
+        - **Unauthorized access**: VNC is a common target for brute force and other unauthorized access attempts.
+        - **Increased attack surface**: Allowing unrestricted VNC access expands the attack surface, making it easier for attackers to exploit vulnerabilities.
+        - **Compliance risks**: Many security standards and best practices recommend restricting VNC access to reduce potential threats.
+        - **Operational risks**: Misconfigured or exposed VNC access can lead to unintended access, service disruptions, or data breaches.
+
+        By ensuring VNC access is restricted to known, secure sources, this check helps to minimize security vulnerabilities, align with best practices, and enhance the overall security posture of Azure resources.
+      audit: |
+        **Manual Audit via Azure Portal:**
+
+        1. Log into the Azure Portal.
+        2. Navigate to **Network security groups** under the Networking or directly through the search bar.
+        3. For each NSG, access the **Inbound security rules**.
+        4. Carefully review each rule to identify any that allow inbound VNC traffic (TCP port 5900):
+          - Check for rules where the protocol is set to `TCP`.
+          - The destination port or port range includes `5900`.
+          - The source address prefix is too broad, such as 'Any', '0.0.0.0', '<nw>/0', '/0', 'internet', or 'any'.
+        5. Note down any NSG rules that do not comply with your organization's security policy regarding restricted access to VNC. These rules should ideally allow access only from trusted, secure networks, and not from the open internet.
+
+        1. Navigate to **Virtual Machines** in the Azure Portal.
+        2. For each VM, select the **Networking** blade to review network configurations.
+        3. Check the **Inbound port rules** under the associated Network Security Group (NSG).
+        4. Verify that there are no rules allowing VNC access (TCP port 5900) from 'Any' or 'Internet'. Only secure, specified IP ranges should be allowed if necessary.
+
+        **Automated Audit with Azure CLI:**
+
+        List NSGs and verify VNC access rules:
+
+        ```bash
+        az network nsg list --query "[].{NSG: name, Rules: securityRules[?access=='Allow' && protocol=='Tcp' && direction=='Inbound' && (destinationPortRange=='5900' || destinationPortRanges.contains('5900')) && (sourceAddressPrefix=='*' || sourceAddressPrefix=='0.0.0.0' || sourceAddressPrefix=='<nw>/0' || sourceAddressPrefix=='/0' || sourceAddressPrefix=='internet' || sourceAddressPrefix=='any')]}" -o table
+        ```
+      remediation:
+        - id: portal
+          desc: |
+            **Using Azure Portal**
+
+            1. Log into the Azure Portal and navigate to **Network Security Groups**.
+            2. Select the NSG associated with your VM.
+            3. Review the **Inbound security rules** and modify or delete any rules that allow internet access to port 5900.
+            4. Preferably, change the `source_address_prefix` to more restrictive settings, such as a specific IP range or a secure VPN gateway.
+        - id: cli
+          desc: |
+            **Using Azure CLI**
+
+            Update or create a new NSG rule to restrict VNC access:
+
+            ```bash
+            az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictVNC --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 5900
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
+
+            ```hcl
+            # Ensure the `source_address_prefix` is configured to a restrictive CIDR address
+
+            resource "azure_network_security_group" "example" {
+              name                = "example-vnc-security"
+              location            = azure_resource_group.rg.location
+              resource_group_name = azure_resource_group.rg.name
+
+              security_rule {
+                name                       = "VNC"
+                priority                   = 1001
+                direction                  = "Inbound"
+                access                     = "Allow"
+                protocol                   = "Tcp"
+                source_port_range          = "*"
+                destination_port_range     = "5900"
                 source_address_prefix      = "192.168.22.5/24"
                 destination_address_prefix = "*"
               }
