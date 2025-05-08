@@ -1560,30 +1560,87 @@ queries:
 
         Get-AzActivityLogAlert -SubscriptionId <subscription ID> | where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/networkSecurityGroups/delete"} | select-object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
         ```
-      remediation: |
-        **Using Azure Portal**
+      remediation:
+        - id: portal
+          desc: |
+            **Using Azure Portal**
 
-        To update using Microsoft Azure Portal:
+            To create or update activity log alerts in Microsoft Azure Portal:
 
-        1. Log into Microsoft Azure Portal at https://portal.azure.com.
-        2. Go to **Monitor**.
-        3. Select **Alerts**.
-        4. Select **+ Create**.
-        5. Under **Resource types**, select **Network security group**.
-        6. Select the subscription name, resource group, or network security group" to apply the rule to.
-        7. Verify that the selection preview shows:
-            - All network security groups or your selected network security group
-            - The subscription, group, or resource you selected
-        8. Select the **Apply** button.
-        9. Select the **Condition** tab and select **See all signals**.
-        10. Select **Create or Update Network Security Group**.
-        11. Select the **Actions** tab and either choose an existing action group or create a new one to notify the necessary personnel.
-        12. Select the **Details** tab and provide:
-            - The resource group where you want the alert rule to reside
-            - A name (and optional description) for the alert rule
-        13. Select the **Review + create button and verify the summary.
-        14. Select the **Create** button.
-        15. Repeat steps 4-15 but in step 10, select **Delete Network Security Group**.
+            1. Log into Microsoft Azure Portal at https://portal.azure.com.
+            2. Go to **Monitor**.
+            3. Select **Alerts**.
+            4. Select **+ Create**.
+            5. Under **Resource types**, select **Activity Log**.
+            6. Select the subscription name, resource group, or network security group" to apply the rule to.
+            7. Verify that the selection preview shows:
+                - All network security groups or your selected network security group
+                - The subscription, group, or resource you selected
+            8. Select the **Apply** button.
+            9. Select the **Condition** tab and select **See all signals**.
+            10. Select **Create or Update Network Security Group**.
+            11. Select the **Actions** tab and either choose an existing action group or create a new one to notify the necessary personnel.
+            12. Select the **Details** tab and provide:
+                - The resource group where you want the alert rule to reside
+                - A name (and optional description) for the alert rule
+            13. Select the **Review + create button and verify the summary.
+            14. Select the **Create** button.
+        - id: cli
+          desc: |
+            **Using Azure CLI**
+
+            To create an activity log alert for network security group changes:
+
+            ```bash
+            az monitor activity-log alert create --name <AlertName> --resource-group <ResourceGroupName> --scopes <ResourceID> --condition "category == 'Administrative' and operationName == 'Microsoft.Network/networkSecurityGroups/write'" --action-group <ActionGroupID>
+            ```
+
+            To create an activity log alert for network security group deletions:
+
+            ```bash
+            az monitor activity-log alert create --name <AlertName> --resource-group <ResourceGroupName> --scopes <ResourceID> --condition "category == 'Administrative' and operationName == 'Microsoft.Network/networkSecurityGroups/delete'" --action-group <ActionGroupID>
+            ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            To create an activity log alert for network security group changes:
+
+            ```powershell
+            New-AzActivityLogAlert -Name <AlertName> -ResourceGroupName <ResourceGroupName> -Location <Location> -Condition "category == 'Administrative' and operationName == 'Microsoft.Network/networkSecurityGroups/write'" -ActionGroupId <ActionGroupID>
+            ```
+
+            To create an activity log alert for network security group deletions:
+
+            ```powershell
+            New-AzActivityLogAlert -Name <AlertName> -ResourceGroupName <ResourceGroupName> -Location <Location> -Condition "category == 'Administrative' and operationName == 'Microsoft.Network/networkSecurityGroups/delete'" -ActionGroupId <ActionGroupID>
+            ```
+        - id: terraform
+          desc: |
+            **Using Terraform**
+
+            To create an activity log alert for network security group changes:
+
+            ```hcl
+            resource "azurerm_monitor_activity_log_alert" "example" {
+              name                = "example-alert"
+              resource_group_name = azurerm_resource_group.example.name
+              location            = azurerm_resource_group.example.location
+
+              scopes = [
+                azurerm_network_security_group.example.id,
+              ]
+
+              criteria {
+                category = "Administrative"
+                operation_name = "Microsoft.Network/networkSecurityGroups/write"
+              }
+
+              action {
+                action_group_id = azurerm_monitor_action_group.example.id
+              }
+            }
+            ```
   - uid: mondoo-azure-security-ensure-that-notify-about-alerts-with-high-severity-is-on
     title: Ensure that "Notify about alerts with high severity" is enabled
     impact: 80
