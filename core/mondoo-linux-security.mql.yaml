@@ -213,34 +213,42 @@ queries:
           - NIST 800-53 (SI-7: Software, Firmware, and Information Integrity)
 
         Ensuring AIDE is installed lays the foundation for host-based file integrity monitoring, which is a critical part of a defense-in-depth strategy for detecting intrusions and preserving system integrity.
-      remediation: |-
-        Run this command to install `aide`:
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI:***
 
-        ### RHEL/Fedora/Amazon Linux and derivatives
+            Run this command to install `aide`:
 
-        ```bash
-        yum install aide
-        ```
+            ### RHEL/Fedora/Amazon Linux and derivatives
 
-        ### Debian/Ubuntu and derivatives
+            ```bash
+            yum install aide
+            ```
 
-        ```bash
-        apt-get install aide
-        ```
+            ### Debian/Ubuntu and derivatives
 
-        ### SLES and openSUSE
+            ```bash
+            apt-get install aide
+            ```
 
-        ```bash
-        zypper install aide
-        ```
+            ### SLES and openSUSE
 
-        Configure AIDE as appropriate for your environment. Consult the AIDE documentation for options.
+            ```bash
+            zypper install aide
+            ```
+        - id: ansible
+          desc: |
+            ***Using Ansible:***
 
-        Initialize AIDE:
+            Use this Ansible playbook to install `aide`:
 
-        ```bash
-        aideinit
-        ```
+            ```yaml
+            - name: Install AIDE
+              package:
+                name: aide
+                state: present
+            ```
   - uid: mondoo-linux-security-filesystem-integrity-is-regularly-checked
     title: Ensure filesystem integrity is regularly checked using AIDE
     impact: 50
@@ -263,64 +271,136 @@ queries:
           - Integrity violations may go undetected, exposing the system to persistent threats such as rootkits or malware.
           - Audit logs and incident response efforts may be incomplete due to a lack of timely data.
           - Organizations may fail to meet compliance requirements that mandate proactive monitoring of system integrity.
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI to setup Cron:***
 
-        Regular integrity checks serve as a crucial early warning mechanism that strengthens security posture by enabling timely investigation and response.
-      remediation: |-
-        ### To run aide using cron
+            1. Run this command to initialize the AIDE database:
 
-        Run this command:
+            ```bash
+            aide --init
+            ```
 
-        ```bash
-        crontab -u root -e
-        ```
 
-        Add the following line to the crontab:
+            2. Edit the root crontab:
 
-        ```
-        0 5 * * * /usr/sbin/aide --check
-        ```
+            ```bash
+            crontab -u root -e
+            ```
 
-        ### To run aide using a systemd timer
+            Add the following line to the crontab:
 
-        Create or edit the file `/etc/systemd/system/aidecheck.service` and add the following lines:
+            ```
+            0 5 * * * /usr/sbin/aide --check
+            ```
 
-        ```
-        [Unit]
-        Description=Aide Check
+            ***Using the CLI to setup systemd:***
 
-        [Service]
-        Type=simple
-        ExecStart=/usr/sbin/aide --check
+            1. Run this command to initialize the AIDE database:
 
-        [Install]
-        WantedBy=multi-user.target
-        ```
+            ```bash
+            aide --init
+            ```
 
-        Create or edit the file `/etc/systemd/system/aidecheck.timer` and add the following lines:
+            2. Create the systemd service by creating the file `/etc/systemd/system/aidecheck.service` and adding the following lines:
 
-        ```
-        [Unit]
-        Description=Aide check every day at 5AM
+            ```
+            [Unit]
+            Description=Aide Check
 
-        [Timer]
-        OnCalendar=*-*-* 05:00:00
-        Unit=aidecheck.service
+            [Service]
+            Type=simple
+            ExecStart=/usr/sbin/aide --check
 
-        [Install]
-        WantedBy=multi-user.target
-        ```
+            [Install]
+            WantedBy=multi-user.target
+            ```
 
-        Run these commands:
+            3. Create the systemd timer by creating or editing the file `/etc/systemd/system/aidecheck.timer` and add the following lines:
 
-        ```bash
-        chown root:root /etc/systemd/system/aidecheck.*
-        chmod 0644 /etc/systemd/system/aidecheck.*
+            ```
+            [Unit]
+            Description=Aide check every day at 5AM
 
-        systemctl daemon-reload
+            [Timer]
+            OnCalendar=*-*-* 05:00:00
+            Unit=aidecheck.service
 
-        systemctl enable aidecheck.service
-        systemctl --now enable aidecheck.timer
-        ```
+            [Install]
+            WantedBy=multi-user.target
+            ```
+
+            4. Configure the service and timer to run:
+
+            ```bash
+            chown root:root /etc/systemd/system/aidecheck.*
+            chmod 0644 /etc/systemd/system/aidecheck.*
+
+            systemctl daemon-reload
+
+            systemctl enable aidecheck.service
+            systemctl --now enable aidecheck.timer
+            ```
+        - id: ansible
+          desc: |
+            Use this Ansible playbook to run AIDE using a systemd timer:
+
+            ```yaml
+              ---
+              - name: Configure daily AIDE check using systemd timer
+                hosts: all
+                become: true
+                tasks:
+
+                  - name: Create systemd service unit for AIDE check
+                    copy:
+                      dest: /etc/systemd/system/aidecheck.service
+                      owner: root
+                      group: root
+                      mode: '0644'
+                      content: |
+                        [Unit]
+                        Description=Aide Check
+
+                        [Service]
+                        Type=simple
+                        ExecStart=/usr/sbin/aide --check
+
+                        [Install]
+                        WantedBy=multi-user.target
+
+                  - name: Create systemd timer unit for daily AIDE check at 5AM
+                    copy:
+                      dest: /etc/systemd/system/aidecheck.timer
+                      owner: root
+                      group: root
+                      mode: '0644'
+                      content: |
+                        [Unit]
+                        Description=Aide check every day at 5AM
+
+                        [Timer]
+                        OnCalendar=*-*-* 05:00:00
+                        Unit=aidecheck.service
+
+                        [Install]
+                        WantedBy=multi-user.target
+
+                  - name: Reload systemd daemon to recognize new units
+                    command: systemctl daemon-reexec
+
+                  - name: Enable aidecheck.service (not started, only enabled)
+                    systemd:
+                      name: aidecheck.service
+                      enabled: true
+
+                  - name: Enable and start aidecheck.timer
+                    systemd:
+                      name: aidecheck.timer
+                      enabled: true
+                      state: started
+            ```
   - uid: mondoo-linux-security-core-dumps-are-restricted
     title: Ensure core dumps are restricted
     filters: |
@@ -355,39 +435,95 @@ queries:
           - Properly configuring the coredump service (if installed) with ProcessSizeMax=0 and Storage=none to prevent systemd-based core dump handling from storing crash data.
 
         Restricting core dumps helps preserve the confidentiality of system memory, prevents unnecessary disk usage, and protects against inadvertent leakage of sensitive data.
-      remediation: |-
-        Add the following line to `/etc/security/limits.conf` or a `/etc/security/limits.d/` file:
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI:***
 
-        ```
-        * hard core 0
-        ```
+            1. Run this command to set the core dump size to 0:
 
-        Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
+            ```bash
+            ulimit -c 0
+            ```
 
-        ```
-        fs.suid_dumpable = 0
-        ```
+            2. To make the change permanent:
 
-        Run this command to set the active kernel parameter:
+            Edit `/etc/security/limits.conf` and add the following line:
 
-        ```bash
-        sysctl -w fs.suid_dumpable=0
-        ```
+            ```
+            * hard core 0
+            ```
 
-        If systemd-coredump is installed:
+            Set the following parameter in `/etc/sysctl.conf` or a `/etc/sysctl.d/` file:
 
-        edit `/etc/systemd/coredump.conf` and add/modify the following lines:
+            ```
+            fs.suid_dumpable = 0
+            ```
 
-        ```
-        Storage=none
-        ProcessSizeMax=0
-        ```
+            Run this command to set the active kernel parameter:
 
-        Run the command:
+            ```bash
+            sysctl -w fs.suid_dumpable=0
+            ```
+        - id: ansible
+          desc: |
+            ***Using Ansible:***
 
-        ```bash
-        systemctl daemon-reload
-        ```
+            Use this Ansible playbook to restrict core dumps:
+
+            ```yaml
+            ---
+            - name: Disable core dumps on Linux
+              hosts: all
+              become: true
+              tasks:
+
+                - name: Set hard core dump limit to 0 in limits.d
+                  copy:
+                    dest: /etc/security/limits.d/99-disable-core.conf
+                    owner: root
+                    group: root
+                    mode: '0644'
+                    content: |
+                      * hard core 0
+
+                - name: Set fs.suid_dumpable = 0 in sysctl.d
+                  copy:
+                    dest: /etc/sysctl.d/99-disable-coredump.conf
+                    owner: root
+                    group: root
+                    mode: '0644'
+                    content: |
+                      fs.suid_dumpable = 0
+
+                - name: Apply fs.suid_dumpable runtime setting
+                  sysctl:
+                    name: fs.suid_dumpable
+                    value: '0'
+                    state: present
+                    reload: yes
+
+                - name: Check if systemd-coredump config exists
+                  stat:
+                    path: /etc/systemd/coredump.conf
+                  register: coredump_conf
+
+                - name: Set systemd-coredump options if applicable
+                  block:
+                    - name: Ensure /etc/systemd/coredump.conf exists with correct settings
+                      ini_file:
+                        path: /etc/systemd/coredump.conf
+                        section: Coredump
+                        option: "{{ item.option }}"
+                        value: "{{ item.value }}"
+                      loop:
+                        - { option: 'Storage', value: 'none' }
+                        - { option: 'ProcessSizeMax', value: '0' }
+
+                    - name: Reload systemd daemon after coredump config change
+                      command: systemctl daemon-reexec
+                  when: coredump_conf.stat.exists
+            ```
   - uid: mondoo-linux-security-address-space-layout-randomization-aslr-is-enabled
     title: Ensure address space layout randomization (ASLR) is enabled
     impact: 90
@@ -718,21 +854,21 @@ queries:
           - Abuse in reconnaissance and data exfiltration by attackers
 
         In most environments, FTP has been replaced by more secure alternatives like SFTP or FTPS, which encrypt both authentication and file transfer traffic. Unless explicitly required, running an FTP server introduces unnecessary risk and increases the system's attack surface.
+      remediation:
+        - id: cli
+          desc: |
+            Run this command to stop and disable `vsftpd`, `proftpd`, and `pure-ftpd`:
 
-        Disabling vsftpd, proftpd, and pure-ftpd helps enforce the principle of least functionality by ensuring that legacy, insecure services are not inadvertently exposed or abused.
-      remediation: |-
-        Run this command to stop and disable `vsftpd`, `proftpd`, and `pure-ftpd`:
+            ```bash
+            systemctl stop vsftpd
+            systemctl disable vsftpd
 
-        ```bash
-        systemctl stop vsftpd
-        systemctl disable vsftpd
+            systemctl stop proftpd
+            systemctl disable proftpd
 
-        systemctl stop proftpd
-        systemctl disable proftpd
-
-        systemctl stop pure-ftpd
-        systemctl disable pure-ftpd
-        ```
+            systemctl stop pure-ftpd
+            systemctl disable pure-ftpd
+            ```
   - uid: mondoo-linux-security-http-server-is-not-enabled
     title: Ensure HTTP servers are stopped and not enabled
     impact: 60
