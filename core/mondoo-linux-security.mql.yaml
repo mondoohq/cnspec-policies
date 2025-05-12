@@ -1859,6 +1859,7 @@ queries:
   - uid: mondoo-linux-security-audit-log-storage-size-is-configured
     title: Ensure audit log storage size is configured
     impact: 40
+    filter: file("/etc/audit/auditd.conf").exists
     mql: |
       auditd.config.params.contains("max_log_file")
       auditd.config.params.max_log_file != 0
@@ -1891,6 +1892,7 @@ queries:
   - uid: mondoo-linux-security-audit-logs-are-not-automatically-deleted
     title: Ensure audit logs are not automatically deleted
     impact: 40
+    filter: file("/etc/audit/auditd.conf").exists
     mql: auditd.config.params.max_log_file_action == "keep_logs""
     docs:
       desc: |
@@ -1922,7 +1924,7 @@ queries:
     title: Ensure system is disabled when audit logs are full
     impact: 40
     filters: |
-      asset.kind != "container-image"
+      asset.kind != "container-image" && file("/etc/audit/auditd.conf").exists
     mql: |
       auditd.config.params.space_left_action == /email|exec|single|halt/
       auditd.config.params.action_mail_acct == "root"
