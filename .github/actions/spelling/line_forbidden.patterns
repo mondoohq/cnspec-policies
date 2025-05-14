@@ -105,7 +105,7 @@
 #
 
 # s.b. auditd
-\bAuditd\b
+# \bAuditd\b # disabled due to false positives with the macOS service
 
 # s.b. WatchGuard
 \bWatchguard\b
