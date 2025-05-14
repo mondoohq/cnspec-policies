@@ -181,7 +181,7 @@ queries:
     impact: 80
     props:
       - uid: mondooAzureSecurityDisallowedPortsSSH
-        title: A list of disallowed TCP ports, by default SSH listens only on TCP port 22, add more ports as needed
+        title: A list of disallowed TCP ports, by default SSH listens only on TCP port 22. Add more ports as needed.
         mql: |
           return [
             22,
@@ -289,7 +289,7 @@ queries:
     impact: 80
     props:
       - uid: mondooAzureSecurityDisallowedPortsRDP
-        title: a list of disallowed TCP ports, by default RDP listens only on TCP port 3389, add more ports as needed
+        title: a list of disallowed TCP ports, by default RDP listens only on TCP port 3389. Add more ports as needed.
         mql: |
           return [
             3389,
@@ -396,7 +396,7 @@ queries:
     impact: 80
     props:
       - uid: mondooAzureSecurityDisallowedPortsVNC
-        title: a list of disallowed TCP ports, by default VNC listens only on TCP port 5900, add more ports as needed
+        title: a list of disallowed TCP ports, by default VNC listens only on TCP port 5900. Add more ports as needed.
         mql: |
           return [
             5900,
@@ -2590,7 +2590,7 @@ queries:
     impact: 80
     props:
       - uid: mondooAzureSecurityDisallowedPortsUDP
-        title: A list of disallowed UDP ports, by default covering common UDP services, add more as needed
+        title: A list of disallowed UDP ports, by default covering common UDP services. Add more as needed.
         mql: |
           return [
             53,    // DNS
