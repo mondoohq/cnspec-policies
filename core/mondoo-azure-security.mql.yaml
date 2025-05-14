@@ -120,6 +120,13 @@ queries:
             ```bash
             az vm encryption enable --resource-group <ResourceGroupName> --name <VMName> --disk-encryption-keyvault <KeyVaultName> --key-encryption-key <KeyName> --volume-type OS
             ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            Set-AzVMDiskEncryptionExtension -ResourceGroupName <ResourceGroupName> -VMName <VMName> -KeyVaultUrl <KeyVaultUrl> -VolumeType OS
+            ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -259,6 +266,13 @@ queries:
             ```bash
             az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictSSH --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 22
             ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            New-AzNetworkSecurityRuleConfig -Name RestrictSSH -Protocol Tcp -Direction Inbound -Priority 1001 -SourceAddressPrefix <YourSecureIPRange> -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 22 -Access Allow
+            ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -365,6 +379,13 @@ queries:
 
             ```bash
             az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictRDP --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 3389
+            ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            New-AzNetworkSecurityRuleConfig -Name RestrictRDP -Protocol Tcp -Direction Inbound -Priority 1001 -SourceAddressPrefix <YourSecureIPRange> -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389 -Access Allow
             ```
         - id: terraform
           desc: |
@@ -473,6 +494,13 @@ queries:
             ```bash
             az network nsg rule create --resource-group <ResourceGroupName> --nsg-name <NSGName> --name RestrictVNC --priority 1001 --direction Inbound --access Deny --protocol Tcp --source-address-prefixes <YourSecureIPRange> --destination-port-ranges 5900
             ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            New-AzNetworkSecurityRuleConfig -Name RestrictVNC -Protocol Tcp -Direction Inbound -Priority 1001 -SourceAddressPrefix <YourSecureIPRange> -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 5900 -Access Allow
+            ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -551,6 +579,13 @@ queries:
 
             ```bash
             az storage account update --name <StorageAccountName> --resource-group <ResourceGroupName> --https-only true
+            ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            Set-AzStorageAccount -Name <StorageAccountName> -ResourceGroupName <ResourceGroupName> -EnableHttpsTrafficOnly $true
             ```
         - id: terraform
           desc: |
@@ -631,6 +666,21 @@ queries:
               ```bash
               az storage container set-permission --name <container_name> --public-access off --account-name <account_name> --account-key <account_key>
               ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            - Disable public network access:
+
+              ```powershell
+              Set-AzStorageAccount -Name <storage-account> -ResourceGroupName <resource-group> -PublicNetworkAccess Disabled
+              ```
+
+            - Set blob containers to private access:
+
+              ```powershell
+              Set-AzStorageContainerAcl -Name <container_name> -PublicAccess Off -Context $context
+              ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -708,6 +758,17 @@ queries:
 
             ```bash
             az storage account create --name <StorageAccountName> --resource-group <ResourceGroupName> --location <Location> --default-action Deny
+            ```
+
+            This command updates the storage account to deny all traffic by default, significantly enhancing the security posture by limiting access to only configured exceptions.
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            To set the default network access rule to "Deny" for a new storage account, use the following PowerShell command:
+
+            ```powershell
+            New-AzStorageAccount -ResourceGroupName <ResourceGroupName> -Name <StorageAccountName> -Location <Location> -SkuName Standard_LRS -Kind StorageV2 -DefaultAction Deny
             ```
 
             This command updates the storage account to deny all traffic by default, significantly enhancing the security posture by limiting access to only configured exceptions.
@@ -795,6 +856,13 @@ queries:
             ```bash
             az storage account update --name <StorageAccountName> --resource-group <ResourceGroupName> --bypass AzureServices
             ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            Set-AzStorageAccount -Name <StorageAccountName> -ResourceGroupName <ResourceGroupName> -NetworkRuleSetBypass AzureServices
+            ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -866,6 +934,13 @@ queries:
 
             ```bash
             az sql db audit-policy update --name <DatabaseName> --resource-group <ResourceGroupName> --retention-days 30
+            ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            Set-AzSqlDatabaseAuditingPolicy -ResourceGroupName <ResourceGroupName> -ServerName <ServerName> -DatabaseName <DatabaseName> -RetentionDays 30
             ```
         - id: terraform
           desc: |
@@ -954,6 +1029,25 @@ queries:
 
             # MariaDB
             az mariadb server firewall-rule create --resource-group <resource-group> --server <server-name> --name <rule-name> --start-ip-address <secure-start-ip> --end-ip-address <secure-end-ip>
+            ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            # Replace <server-name>, <resource-group>, and <rule-name> with your specific details
+
+            # Azure SQL
+            New-AzSqlServerFirewallRule -ResourceGroupName <resource-group> -ServerName <server-name> -FirewallRuleName <rule-name> -StartIpAddress <secure-start-ip> -EndIpAddress <secure-end-ip>
+
+            # PostgreSQL
+            New-AzPostgreSqlServerFirewallRule -ResourceGroupName <resource-group> -ServerName <server-name> -FirewallRuleName <rule-name> -StartIpAddress <secure-start-ip> -EndIpAddress <secure-end-ip>
+
+            # MySQL
+            New-AzMySqlServerFirewallRule -ResourceGroupName <resource-group> -ServerName <server-name> -FirewallRuleName <rule-name> -StartIpAddress <secure-start-ip> -EndIpAddress <secure-end-ip>
+
+            # MariaDB
+            New-AzMariaDbServerFirewallRule -ResourceGroupName <resource-group> -ServerName <server-name> -FirewallRuleName <rule-name> -StartIpAddress <secure-start-ip> -EndIpAddress <secure-end-ip>
             ```
         - id: terraform
           desc: |
@@ -1083,6 +1177,15 @@ queries:
             ```bash
             az webapp identity assign --resource-group <RESOURCE_GROUP_NAME> --name <APP_NAME>
             ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            $app = Get-AzWebApp -ResourceGroupName <RESOURCE_GROUP_NAME> -Name <APP_NAME>
+            $app.Identity.Type = "SystemAssigned"
+            Set-AzWebApp -ResourceGroupName <RESOURCE_GROUP_NAME> -Name <APP_NAME> -Identity $app.Identity
+            ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -1156,6 +1259,15 @@ queries:
             ```bash
             az keyvault update --name <VaultName> --resource-group <ResourceGroupName> --set properties.enablePurgeProtection=true
             ```
+        - id: powershell
+          desc: |
+            **Using PowerShell**
+
+            ```powershell
+            $vault = Get-AzKeyVault -VaultName <VaultName> -ResourceGroupName <ResourceGroupName>
+            $vault.EnablePurgeProtection = $true
+            Set-AzKeyVault -KeyVault $vault
+            ```
         - id: terraform
           desc: |
             **Using Terraform**
@@ -1224,7 +1336,6 @@ queries:
              b. Select **TLS/SSL settings** under **Settings**.
              c. Under **Minimum TLS Version**, select **1.2**.
              d. Select **Save**.
-
       - id: cli
         desc: |
           **Using Azure CLI**
@@ -1921,7 +2032,6 @@ queries:
         ```
 
         This command provides a tabulated view showing the SSL enforcement and TLS version for each server, facilitating quick identification of non-compliant or outdated configurations.
-
       remediation:
       - id: portal
         desc: |
