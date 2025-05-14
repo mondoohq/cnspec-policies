@@ -2296,7 +2296,6 @@ queries:
             ```
 
             This configuration ensures that public network access is disabled for the specified key vault. Regularly review and update your Terraform configurations to ensure compliance with security best practices.
-        **Using Azure Portal**
   - uid: mondoo-azure-security-sql-server-audit-on
     title: Ensure that all activities on SQL server are audited
     impact: 60
@@ -2576,6 +2575,42 @@ queries:
             ```
 
             Modify the script to match your specific resource IDs and configuration preferences. It's crucial to routinely review and update these settings to adapt to any changes in your Azure environment or organizational requirements.
+        - id: terraform
+          desc: |
+            **Using Terraform**
+
+            To configure diagnostic settings for a subscription, you can use the following Terraform configuration:
+
+            ```hcl
+            resource "azurerm_monitor_diagnostic_setting" "example" {
+              name               = "example-diagnostic-setting"
+              target_resource_id = azurerm_sql_server.example.id
+
+              log {
+                category = "Administrative"
+                enabled  = true
+              }
+
+              log {
+                category = "Security"
+                enabled  = true
+              }
+
+              log {
+                category = "Alert"
+                enabled  = true
+              }
+
+              log {
+                category = "Policy"
+                enabled  = true
+              }
+
+              storage_account_id = azurerm_storage_account.example.id
+            }
+            ```
+
+            This configuration ensures that the specified log categories are collected for the Azure resource. Regularly review and update your Terraform configurations to ensure compliance with security best practices.
   - uid: mondoo-azure-security-diagnostic-settings-essential-categories
     title: Ensure that diagnostic settings collect essential security categories
     impact: 80
