@@ -105,8 +105,25 @@ queries:
         These visibility levels affect who can see the project in the public access directory (/public for your GitLab instance). For example, https://gitlab.com/public. You can control the visibility of individual features with project feature settings.
 
         Private projects can only be cloned and viewed by project members (except for guests). They appear in the public access directory (`/public``) for project members only.
-      remediation: |
-        To make the visibility of a GitLab project private, see [Change project visibility](https://docs.gitlab.com/ee/user/public_access.html#change-project-visibility).
+      remediation:
+        - id: manual
+          desc: |
+            **Manual remediation**
+
+            To change the visibility of a GitLab project to private or internal, see [Change project visibility](https://docs.gitlab.com/user/public_access/#change-project-visibility).
+        - id: terraform
+          desc: |
+            **Using Terraform**
+
+            Change the project to private or internal using Terraform:
+
+            ```hcl
+            resource "gitlab_project" "example" {
+              name = "example"
+              namespace_id = gitlab_group.example.id  # Replace with your GitLab namespace ID
+              visibility_level = "private"            # Options: private, internal, public
+            }
+            ```
   - uid: mondoo-gitlab-security-private-project
     title: Ensure the project is private
     mql: gitlab.project.visibility != "public"
@@ -121,5 +138,22 @@ queries:
         These visibility levels affect who can see the project in the public access directory (/public for your GitLab instance). For example, https://gitlab.com/public. You can control the visibility of individual features with project feature settings.
 
         Private projects can only be cloned and viewed by project members (except for guests). They appear in the public access directory (`/public``) for project members only.
-      remediation: |
-        To make the visibility of a GitLab project private, see [Change project visibility](https://docs.gitlab.com/ee/user/public_access.html#change-project-visibility).
+      remediation:
+        - id: manual
+          desc: |
+            **Manual remediation**
+
+            To change the visibility of a GitLab project to private, see [Change project visibility](https://docs.gitlab.com/user/public_access/#change-project-visibility).
+        - id: terraform
+          desc: |
+            **Using Terraform**
+
+            Change the project to private using Terraform:
+
+            ```hcl
+            resource "gitlab_project" "example" {
+              name = "example"
+              namespace_id = gitlab_group.example.id  # Replace with your GitLab namespace ID
+              visibility_level = "private"            # Options: private, internal, public
+            }
+            ```
