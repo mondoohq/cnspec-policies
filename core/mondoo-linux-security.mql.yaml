@@ -4424,14 +4424,44 @@ queries:
         - Compliance with security standards and best practices could be violated.
 
         By enforcing the use of secure MAC algorithms, organizations can strengthen the security of SSH connections, protect sensitive data, and maintain compliance with security policies.
-      remediation: |-
-        Edit the `/etc/ssh/sshd_config` file to add or modify the `MACs` parameter so that it contains a comma-separated list of the site approved MACs
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI***
 
-        Example:
+            To set the MAC algorithms used by SSH, edit the `/etc/ssh/sshd_config` file and add or modify the `MACs` parameter to include a comma-separated list of the site approved MACs
 
-        ```
-        MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
-        ```
+            Example:
+
+            ```
+            MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
+            ```
+        - id: ansible
+          desc: |
+            ***Using Ansible***
+
+            To set the MAC algorithms used by SSH, use the following Ansible playbook:
+
+            ```yaml
+            ---
+            - name: Configure SSH MAC algorithms
+              hosts: all
+              become: true
+              tasks:
+
+                - name: Ensure MACs parameter is set in sshd_config
+                  ansible.builtin.lineinfile:
+                    path: /etc/ssh/sshd_config
+                    regexp: '^MACs\s+'
+                    line: 'MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256'
+                    create: yes
+                    backup: yes
+
+                - name: Restart SSH service to apply MAC changes
+                  ansible.builtin.service:
+                    name: sshd
+                    state: restarted
+            ```
   - uid: mondoo-linux-security-only-strong-kex-algorithms-are-used
     title: Ensure that strong Key Exchange algorithms are used
     impact: 100
@@ -4566,12 +4596,41 @@ queries:
         - Compliance with security policies requiring strict session controls may be compromised.
 
         By setting the `LoginGraceTime` parameter to a minimal value, organizations can reduce the risk of unauthorized access, maintain system performance, and ensure compliance with security best practices.
-      remediation: |-
-        Edit the `/etc/ssh/sshd_config` file to set the `LoginGraceTime` parameter as follows:
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI***
 
-        ```
-        LoginGraceTime 60
-        ```
+            To set the `LoginGraceTime` parameter in the SSH configuration, edit the `/etc/ssh/sshd_config` file and set the parameter as follows:
+
+            ```
+            LoginGraceTime 60
+            ```
+        - id: ansible
+          desc: |
+            ***Using Ansible***
+
+            To set the `LoginGraceTime` parameter in the SSH configuration, use the following Ansible playbook:
+
+            ```yaml
+            ---
+            - name: Configure SSH LoginGraceTime
+              hosts: all
+              become: yes
+              tasks:
+                - name: Set LoginGraceTime in sshd_config
+                  ansible.builtin.lineinfile:
+                    path: /etc/ssh/sshd_config
+                    regexp: '^LoginGraceTime\s+'
+                    line: 'LoginGraceTime 60'
+                    create: yes
+                    backup: yes
+
+                - name: Restart SSH service to apply LoginGraceTime changes
+                  ansible.builtin.service:
+                    name: sshd
+                    state: restarted
+            ```
   - uid: mondoo-linux-security-ssh-access-is-limited
     title: Ensure SSH access is limited
     impact: 60
@@ -4623,12 +4682,41 @@ queries:
         - It supports compliance with security standards and regulatory requirements that mandate the use of warning banners.
 
         By ensuring that the `Banner` parameter is configured, organizations can enhance security awareness, deter unauthorized access, and maintain compliance with security policies.
-      remediation: |-
-        Edit the `/etc/ssh/sshd_config` file to set the `Banner` parameter as follows:
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI***
 
-        ```
-        Banner /etc/issue.net
-        ```
+            To set the `Banner` parameter in the SSH configuration, edit the `/etc/ssh/sshd_config` file and set the parameter as follows:
+
+            ```
+            Banner /etc/issue.net
+            ```
+        - id: ansible
+          desc: |
+            ***Using Ansible***
+
+            To set the `Banner` parameter in the SSH configuration, use the following Ansible playbook:
+
+            ```yaml
+            ---
+            - name: Configure SSH Banner setting
+              hosts: all
+              become: yes
+              tasks:
+                - name: Set Banner path in sshd_config
+                  ansible.builtin.lineinfile:
+                    path: /etc/ssh/sshd_config
+                    regexp: '^Banner\s+'
+                    line: 'Banner /etc/issue.net'
+                    create: yes
+                    backup: yes
+
+                - name: Restart SSH service to apply Banner changes
+                  ansible.builtin.service:
+                    name: sshd
+                    state: restarted
+            ```
   - uid: mondoo-linux-security-permissions-on-etcpasswd-are-configured
     title: Ensure secure permissions on /etc/passwd are set
     impact: 100
@@ -5059,11 +5147,17 @@ queries:
         chmod 640 /etc/gshadow-
         ```
 
-        Configuration for creation, deletion and cleaning of volatile and temporary `/etc/tmpfiles.d/etc.conf`:
+        To automatically enforce correct permissions on `/etc/gshadow-`` during system startup or cleanup, add the following line to `/etc/tmpfiles.d/etc.conf`:
 
         ```
         f /etc/gshadow- 0600 root root -
         ```
+
+        This configuration:
+          - Ensures the file exists (f)
+          - Sets permissions to 0640
+          - Applies root ownership and group
+          - Leaves file content untouched (- in the final field)
   - uid: mondoo-linux-security-no-duplicate-uids-exist
     title: Ensure no duplicate UIDs exist
     impact: 80
@@ -5082,14 +5176,16 @@ queries:
         - Networked systems may experience inconsistencies, especially when sharing resources or accessing files across systems.
 
         By ensuring that UIDs, user names, and GIDs are unique, organizations can maintain a secure and well-functioning system configuration.
-      remediation: |
-        Based on the results of the query output, establish unique UIDs and review all files owned by the shared UIDs to determine which UID they are supposed to belong to.
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI***
 
-        Run this command to set the new UID of a user:
+            To set the new UID of a user, run the following command:
 
-        ```bash
-        usermod -u <new uid> <user>
-        ```
+            ```bash
+            usermod -u <new uid> <user>
+            ```
   - uid: mondoo-linux-security-no-duplicate-user-names-exist
     title: Ensure no duplicate user names exist
     impact: 80
@@ -5108,14 +5204,16 @@ queries:
         - Networked systems may experience inconsistencies, especially when sharing resources or accessing files across systems.
 
         By ensuring that user names are unique, organizations can maintain a secure and well-functioning system configuration.
-      remediation: |
-        Based on the results of the query output, establish unique user names for the users. File ownerships will automatically reflect the change as long as the users have unique UIDs.
+      remediation:
+        - id: cli
+          desc: |
+            ***Using the CLI***
 
-        Run this command to set the new user name:
+            To set the new user name, run the following command:
 
-        ```bash
-        usermod -l <new login-name> <old username>
-        ```
+            ```bash
+            usermod -l <new login-name> <old username>
+            ```
   - uid: mondoo-linux-security-no-duplicate-gids-exist
     title: Ensure no duplicate GIDs exist
     impact: 80
