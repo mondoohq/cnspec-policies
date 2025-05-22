@@ -172,8 +172,17 @@ queries:
           •	Compromised accounts being used to inject malicious code or manipulate repositories.
           •	Non-compliance with security standards and organizational policies.
           •	Increased risk of reputational damage and financial loss due to security breaches.
-      remediation: |
-        GitHub has several options for configuring 2FA for your organization. To enable 2FA, see [Configuring two-factor authentication](https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication) in GitHub's documentation.
+      remediation:
+        - id: manual
+          desc: |
+            **Manual remediation**
+
+            1. Navigate to your organization on GitHub.
+            2. Go to **Settings** > **Security** > **Authentication security**.
+            3. Under "Two-factor authentication," select the option to require all members to enable 2FA.
+            4. Save the changes.
+
+            For more details, see [Configuring two-factor authentication](https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication) in the GitHub documentation.
     refs:
       - url: https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa
         title: Securing your account with two-factor authentication (2FA)
@@ -196,8 +205,10 @@ queries:
           •	Reduced trust in your organization's profile and repositories.
           •	Potential misuse of your organization's name by malicious actors.
           •	Challenges in managing email notifications and ensuring they are delivered securely.
-      remediation: |
-        To achieve verified status for your GitHub organization, see [Verifying or approving a domain for your organization](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization) in the GitHub documentation site.
+      remediation:
+        - id: manual
+          desc: |
+            To achieve verified status for your GitHub organization, see [Verifying or approving a domain for your organization](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization) in the GitHub documentation site.
     refs:
       - url: https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization
         title: Verifying or approving a domain for your organization
