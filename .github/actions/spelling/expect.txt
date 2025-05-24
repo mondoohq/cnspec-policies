@@ -14,7 +14,6 @@ armv
 asl
 aslr
 atlassian
-auid
 benbi
 bigfish
 bigquery
@@ -32,6 +31,7 @@ certfile
 chacha
 cloudservices
 CMDLINE
+Cmks
 COMNAP
 COMNODE
 controlcenter
@@ -151,7 +151,6 @@ sacl
 SCENo
 screensharing
 secboot
-seconduser
 secretkey
 secureboot
 securepassword
