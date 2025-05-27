@@ -352,9 +352,9 @@ queries:
   - uid: mondoo-aws-security-eks-cluster-private-controlplane-terraform-state
     filters: asset.platform == "terraform-state"
     mql: |
-      eksState = terraform.state.resources.where(type == "aws_eks_cluster").map(values.vpc_config).first
-      eksState.contains('endpoint_private_access') && eksState.contains(true)
-      eksState.contains('endpoint_public_access') && eksState.contains(false)
+      eksState = terraform.state.resources.where(type == "aws_eks_cluster").map(values.vpc_config).flat
+      eksState.all(_['endpoint_private_access'] == true)
+      eksState.all(_['endpoint_public_access'] == false)
 
   - uid: mondoo-aws-security-iam-root-access-key-check
     title: Ensure no root user account access key exists
