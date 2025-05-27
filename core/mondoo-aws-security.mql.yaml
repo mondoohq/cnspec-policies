@@ -346,9 +346,9 @@ queries:
   - uid: mondoo-aws-security-eks-cluster-private-controlplane-terraform-plan
     filters: asset.platform == "terraform-plan" && terraform.plan.resourceChanges.contains(type == "aws_eks_cluster")
     mql: |
-      eksPlan = terraform.plan.resourceChanges.where(type == "aws_eks_cluster").map(change.after.vpc_config).first
-      eksPlan.contains('endpoint_private_access') && eksPlan.contains(true)
-      eksPlan.contains('endpoint_public_access') && eksPlan.contains(false)
+      eksPlan = terraform.plan.resourceChanges.where(type == "aws_eks_cluster").map(change.after.vpc_config).flat
+      eksPlan.all(_['endpoint_private_access'] == true)
+      eksPlan.all(_['endpoint_public_access'] == false)
   - uid: mondoo-aws-security-eks-cluster-private-controlplane-terraform-state
     filters: asset.platform == "terraform-state"
     mql: |
