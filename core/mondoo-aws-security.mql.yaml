@@ -247,6 +247,11 @@ queries:
       - uid: mondoo-aws-security-eks-cluster-private-controlplane-terraform-plan
       - uid: mondoo-aws-security-eks-cluster-private-controlplane-terraform-state
     docs:
+      refs:
+        - url: https://docs.aws.amazon.com/eks/latest/userguide/pod-networking.html
+          title: Amazon EKS - Pod networking
+        - url: https://docs.aws.amazon.com/eks/latest/userguide/networking-vpc.html
+          title: Amazon EKS - Networking in Amazon VPC
       desc: |
         This check ensures that Amazon EKS clusters are configured with private endpoint access. By default, EKS clusters are accessible over the public internet, which can expose them to potential attacks. Configuring private endpoint access restricts access to the cluster's API server to resources within the VPC.
 
@@ -325,11 +330,6 @@ queries:
                     EndpointPrivateAccess: true
                     EndpointPublicAccess: false
             ```
-      refs:
-        - url: https://docs.aws.amazon.com/eks/latest/userguide/pod-networking.html
-          title: Amazon EKS - Pod networking
-        - url: https://docs.aws.amazon.com/eks/latest/userguide/networking-vpc.html
-          title: Amazon EKS - Networking in Amazon VPC
   - uid: mondoo-aws-security-eks-cluster-private-controlplane-api
     filters: asset.platform == "aws-eks-cluster"
     mql: |
