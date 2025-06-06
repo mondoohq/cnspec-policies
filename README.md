@@ -2,7 +2,7 @@
 
 **⚠️ This repository has been archived as of June 6, 2025.**
 
-The cnquery query packs have been moved to the main cnquery repository:
+The cnquery query packs have been moved to the main cnspec repository:
 **https://github.com/mondoohq/cnspec/tree/main/content**
 
 This project contains security and operational best-practice policies (as code) for use with [cnspec](https://github.com/mondoohq/cnspec).
